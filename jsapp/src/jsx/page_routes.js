@@ -158,8 +158,8 @@ class NewRoute extends React.Component {
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Context"  className="mandatory"/></Col>
 					<Col sm={10}>
 						<FormControl componentClass="select" name="context" placeholder="select">
-							<option value="default">default</option>
-							<option value="public">public</option>
+							<option value="default"><T.span text="default" /></option>
+							<option value="public"><T.span text="public" /></option>
 						</FormControl>
 					</Col>
 				</FormGroup>

@@ -429,7 +429,7 @@ class GatewaysPage extends React.Component {
 		var rows = this.state.rows.map(function(row) {
 			return <tr key={row.id} className={row.class_name}>
 					<td>{row.id}</td>
-					<td><Link to={`/settings/gateways/${row.id}`}>{row.name}</Link></td>
+					<td><Link to={`/settings/Dicts/${row.id}`}>{row.name}</Link></td>
 					<td>{row.realm}</td>
 					<td>{row.username}</td>
 					<td>{row.register}</td>
