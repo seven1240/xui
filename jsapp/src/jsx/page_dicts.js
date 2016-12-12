@@ -220,7 +220,7 @@ class DictPage extends React.Component {
 				<Button><T.span onClick={this.handleControlClick} text="Edit"/></Button>
 			</ButtonGroup>
 
-			<h1>{dt.name} <small>{dt.extn}</small></h1>
+			<h1>{dt.realm} <small>{dt.extn}</small></h1>
 			<hr/>
 
 			<Form horizontal id="newDictForm">
@@ -341,7 +341,7 @@ class DictsPage extends React.Component {
 		var rows = this.state.rows.map(function(row) {
 			return <tr key={row.id}>
 					<td>{row.id}</td>
-					<td><Link to={`/settings/Dicts/${row.id}`}>{row.realm}</Link></td>
+					<td><Link to={`/settings/dicts/${row.id}`}>{row.realm}</Link></td>
 					<td>{row.key}</td>
 					<td>{row.value}</td>
 					<td>{row.description}</td>
