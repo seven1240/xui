@@ -168,11 +168,11 @@ class NewRoute extends React.Component {
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Dest Type" /></Col>
 					<Col sm={10}>
 						<FormControl componentClass="select" name="dest_type" onChange={this.handleDestTypeChange}>
-							<option value="FS_DEST_USER">Local User</option>
-							<option value="FS_DEST_GATEWAY">Gateway</option>
-							<option value="FS_DEST_IP">IP</option>
-							<option value="FS_DEST_IVRBLOCK">IVR Block</option>
-							<option value="FS_DEST_SYSTEM">System</option>
+							<option value="FS_DEST_USER"><T.span text="Local User" /></option>
+							<option value="FS_DEST_GATEWAY"><T.span text="Gateway" /></option>
+							<option value="FS_DEST_IP"><T.span text="IP" /></option>
+							<option value="FS_DEST_IVRBLOCK"><T.span text="IVR Block" /></option>
+							<option value="FS_DEST_SYSTEM"><T.span text="System" /></option>
 						</FormControl>
 					</Col>
 				</FormGroup>
