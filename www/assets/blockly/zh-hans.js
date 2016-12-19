@@ -410,3 +410,8 @@ Blockly.Msg.FS_BLOCK_VOICE = "声音";
 Blockly.Msg.FS_BLOCK_GET = "获取";
 Blockly.Msg.FS_BLOCK_SET = "设置";
 Blockly.Msg.FS_BLOCK_FILE = "文件";
+Blockly.Msg.FS_BLOCK_IVRSTART = "开始互动式语音应答";
+Blockly.Msg.FS_BLOCK_DEFAULT = "默认";
+Blockly.Msg.FS_BLOCK_IVR = "互动式语音应答";
+Blockly.Msg.FS_BLOCK_CASE = "例子";
+

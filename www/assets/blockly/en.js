@@ -408,3 +408,7 @@ Blockly.Msg.FS_BLOCK_VOICE = "Voice";
 Blockly.Msg.FS_BLOCK_GET = "Get";
 Blockly.Msg.FS_BLOCK_SET = "Set";
 Blockly.Msg.FS_BLOCK_FILE = "File";
+Blockly.Msg.FS_BLOCK_DEFAULT = "Default";
+Blockly.Msg.FS_BLOCK_IVRSTART = "IVR Start Point";
+Blockly.Msg.FS_BLOCK_IVR = "IVR";
+Blockly.Msg.FS_BLOCK_CASE = "Case";

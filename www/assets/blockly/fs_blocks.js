@@ -201,7 +201,7 @@ var FSAPPs = [
 Blockly.Blocks['fsStart'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("IVR Start Point");
+        .appendField(Blockly.Msg.FS_BLOCK_IVRSTART);
     this.setNextStatement(true);
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
@@ -246,11 +246,10 @@ Blockly.Blocks['fsConsoleLog'] = {
 
 Blockly.Blocks['fsSetTTS'] = {
   init: function() {
-    this.appendDummyInput()
+    this.appendValueInput("TTSENGINE")
         .appendField(Blockly.Msg.FS_BLOCK_TTSENGINE)
-        .appendField(new Blockly.FieldTextInput("tts_commandline"), "engine")
+    this.appendValueInput("VOICE")
         .appendField(Blockly.Msg.FS_BLOCK_VOICE)
-        .appendField(new Blockly.FieldTextInput("Ting-Ting"), "voice");
     this.setInputsInline(true);
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -318,17 +317,17 @@ Blockly.Blocks['fsSessionSet'] = {
 
 Blockly.Blocks['fsSessionRead'] = {
     init: function() {
-        this.appendDummyInput()
+        this.appendValueInput("MIN")
             .appendField(Blockly.Msg.FS_BLOCK_READDTMF)
             .appendField(Blockly.Msg.FS_BLOCK_MIN)
-            .appendField(new Blockly.FieldTextInput("4"), "min")
+        this.appendValueInput("MAX")
             .appendField(Blockly.Msg.FS_BLOCK_MAX)
-            .appendField(new Blockly.FieldTextInput("11"), "max");
         this.appendDummyInput()
             .appendField(Blockly.Msg.FS_BLOCK_VAR)
             .appendField(new Blockly.FieldVariable("digits"), "digits")
+        this.appendValueInput("TIMEOUT")
             .appendField(Blockly.Msg.FS_BLOCK_TIMEOUT)
-            .appendField(new Blockly.FieldTextInput("5000"), "timeout")
+        this.appendDummyInput()
             .appendField(Blockly.Msg.FS_BLOCK_TERMINATOR)
             .appendField(new Blockly.FieldTextInput("#"), "terminator");
         this.appendValueInput("sound")
@@ -363,15 +362,15 @@ Blockly.Blocks['fsSessionExecute'] = {
 Blockly.Blocks['IVR'] = {
     init: function() {
         this.appendDummyInput()
-            .appendField("IVR")
+            .appendField(Blockly.Msg.FS_BLOCK_IVR)
         this.appendValueInput("sound")
-            .appendField("Sound")
+            .appendField(Blockly.Msg.FS_BLOCK_SOUND)
         this.appendDummyInput()
-            .appendField("Max")
-            .appendField(new Blockly.FieldTextInput("1"), "max");
+        this.appendValueInput("MAX")
+            .appendField(Blockly.Msg.FS_BLOCK_MAX)
         this.appendStatementInput("entries");
         this.appendDummyInput()
-            .appendField("Default");
+            .appendField(Blockly.Msg.FS_BLOCK_DEFAULT);
         this.appendStatementInput("default");
         this.setPreviousStatement(true);
         this.setNextStatement(true);
@@ -382,9 +381,9 @@ Blockly.Blocks['IVR'] = {
 
 Blockly.Blocks['IVREntry'] = {
     init: function() {
+        this.appendValueInput("case")
+            .appendField(Blockly.Msg.FS_BLOCK_CASE)
         this.appendDummyInput()
-            .appendField("Case")
-            .appendField(new Blockly.FieldTextInput("1"), "digit");
         this.appendStatementInput("actions");
         this.setPreviousStatement(true);
         this.setNextStatement(true);

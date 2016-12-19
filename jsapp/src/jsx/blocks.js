@@ -81,8 +81,25 @@ class BlockPage extends React.Component {
 var toolbox = `<xml id="toolbox" style="display: none">
 <category name="IVR" colour="0">
 	<block type="fsStart"></block>
-	<block type="IVR"></block>
-	<block type="IVREntry"></block>
+	<block type="IVR">
+         <value name="sound">
+            <shadow type="text">
+             <field name="Sound"></field>
+           </shadow>
+         </value>
+         <value name="MAX">
+            <shadow type="text">
+             <field name="Max"></field>
+           </shadow>
+         </value>
+        </block>
+	<block type="IVREntry">
+         <value name="case">
+            <shadow type="text">
+             <field name="Case"></field>
+           </shadow>
+         </value>
+       </block>
 </category>
 
 <category name="FreeSWITCH" colour="10">
@@ -93,11 +110,28 @@ var toolbox = `<xml id="toolbox" style="display: none">
           </shadow>
         </value>
 	</block>
-	<block type="fsSetTTS"></block>
+	<block type="fsSetTTS">
+         <value name="TTSENGINE">
+            <shadow type="text">
+             <field name="TTSENGINE"></field>
+           </shadow>
+         </value>
+         <value name="VOICE">
+            <shadow type="text">
+             <field name="VOICE"></field>
+           </shadow>
+         </value>
+        </block>
 	<block type="fsFilePath"></block>
 	<block type="fsSessionAnswer"></block>
 	<block type="fsSessionGet"></block>
-	<block type="fsSessionSet"></block>
+	<block type="fsSessionSet">
+         <value name="args">
+            <shadow type="text">
+             <field name="SET"></field>
+           </shadow>
+         </value>
+        </block>
 	<block type="fsSessionPlay">
           <value name="args">
             <shadow type="text">
@@ -112,7 +146,28 @@ var toolbox = `<xml id="toolbox" style="display: none">
            </shadow>
          </value>
         </block>
-	<block type="fsSessionRead"></block>
+	<block type="fsSessionRead">
+          <value name="MIN">
+            <shadow type="text">
+             <field name="MIN"></field>
+           </shadow>
+         </value>
+         <value name="MAX">
+            <shadow type="text">
+             <field name="MAX"></field>
+           </shadow>
+         </value>
+         <value name="TIMEOUT">
+            <shadow type="text">
+             <field name="TIMEOUT"></field>
+           </shadow>
+         </value>
+        <value name="sound">
+            <shadow type="text">
+             <field name="SOUND"></field>
+           </shadow>
+         </value>
+        </block>
 	<block type="fsSessionExecute"></block>
 </category>
 
