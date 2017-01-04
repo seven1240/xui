@@ -101,9 +101,6 @@ function verto_params() {
 	var protocol = window.location.protocol == "https:" ? "wss://" : "ws://";
 	var username = localStorage.getItem('xui.username');
 	var password = localStorage.getItem('xui.password');
-	var vid_width = localStorage.getItem("phone.video.width");
-	if (vid_width == null) { vid_width = 800;}
-	var vid_height = 600;
 
 	return {
 		login: username + "@" + host,
@@ -111,6 +108,8 @@ function verto_params() {
 		socketUrl: protocol + host + ":" + window.location.port,
 		tag: "webcam",
 		ringFile: "/assets/sounds/bell_ring2.mp3",
+		audioParams: {
+		},
 		iceServers: [
 		// { url: 'stun:[YOUR_STUN_SERVER]',}
 		],

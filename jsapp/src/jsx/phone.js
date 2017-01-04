@@ -153,21 +153,6 @@ var Phone = React.createClass({
 			caller_id_number: '0000',
 			useVideo: useVideo,
 			useStereo: true,
-			audioParams: {
-				googAutoGainControl: false,
-				googNoiseSuppression: false,
-				googHighpassFilter: false
-			},
-			videoParams: {
-				"minWidth": vid_width,
-				"minHeight": vid_height,
-				"maxWidth": vid_width,
-				"maxHeight": vid_height,
-				"minFrameRate": 15,
-				"vertoBestFrameRate": 30
-			},
-			outgoingBandwidth: 'default',
-			incomingBandwidth: 'default',
 			deviceParams: {
 				useMic: 'any',
 				useSpeak: 'any',
@@ -237,13 +222,6 @@ var Phone = React.createClass({
 		var audioOrVideo = null;
 		var xtopDisplay = null;
 		var textDisplay = null;
-		var ishttps = 'https:' == document.location.protocol ? true: false;
-
-		if (!ishttps) {
-			return <NavItem eventKey="phone">
-				<T.span id="phone-static" className={state} text={{ key: "Socket Already Connected"}} onClick={this.handleMenuClick} />
-			</NavItem>
-		}
 
 		var DTMFs = <div style={{display: this.state.dtmfVisible ? "block" : "none"}}>
 		<div className="row">
