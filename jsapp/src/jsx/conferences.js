@@ -99,7 +99,7 @@ class NewRoom extends React.Component {
 
 				<FormGroup controlId="formDescription">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Description" /></Col>
-					<Col sm={10}><FormControl type="input" name="description" placeholder="Beijing" /></Col>
+					<Col sm={10}><FormControl type="input" name="description" placeholder="A Test Room" /></Col>
 				</FormGroup>
 
 				<FormGroup controlId="fromNumber">
@@ -165,7 +165,7 @@ class Conferences extends React.Component {
 		const defaultActiveKey = this.state.rows.length > 0 ? this.state.rows[0].id : 0;
 
 		let items = this.state.rows.map(function(room) {
-			return <NavItem eventKey={room.id} key={room.id}>{room.name}</NavItem>;
+			return <NavItem eventKey={room.id} key={room.id} title={room.description}>{room.name}<br/><small>{room.nbr}</small></NavItem>;
 		});
 
 		let panes = this.state.rows.map(function(room) {
