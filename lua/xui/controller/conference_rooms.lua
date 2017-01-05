@@ -35,19 +35,19 @@ require 'xdb'
 xdb.bind(xtra.dbh)
 
 get('/', function(params)
-	n, blocks = xdb.find_all("conference_rooms")
+	n, rooms = xdb.find_all("conference_rooms")
 
 	if (n > 0) then
-		return blocks
+		return rooms
 	else
 		return "[]"
 	end
 end)
 
 get('/:id', function(params)
-	user = xdb.find("conference_rooms", params.id)
-	if user then
-		return user
+	room = xdb.find("conference_rooms", params.id)
+	if room then
+		return room
 	else
 		return 404
 	end
