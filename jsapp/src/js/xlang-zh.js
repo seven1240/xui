@@ -8,7 +8,6 @@ LANGUAGES["zh"] = {
 	CDR: "话单",
 	About: "关于",
 	Phone: "电话",
-	"Socket Already Connected": "Socket已连接",
 	Settings: "设置",
 	"Socket Already Connected": "Socket已连接",
 	Profiles: "Profiles",
