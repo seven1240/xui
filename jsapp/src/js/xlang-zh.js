@@ -138,6 +138,7 @@ LANGUAGES["zh"] = {
 	Control: "控制",
 	Template: "模板",
 	Upload: "上传",
+	Modules: "模块",
 
 	Copyright: "版权所有 2016-2017 烟台小樱桃网络科技有限公司 保留所有权利",
 	the_last_line_______: "Don't put anything beyond this line"

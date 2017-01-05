@@ -34,9 +34,6 @@ import React from 'react';
 import T from 'i18n-react';
 import { Modal, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Radio, Col } from 'react-bootstrap';
 import { Link } from 'react-router';
-// http://kaivi.github.io/riek/
-import { RIEToggle, RIEInput, RIETextArea, RIENumber, RIETags, RIESelect } from 'riek'
-import { EditControl } from './xtools'
 
 class ModulePage extends React.Component {
 	constructor(props) {
@@ -47,7 +44,7 @@ class ModulePage extends React.Component {
 		// This binding is necessary to make `this` work in the callback
 		this.handleToggleParam = this.handleToggleParam.bind(this);
 		this.handleSort = this.handleSort.bind(this);
-		this.handleChange = this.handleChange.bind(this);
+		this.handleControlClick = this.handleControlClick.bind(this);
 	}
 
 	handleToggleParam(e) {
@@ -77,10 +74,6 @@ class ModulePage extends React.Component {
 		});
 	}
 
-	isStringAcceptable() {
-		return true;
-	}
-
 	componentDidMount() {
 		var _this = this;
 		$.getJSON("/api/modules/" , "", function(data) {
@@ -107,8 +100,22 @@ class ModulePage extends React.Component {
 		_this.setState({rows: rows, edit: false});
 	}
 
-	handleChange(obj) {
-		
+	handleControlClick(e) {
+		var data = e.target.getAttribute("data");
+		console.log("data", data);
+		var id = e.target.getAttribute("id");
+		var rows = this.state.rows;
+
+		if (data == "load") {
+			fsAPI("load", rows[id-1].k);
+			console.log(rows[id-1].k);
+		} else if (data == "unload") {
+			fsAPI("unload", rows[id-1].k);
+			console.log(rows[id-1].k);
+		} else if (data == "reload") {
+			fsAPI("reload", rows[id-1].k);
+			console.log(rows[id-1].k);
+		}
 	}
 
 	render() {
@@ -121,25 +128,24 @@ class ModulePage extends React.Component {
 
 				return <tr key={row.id} className={disabled_class}>
 					<td>{row.k}</td>
-					<td><RIEInput value={row.v} change={_this.handleChange}
-						propName={row.id}
-						className={_this.state.highlight ? "editable" : ""}
-						validate={_this.isStringAcceptable}
-						classLoading="loading"
-						classInvalid="invalid"/>
-					</td>
 					<td><Button onClick={_this.handleToggleParam} data={row.id}>{dbfalse(row.disabled) ? "Yes" : "No"}</Button></td>
+					<td>
+						<T.a onClick={_this.handleControlClick} id={row.id} data="load" text="Load"/> |
+						<T.a onClick={_this.handleControlClick} id={row.id} data="unload" text="Unload"/> |
+						<T.a onClick={_this.handleControlClick} id={row.id} data="reload" text="Reload"/> |
+						<span>{row.class_name}</span>
+					</td>
 				</tr>
 			});
 
 		return <div>
-			<h2>Params</h2>
+			<h2><T.span text="Modules"/></h2>
 			<table className="table">
 				<tbody>
 				<tr>
 					<th>Name</th>
-					<th>Value</th>
 					<th onClick={this.handleSort.bind(this)}>Enabled</th>
+					<th><T.span text="Control"/></th>
 				</tr>
 				{rows}
 				</tbody>
