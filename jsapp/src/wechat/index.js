@@ -94,12 +94,8 @@ class Home extends React.Component {
 									<span className="weui-form-preview__value">{comment.created_epoch}</span>
 								</div>
 								<div className="weui-form-preview__item">
-									<label className="weui-form-preview__label" style={{color:"black",fontSize:"15px"}}>{comment.content}</label>
+									<label className="weui-form-preview__label" style={{color:"black",fontSize:"15px"}}>{comment.content.slice(0,20)}</label>
 									<span className="weui-form-preview__value"></span>
-								</div>
-								<div className="weui-form-preview__item">
-									<label className="weui-form-preview__label">&nbsp;</label>
-									<span className="weui-form-preview__value">&nbsp;</span>
 								</div>
 							</div>
 						</div>
@@ -260,7 +256,6 @@ class Comment extends React.Component {
 			console.log("comments_aaaaa", data)
 			this.setState({content: data})
 		}).catch((msg) => {
-			
 		});
 	}
 	handleInput(e) {
@@ -276,7 +271,6 @@ class Comment extends React.Component {
 			}).then((data) => {
 				ReactDOM.render(<Home/>, document.getElementById('main'));
 			}).catch((e) => {
-			
 			});
 		}
 	}
@@ -302,19 +296,24 @@ class Comment extends React.Component {
 					</div>
 				</a>
 		})
+		const current_img = _this.state.localIds.map((c_img) => {
+			return <div>
+					<img src={c_img} style={{width:"120px",height:"120px"}}/><a onClick={ () => _this.delLocalId(c_img)}>X</a>
+				</div>
+		})
 		return <div className="weui-form-preview">
 				<div className="weui-form-preview__ft">
 				</div>
 				<article className="weui-article">
 					<section>
-						<p>{this.state.content.content}</p>
+						<p>{_this.state.content.content}</p>
 					</section>
 				</article>
 				<br/>
 				<div className="weui-cells weui-cells_form">
 					<div className="weui-cell">
 						<div className="weui-cell__bd">
-							<textarea className="weui-textarea" placeholder="请输入内容" onChange={this.handleInput.bind(this)} rows="3"></textarea>
+							<textarea className="weui-textarea" placeholder="请输入内容" onChange={_this.handleInput.bind(this)} rows="3"></textarea>
 						</div>
 					</div>
 				</div>
@@ -451,23 +450,21 @@ class Tickets extends React.Component {
 	render() {
 		var _this = this;
 		const tickets = this.state.tickets.map((ticket) => {
-			return <div className="weui-panel__bd" onClick={() => _this.handleClick(ticket.id)} key={ticket.id} >
-					<div className="weui-form-preview__bd">
+			return <div className="weui-form-preview__bd" onClick={() => _this.handleClick(ticket.id)} key={ticket.id} >
 						<div className="weui-form-preview__item">
-							<label className="weui-form-preview__label" style={{color:"black"}}>主题:{ticket.subject}</label>
-							<span className="weui-form-preview__value" style={{color:"black"}}>来电:{ticket.cid_number}</span>
+							<label className="weui-form-preview__label" style={{color:"black"}}>{ticket.subject}</label>
+							<span className="weui-form-preview__value" style={{color:"black"}}>{ticket.cid_number}</span>
 						</div>
 						<div className="weui-form-preview__item">
-							<label className="weui-form-preview__label">类型:{ticket.dtype}</label>
+							<label className="weui-form-preview__label">{ticket.content.slice(0,20)}</label>
 							<span className="weui-form-preview__value"></span>
 						</div>
 						<div className="weui-form-preview__item">
-							<label className="weui-form-preview__label" style={{fontSize:"12px"}}>时间:{ticket.created_epoch}</label>
-							<span className="weui-form-preview__value" style={{fontSize:"12px"}}>状态:{ticket_status[ticket.status]}</span>
+							<label className="weui-form-preview__label" style={{fontSize:"12px"}}>{ticket.created_epoch}</label>
+							<span className="weui-form-preview__value" style={{fontSize:"12px"}}>{ticket_status[ticket.status]}</span>
 						</div>
-					</div>
 					<div className="weui-form-preview__ft"></div>
-				</div>
+					</div>
 		});
 		console.log("tickets", tickets);
 		return <div className="weui-panel">
