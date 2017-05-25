@@ -33,6 +33,7 @@ LANGUAGES["zh"] = {
 	Author: "作者",
 	Version: "版本",
 	Phone: "电话",
+	"Incoming Call": "新来电",
 	"Socket Connected": "Socket已连接",
 	Settings: "设置",
 	Profiles: "Profiles",

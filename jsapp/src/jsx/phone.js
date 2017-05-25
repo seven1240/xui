@@ -220,7 +220,7 @@ class Phone extends React.Component {
 	}
 
 	handleAnswer () {
-		console.log('kdsjfaskdfjasfjasdfa', this.state.curCall);
+		console.log('curCall', this.state.curCall);
 
 		const ds = getXUIDeviceSettings();
 
@@ -289,10 +289,12 @@ class Phone extends React.Component {
 
 	render () {
 		var state;
+		var callButton = null;
 		var callButtonDisabled = false;
 		var hangupButton = null;
 		var transferButton = null;
 		var answerButton = null;
+		var callerID = null;
 		var toggleDTMF = <Button bsStyle="info" bsSize="xsmall" onClick={this.handleDTMF}>
 			<i className="fa fa-tty" aria-hidden="true"></i>&nbsp;
 			<T.span text= "DTMF" /></Button>;
@@ -354,13 +356,37 @@ class Phone extends React.Component {
 				<i className="fa fa-minus-circle" aria-hidden="true"></i>&nbsp;
 				<T.span text="Hangup" />
 			</Button>
-		}
 
-		if (this.state.curCall) {
 			transferButton = <Button bsStyle="warning" bsSize="xsmall" onClick={this.handleTransfer}>
 				<i className="fa fa-share-square-o" aria-hidden="true"></i>&nbsp;
 				<T.span text="Transfer" />
 			</Button>
+
+			console.log("curCall", this.state.curCall);
+			const call_params = this.state.curCall.params;
+
+			if (call_params.destination_number) {
+				callerID = <span style={{color: "lime"}}>
+					{state == "Active" ? null : <T.span text="Call"/>}&nbsp;
+					{call_params.destination_number}
+				</span>
+			} else {
+				callerID = <span style={{color: "lime"}}>
+					{state == "Active" ? null : <T.span text="Incoming Call"/>}&nbsp;
+					{call_params.caller_id_name + " <" + call_params.caller_id_number + "> "}
+				</span>
+			}
+		} else {
+			callButton = <span>
+				<input id='top_dest_number' value={this.state.destNumber} onChange={this.handleDestNumberChange}
+					style={{color: "#776969", border: 0, backgroundColor: "#FFF", width: "80pt", textAlign: "right"}}/>
+					&nbsp;&nbsp;
+
+				<Button bsStyle="success" bsSize="xsmall" onClick={this.handleCall}>
+					<i className="fa fa-phone" aria-hidden="true"></i>&nbsp;
+					<T.span text="Call" />
+				</Button>
+			</span>
 		}
 
 		audioOrVideo = <Button bsStyle={this.state.useVideo ? 'warning' : 'primary'} bsSize="xsmall" disabled={this.state.curCall ? true : false} onClick={this.state.curCall ? null: this.toggleVideo}>
@@ -374,26 +400,25 @@ class Phone extends React.Component {
 		}
 
 		if (this.state.callState == "Ringing") {
-			this.state.displayState = true;
+			this.state.displayState = this.state.displayStyle == 'xtop' ? false : true;
 			answerButton = <Button bsStyle="primary" bsSize="xsmall" onClick={this.handleAnswer}>
 				<i className="fa fa-phone" aria-hidden="true"></i>&nbsp;
 				<T.span text="Answer" />
 			</Button>
 		}
 
+
 		if (this.state.displayStyle == "xtop") {
 			xtopDisplay = <span>
-				<input id='top_dest_number' value={this.state.destNumber} onChange={this.handleDestNumberChange}
-					style={{color: "#776969", border: 0, backgroundColor: "#FFF", width: "80pt", textAlign: "right"}}/>
-				&nbsp;&nbsp;
-				<Button bsStyle="success" bsSize="xsmall" onClick={this.handleCall}>
-					<i className="fa fa-phone" aria-hidden="true"></i>&nbsp;
-					<T.span text="Call" />
-				</Button>&nbsp;
+				{callerID}&nbsp;
+				{callButton}&nbsp;
+				{answerButton}&nbsp;
 				{hangupButton}&nbsp;
 				{transferButton}
 				&nbsp;&nbsp;
 			</span>
+		} else {
+			xtopDisplay = callerID;
 		}
 
 		if (this.state.curCall) {
