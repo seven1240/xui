@@ -44,13 +44,14 @@ import { CDRsPage, CDRPage } from "../page_cdrs";
 import { FifoCDRsPage, FifoCDRPage } from "../page_fifo_cdrs";
 import {McastsPage, McastPage} from "../page_mcasts";
 import AboutPage from "../page_about";
-import DashBoard from "../dashboard";
+import DashBoard from "./dashboard";
 import OverViewPage from "../page_overview";
 import ChannelsPage from "../page_channels";
 import RegistrationsPage from "../page_registrations";
 import CallsPage from "../page_calls";
 import FSUsersPage from "../page_fs_users";
 import SofiaPage from "../page_sofia";
+import MonitorPage from '../page_monitor';
 import Conferences from '../conferences';
 import SystemPage from '../page_system';
 import { FifoPage, FifoInfo, FifoMemberPage } from '../page_fifos';
@@ -69,14 +70,16 @@ import { MediaFilesPage, MediaFilePage } from '../page_media_files';
 import { Login, LoginBox } from '../page_login';
 import Footer from '../footer';
 import Terminal from '../terminal';
-import verto from './verto/verto';
+import verto from '../verto/verto';
 
 const lang_map = detect_language();
 if (lang_map) T.setTexts(lang_map);
 
 const MENUS = [
 	// {id: "MM_CONFERENCES", description: <T.span text={{ key: "Conference"}} />, data: '/conferences'},
-	// {id: "MM_CDRS", description: <T.span text={{ key: "CDR"}} />, data: '/cdrs'},
+	{id: "MM_MONITOR", description: <T.span text={{ key: "Monitor"}} />, data: '/monitor'},
+	{id: "MM_BCAST", description: <T.span text={{ key: "Broadcast"}} />, data: '/settings/mcasts'},
+	{id: "MM_CDRS", description: <T.span text={{ key: "CDR"}} />, data: '/cdrs'},
 	{id: "MM_ABOUT", description: <T.span text={{ key: "About"}} />, data: '/about'}
 ];
 
@@ -153,6 +156,8 @@ class Home extends React.Component{
 
 				<Route path="about" component={AboutPage} />
 				<Route path="logout" component={LoginBox} onEnter={handleLogout}/>
+
+				<Route path="monitor" component={MonitorPage} />
 
 				<Route path="conferences" component={Conferences} />
 

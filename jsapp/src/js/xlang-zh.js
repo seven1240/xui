@@ -323,6 +323,7 @@ LANGUAGES["zh"] = {
 
 
 	"Multicasts": "组播",
+	"Broadcast": "广播",
 	"Source": "源",
 	"Codec Name": "编码",
 	"Codec Ms": "打包时间间隔",
