@@ -13,6 +13,6 @@
   </settings>
   <templates>
     <!-- Note that field order must match SQL table schema, otherwise insert will fail -->
-    <template name="example">"${caller_id_name}","${caller_id_number}","${destination_number}","${context}","${start_stamp}","${answer_stamp}","${end_stamp}",${duration},${billsec},"${hangup_cause}","${uuid}","${bleg_uuid}","${accountcode}"</template>
+    <template name="example">"${caller_id_name}","${caller_id_number}","${destination_number}","${context}","${start_stamp}","${answer_stamp}","${end_stamp}",${duration},${billsec},"${hangup_cause}","${uuid}","${bleg_uuid}","${accountcode}","${sip_hangup_disposition}"</template>
   </templates>
 </configuration>

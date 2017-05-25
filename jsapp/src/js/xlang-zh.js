@@ -263,6 +263,7 @@ LANGUAGES["zh"] = {
 	Duration: "总时长",
 	"Bill Sec": "计费时长",
 	Cause: "挂机原因",
+	Disposition: "SIP相关",
 	"Account Code": "计费号码",
 	"Import New Users": "导入新用户",
 	"FIFO CDR": "队列话单",

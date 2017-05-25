@@ -265,6 +265,7 @@ class CDRsPage extends React.Component {
 				<td>{row.billsec}</td>
 				<td>{row.hangup_cause}</td>
 				<td>{row.account_code}</td>
+				<td>{row.sip_hangup_disposition}</td>
 				<td><a onClick={()=>{_this.setState({formShow: true, uuid: row.uuid})}} style={{cursor: "pointer"}}>{T.translate("Detail")}</a></td>
 			</tr>
 		})
@@ -363,6 +364,7 @@ class CDRsPage extends React.Component {
 					<th><T.span text="Bill Sec"/></th>
 					<th><T.span text="Cause"/></th>
 					<th><T.span text="Account Code"/></th>
+					<th><T.span text="Disposition"/></th>
 					<th><T.span text="Detail"/></th>
 				</tr>
 				{rows}
