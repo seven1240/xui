@@ -68,61 +68,27 @@ class Settings extends React.Component {
 					<T.span text="Routes"/>
 				</NavItem>
 			</LinkContainer>
-			<LinkContainer to="/settings/blocks" key="M_BLOCKS">
-				<NavItem eventKey="M_BLOCKS">
-					<i className="fa fa-cubes" aria-hidden="true"></i>&nbsp;
-					<T.span text="Blocks"/>
-				</NavItem>
-			</LinkContainer>
-			<LinkContainer to="/settings/conference_rooms" key="M_CONFERECE_ROOMS">
-				<NavItem eventKey="M_CONFERECE_ROOMS">
-					<i className="fa fa-users" aria-hidden="true"></i>&nbsp;
-					<T.span text="Conference Rooms"/>
-				</NavItem>
-			</LinkContainer>
-			<LinkContainer to="/settings/conference_profiles" key="M_CONFERECE_PROFILES">
-				<NavItem eventKey="M_CONFERECE_PROFILES">
-					<i className="fa fa-file-text" aria-hidden="true"></i>&nbsp;
-				<T.span text="Conference Profiles"/>
-				</NavItem>
-			</LinkContainer>
+
 			<LinkContainer to="/settings/media_files" key="M_MEDIA_FILES">
 				<NavItem eventKey="M_MEDIA_FILES">
 					<i className="fa fa-file-sound-o" aria-hidden="true"></i>&nbsp;
 					<T.span text="Media Files"/>
 				</NavItem>
 			</LinkContainer>
-			<LinkContainer to="/settings/dicts" key="M_DICTS">
-				<NavItem eventKey="M_DICTS">
-					<i className="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;
-					<T.span text="Dicts"/>
-				</NavItem>
-			</LinkContainer>
+
 			<LinkContainer to="/settings/module" key="M_MODULE">
 				<NavItem eventKey="M_MODULE">
 					<i className="fa fa-cube" aria-hidden="true"></i>&nbsp;
 					<T.span text="Modules"/>
 				</NavItem>
 			</LinkContainer>
+
 			<LinkContainer to="/settings/mcasts" key="M_Multicasts">
 				<NavItem eventKey="M_Multicasts">
 					<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
 					<T.span text="Multicasts"/>
 				</NavItem>
 			</LinkContainer>
-			<LinkContainer to="/settings/term" key="M_TERM">
-				<NavItem eventKey="M_TERM">
-					<i className="fa fa-terminal" aria-hidden="true"></i>&nbsp;
-					<T.span text="Terminal"/>
-				</NavItem>
-			</LinkContainer>
-			<LinkContainer to="/settings/fifos" key="M_FIFO">
-				<NavItem eventKey="M_FIFO">
-					<i className="fa fa-street-view" aria-hidden="true"></i>&nbsp;
-					<T.span text="FIFOs"/>
-				</NavItem>
-			</LinkContainer>
-
 
 
 			<LinkContainer to="/settings/system" key="M_SYSTEM">
