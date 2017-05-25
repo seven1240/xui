@@ -58,6 +58,7 @@ class Phone extends React.Component {
 		this.handleVertoDialogState = this.handleVertoDialogState.bind(this);
 		this.handleVertoPhoneOpen = this.handleVertoPhoneOpen.bind(this);
 		this.handleDestNumberChange = this.handleDestNumberChange.bind(this);
+		this.handleChangeDestNumber = this.handleChangeDestNumber.bind(this);
 		this.handleCall = this.handleCall.bind(this);
 		this.handleHangup = this.handleHangup.bind(this);
 		this.handleAnswer = this.handleAnswer.bind(this);
@@ -136,6 +137,11 @@ class Phone extends React.Component {
 
 	handleDestNumberChange (e) {
 		this.setState({destNumber: e.target.value});
+	}
+
+	handleChangeDestNumber (e) { // other place want to change the destNumber input
+		console.log("changeDestNumber:", e.detail);
+		this.setState({destNumber: e.detail});
 	}
 
 	handleCall () {
@@ -260,6 +266,7 @@ class Phone extends React.Component {
 		window.addEventListener("verto-disconnect", this.handleVertoDisconnect);
 		window.addEventListener("verto-dialog-state", this.handleVertoDialogState);
 		window.addEventListener("verto-phone-open", this.handleVertoPhoneOpen);
+		window.addEventListener("xui-phone-change-dest-number", this.handleChangeDestNumber);
 
 		if (verto_loginState) this.handleVertoLogin();
 

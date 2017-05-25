@@ -53,6 +53,7 @@ class TabContent extends React.Component {
 		let user = this.props.user;
 		let currentLoginUser = this.props.currentLoginUser;
 		if (user.channelCallState == "idle" && user.registerState == "registered" && currentLoginUser.channelCallState == "idle") {
+			fire_event("xui-phone-change-dest-number", user.userExten)
 
 			let curCall = verto.newCall({
 				destination_number: user.userExten,
@@ -61,6 +62,7 @@ class TabContent extends React.Component {
 				useVideo: false,
 				useStereo: false
 			});
+
 			this.props.handleCall(curCall);
 		}
 	}
@@ -131,10 +133,12 @@ class MonitorPage extends React.Component {
 		let users = this.state.users;
 		let activeKey = this.state.activeKey;
 		let currentLoginUser = this.state.currentLoginUser;
-		for (let i = 0; i < users.length; i++) {
+		for (let i = 0; i < 1; i++) { // only call the first selected user
 			if (users[i].groupID == activeKey && users[i].selectedState == "selected" &&
 				users[i].registerState == "registered" && users[i].channelCallState == "idle"
 				&& currentLoginUser.channelCallState == "idle") {
+
+				fire_event("xui-phone-change-dest-number", users[i].userExten)
 				let curCall = verto.newCall({
 					destination_number: users[i].userExten,
 					caller_id_name: currentLoginUser.userName,
@@ -143,7 +147,9 @@ class MonitorPage extends React.Component {
 					useStereo: false
 				});
 
-				if (curCall) this.setState({curCall: curCall});
+				if (curCall) {
+					this.setState({curCall: curCall});
+				}
 				break;
 			}
 		}
