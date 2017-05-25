@@ -99,6 +99,9 @@ class MainMenu extends React.Component {
 					<IndexLinkContainer to="/settings/users/1">
 						<MenuItem eventKey={3.1}><T.span text="User Settings"/></MenuItem>
 					</IndexLinkContainer>
+					<IndexLinkContainer to="/settings/users/password">
+						<MenuItem eventKey={3.1}><T.span text="Change Password"/></MenuItem>
+					</IndexLinkContainer>
 					<MenuItem divider />
 					<IndexLinkContainer to="/logout">
 						<MenuItem eventKey={3.2}><T.span text="Logout"/></MenuItem>

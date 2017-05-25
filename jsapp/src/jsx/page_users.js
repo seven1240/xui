@@ -383,11 +383,6 @@ class UserPage extends React.Component {
 					<Col sm={10}><EditControl edit={this.state.edit} name="name" defaultValue={user.name}/></Col>
 				</FormGroup>
 
-				<FormGroup controlId="formPassword">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Password" className="mandatory"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="password" defaultValue={user.password} type="password"/></Col>
-				</FormGroup>
-
 				<FormGroup controlId="formVMPassword">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="VM Password"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} name="vm_password" defaultValue={user.vm_password} type="password" /></Col>

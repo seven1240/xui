@@ -74,6 +74,21 @@ get('/:id', function(params)
 	end
 end)
 
+put("/change_password", function(params)
+	req = params.request
+	user = xdb.find_one("users", {id = xtra.session.user_id, password = req.old_password})
+
+	if user then
+		ret = xdb.update("users", {id = user.id, password = req.password})
+
+		if ret == 1 then
+			return {}
+		end
+	end
+
+	return 403
+end)
+
 put('/:id', function(params)
 	print(serialize(params))
 	ret = xdb.update("users", params.request)

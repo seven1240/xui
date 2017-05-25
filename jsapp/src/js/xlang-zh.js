@@ -44,6 +44,12 @@ LANGUAGES["zh"] = {
 	Add: "添加",
 	"Click to Change": "点击修改...",
 	"Internal Error": "内部错误: {msg}",
+	"Change Password": "修改密码",
+	"Old Password": "旧密码",
+	"New Password": "新密码",
+	"Confirm Password": "确认密码",
+	"Password confirmation doesn't match": "两次密码确认不匹配",
+	"Password successfully changed": "密码修改成功",
 
 	Overview: "状态",
 	Calls: "呼叫",
