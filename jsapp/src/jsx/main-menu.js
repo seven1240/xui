@@ -97,7 +97,7 @@ class MainMenu extends React.Component {
 			<Nav pullRight>
 				<NavDropdown id='user_profile' eventKey={3} title={<img src="/assets/img/sit.png" />} noCaret>
 					<IndexLinkContainer to="/settings/users/1">
-						<MenuItem eventKey={3.1}><T.span text="User settings"/></MenuItem>
+						<MenuItem eventKey={3.1}><T.span text="User Settings"/></MenuItem>
 					</IndexLinkContainer>
 					<MenuItem divider />
 					<IndexLinkContainer to="/logout">
