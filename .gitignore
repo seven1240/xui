@@ -4,6 +4,7 @@ www/assets/js/xui.js
 jsapp/src/js/jsx/*.js
 # auto generated link
 jsapp/src/index.js
+jsapp/src/jsx/index.js
 www/index.html
 www/assets/js/jsx/*
 www/assets/css/xui.css
