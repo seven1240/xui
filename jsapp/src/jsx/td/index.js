@@ -71,6 +71,7 @@ import { Login, LoginBox } from '../page_login';
 import Footer from '../footer';
 import Terminal from '../terminal';
 import verto from '../verto/verto';
+import PasswordPage from '../page_password';
 
 const lang_map = detect_language();
 if (lang_map) T.setTexts(lang_map);
@@ -165,6 +166,7 @@ class Home extends React.Component{
 				    <IndexRoute components={{sidebar: Settings, main: UsersPage}}/>
 					<Route path="users">
 						<IndexRoute components={{sidebar: Settings, main: UsersPage}}/>
+						<Route path="password" components={{sidebar: Settings, main: PasswordPage}}/>
 						<Route path=":id" components={{sidebar: Settings, main: UserPage}}/>
 					</Route>
 					<Route path="groups">
