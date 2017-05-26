@@ -89,6 +89,22 @@ put("/change_password", function(params)
 	return 403
 end)
 
+put("/changepassword", function(params)
+	req = params.request
+	req.id = tonumber(req.id)
+	user = xdb.find_one("users", {id = req.id, password = req.old_password})
+
+	if user then
+		ret = xdb.update("users", {id = user.id, password = req.password})
+
+		if ret == 1 then
+			return {}
+		end
+	end
+
+	return 403
+end)
+
 put('/:id', function(params)
 	print(serialize(params))
 	ret = xdb.update("users", params.request)

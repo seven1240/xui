@@ -242,13 +242,15 @@ class UserPage extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {user: {}, edit: false, groups: [], wechat_user: {}, formShow: ''};
+		this.state = {user: {}, edit: false, groups: [], wechat_user: {}, formShow: '', style1: 'none'};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleControlClick = this.handleControlClick.bind(this);
 		this.handleGroup = this.handleGroup.bind(this);
 		this.handleUnBind = this.handleUnBind.bind(this);
+		this.handleChangePassword = this.handleChangePassword.bind(this);
+		this.handleControlPassword = this.handleControlPassword.bind(this);
 	}
 
 	handleSubmit(e) {
@@ -276,6 +278,10 @@ class UserPage extends React.Component {
 
 	handleControlClick(e) {
 		this.setState({edit: !this.state.edit});
+	}
+
+	handleControlPassword(e) {
+		this.setState({style1: 'block'});
 	}
 
 	handleUnBind(e) {
@@ -341,6 +347,31 @@ class UserPage extends React.Component {
 		});
 	}
 
+	handleChangePassword() {
+		var _this = this;
+		console.log("submit...");
+		var pass = form2json('#passwordForm');
+		pass.id = _this.state.user.id;
+		console.log('paasssssssssssssssssss', pass)
+
+		if (!pass.password || !(pass.password == pass.password2)) {
+			this.setState({errmsg: "Password confirmation doesn't match"});
+			return;
+		}
+
+		xFetchJSON("/api/users/changepassword", {
+			method: "PUT",
+			body: JSON.stringify(pass)
+		}).then((res) => {
+			console.log("res", res);
+			notify(<T.span text="Password successfully changed"/>);
+		}).catch((msg) => {
+			console.error("pass:", msg);
+			this.setState({errmsg: msg});
+		});
+		this.setState({style1: "none"});
+	}
+
 	render() {
 		const user = this.state.user;
 		const wechat_user = this.state.wechat_user;
@@ -361,10 +392,13 @@ class UserPage extends React.Component {
 		return <div>
 			<ButtonToolbar className="pull-right">
 			<ButtonGroup>
+				<Button onClick={this.handleControlPassword}><i className="fa fa-edit" aria-hidden="true"></i>&nbsp;
+					<T.span text="Change Password"/>
+				</Button>
 				{err_msg} { save_btn }
 				<Button onClick={this.handleControlClick}><i className="fa fa-edit" aria-hidden="true"></i>&nbsp;
 					<T.span text="Edit"/>
-			</Button>
+				</Button>
 			</ButtonGroup>
 			</ButtonToolbar>
 
@@ -426,6 +460,37 @@ class UserPage extends React.Component {
 					<Col sm={10}>{groups}</Col>
 				</FormGroup>
 			</Form>
+
+			<div style={{display: this.state.style1}}>
+			<h3><T.span text="Change Password"/></h3>
+			<Form horizontal id="passwordForm">
+				<FormGroup controlId="formOldPassword">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Old Password" className="mandatory"/></Col>
+					<Col sm={10}><FormControl type="password" name="old_password"/></Col>
+				</FormGroup>
+
+				<FormGroup controlId="formPassword">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="New Password" className="mandatory"/></Col>
+					<Col sm={10}><FormControl type="password" name="password" placeholder="a$veryComplicated-Passw0rd" /></Col>
+				</FormGroup>
+
+				<FormGroup controlId="formConfirmPassword">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Confirm Password" className="mandatory"/></Col>
+					<Col sm={10}><FormControl type="password" name="password2" placeholder="a$veryComplicated-Passw0rd" /></Col>
+				</FormGroup>
+
+				<FormGroup>
+					<Col smOffset={2} sm={10}>
+						<Button type="button" bsStyle="primary" onClick={this.handleChangePassword}>
+							<i className="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;
+							<T.span text="Save" />
+						</Button>
+						&nbsp;&nbsp;
+						<T.span className="danger" text={this.state.errmsg}/>
+					</Col>
+				</FormGroup>
+			</Form>
+			</div>
 
 			<br/>
 			<Form horizontal id="WechatUserForm" style={{display: this.state.formShow}}>
