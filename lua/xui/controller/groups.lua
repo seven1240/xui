@@ -121,7 +121,10 @@ get('/build_group_tree', function(params)
 
 	if n > 0 then
 		build_group_tree(parent_groups, groups_tab)
+	else
+		return "[]"
 	end
+
 	return groups_tab
 end)
 
@@ -132,6 +135,8 @@ get('/build_group_options_tree', function(params)
 
 	if n > 0 then
 		build_group_options_tree(parent_groups, options_tab)
+	else
+		return "[]"
 	end
 
 	return options_tab

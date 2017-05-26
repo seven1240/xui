@@ -215,8 +215,10 @@ class NewGroup extends React.Component {
 	render() {
 		const props = Object.assign({}, this.props);
 		delete props.handleNewGroupAdded;
+		const the_group_options = this.props.group_options;
+		delete props.group_options;
 
-		const group_options = this.props.group_options.map(function(option){
+		const group_options = the_group_options.map(function(option){
 			var text = option.name.replace(/ /g, String.fromCharCode(160))
 			return <option key={option} value={option.value}>{text}</option>
 		});
