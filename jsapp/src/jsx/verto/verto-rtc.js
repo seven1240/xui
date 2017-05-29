@@ -143,6 +143,8 @@ function FSRTCattachMediaStream(element, stream) {
 		}
 	}
 }
+// @TODO: exposed because it's used in verto communicator, needs fix
+window.FSRTCattachMediaStream = FSRTCattachMediaStream;
 
 function onRemoteStream(self, stream) {
 	if (self.options.useVideo) {
