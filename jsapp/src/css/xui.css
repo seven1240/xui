@@ -19,6 +19,9 @@
 }
 /* Phone Login State */
 #phone-static { color:green !important;}
+#phone-state.New { color:yellow !important; }
+#phone-state.Recovering { color:yellow !important; }
+#phone-state.Answering { color:yellow !important; }
 #phone-state.Trying { color:yellow !important; }
 #phone-state.Online { color:green !important;}
 #phone-state.Early { color:yellow !important; }
@@ -27,6 +30,7 @@
 #phone-state.Active { color:lime !important;}
 #phone-state.Busy { color:lime !important;}
 #phone-state.Offline { color:grey !important;}
+
 
 #dest_number{
 	margin-bottom: 5px;

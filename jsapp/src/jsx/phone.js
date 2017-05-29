@@ -35,6 +35,7 @@ import React from 'react';
 import T from 'i18n-react';
 import { NavItem,  Button } from 'react-bootstrap';
 import verto from './verto/verto';
+import { Verto } from './verto/verto';
 import { getXUIDeviceSettings } from './system/device';
 
 class Phone extends React.Component {
@@ -45,10 +46,11 @@ class Phone extends React.Component {
 			loginState: false,
 			callState: "Idle",
 			curCall: null,
+			shareCall: null,
 			cidName: "Anonymouse",
 			cidNum: "000000",
 			dtmfVisible: false,
-			useVideo: false,
+			videoMode: "audio",
 			destNumber: '',
 			displayStyle: null
 		};
@@ -62,8 +64,40 @@ class Phone extends React.Component {
 		this.handleCall = this.handleCall.bind(this);
 		this.handleHangup = this.handleHangup.bind(this);
 		this.handleAnswer = this.handleAnswer.bind(this);
+		this.handleShare = this.handleShare.bind(this);
 		this.handleDTMF = this.handleDTMF.bind(this);
 		this.toggleVideo = this.toggleVideo.bind(this);
+		this.inCall = this.inCall.bind(this);
+		this.translateCallState = this.translateCallState.bind(this);
+	}
+
+	inCall() {
+		return this.state.curCall || this.state.shareCall;
+	}
+
+	useVideo() {
+		return this.state.videoMode == "video" || this.state.videoMode == "screen";
+	}
+
+	translateCallState(state) {
+		switch (state) {
+			case Verto.enum.state.new:
+			case Verto.enum.state.trying:
+			case Verto.enum.state.recovering:
+			case Verto.enum.state.answering:
+			case Verto.enum.state.ringing:
+			case Verto.enum.state.early:
+			case Verto.enum.state.active:
+			case Verto.enum.state.held:
+				return state.name.replace(/\b\w/g, l => l.toUpperCase());
+				break;
+			case Verto.enum.state.hangup:
+			case Verto.enum.state.destroy:
+			case Verto.enum.state.purge:
+				return "Idle";
+			default:
+				return "INVALIDSTATE";
+		}
 	}
 
 	handleMenuClick () {
@@ -84,9 +118,29 @@ class Phone extends React.Component {
 	}
 
 	handleVertoDialogState (e) {
-		var d = e.detail;
-
+		var stateData = {}
+		const d = e.detail;
 		console.log("state", d.state);
+
+		if (d == this.state.shareCall) {
+			stateData.shareCall = d;
+			stateData.callState = this.translateCallState(d.state);
+
+			switch (d.state) {
+				case Verto.enum.state.early:
+				case Verto.enum.state.active:
+					break;
+				case Verto.enum.state.destroy:
+				case Verto.enum.state.purge:
+					stateData.shareCall = null;
+					break;
+				default:
+					break;
+			}
+
+			this.setState(stateData);
+			return;
+		}
 
 		// another call?
 		if (this.state.curCall && d.callID != this.state.curCall.callID) {
@@ -98,41 +152,22 @@ class Phone extends React.Component {
 			return;
 		}
 
+		stateData.curCall = d;
+
 		if (d.state.name == "ringing") {
-			this.setState({
-				curCall: d,
-				callState: "Ringing",
-				cidNum: d.params.caller_id_number
-			});
+			stateData.cidNum = d.params.caller_id_number;
 		} else if (d.state.name == "trying") {
-			this.setState({
-				curCall: d,
-				callState: "Trying"
-			});
 		} else if (d.state.name == "early") {
-			this.setState({
-				curCall: d,
-				callState: "Early"
-			});
 		} else if (d.state.name == "active") {
-			this.setState({
-				curCall: d,
-				callState: "Active",
-				cidName: d.cidString()
-			});
+			stateData.cidName = d.cidString();
 		} else if (d.state.name == "hangup") {
-			this.setState({
-				curCall: d,
-				callState: "Idle",
-				hangupCause: d.cause
-			});
+			stateData.hangupCause = d.cause;
 		} else if (d.state.name == "destroy") {
-			this.setState({
-				curCall: null,
-				callState: "Idle",
-				hangupCause: null
-			});
+			stateData.curCall = null;
 		}
+
+		stateData.callState = this.translateCallState(d.state);
+		this.setState(stateData);
 	}
 
 	handleDestNumberChange (e) {
@@ -145,6 +180,7 @@ class Phone extends React.Component {
 	}
 
 	handleCall () {
+		const _this = this;
 		var number = this.state.destNumber;
 		if (!number) {
 			this.setState({destNumber: localStorage.getItem("phone.destNumber")});
@@ -170,7 +206,7 @@ class Phone extends React.Component {
 
 		this.setState({callState: "Trying"});
 
-		let useVideo = this.state.useVideo;
+		let useVideo = this.useVideo();
 
 		const ds = getXUIDeviceSettings();
 		console.log('deviceSettings', ds);
@@ -203,7 +239,11 @@ class Phone extends React.Component {
 			});
 		}
 
-		// return;
+		if (this.state.videoMode == "screen") {
+			this.handleShare();
+			return;
+		}
+
 		verto.newCall({
 			destination_number: this.state.destNumber,
 			caller_id_name: localStorage.getItem('xui.username'),
@@ -221,11 +261,17 @@ class Phone extends React.Component {
 		});
 	}
 
-	handleHangup () {
-		this.state.curCall.hangup();
+	handleHangup() {
+		if (this.state.curCall) {
+			this.state.curCall.hangup();
+		}
+
+		if (this.state.shareCall) { // todo, handle this separately ?
+			this.state.shareCall.hangup();
+		}
 	}
 
-	handleAnswer () {
+	handleAnswer() {
 		console.log('curCall', this.state.curCall);
 
 		const ds = getXUIDeviceSettings();
@@ -238,7 +284,33 @@ class Phone extends React.Component {
 		});
 	}
 
-	handleDTMF (e) {
+	handleShare() {
+		const _this = this;
+		if (this.state.shareCall) {
+			this.state.shareCall.hangup();
+			return;
+		}
+
+		console.log("Attempting Screen Capture....");
+		notify("Attempting Screen Capture....");
+
+		getScreenId(function (error, sourceId, screen_constraints) {
+			_this.state.shareCall = verto.newCall({
+				destination_number: _this.state.destNumber,
+				caller_id_name: localStorage.getItem('xui.username'),
+				caller_id_number: localStorage.getItem('xui.username'),
+				// outgoingBandwidth: outgoingBandwidth,
+				// incomingBandwidth: incomingBandwidth,
+				videoParams: screen_constraints.video.mandatory,
+				useVideo: true,
+				screenShare: true,
+				// dedEnc: false,
+				mirrorInput: false
+			});
+		});
+	}
+
+	handleDTMF(e) {
 		var dtmf = e.target.getAttribute("data-dtmf");
 
 		if (!dtmf) {
@@ -255,13 +327,18 @@ class Phone extends React.Component {
 	}
 
 	toggleVideo() {
-		let useVideo = null;
-		useVideo = !this.state.useVideo;
-		this.setState({useVideo: useVideo});
-		localStorage.setItem('phone.useVideo', useVideo);
+		let videoMode = "audio"
+		switch(this.state.videoMode) {
+			case "audio": videoMode = "video";  break;
+			case "video": videoMode = "screen"; break;
+			default:      videoMode = "audio";  break;
+		}
+
+		this.setState({videoMode: videoMode});
+		localStorage.setItem('phone.videoMode', videoMode);
 	}
 
-	componentDidMount () {
+	componentDidMount() {
 		window.addEventListener("verto-login", this.handleVertoLogin);
 		window.addEventListener("verto-disconnect", this.handleVertoDisconnect);
 		window.addEventListener("verto-dialog-state", this.handleVertoDialogState);
@@ -270,31 +347,24 @@ class Phone extends React.Component {
 
 		if (verto_loginState) this.handleVertoLogin();
 
-		let phoneUseVideo = localStorage.getItem('phone.useVideo');
-		if (phoneUseVideo == 'true') {
-			phoneUseVideo = true;
-		} else {
-			phoneUseVideo = false;
-		}
-
 		this.setState({
 			displayStyle: localStorage.getItem('phone.displayStyle'),
 			destNumber: localStorage.getItem('phone.destNumber') || '',
-			useVideo: phoneUseVideo
+			videoMode: localStorage.getItem('phone.videoMode') || "audio"
 		});
 
 		// hack ringer
 		verto.ringer = document.getElementById('ringer');
 	}
 
-	componentWillUnmount () {
+	componentWillUnmount() {
 		window.removeEventListener("verto-login", this.handleVertoLogin);
 		window.removeEventListener("verto-disconnect", this.handleVertoDisconnect);
 		window.removeEventListener("verto-dialog-state", this.handleVertoDialogState);
 		window.removeEventListener("verto-phone-open", this.handleVertoPhoneOpen);
 	}
 
-	render () {
+	render() {
 		var state;
 		var callButton = null;
 		var callButtonDisabled = false;
@@ -305,7 +375,7 @@ class Phone extends React.Component {
 		var toggleDTMF = <Button bsStyle="info" bsSize="xsmall" onClick={this.handleDTMF}>
 			<i className="fa fa-tty" aria-hidden="true"></i>&nbsp;
 			<T.span text= "DTMF" /></Button>;
-		var audioOrVideo = null;
+		var videoButton = null;
 		var xtopDisplay = null;
 		var textDisplay = null;
 		var ishttps = 'https:' == document.location.protocol ? true: false;
@@ -358,7 +428,7 @@ class Phone extends React.Component {
 			break;
 		}
 
-		if (this.state.curCall) {
+		if (this.inCall()) {
 			hangupButton = <Button bsStyle="danger" bsSize="xsmall" onClick={this.handleHangup}>
 				<i className="fa fa-minus-circle" aria-hidden="true"></i>&nbsp;
 				<T.span text="Hangup" />
@@ -370,7 +440,7 @@ class Phone extends React.Component {
 			</Button>
 
 			console.log("curCall", this.state.curCall);
-			const call_params = this.state.curCall.params;
+			const call_params = this.state.curCall ? this.state.curCall.params : this.state.shareCall.params;
 
 			if (call_params.destination_number) {
 				callerID = <span style={{color: "lime"}}>
@@ -396,13 +466,14 @@ class Phone extends React.Component {
 			</span>
 		}
 
-		audioOrVideo = <Button bsStyle={this.state.useVideo ? 'warning' : 'primary'} bsSize="xsmall" disabled={this.state.curCall ? true : false} onClick={this.state.curCall ? null: this.toggleVideo}>
-			<i className={this.state.useVideo ? 'fa fa-video-camera' : 'fa fa-volume-up'} aria-hidden="true"></i>&nbsp;
-			<T.span text={this.state.useVideo ? 'Video' : 'Audio'}/>
+		videoButton = <Button bsStyle={this.state.videoMode == "audio" ? 'warning' : (this.state.videoMode == "video" ? 'primary' : "default")} bsSize="xsmall" disabled={this.inCall() ? true : false} onClick={this.toggleVideo}>
+			<i className={this.state.videoMode == "audio" ? 'fa fa-volume-up' : (
+				this.state.videoMode == "video" ? 'fa fa-video-camera' : 'fa fa-desktop')} aria-hidden="true"></i>&nbsp;
+			<T.span text={this.state.videoMode.replace(/\b\w/g, l => l.toUpperCase())}/>
 		</Button>
 
 		if (this.state.curCall && this.state.callState == "Ringing") {
-			audioOrVideo = null;
+			videoButton = null;
 			toggleDTMF = null;
 		}
 
@@ -414,6 +485,10 @@ class Phone extends React.Component {
 			</Button>
 		}
 
+		const shareButton = (this.inCall() && this.useVideo()) ? <Button bsStyle="primary" bsSize="xsmall" onClick={this.handleShare}>
+			<i className="fa fa-desktop" aria-hidden="true"></i>&nbsp;
+			<T.span text={this.state.shareCall ? "Stop Sharing" : "Share"}/>
+		</Button> : null;
 
 		if (this.state.displayStyle == "xtop") {
 			xtopDisplay = <span>
@@ -421,14 +496,15 @@ class Phone extends React.Component {
 				{callButton}&nbsp;
 				{answerButton}&nbsp;
 				{hangupButton}&nbsp;
-				{transferButton}
+				{transferButton}&nbsp;
+				{shareButton}
 				&nbsp;&nbsp;
 			</span>
 		} else {
-			xtopDisplay = callerID;
+			xtopDisplay = <span>{callerID}&nbsp;{shareButton}</span>
 		}
 
-		if (this.state.curCall) {
+		if (this.inCall()) {
 			callButtonDisabled = true;
 		}
 
@@ -454,8 +530,8 @@ class Phone extends React.Component {
 
 		return 	<NavItem eventKey="phone">
 			<div className="hgt">
-			{xtopDisplay}
-			{textDisplay}
+			{xtopDisplay}&nbsp;
+			{textDisplay}&nbsp;
 			<T.span id="phone-state" className={state} text={{ key: "Phone"}} onClick={this.handleMenuClick} />
 			<div id="web-phone" style={{display: this.state.displayState ? "block" : "none"}}>
 				<div id="zm-phone">{verto.options.login}&nbsp;{this.state.cidname} <T.span text={this.state.callState}/></div>
@@ -467,7 +543,7 @@ class Phone extends React.Component {
 				<br/>
 				{answerButton}
 				{toggleDTMF}&nbsp;
-				{audioOrVideo}&nbsp;
+				{videoButton}&nbsp;
 				{hangupButton}&nbsp;
 				{transferButton}
 				{DTMFs}
