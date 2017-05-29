@@ -25,7 +25,6 @@
  *
  * Seven Du <dujinfang@x-y-t.cn>
  * Xueyun Jiang <jiangxueyun@x-y-t.cn>
- * Stefan Yohansson <sy.fen0@gmail.com>
  *
  * verto.js - Main interface
  *
@@ -37,10 +36,33 @@ import VertoLiveArray from './verto-livearray';
 import VertoConfMan from './verto-confman';
 import VertoDialog from './verto-dialog';
 import VertoRTC from './verto-rtc';
-import {
-	generateGUID, drop_bad, mark_ready,
-	ENUM
-} from './verto-utils';
+
+function drop_bad(verto, channel) {
+	console.error("drop unauthorized channel: " + channel);
+	delete verto.eventSUBS[channel];
+}
+
+function mark_ready(verto, channel) {
+	for (var j in verto.eventSUBS[channel]) {
+		verto.eventSUBS[channel][j].ready = true;
+
+		console.log("subscribed to channel: " + channel);
+		if (verto.eventSUBS[channel][j].readyHandler) {
+			verto.eventSUBS[channel][j].readyHandler(verto, channel);
+		}
+	}
+}
+
+function ENUM(s) {
+	var i = 0, o = {};
+	s.split(" ").map(function(x) {
+		o[x] = {
+			name: x,
+			val: i++
+		};
+	});
+	return Object.freeze(o);
+};
 
 class Verto {
 	constructor(params, callbacks) {
@@ -57,11 +79,33 @@ class Verto {
 		this.videoDevices = [];
 		this.audioInDevices = [];
 		this.audioOutDevices = [];
-		this.rpcClient = this; // backward compatible
+		this.rpcClient = this; // backward compatable
 
-		this.generateGUID = generateGUID();
+		this.generateGUID = (typeof(window.crypto) !== 'undefined' &&
+			typeof(window.crypto.getRandomValues) !== 'undefined') ? function() {
+			// If we have a cryptographically secure PRNG, use that
+			// http://stackoverflow.com/questions/6906916/collisions-when-generating-uuids-in-javascript
+			var buf = new Uint16Array(8);
+			window.crypto.getRandomValues(buf);
+			var S4 = function(num) {
+				var ret = num.toString(16);
+				while (ret.length < 4) {
+					ret = "0" + ret;
+				}
+				return ret;
+			};
+			return (S4(buf[0]) + S4(buf[1]) + "-" + S4(buf[2]) + "-" + S4(buf[3]) + "-" + S4(buf[4]) + "-" + S4(buf[5]) + S4(buf[6]) + S4(buf[7]));
+		} : function() {
+			// Otherwise, just use Math.random
+			// http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript/2117523#2117523
+			return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+				var r = Math.random() * 16 | 0,
+				v = c == 'x' ? r : (r & 0x3 | 0x8);
+				return v.toString(16);
+			});
+		};
 
-		this.connect();
+		// this.connect();
 	}
 
 	static init(obj, runtime) {
@@ -242,13 +286,23 @@ class Verto {
 
 	purge() {
 		var verto = this;
+		var x = 0;
+		var i;
 
-		console.log("purging dialogs");
-		Object.keys(verto.dialogs).forEach(dialog => {
-			verto.dialogs[dialog].setState(Verto.enum.state.purge);
-		});
+		for (i in verto.dialogs) {
+			if (!x) {
+				console.log("purging dialogs");
+			}
+			x++;
+			verto.dialogs[i].setState(Verto.enum.state.purge);
+		}
 
-		verto.eventSUBS = {};
+		for (i in verto.eventSUBS) {
+			if (verto.eventSUBS[i]) {
+				console.log("purging subscription: " + i);
+				delete verto.eventSUBS[i];
+			}
+		}
 	}
 
 	call(method, params, success_cb, error_cb) {
@@ -532,7 +586,9 @@ class Verto {
 					}
 					console.error("UNSUBBED or invalid EVENT " + key + " IGNORED");
 				} else {
-					list.forEach(sub => {
+					for (var i in list) {
+						var sub = list[i];
+
 						if (!sub || !sub.ready) {
 							console.error("invalid EVENT for " + key + " IGNORED");
 						} else if (sub.handler) {
@@ -542,7 +598,7 @@ class Verto {
 						} else {
 							console.log("EVENT:", data.params);
 						}
-					});
+					}
 				}
 
 				break;
@@ -571,12 +627,12 @@ class Verto {
 
 		switch (method) {
 		case "verto.subscribe":
-			Object.keys(e.unauthorizedChannels || {}).forEach(channel => {
-				drop_bad(verto, e.unauthorizedChannels[channel]);
-			});
-			Object.keys(e.subscribedChannels || {}).forEach(channel => {
-				mark_ready(verto, e.subscribedChannels[channel]);
-			});
+			for (i in e.unauthorizedChannels) {
+				drop_bad(verto, e.unauthorizedChannels[i]);
+			}
+			for (i in e.subscribedChannels) {
+				mark_ready(verto, e.subscribedChannels[i]);
+			}
 
 			break;
 		case "verto.unsubscribe":
@@ -603,10 +659,12 @@ class Verto {
 	broadcast(channel, params) {
 		var msg = {
 			eventChannel: channel,
-			data: {
-				...params
-			}
+			data: {}
 		};
+
+		for (var i in params) {
+			msg.data[i] = params[i];
+		}
 
 		this.sendMethod("verto.broadcast", msg);
 	}
@@ -693,9 +751,9 @@ class Verto {
 		if (typeof(channel) === "string") {
 			r.push(verto.do_subscribe(verto, channel, subChannels, params));
 		} else {
-			Object.keys(channel || {}).forEach(c => {
+			for (var i in channel) {
 				r.push(verto.do_subscribe(verto, channel, subChannels, params));
-			});
+			}
 		}
 
 		if (subChannels.length) {
@@ -709,47 +767,53 @@ class Verto {
 	}
 
 	unsubscribe(handle) {
-		const verto = this;
+		var verto = this;
+		var i;
 
 		if (!handle) {
-			Object.keys(verto.eventSUBS).forEach(event => {
-				verto.unsubscribe(verto.eventSUBS[event]);
-			});
+			for (i in verto.eventSUBS) {
+				if (verto.eventSUBS[i]) {
+					verto.unsubscribe(verto.eventSUBS[i]);
+				}
+			}
 		} else {
-			const unsubChannels = {};
-			let sendChannels = [];
+			var unsubChannels = {};
+			var sendChannels = [];
+			var channel;
 
 			if (typeof(handle) == "string") {
 				delete verto.eventSUBS[handle];
 				unsubChannels[handle]++;
 			} else {
-				Object.keys(handle).forEach(channel => {
-					if (typeof(channel) == "string") {
+				for (i in handle) {
+					if (typeof(handle[i]) == "string") {
+						channel = handle[i];
 						delete verto.eventSUBS[channel];
 						unsubChannels[channel]++;
 					} else {
-					   const repl = [];
-					   const eventChannel = handle[channel].eventChannel;
+						var repl = [];
+						channel = handle[i].eventChannel;
 
-					   verto.eventSUBS[eventChannel] = verto.eventSUBS[eventChannel].reduce((acc, ec) => {
-						   if (ec.serno != channel.serno) {
-							   acc.push(ec);
-						   }
-						   return acc;
-					   }, []);
+						for (var j in verto.eventSUBS[channel]) {
+							if (verto.eventSUBS[channel][j].serno == handle[i].serno) {} else {
+								repl.push(verto.eventSUBS[channel][j]);
+							}
+						}
 
-					   if (verto.eventSUBS[eventChannel].length === 0) {
-						   delete verto.eventSUBS[eventChannel];
-						   unsubChannels[eventChannel]++;
-					   }
-				   }
-				});
+						verto.eventSUBS[channel] = repl;
+
+						if (verto.eventSUBS[channel].length === 0) {
+							delete verto.eventSUBS[channel];
+							unsubChannels[channel]++;
+						}
+					}
+				}
 			}
 
-			sendChannels = Object.keys(unsubChannels).map(i => {
-				console.log("Sending Unsubscribe for: ", i);
-				return i;
-			});
+			for (var u in unsubChannels) {
+				console.log("Sending Unsubscribe for: ", u);
+				sendChannels.push(u);
+			}
 
 			if (sendChannels.length) {
 				verto.sendMethod("verto.unsubscribe", {
@@ -800,56 +864,49 @@ class Verto {
 	}
 
 	static checkDevices(runtime) {
-		const self = this;
+		var self = this;
 		console.info("enumerating devices");
+		var aud_in = [], aud_out = [], vid = [];
+		var has_video = 0, has_audio = 0;
+		var Xstream;
 
-		function gotDevices(stream) {
-			return deviceInfos => {
-				// Handles being called several times to update labels. Preserve values.
-				const { aud_in, aud_out, vid } = deviceInfos.reduce((acc, deviceInfo) => {
-					let text = '';
-					const kindMap = {
-						'audioinput': 'aud_in',
-						'audiooutput': 'aud_out',
-						'videoinput': 'vid'
-					};
-					const kindLabel = {
-						'audioinput': 'micrphone',
-						'audiooutput': 'speaker',
-						'videoinput': 'camera'
-					};
+		function gotDevices(deviceInfos) {
+			// Handles being called several times to update labels. Preserve values.
+			for (var i = 0; i !== deviceInfos.length; ++i) {
+				var deviceInfo = deviceInfos[i];
+				var text = "";
 
-					console.log(deviceInfo);
-					console.log(`${deviceInfo.kind}: ${deviceInfo.label} id = ${deviceInfo.deviceId}`);
+				console.log(deviceInfo);
+				console.log(deviceInfo.kind + ": " + deviceInfo.label + " id = " + deviceInfo.deviceId);
 
-					if (Object.keys(kindMap).includes(deviceInfo.kind)) {
-						acc[kindMap[deviceInfo.kind]].push({
-							id: deviceInfo.deviceId,
-							kind: kindMap[deviceInfo.kind],
-							label: deviceInfo.label || `${kindLabel[deviceInfo.kind]} ${aud_in.length + 1}`
-						});
-					} else {
-						console.log('Some other kind of source/device: ', deviceInfo);
-					}
-
-					return acc;
-				}, { aud_in: [], aud_out: [], vid: [] });
-
-				self.videoDevices = vid;
-				self.audioInDevices = aud_in;
-				self.audioOutDevices = aud_out;
-
-				console.info("Audio IN Devices", self.audioInDevices);
-				console.info("Audio Out Devices", self.audioOutDevices);
-				console.info("Video Devices", self.videoDevices);
-
-				if (stream) {
-					stream.getTracks().forEach(track => track.stop());
+				if (deviceInfo.kind === 'audioinput') {
+					text = deviceInfo.label || 'microphone ' + (aud_in.length + 1);
+					aud_in.push({id: deviceInfo.deviceId, kind: "audio_in", label: text});
+				} else if (deviceInfo.kind === 'audiooutput') {
+					text = deviceInfo.label || 'speaker ' + (aud_out.length + 1);
+					aud_out.push({id: deviceInfo.deviceId, kind: "audio_out", label: text});
+				} else if (deviceInfo.kind === 'videoinput') {
+					text = deviceInfo.label || 'camera ' + (vid.length + 1);
+					vid.push({id: deviceInfo.deviceId, kind: "video", label: text});
+				} else {
+					console.log('Some other kind of source/device: ', deviceInfo);
 				}
+			}
 
-				if (runtime) {
-					runtime(true);
-				}
+			self.videoDevices = vid;
+			self.audioInDevices = aud_in;
+			self.audioOutDevices = aud_out;
+
+			console.info("Audio IN Devices", self.audioInDevices);
+			console.info("Audio Out Devices", self.audioOutDevices);
+			console.info("Video Devices", self.videoDevices);
+
+			if (Xstream) {
+				Xstream.getTracks().forEach(function(track) {track.stop();});
+			}
+
+			if (runtime) {
+				runtime(true);
 			}
 		}
 
@@ -858,21 +915,22 @@ class Verto {
 			if (runtime) runtime(false);
 		}
 
-		function checkTypes(devices) {
-			const { has_video, has_audio } = devices.reduce((acc, device) => {
-				if (device.kind === 'audioinput') {
-					acc['has_audio']++;
-				} else if (device.kind === 'videoinput') {
-					acc['has_video']++;
+		function checkTypes(devs) {
+			for (var i = 0; i !== devs.length; ++i) {
+
+				if (devs[i].kind === 'audioinput') {
+					has_audio++;
+				} else if (devs[i].kind === 'videoinput') {
+					has_video++;
 				}
-				return acc;
-			}, { has_video: 0, has_audio: 0 });
+			}
 
 			navigator.getUserMedia({
-					audio: !!has_audio,
-					video: !!has_video
+					audio: (has_audio > 0 ? true : false),
+					video: (has_video > 0 ? true : false)
 				}, function(stream) {
-					navigator.mediaDevices.enumerateDevices().then(gotDevices(stream)).catch(handleError);
+					Xstream = stream;
+					navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
 				}, function(err) {
 					console.log("The following error occurred: " + err.name);
 				});
@@ -910,10 +968,9 @@ class Verto {
 	}
 
 	deviceParams(obj) {
-		this.options.deviceParams = {
-			...this.options.deviceParams,
-			...obj
-		};
+		for (var i in obj) {
+			this.options.deviceParams[i] = obj[i];
+		}
 
 		if (obj.useCamera) {
 			var rtc = new VertoRTC();
@@ -922,10 +979,9 @@ class Verto {
 	};
 
 	videoParams(obj) {
-		this.options.videoParams = {
-			...this.options.videoParams,
-			...obj
-		};
+		for (var i in obj) {
+			this.options.videoParams[i] = obj[i];
+		}
 	};
 
 	iceServers(obj) {
@@ -956,9 +1012,9 @@ class Verto {
 				dialog.hangup();
 			}
 		} else {
-			Object.keys(this.dialogs).forEach(dialogKey => {
-				this.dialogs[dialogKey].hangup();
-			});
+			for (var i in this.dialogs) {
+				this.dialogs[i].hangup();
+			}
 		}
 	}
 }

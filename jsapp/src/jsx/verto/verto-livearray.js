@@ -364,7 +364,7 @@ export class VertoLiveArray extends VertoHashArray {
 	eventHandler(v, e, la) {
 		var packet = e.data;
 
-		console.debug("READ:", packet);
+		console.error("READ:", packet);
 
 		if (packet.name != la.name) {
 			return;
