@@ -800,56 +800,49 @@ class Verto {
 	}
 
 	static checkDevices(runtime) {
-		const self = this;
+		var self = this;
 		console.info("enumerating devices");
+		var aud_in = [], aud_out = [], vid = [];
+		var has_video = 0, has_audio = 0;
+		var Xstream;
 
-		function gotDevices(stream) {
-			return deviceInfos => {
-				// Handles being called several times to update labels. Preserve values.
-				const { aud_in, aud_out, vid } = deviceInfos.reduce((acc, deviceInfo) => {
-					let text = '';
-					const kindMap = {
-						'audioinput': 'aud_in',
-						'audiooutput': 'aud_out',
-						'videoinput': 'vid'
-					};
-					const kindLabel = {
-						'audioinput': 'micrphone',
-						'audiooutput': 'speaker',
-						'videoinput': 'camera'
-					};
+		function gotDevices(deviceInfos) {
+			// Handles being called several times to update labels. Preserve values.
+			for (var i = 0; i !== deviceInfos.length; ++i) {
+				var deviceInfo = deviceInfos[i];
+				var text = "";
 
-					console.log(deviceInfo);
-					console.log(`${deviceInfo.kind}: ${deviceInfo.label} id = ${deviceInfo.deviceId}`);
+				console.log(deviceInfo);
+				console.log(deviceInfo.kind + ": " + deviceInfo.label + " id = " + deviceInfo.deviceId);
 
-					if (Object.keys(kindMap).includes(deviceInfo.kind)) {
-						acc[kindMap[deviceInfo.kind]].push({
-							id: deviceInfo.deviceId,
-							kind: kindMap[deviceInfo.kind],
-							label: deviceInfo.label || `${kindLabel[deviceInfo.kind]} ${aud_in.length + 1}`
-						});
-					} else {
-						console.log('Some other kind of source/device: ', deviceInfo);
-					}
-
-					return acc;
-				}, { aud_in: [], aud_out: [], vid: [] });
-
-				self.videoDevices = vid;
-				self.audioInDevices = aud_in;
-				self.audioOutDevices = aud_out;
-
-				console.info("Audio IN Devices", self.audioInDevices);
-				console.info("Audio Out Devices", self.audioOutDevices);
-				console.info("Video Devices", self.videoDevices);
-
-				if (stream) {
-					stream.getTracks().forEach(track => track.stop());
+				if (deviceInfo.kind === 'audioinput') {
+					text = deviceInfo.label || 'microphone ' + (aud_in.length + 1);
+					aud_in.push({id: deviceInfo.deviceId, kind: "audio_in", label: text});
+				} else if (deviceInfo.kind === 'audiooutput') {
+					text = deviceInfo.label || 'speaker ' + (aud_out.length + 1);
+					aud_out.push({id: deviceInfo.deviceId, kind: "audio_out", label: text});
+				} else if (deviceInfo.kind === 'videoinput') {
+					text = deviceInfo.label || 'camera ' + (vid.length + 1);
+					vid.push({id: deviceInfo.deviceId, kind: "video", label: text});
+				} else {
+					console.log('Some other kind of source/device: ', deviceInfo);
 				}
+			}
 
-				if (runtime) {
-					runtime(true);
-				}
+			self.videoDevices = vid;
+			self.audioInDevices = aud_in;
+			self.audioOutDevices = aud_out;
+
+			console.info("Audio IN Devices", self.audioInDevices);
+			console.info("Audio Out Devices", self.audioOutDevices);
+			console.info("Video Devices", self.videoDevices);
+
+			if (Xstream) {
+				Xstream.getTracks().forEach(function(track) {track.stop();});
+			}
+
+			if (runtime) {
+				runtime(true);
 			}
 		}
 
@@ -858,21 +851,22 @@ class Verto {
 			if (runtime) runtime(false);
 		}
 
-		function checkTypes(devices) {
-			const { has_video, has_audio } = devices.reduce((acc, device) => {
-				if (device.kind === 'audioinput') {
-					acc['has_audio']++;
-				} else if (device.kind === 'videoinput') {
-					acc['has_video']++;
+		function checkTypes(devs) {
+			for (var i = 0; i !== devs.length; ++i) {
+
+				if (devs[i].kind === 'audioinput') {
+					has_audio++;
+				} else if (devs[i].kind === 'videoinput') {
+					has_video++;
 				}
-				return acc;
-			}, { has_video: 0, has_audio: 0 });
+			}
 
 			navigator.getUserMedia({
-					audio: !!has_audio,
-					video: !!has_video
+					audio: (has_audio > 0 ? true : false),
+					video: (has_video > 0 ? true : false)
 				}, function(stream) {
-					navigator.mediaDevices.enumerateDevices().then(gotDevices(stream)).catch(handleError);
+					Xstream = stream;
+					navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
 				}, function(err) {
 					console.log("The following error occurred: " + err.name);
 				});
