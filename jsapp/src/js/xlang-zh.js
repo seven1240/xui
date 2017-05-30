@@ -171,6 +171,7 @@ LANGUAGES["zh"] = {
 	System: "系统",
 	"IVR Block": "IVR积木",
 	"Detail": "详细",
+	"Add Application": "添加Application",
 
 	FS_DEST_USER: "本地用户",
 	FS_DEST_GATEWAY: "网关",
@@ -249,6 +250,7 @@ LANGUAGES["zh"] = {
 	Restart: "重启",
 	Rescan: "重新扫描",
 	Params: "参数",
+	Param: "参数",
 	More: "更多",
 
 	"Media Files": "媒体文件",

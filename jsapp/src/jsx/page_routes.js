@@ -230,15 +230,18 @@ class AddNewParam extends React.Component {
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
 	}
+
 	handleSubmit(e) {
 		var _this = this;
 		console.log("submit...");
 		var param = form2json('#newParamAddForm');
 		console.log("param", param);
-		if (!param.k || !param.v) {
+
+		if (!param.k) {
 			this.setState({errmsg: "Mandatory fields left blank"});
 			return;
 		}
+
 		xFetchJSON("/api/routes/" + _this.props.profile_id + "/params/", {
 			method:"POST",
 			body: JSON.stringify(param)
@@ -250,6 +253,7 @@ class AddNewParam extends React.Component {
 			_this.setState({errmsg: '' + msg + ''});
 		});
 	}
+
 	render() {
 		console.log(this.props);
 		const props = Object.assign({}, this.props);
@@ -258,7 +262,7 @@ class AddNewParam extends React.Component {
 
 		return <Modal {...props} aria-labelledby="contained-modal-title-lg">
 			<Modal.Header closeButton>
-				<Modal.Title id="contained-modal-title-lg"><T.span text="Add Param" /></Modal.Title>
+				<Modal.Title id="contained-modal-title-lg"><T.span text="Add Application" /></Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 			<Form horizontal id="newParamAddForm">
@@ -266,8 +270,8 @@ class AddNewParam extends React.Component {
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Name" className="mandatory"/></Col>
 					<Col sm={10}><FormControl type="input" name="k" placeholder="Name" /></Col>
 				</FormGroup>
-				<FormGroup controlId="formRealm">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Value" className="mandatory"/></Col>
+				<FormGroup controlId="formParam">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Param"/></Col>
 					<Col sm={10}><FormControl type="input" name="v" placeholder="Value" /></Col>
 				</FormGroup>
 				<FormGroup>
@@ -442,7 +446,7 @@ class RoutePage extends React.Component {
 
 	handleParamAdded(param) {
 		var params = this.state.params;
-		params.unshift(param);
+		params.push(param);
 		this.setState({params: params, formShow: false});
 	}
 
@@ -709,12 +713,12 @@ class RoutePage extends React.Component {
 			</ButtonGroup>
 			</ButtonToolbar>
 
-			<h2><T.span text="Params"/></h2>
+			<h2><T.span text="Applications"/></h2>
 			<table className="table">
 				<tbody>
 				<tr>
 					<th style={{cursor: "pointer"}} onClick={this.handleSort.bind(this)} data="d"><T.span text="Name" data="k"/></th>
-					<th><T.span text="Value"/></th>
+					<th><T.span text="Params"/></th>
 					<th style={{cursor: "pointer"}} onClick={this.handleSort.bind(this)} data='disabled'><T.span text="Enabled" data="disabled"/></th>
 					<th><T.span style={hand} text="Delete" className={danger} onClick={toggleDanger} title={T.translate("Click me to toggle fast delete mode")}/></th>
 				</tr>
