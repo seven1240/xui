@@ -48,8 +48,11 @@ function utils.isModuleAvailable(name)
 end
 
 function init_json_func()
-	if utils.isModuleAvailable("cjson") then
+	if false and utils.isModuleAvailable("cjson") then
 		local json = require("cjson")
+		if json.encode_empty_table_as_object then
+			json.encode_empty_table_as_object(false)
+		end
 		utils.json_encode = json.encode
 		utils.json_decode = json.decode
 	else
