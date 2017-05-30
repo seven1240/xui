@@ -254,6 +254,8 @@ class AddNewParam extends React.Component {
 		console.log(this.props);
 		const props = Object.assign({}, this.props);
 		delete props.handleNewParamAdded;
+		delete props.profile_id;
+
 		return <Modal {...props} aria-labelledby="contained-modal-title-lg">
 			<Modal.Header closeButton>
 				<Modal.Title id="contained-modal-title-lg"><T.span text="Add Param" /></Modal.Title>
