@@ -67,7 +67,7 @@ local function csplit(str, sep)
 end
 
 function nilstr(s)
-	print(s)
+	-- print(s)
 	if not s then return '' end
 	return s
 end
@@ -138,7 +138,52 @@ xdb.find_by_sql(sql, function(row)
 			end
 		end
 
-		table.insert(actions_table, {app = "conference", data = row.body .. "-$${domain}@" .. profile_name .. flags})
+		if room then
+			conf_name = room.nbr
+		else
+			conf_name = row.body
+		end
+
+		table.insert(actions_table, {app = "conference", data = conf_name .. "-$${domain}@" .. profile_name .. flags})
+	elseif (row.dest_type == 'FS_DEST_CONFERENCE_CLUSTER') then
+		lines1 = csplit(row.body, "\n")
+		local ip = nil
+		local lines = {}
+		local count = 0
+		local index = 0
+
+		for k, v in ipairs(lines1) do
+			if not (v == '') then
+				table.insert(lines, v)
+				count = count + 1
+			end
+		end
+
+		if count == 0 then
+			table.insert(actions_table, {app = "hangup", data = "NO_ROUTE_DESTINATION"})
+		elseif count == 1 then
+			index = 1
+		elseif count == 2 then
+			index = os.time() % 2 + 1
+		else
+			math.randomseed(tostring(os.time()):reverse():sub(1,6))
+			index = math.random(count)
+		end
+
+		ip = lines[index]
+
+		if index == 1 then -- the first one always join our own
+			conf_name = dest
+			profile_name = "default"
+			flags = ""
+			table.insert(actions_table, {app = "conference", data = conf_name .. "-$${domain}@" .. profile_name .. flags})
+		elseif index > 1 then
+			conf_name = dest
+			profile_name = "default"
+			flags=""
+			table.insert(actions_table, {app = "set", data = "bypass_media=true"})
+			table.insert(actions_table, {app = "bridge", data = "sofia/public/" .. conf_name .. '@' .. ip})
+		end
 	end
 end)
 

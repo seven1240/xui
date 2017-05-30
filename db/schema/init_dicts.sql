@@ -8,7 +8,9 @@ INSERT INTO dicts (realm, k, v) VALUES ('REALMS', 'GROUP', 'GROUP');
 INSERT INTO dicts (realm, k, v) VALUES ('REALMS', 'BAIDU', 'BAIDU');
 INSERT INTO dicts (realm, k, v) VALUES ('REALMS', 'MCAST_CODEC_NAME', 'MCAST_CODEC_NAME');
 INSERT INTO dicts (realm, k, v) VALUES ('REALMS', 'MCAST_SAMPLE_RATE', 'MCAST_SAMPLE_RATE');
-INSERT INTO dicts (realm, k, v) VALUES ('REALMS', 'TICKET', 'TICKET');
+INSERT INTO dicts (realm, k, v) VALUES ('REALMS', 'FIFO', 'FIFO');
+INSERT INTO dicts (realm, k, v) VALUES ('REALMS', 'TICKET_STATE', 'TICKET_STATE');
+INSERT INTO dicts (realm, k, v) VALUES ('REALMS', 'TICKET_ACTION', 'TICKET_ACTION');
 
 -- k,v to each realm
 INSERT INTO dicts (realm, k, v) VALUES ('XUI', 'NAME', 'XUI');
@@ -33,6 +35,7 @@ INSERT INTO dicts (realm, k, v) VALUES ('DEST', 'FS_DEST_GATEWAY', 'GATEWAY');
 INSERT INTO dicts (realm, k, v) VALUES ('DEST', 'FS_DEST_USERGW', 'USERGW');
 INSERT INTO dicts (realm, k, v) VALUES ('DEST', 'FS_DEST_IP', 'IP');
 INSERT INTO dicts (realm, k, v) VALUES ('DEST', 'FS_DEST_CONFERENCE', 'CONFERENCE');
+INSERT INTO dicts (realm, k, v) VALUES ('DEST', 'FS_DEST_CONFERENCE_CLUSTER', 'CONFERENCE_CLUSTER');
 
 INSERT INTO dicts (realm, k, v) VALUES ('GROUP', 'FS_GRP_USER', 'User Group');
 INSERT INTO dicts (realm, k, v) VALUES ('GROUP', 'FS_GRP_EXTN', 'Extn Group');

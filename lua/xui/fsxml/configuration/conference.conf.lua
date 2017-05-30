@@ -30,6 +30,7 @@
  */
 ]]
 
+presence = params:getHeader("presence")
 action = params:getHeader("Action")
 if action == "request-controls" then
 	controls = params:getHeader("Controls")
@@ -79,13 +80,18 @@ function build_control_group(name)
 	return group
 end
 
-if controls then
-	data = build_control_group(controls)
-else
-	data = build_conference_conf(profile_name)
-end
 
-XML_STRING = [[<configuration name="conference.conf" description="Conference Server">
+if presence then -- todo not supported yet
+	XML_STRING = nil
+else
+	if controls then
+		data = build_control_group(controls)
+	else
+		data = build_conference_conf(profile_name)
+	end
+
+	XML_STRING = [[<configuration name="conference.conf" description="Conference Server">
 ]] .. data .. [[
 </configuration>
 ]]
+end

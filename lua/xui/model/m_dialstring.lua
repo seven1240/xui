@@ -30,6 +30,14 @@
  */
 ]]
 
+function __FILE__() return debug.getinfo(2,'S').source end
+function __LINE__() return debug.getinfo(2, 'l').currentline end
+function __FUNC__() return debug.getinfo(1).name end
+
+if do_debug then
+	require 'utils'
+end
+
 m_dialstring = {}
 
 require 'xdb'
@@ -63,15 +71,19 @@ function build(dest, context, cid_number)
 
 	if not context then context = "default" end
 
-	local sql = "SELECT * FROM routes WHERE context = '" .. context .. "' AND " .. escape(dest) .. " LIKE prefix || '%' ORDER BY length(prefix) DESC"
-	if do_debug then print(sql) end
+	local sql = "SELECT * FROM routes WHERE context = '" .. context .. "' AND " .. escape(dest) .. " LIKE prefix || '%' ORDER BY length(prefix) DESC LIMIT 1"
+	if do_debug then
+		utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", sql)
+	end
 
 	xdb.find_by_sql(sql, function(row)
 		if row.dnc and not (row.dnc == '') then
 			dest = utils.apply_dnc(dest, row.dnc)
 		end
 
-		if do_debug then freeswitch.consoleLog("err", row.dest_type .. "\n") end
+		if do_debug then
+			utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", row.dest_type)
+		end
 
 		if cid_number and row.sdnc and not (row.sdnc == '') then
 			cid_number = utils.apply_dnc(cid_number, row.sdnc)
@@ -103,10 +115,14 @@ function build(dest, context, cid_number)
 		elseif (row.dest_type == 'FS_DEST_IVRBLOCK') then
 			local block_prefix = config.block_path .. "/blocks-"
 			dialstr = "loopback/app=lua:" .. block_prefix .. row.dest_uuid .. ".lua"
+		elseif (row.dest_type == 'FS_DEST_CONFERENCE') then
+			dialstr = "loopback/" .. dest
 		end
 	end)
 
-	if do_debug then freeswitch.consoleLog("err", dialstr .. "\n") end
+	if do_debug then
+		utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", dialstr)
+	end
 
 	return dialstr
 end

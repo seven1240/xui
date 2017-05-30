@@ -81,16 +81,27 @@ function build_gateways(cond)
 	return gws
 end
 
+function build_aliases(profile_name)
+	return [[<alias name="internal"/>]]
+end
+
+function build_domains(profile_name)
+	return [[<domain name="all" alias="true" parse="false"/>]]
+end
+
 function build_profile(profile)
 	local settings = ""
 	local cond = {realm = 'sip_profile', disabled = 0, ref_id = profile.id}
+	local aliases = ""
+	local domains = ""
 	local gateways = ""
 
-	-- only works on public for now
-	-- if profile.name == "public" then gateways = build_gateways() end
+	if profile.name == 'default' then
+		aliases = build_aliases(profile.name)
+		domains = build_domains(profile.name)
+	end
 
-	--	works on all profiles for now
-		gateways = build_gateways({profile_id = profile.id})
+	gateways = build_gateways({profile_id = profile.id})
 
 	xdb.find_by_cond("params", cond, 'id', function(row)
 		settings = settings .. '<param name="' .. row.k .. '" value="' .. expand(row.v) .. '"/>'
@@ -98,7 +109,11 @@ function build_profile(profile)
 
 	return [[<profile name="]] .. profile.name .. [["><gateways>]] ..
 			gateways ..
-			[[</gateways><settings>]] ..
+			[[</gateways><domains>]] ..
+			domains ..
+			[[</domains><aliases>]] ..
+			aliases ..
+			[[</aliases><settings>]] ..
 			settings ..
 			[[</settings></profile>]]
 end

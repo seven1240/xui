@@ -54,15 +54,18 @@ class NewRoute extends React.Component {
 
 	handleDestTypeChange(e) {
 		const _this = this;
+		let body_place_holder = "log ERR line1\nlog ERR line2";
 
 		switch(e.target.value) {
 			case 'FS_DEST_USER':
 				_this.setState({dest_uuid: null, route_body: null});
 				break;
+			case 'FS_DEST_CONFERENCE_CLUSTER':
+				body_place_holder = "192.168.1.1\n192.168.1.2\n192.168.1.3";
 			case 'FS_DEST_SYSTEM':
 				_this.setState({dest_uuid: null, route_body: <FormGroup controlId="formBody">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Body" /></Col>
-					<Col sm={10}> <FormControl componentClass="textarea" name="body" placeholder={"log ERR line1\nlog ERR line2"} /></Col>
+					<Col sm={10}> <FormControl componentClass="textarea" name="body" placeholder={body_place_holder} /></Col>
 				</FormGroup>});
 				break;
 			case 'FS_DEST_IP':
@@ -372,6 +375,7 @@ class RoutePage extends React.Component {
 			case 'FS_DEST_USER':
 				_this.setState({dest_uuid: null, route_body: null});
 				break;
+			case 'FS_DEST_CONFERENCE_CLUSTER':
 			case 'FS_DEST_SYSTEM':
 				_this.setState({dest_uuid: null, route_body: <FormGroup controlId="formBody">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Body" /></Col>
@@ -842,6 +846,7 @@ class RoutesPage extends React.Component {
 			let dest = row.body;
 			let sysStyle = row.dest_type == 'FS_DEST_SYSTEM' && !_this.state.isSysRouterShow ? styleSheet : null;
 			switch(row.dest_type) {
+				case 'FS_DEST_CONFERENCE_CLUSTER':
 				case 'FS_DEST_SYSTEM': dest = null; break;
 				case 'FS_DEST_GATEWAY': dest = <Link to={`/settings/gateways/${row.dest_uuid}`}>{row.body}</Link>;break;
 				case 'FS_DEST_IVRBLOCK': dest = <Link to={`/blocks/${row.dest_uuid}`}>{row.body}</Link>; break;

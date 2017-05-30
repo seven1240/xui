@@ -180,6 +180,8 @@ LANGUAGES["zh"] = {
 	FS_DEST_IP: "IP地址",
 	FS_DEST_IVRBLOCK: "积木",
 	FS_DEST_CONFERENCE: "会议",
+	FS_DEST_CONFERENCE_CLUSTER: '会议集群',
+
 
 	"Create New User": "新建用户",
 	Import: "导入",
