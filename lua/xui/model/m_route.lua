@@ -73,15 +73,8 @@ function createParam(kvp)
 	return id
 end
 
-function params(rt_id)
-	rows = {}
-	sql = "SELECT * from params WHERE realm = 'route' AND ref_id = " .. rt_id
-	print(sql)
-	xdb.find_by_sql(sql, function(row)
-		table.insert(rows, row)
-	end)
-	-- print(serialize(rows))
-	return rows
+function params(route_id)
+	return xdb.find_by_cond("params", {realm = 'route', ref_id = route_id}, "id")
 end
 
 function toggle_param(rt_id, param_id)

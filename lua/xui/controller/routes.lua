@@ -56,13 +56,26 @@ get('/', function(params)
 end)
 
 get('/:id', function(params)
+	with_params = env:getHeader("with_params")
 	route = xdb.find("routes", params.id)
 	if route then
-		p_params = m_route.params(params.id)
-		route.params = p_params
+		if with_params == "true" then
+			n, route_params = m_route.params(params.id)
+			route.params = route_params
+		end
 		return route
 	else
 		return 404
+	end
+end)
+
+get('/:id/params', function(params)
+	n, route_params = m_route.params(params.id)
+
+	if n > 0 then
+		return route_params
+	else
+		return "[]"
 	end
 end)
 

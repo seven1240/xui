@@ -441,7 +441,6 @@ class RoutePage extends React.Component {
 	}
 
 	handleParamAdded(param) {
-		console.log("param", param);
 		var params = this.state.params;
 		params.unshift(param);
 		this.setState({params: params, formShow: false});
@@ -536,12 +535,13 @@ class RoutePage extends React.Component {
 			_this.setState({contexts: data});
 			checkDestType();
 		});
+
 		xFetchJSON("/api/dicts?realm=DEST").then((data) => {
 			_this.setState({dest_types: data});
 			checkDestType();
 		});
-		xFetchJSON("/api/routes/" + this.props.params.id).then((data) => {
-			console.log('data', data)
+
+		xFetchJSON("/api/routes/" + this.props.params.id + '?with_params=true').then((data) => {
 			const params = data.params;
 			delete data.params;
 			_this.setState({route: data, params: params});
