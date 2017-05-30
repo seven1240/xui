@@ -80,8 +80,8 @@ INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'inbound-bypa
 INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'inbound-proxy-media', 'true', 0, 1);
 INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'inbound-late-negotiation', 'true', 0, 0);
 INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'inbound-zrtp-passthru', 'true', 0, 0);
-INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'accept-blind-reg', 'true', 0, 0);
-INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'accept-blind-auth', 'true', 0, 0);
+INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'accept-blind-reg', 'true', 0, 1);
+INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'accept-blind-auth', 'true', 0, 1);
 INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'suppress-cng', 'true', 0, 1);
 INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'nonce-ttl', '60', 0, 0);
 INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'disable-transcoding', 'true', 0, 1);
