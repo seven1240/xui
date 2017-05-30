@@ -30,10 +30,20 @@
  */
 ]]
 
+function __FILE__() return debug.getinfo(2,'S').source end
+function __LINE__() return debug.getinfo(2, 'l').currentline end
+function __FUNC__() return debug.getinfo(1).name end
+
+do_debug = true
+
+if do_debug then
+	require 'utils'
+	utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", params:serialize())
+end
+
 require 'sqlescape'
 local escape = sqlescape.EscapeFunction()
 
-print(params:serialize())
 local actions = ""
 local dest = params:getHeader("Hunt-Destination-Number")
 local context = params:getHeader("Hunt-Context")
@@ -41,9 +51,10 @@ local actions_table = {}
 local sql = "SELECT * FROM routes WHERE context = '" .. context .. "' AND " .. escape(dest) .. " LIKE prefix || '%' ORDER BY length(prefix) DESC LIMIT 1"
 local found = false
 
-do_debug = true
 
-if do_debug then print(sql) end
+if do_debug then
+	utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", sql)
+end
 
 local function csplit(str, sep)
 	local ret={}
@@ -62,7 +73,7 @@ function nilstr(s)
 end
 
 function build_actions(t)
-	for k,v in pairs(t) do
+	for k, v in pairs(t) do
 		actions = actions .. '<action application="' .. v.app .. '" data="' .. nilstr(v.data) .. '"/>'
 	end
 end
@@ -122,7 +133,9 @@ xdb.find_by_sql(sql, function(row)
 
 		if room.profile_id then
 			profile = xdb.find("conference_profiles", room.profile_id)
-			profile_name = profile.name
+			if profile then
+				profile_name = profile.name
+			end
 		end
 
 		table.insert(actions_table, {app = "conference", data = row.body .. "-$${domain}@" .. profile_name .. flags})
