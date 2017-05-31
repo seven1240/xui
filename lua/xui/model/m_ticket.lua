@@ -70,7 +70,7 @@ m_ticket.close = function(id)
 		end
 
 		if weuser then
-			comment.avatar_url = weuser.avatar_url
+			comment.avatar_url = weuser.headimgurl
 		end
 
 		xdb.create("ticket_comments", comment)
