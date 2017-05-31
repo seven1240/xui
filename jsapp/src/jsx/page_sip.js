@@ -201,7 +201,7 @@ class SIPProfilePage extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {profile: {}, edit: false, params:[], order: 'ASC', running: false, danger: false, formShow: false};
+		this.state = {profile: {}, edit: false, params:[], order: 'ASC', running: false, danger: false, formShow: false, profileDetails: []};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -352,6 +352,27 @@ class SIPProfilePage extends React.Component {
 					_this.setState({running: true});
 				}
 			});
+
+			verto.fsAPI("sofia", "xmlstatus profile " + this.state.profile.name, function(data) {
+				if (!data.message.match('<')) {
+					console.log(data);
+					notify(data.message, 'error');
+					return;
+				}
+
+				const parser = new DOMParser();
+				const doc = parser.parseFromString(data.message, "text/xml");
+				console.log('doc', doc);
+
+				const profile = parseXML(doc);
+
+				const rows = Object.keys(profile).map(function(k, index) {
+					return {k: k, v: profile[k]};
+				});
+
+				_this.setState({profileDetails: rows});
+				console.log('profileDetails', _this.state.profileDetails)
+			});
 		}).catch((msg) => {
 			console.log("get profile/sip_profiles ERR");
 		});
@@ -479,6 +500,12 @@ class SIPProfilePage extends React.Component {
 			background : color,
 		} 
 
+		let profiles;
+
+		let profile_params = this.state.profileDetails.map(function(p) {
+			return <li key={p.k}>{p.k}: {p.v}</li>;
+		})
+		profiles = <ul>{profile_params}</ul>;
 		if (this.state.params && Array.isArray(this.state.params)) {
 			// console.log(this.state.profile.params)
 			params = this.state.params.map(function(param) {
@@ -553,9 +580,14 @@ class SIPProfilePage extends React.Component {
 				<FormGroup controlId="formSave">
 					<Col componentClass={ControlLabel} sm={2}></Col>
 					<Col sm={10}>{save_btn}</Col>
+				</FormGroup>				
+			</Form>
+			<Form horizontal id="DetailsForm">
+				<FormGroup controlId="formDetails">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Details"/></Col>
+					<Col sm={10}><EditControl name="details" defaultValue={profiles}/></Col>
 				</FormGroup>
 			</Form>
-
 			<ButtonToolbar className="pull-right">
 			<ButtonGroup>
 				<Button onClick={this.toggleHighlight}><i className="fa fa-edit" aria-hidden="true"></i>&nbsp;<T.span text="Edit"/></Button>
