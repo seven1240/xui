@@ -330,11 +330,11 @@ class UserPage extends React.Component {
 		});
 
 		xFetchJSON("/api/wechat_users/" + this.props.params.id).then((data) => {
-			console.log("wechat_user", data);
+			console.log("wechat_user", data[0]);
 			if (!data.user_id) {
 				this.setState({wechat_user: {}});
 			};
-			this.setState({wechat_user: data});
+			this.setState({wechat_user: data[0]});
 		}).catch((msg) => {
 			console.log("no wechat_user linked to this user");
 		});
@@ -378,6 +378,7 @@ class UserPage extends React.Component {
 		let save_btn = "";
 		let err_msg = "";
 		let src = wechat_user.headimgurl;
+		let sex = wechat_user.sex == 1 ? '男' : '女';
 		const style = {width: '50px'};
 
 		if (this.state.edit) {
@@ -526,7 +527,7 @@ class UserPage extends React.Component {
 
 				<FormGroup controlId="formExtn">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Sex"/></Col>
-					<Col sm={10}><FormControl.Static><T.span text={wechat_user.sex}/></FormControl.Static></Col>
+					<Col sm={10}><FormControl.Static><T.span text={sex}/></FormControl.Static></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formExtn">
