@@ -54,7 +54,7 @@ get('/', function(params)
 end)
 
 get('/:id', function(params)
-	wechat_user = xdb.find("wechat_users", params.id)
+	n, wechat_user = xdb.find_by_cond("wechat_users", {user_id = params.id})
 	if wechat_user then
 		return wechat_user
 	else
