@@ -320,7 +320,7 @@ class TicketPage extends React.Component {
 		if(ticket.current_user_id){
 			users.map(function(row) {
 				if(row.id == ticket.current_user_id){
-					deal_user = <FormControl type="input" readOnly="readonly" value={row.name}/>
+					deal_user = <FormControl.Static><T.span text={row.name}/></FormControl.Static>
 					hidden_user = <FormControl type="hidden" name="current_user_id" value={row.id}/>
 				}
 			})
@@ -334,9 +334,10 @@ class TicketPage extends React.Component {
 
 		const options = <FormGroup>
 			<Col componentClass={ControlLabel} sm={2}><T.span text="处理人" /></Col>
-			<Col sm={8}>
+			<Col sm={4}>
 				{this.state.deal_user}
 			</Col>
+			<Col sm={2}>{save_btn}</Col>
 		</FormGroup>;
 
 		if (ticket.record_path) {
@@ -418,13 +419,9 @@ class TicketPage extends React.Component {
 				</FormGroup>
 			</Form>
 			<br/>
-			<Form horizontal id="ticketAppointForm">				
+			<Form horizontal id="ticketAppointForm">
+				{this.state.hidden_user}			
 				{options}
-				{this.state.hidden_user}
-				<FormGroup>
-					<Col componentClass={ControlLabel} sm={2}></Col>
-					<Col sm={10}>{save_btn}</Col>
-				</FormGroup>
 			</Form>
 			<Form horizontal id="ticketProcessingForm">
 				<FormGroup>
