@@ -445,6 +445,7 @@ LANGUAGES["zh"] = {
 	"Wechat User": "微信用户",
 	"Wechat Users": "微信用户",
 	Details: "详细信息",
+	"Closed at": "工单关闭于 *{time}*",
 
 	Copyright: "版权所有 2016-" + new Date().getFullYear() + " 烟台小樱桃网络科技有限公司 保留所有权利",
 	the_last_line_______: "Don't put anything beyond this line"

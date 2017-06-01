@@ -191,7 +191,8 @@ class TicketPage extends React.Component {
 			method: "PUT"
 		}).then(() => {
 			ticket.status = "TICKET_ST_DONE";
-			_this.setState({ticket: ticket})
+			_this.setState({ticket: ticket});
+			notify(<T.span text={{key:"Closed at", time: Date()}}/>);
 		}).catch((msg) => {
 			console.error("ticket", msg);
 		});
