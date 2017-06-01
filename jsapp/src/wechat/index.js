@@ -249,11 +249,10 @@ class Userlist extends React.Component {
 class Comment extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {ticket_comments: [], content: []};
+		this.state = {content: []};
 	}
 	componentDidMount() {
 		xFetchJSON("/api/tickets/" + current_ticket_id).then((data) => {
-			console.log("comments_aaaaa", data)
 			this.setState({content: data})
 		}).catch((msg) => {
 		});
@@ -279,28 +278,6 @@ class Comment extends React.Component {
 	}
 	render(){
 		const _this = this;
-		const comments = this.state.ticket_comments.map((comment) => {
-			return <a className="weui-media-box weui-media-box_appmsg" key={comment.id}>
-					<div className="weui-media-box__hd">
-						<img className="weui-media-box__thumb" src={comment.avatar_url} alt=""/>
-					</div>
-					<div className="weui-media-box__bd">
-					
-					<div className="weui-form-preview__item">
-						<span className="weui-form-preview__label">
-							<h4 className="weui-media-box__title">{comment.user_name}:</h4>
-							<p className="weui-media-box__desc">{comment.content}</p>
-						</span>
-						<span className="weui-form-preview__value" style={{fontSize:"12px",float:"right",color:"gray"}}>{comment.created_epoch}</span>
-						</div>
-					</div>
-				</a>
-		})
-		const current_img = _this.state.localIds.map((c_img) => {
-			return <div>
-					<img src={c_img} style={{width:"120px",height:"120px"}}/><a onClick={ () => _this.delLocalId(c_img)}>X</a>
-				</div>
-		})
 		return <div className="weui-form-preview">
 				<div className="weui-form-preview__ft">
 				</div>
