@@ -40,9 +40,9 @@ require 'm_user'
 
 get('/', function(params)
 
-	if not m_user.has_permission() then
-		return "[]"
-	end
+	-- if not m_user.has_permission() then
+		-- return "[]"
+	-- end
 
 	realm = env:getHeader('realm')
 

@@ -646,4 +646,20 @@ BEGIN
 	UPDATE wechat_users set updated_epoch = DATETIME('now', 'localtime') WHERE id = NEW.id;
 END;
 
+CREATE TABLE wechat_upload (
+	id INTEGER PRIMARY Key,
+	serverId VARCHAR,
+	comment_id INTEGER,
+	type INTEGER,
+	user_id INTEGER,
+
+	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
+	updated_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
+	deleted_epoch INTEGER
+);
+
+CREATE TRIGGER t_wechat_upload AFTER UPDATE ON wechat_upload
+BEGIN
+	UPDATE wechat_upload set updated_epoch = DATETIME('now', 'localtime') WHERE id = NEW.id;
+END;
 -- END
