@@ -52,6 +52,15 @@ get('/', function(params)
 	end
 end)
 
+get('/wechat', function(params)
+	users = xdb.find_one("users", {id = xtra.session.user_id})
+	if n > 0 then
+		return users
+	else
+		return "[]"
+	end
+end)
+
 get('/bind', function(params)
 	n, users = xdb.find_by_sql([[SELECT u.*, w.id AS wechat_id, openid, headimgurl, nickname
 		FROM users u, wechat_users w

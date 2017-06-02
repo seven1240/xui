@@ -94,7 +94,7 @@ class Home extends React.Component {
 									<span className="weui-form-preview__value">{comment.created_epoch}</span>
 								</div>
 								<div className="weui-form-preview__item">
-									<label className="weui-form-preview__label" style={{color:"black",fontSize:"15px"}}>{comment.content.slice(0,20)}</label>
+									<label className="weui-form-preview__label" style={{color:"black",fontSize:"15px"}}>{comment.content}</label>
 									<span className="weui-form-preview__value"></span>
 								</div>
 							</div>
@@ -253,6 +253,7 @@ class Comment extends React.Component {
 	}
 	componentDidMount() {
 		xFetchJSON("/api/tickets/" + current_ticket_id).then((data) => {
+			console.log("comments_aaaaa", data)
 			this.setState({content: data})
 		}).catch((msg) => {
 		});
@@ -263,6 +264,7 @@ class Comment extends React.Component {
 	}
 	addComments(e) {
 		console.log('submit', this.state.comment_content);
+		const serverIds = this.state.serverIds;
 		if(this.state.comment_content){
 			xFetchJSON("/api/tickets/" + current_ticket_id + "/comments", {
 				method: 'POST',
@@ -307,7 +309,7 @@ class Comment extends React.Component {
 class Newticket extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {input: {}, ticket_type: []}
+		this.state = {input: {}, ticket_type: [], cnumber: null}
 	}
 	componentDidMount() {
 		xFetchJSON("/api/dicts/", {
@@ -315,6 +317,13 @@ class Newticket extends React.Component {
 			headers: {"realm":"TICKET_TYPE"}
 		}).then((data) => {
 			this.setState({ticket_type: data})
+		}).catch((msg) => {
+			console.error("dicts", msg);
+		});
+		xFetchJSON("/api/users/wechat", {
+			method:"GET"
+		}).then((data) => {
+			this.setState({cnumber: data.extn})
 		}).catch((msg) => {
 			console.error("dicts", msg);
 		});
@@ -362,10 +371,10 @@ class Newticket extends React.Component {
 					</div>
 					<div className="weui-cell">
 						<div className="weui-cell__hd">
-							<label className="weui-label">主叫号码</label>
+							<label className="weui-label">派单人</label>
 						</div>
 						<div className="weui-cell__bd">
-							<input className="weui-input" type="number" onChange={this.handleCidNumber.bind(this)} pattern="[0-11]*" placeholder="请输入主叫号码"/>
+							<input className="weui-input" type="text" onChange={this.handleCidNumber.bind(this)} value={this.state.cnumber}/>
 						</div>
 					</div>
 					<div className="weui-cell">
