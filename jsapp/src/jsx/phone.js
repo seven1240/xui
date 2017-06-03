@@ -294,20 +294,26 @@ class Phone extends React.Component {
 		console.log("Attempting Screen Capture....");
 		notify("Attempting Screen Capture....");
 
-		getScreenId(function (error, sourceId, screen_constraints) {
+		const sharefunc = function (error, sourceId, screen_constraints) {
 			_this.state.shareCall = verto.newCall({
 				destination_number: _this.state.destNumber,
 				caller_id_name: localStorage.getItem('xui.username'),
 				caller_id_number: localStorage.getItem('xui.username'),
 				// outgoingBandwidth: outgoingBandwidth,
 				// incomingBandwidth: incomingBandwidth,
-				videoParams: screen_constraints.video.mandatory,
+				videoParams: screen_constraints ? screen_constraints.video.mandatory : {},
 				useVideo: true,
 				screenShare: true,
 				// dedEnc: false,
 				mirrorInput: false
 			});
-		});
+		}
+
+		if (!!navigator.mozGetUserMedia) {
+			sharefunc();
+		} else {
+			getScreenId(sharefunc);
+		}
 	}
 
 	handleDTMF(e) {

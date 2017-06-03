@@ -434,7 +434,7 @@ var video_constraints = {
 function getUserMedia(options) {
 	var n = navigator,
 	media;
-	n.getMedia = n.getUserMedia;
+	n.getMedia = n.getUserMedia || n.mozGetUserMedia;
 	n.getMedia(options.constraints || {
 		audio: true,
 		video: video_constraints
@@ -729,18 +729,29 @@ export default class VertoRTC {
 
 		if (this.options.screenShare) {
 			// fix for chrome to work for now, will need to change once we figure out how to do this in a non-mandatory style constraint.
-			var opt = [];
-			opt.push({sourceId: this.options.useCamera});
 
-			if (bestFrameRate) {
-				opt.push({minFrameRate: bestFrameRate});
-				opt.push({maxFrameRate: bestFrameRate});
+			if (!!navigator.mozGetUserMedia) {
+				var dowin = window.confirm("Do you want to share an application window?  If not you will share a screen.");
+
+				video = {
+					width: {min: this.options.videoParams.minWidth, max: this.options.videoParams.maxWidth},
+					height: {min: this.options.videoParams.minHeight, max: this.options.videoParams.maxHeight},
+					mediaSource: dowin ? "window" : "screen"
+				}
+			} else {
+				var opt = [];
+				opt.push({sourceId: this.options.useCamera});
+
+				if (bestFrameRate) {
+					opt.push({minFrameRate: bestFrameRate});
+					opt.push({maxFrameRate: bestFrameRate});
+				}
+
+				video = {
+					mandatory: this.options.videoParams,
+					optional: opt
+				};
 			}
-
-			video = {
-				mandatory: this.options.videoParams,
-				optional: opt
-			};
 		} else {
 			video = {
 				//mandatory: this.options.videoParams,
@@ -1065,7 +1076,6 @@ export default class VertoRTC {
 			onerror: function(e) {console.warn( w + "x" + h + " not supported."); FSRTC.checkRes(cam, func);}
 		});
 	}
-
 }
 
 // window.VertoRTC = VertoRTC;
