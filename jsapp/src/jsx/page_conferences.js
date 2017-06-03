@@ -165,7 +165,7 @@ class Member extends React.Component {
 						}
 						&nbsp;|&nbsp;
 						</div>
-						<div className="inline"><ProgressBar active bsStyle="success" now={member.status.audio.energyScore/50} /></div>
+						<div className="inline"><ProgressBar active bsStyle="success" now={member.status.muted ? 0 : member.status.audio.energyScore/50} /></div>
 					</td>
 					<td>{member.email}</td>
 			</tr>;
