@@ -44,7 +44,7 @@ function create(kvp)
 		local realm = 'conference'
 		local ref_id = 0
 		local sql = "INSERT INTO params (realm, k, v, ref_id, disabled) SELECT 'conference', k, v, " ..
-			id .. ", disabled From params where realm = 'conference' and ref_id = 0"
+			id .. ", disabled FROM params WHERE realm = 'conference' and ref_id = 0"
 
 		xdb.execute(sql)
 	end
@@ -53,7 +53,7 @@ end
 
 function params(profile_id)
 	rows = {}
-	sql = "SELECT * from params WHERE realm = 'conference' AND ref_id = " .. profile_id
+	sql = "SELECT * FROM params WHERE realm = 'conference' AND ref_id = " .. profile_id
 	print(sql)
 	xdb.find_by_sql(sql, function(row)
 		table.insert(rows, row)

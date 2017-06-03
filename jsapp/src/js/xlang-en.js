@@ -5,6 +5,9 @@ LANGUAGES["en"] = {
 	FS_DEST_SYSTEM: "System",
 	FS_DEST_IP: "IP",
 	FS_DEST_IVRBLOCK: "IVR Block",
+	FS_DEST_CONFERENCE: "Conference",
+	FS_DEST_CONFERENCE_CLUSTER: "Conference Cluster",
+
 	Hangup: "Hup",
 	Transfer: "Xfer",
 	"days": "{day}days",
