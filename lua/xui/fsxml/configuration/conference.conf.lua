@@ -42,11 +42,15 @@ end
 
 function build_conference_conf(profile_name)
 	local settings = ""
-	local cond = {realm = 'conference', disabled = 0}
+	local profile = xdb.find_one("conference_profiles", {name = profile_name})
 
-	xdb.find_by_cond("params", cond, 'id', function (row)
-		settings = settings .. '<param name ="' .. row.k .. '" value="' .. row.v .. '"/>\n'
-	end)
+	if profile then
+		local cond = {realm = 'conference', disabled = 0, ref_id = profile.id}
+
+		xdb.find_by_cond("params", cond, 'id', function (row)
+			settings = settings .. '<param name ="' .. row.k .. '" value="' .. row.v .. '"/>\n'
+		end)
+	end
 
 	return [[<profiles><profile name="]] .. profile_name .. '">' .. settings .. [[</profile></profiles>]]
 end
