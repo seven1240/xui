@@ -144,6 +144,12 @@ xdb.find_by_sql(sql, function(row)
 			conf_name = row.body
 		end
 
+		if room.profile_id then
+			xdb.find_by_cond("params", {realm = "route", ref_id = row.id}, "id", function(row)
+				table.insert(actions_table, {app = k, data = v})
+			end)
+		end
+
 		table.insert(actions_table, {app = "conference", data = conf_name .. "-$${domain}@" .. profile_name .. flags})
 	elseif (row.dest_type == 'FS_DEST_CONFERENCE_CLUSTER') then
 		lines1 = csplit(row.body, "\n")
