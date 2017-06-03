@@ -35,6 +35,9 @@ require 'xdb'
 m_user = {}
 
 m_user.is_admin = function(user_id)
+	if not user_id then
+		user_id = xtra.session.user_id
+	end
 	return user_id == 1 or user_id == "1"
 end
 

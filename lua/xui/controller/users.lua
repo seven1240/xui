@@ -85,11 +85,11 @@ get('/:id', function(params)
 end)
 
 get('/:id/wechat_users', function(params)
-	if not (params.id == xtra.session.user_id) then
+	if not m_user.is_admin() and (params.id ~= xtra.session.user_id) then
 		return 404
 	end
 
-	n, we_users = xdb.find_by_cond("wechat_users", {user_id = xtra.session.user_id})
+	n, we_users = xdb.find_by_cond("wechat_users", {user_id = params.id})
 	if n > 0 then
 		return we_users
 	else
@@ -193,9 +193,15 @@ delete('/:id', function(params)
 	end
 end)
 
-put('/:id/unbind', function(params)
+delete('/:id/wechat_users/:wechat_user_id', function(params)
 	print(serialize(params))
-	ret = xdb.delete("wechat_users", {user_id = params.id})
+
+	if not m_user.is_admin() then
+		return 500
+	end
+
+	ret = xdb.update("wechat_users", {user_id = 'NULL', id = params.wechat_user_id})
+
 	if ret then
 		return 200, "{}"
 	else

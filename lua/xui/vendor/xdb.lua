@@ -90,7 +90,11 @@ local function _update_string(kvp)
 	local comma = ""
 	local str = ""
 	for k, v in pairs(kvp) do
-		str = str .. comma .. escapek(k) .. "=" .. escape(v)
+		if v == 'NULL' then
+			str = str .. comma .. escapek(k) .. "= NULL"
+		else
+			str = str .. comma .. escapek(k) .. "=" .. escape(v)
+		end
 		comma = ","
 	end
 	return str
