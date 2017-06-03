@@ -127,12 +127,12 @@ class Member extends React.Component {
 		var className = this.state.active ? "member active selected" : "member";
 		const which_floor = member.status.video ? member.status.video : member.status.audio;
 
-		const floor_color   = which_floor.floor ? "blue"   : "#777" ;
+		const floor_color   = which_floor.floor ? "red"   : "#777" ;
 		const video_color  = member.status.video && member.status.video.visible ? "green" : "#ccc";
-		const muted_color   = member.status.audio.muted   ? "red"    : "green";
+		const muted_color   = member.status.audio.muted   ? "#ccc"   : "green";
 		const talking_color = member.status.audio.talking ? "green"  : "#777" ;
-		const deaf_color    = member.status.audio.deaf    ? "red"    : "green";
-		const hold_color    = member.status.audio.onHold  ? "red"    : "#ccc" ;
+		const deaf_color    = member.status.audio.deaf    ? "#ccc"   : "green";
+		const hold_color    = member.status.audio.onHold  ? "blue"   : "#ccc" ;
 
 		const video_class   = member.status.video && member.status.video.visible ? "conf-control fa fa-video-camera" : "conf-control fa fa-video-camera";
 		const muted_class   = member.status.audio.muted   ? "conf-control fa fa-microphone-slash" : "conf-control fa fa-microphone";
@@ -170,7 +170,7 @@ class Member extends React.Component {
 					<td>{member.email}</td>
 			</tr>;
 		} else if (this.props.displayStyle == 'list') {
-			const imgClass = which_floor.floor ? "conf-avatar conf-avatar-1" : ((parseInt(member.memberID) < 0 || member.status.audio.muted) ? "conf-avatar conf-avatar-3" : "conf-avatar conf-avatar-2");
+			const imgClass = which_floor.floor ? "conf-avatar conf-avatar-1" : ((parseInt(member.memberID) < 0) ? "conf-avatar conf-avatar-3" : "conf-avatar conf-avatar-2");
 
 			return  <div  className={className} onClick={(e) => _this.handleClick(e, member.memberID)} style={{width: "185px", height: "90px", marginTop:"30px", marginRight:"20px", border:"1px solid #c0c0c0", display:"inline-block"}}>
 				<div style={{float:"left"}}>
