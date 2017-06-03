@@ -128,13 +128,13 @@ class Member extends React.Component {
 		const which_floor = member.status.video ? member.status.video : member.status.audio;
 
 		const floor_color   = which_floor.floor ? "red"   : "#777" ;
-		const video_color  = member.status.video && member.status.video.visible ? "green" : "#ccc";
+		const video_color  = member.status.video && !member.status.video.muted ? "green" : "#ccc";
 		const muted_color   = member.status.audio.muted   ? "#ccc"   : "green";
 		const talking_color = member.status.audio.talking ? "green"  : "#777" ;
 		const deaf_color    = member.status.audio.deaf    ? "#ccc"   : "green";
 		const hold_color    = member.status.audio.onHold  ? "blue"   : "#ccc" ;
 
-		const video_class   = member.status.video && member.status.video.visible ? "conf-control fa fa-video-camera" : "conf-control fa fa-video-camera";
+		const video_class   = member.status.video && !member.status.video.muted ? "conf-control fa fa-video-camera" : "conf-control fa fa-video-camera";
 		const muted_class   = member.status.audio.muted   ? "conf-control fa fa-microphone-slash" : "conf-control fa fa-microphone";
 		const deaf_class    = member.status.audio.deaf    ? "conf-control fa fa-bell-slash-o" : "conf-control fa fa-bell-o";
 		const hold_class    = member.status.audio.onHold  ? "fa fa-pause" : "fa fa-circle-thin";
@@ -156,7 +156,7 @@ class Member extends React.Component {
 						<i className="fa fa-volume-up" style={{color: talking_color}} aria-hidden="true"></i> |&nbsp;
 						<a className={deaf_class} style={{color: deaf_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, member.status.audio.deaf ? "undeaf" : "deaf")}></a> |&nbsp;
 						<a className={muted_class} style={{color: muted_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, member.status.audio.muted ? "unmute" : "mute")}></a> |&nbsp;
-						<a className={video_class} style={{color: video_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, member.status.video && member.status.video.visible ? "vmute" : "unvmute")}></a> |&nbsp;
+						<a className={video_class} style={{color: video_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, member.status.video && !member.status.video.muted ? "vmute" : "unvmute")}></a> |&nbsp;
 						<i className={hold_class} style={{color: hold_color}} aria-hidden="true"></i> |&nbsp;
 						{
 							member.memberID > 0 ?
@@ -185,7 +185,7 @@ class Member extends React.Component {
 						<i className="fa fa-volume-up" style={{color: talking_color}} aria-hidden="true"></i>&nbsp;
 						<a className={deaf_class} style={{color: deaf_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, member.status.audio.deaf ? "undeaf" : "deaf")}></a>&nbsp;
 						<a className={muted_class} style={{color: muted_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, member.status.audio.muted ? "unmute" : "mute")}></a>&nbsp;
-						<a className={video_class} style={{color: video_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, member.status.video && member.status.video.visible ? "vmute" : "unvmute")}></a>&nbsp;
+						<a className={video_class} style={{color: video_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, member.status.video && !member.status.video.muted ? "vmute" : "unvmute")}></a>&nbsp;
 						<i className={hold_class} style={{color: hold_color, display: "none"}} aria-hidden="true"></i>&nbsp;
 						<a className="conf-control fa fa-phone" style={{color: "green"}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, "call")}></a>
 					</div>
@@ -623,7 +623,7 @@ class ConferencePage extends React.Component {
 
 			<ButtonToolbar>
 				<T.span text="Conference Name"/>: {this.props.name} |&nbsp;
-				<T.span text="Total"/>: {this.state.rows.length}
+				<T.span text="Total"/>: {Object.keys(this.activeMembers).length}
 			</ButtonToolbar>
 
 			<div>
