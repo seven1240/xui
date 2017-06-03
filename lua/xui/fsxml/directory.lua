@@ -99,6 +99,10 @@ if user then
 				'<variable name="effective_caller_id_name" value="' .. cid_name .. '"/>' ..
 				'<variable name="effective_caller_id_number" value="' .. cid_number .. '"/>' ..
 				'<variable name="accountcode" value="' .. row.extn .. '"/>'
+
+		if row.auto_record == "1" then
+			vars = vars .. '\n<variable name="auto_record" value="true"/>\n'
+		end
 	end)
 end
 

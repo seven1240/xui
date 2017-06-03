@@ -265,6 +265,10 @@ class UserPage extends React.Component {
 			return;
 		}
 
+		if (!user.auto_record) { // missing when unchecked
+			user.auto_record = "0";
+		}
+
 		xFetchJSON("/api/users/" + user.id, {
 			method: "PUT",
 			body: JSON.stringify(user)
@@ -377,8 +381,14 @@ class UserPage extends React.Component {
 		const wechat_user = this.state.wechat_user;
 		let save_btn = "";
 		let err_msg = "";
-		let src = wechat_user.headimgurl;
-		let sex = wechat_user.sex == 1 ? '男' : '女';
+		let src = null;
+		let sex = null;
+
+		if (wechat_user) {
+			src = wechat_user.headimgurl;
+			sex = wechat_user.sex == 1 ? '男' : '女';
+		}
+
 		const style = {width: '50px'};
 
 		if (this.state.edit) {
@@ -389,7 +399,8 @@ class UserPage extends React.Component {
 			return <Checkbox name="group" key={row.id} defaultChecked={row.checkshow} value={row.id}>{row.name}</Checkbox>
 		});
 
-		this.state.formShow = this.state.wechat_user.user_id ? 'block' : 'none';
+		this.state.formShow = this.state.wechat_user && this.state.wechat_user.user_id ? 'block' : 'none';
+
 		return <div>
 			<ButtonToolbar className="pull-right">
 			<ButtonGroup>
@@ -446,6 +457,13 @@ class UserPage extends React.Component {
 				<FormGroup controlId="formType">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Type" /></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} name="type" defaultValue={user.type}/></Col>
+				</FormGroup>
+
+				<FormGroup controlId="formAutoRecord">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Record" /></Col>
+					<Col sm={10}><EditControl componentClass="input" type="checkbox" edit={this.state.edit} name="auto_record"
+						defaultChecked={user.auto_record == "1"} defaultValue={1} text={user.auto_record == "1" ? T.translate("Yes") : T.translate("No")}/>
+					</Col>
 				</FormGroup>
 
 				<FormGroup controlId="formSave">

@@ -32,7 +32,7 @@
 
 import React from 'react';
 import T from 'i18n-react';
-import { Modal, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Radio, Col } from 'react-bootstrap';
+import { Modal, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Radio, Checkbox, Col } from 'react-bootstrap';
 import 'whatwg-fetch';
 
 class EditControl extends FormControl {
@@ -57,6 +57,9 @@ class EditControl extends FormControl {
 				});
 
 				return <FormControl {...props}>{options_tag}</FormControl>
+			} else if (this.props.componentClass == "checkbox") {
+				delete this.props.componentClass;
+				return <Checkbox {...props} />
 			} else {
 				return <FormControl {...props} />
 			}

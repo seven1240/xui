@@ -123,13 +123,17 @@ function form2json(selector) {
 	var obj = {};
 
 	for (var i=0, len= formElements.length; i<len; i++) {
-		if (formElements[i].type != "submit" && formElements[i].type != "radio") {//we dont want to include the submit-buttom
-			if (formElements[i].name) {
+		if (formElements[i].type == "submit") continue;
+
+		if (formElements[i].name) {
+			if (formElements[i].type == "radio") {
+				obj[formElements[i].name] = formElements[formElements[i].name].value;
+			} else {
+				if (formElements[i].type == "checkbox" && !formElements[i].checked) {
+					continue;
+				}
 				obj[formElements[i].name] = formElements[i].value;
 			}
-		}
-		if (formElements[i].type == "radio") {
-			obj[formElements[i].name] = formElements[formElements[i].name].value;
 		}
 	}
     return obj;

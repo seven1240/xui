@@ -95,6 +95,14 @@ xdb.find_by_sql(sql, function(row)
 		table.insert(actions_table, {app = "set", data = "effective_caller_id_number=" .. sdnc_number})
 	end
 
+	local auto_record = params:getHeader("variable_auto_record")
+	if auto_record == "true" then
+		local record_path = config.recording_path .. "/auto-record-" .. '${strftime(%Y%m%d-%H%M%S)}' .. "-" .. '${uuid}' .. '.wav'
+		table.insert(actions_table, {app = "set", data = "auto_record_path=" .. record_path})
+		table.insert(actions_table, {app = "record_session", data = record_path})
+		table.insert(actions_table, {app = "set", data = "api_hangup_hook=lua xui/record_record.lua"})
+	end
+
 	if (row.dest_type == 'FS_DEST_SYSTEM') then
 		lines = csplit(row.body, "\n")
 		for k, v in pairs(lines) do
