@@ -242,7 +242,7 @@ class UserPage extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {user: {}, edit: false, groups: [], wechat_user: {}, formShow: '', style1: 'none'};
+		this.state = {user: {}, edit: false, groups: [], wechat_users: [], formShow: '', style1: 'none'};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -333,12 +333,9 @@ class UserPage extends React.Component {
 			notify(<T.span text={{key: "Internal Error", msg: msg}}/>, "error");
 		});
 
-		xFetchJSON("/api/wechat_users/" + this.props.params.id).then((data) => {
-			console.log("wechat_user", data[0]);
-			if (!data.user_id) {
-				this.setState({wechat_user: {}});
-			};
-			this.setState({wechat_user: data[0]});
+		xFetchJSON("/api/users/" + this.props.params.id + "/wechat_users").then((data) => {
+			console.log("wechat_users", data);
+			this.setState({wechat_users: data});
 		}).catch((msg) => {
 			console.log("no wechat_user linked to this user");
 		});
@@ -378,16 +375,8 @@ class UserPage extends React.Component {
 
 	render() {
 		const user = this.state.user;
-		const wechat_user = this.state.wechat_user;
 		let save_btn = "";
 		let err_msg = "";
-		let src = null;
-		let sex = null;
-
-		if (wechat_user) {
-			src = wechat_user.headimgurl;
-			sex = wechat_user.sex == 1 ? '男' : '女';
-		}
 
 		const style = {width: '50px'};
 
@@ -398,8 +387,6 @@ class UserPage extends React.Component {
 		const groups = this.state.groups.map(function(row) {
 			return <Checkbox name="group" key={row.id} defaultChecked={row.checkshow} value={row.id}>{row.name}</Checkbox>
 		});
-
-		this.state.formShow = this.state.wechat_user && this.state.wechat_user.user_id ? 'block' : 'none';
 
 		return <div>
 			<ButtonToolbar className="pull-right">
@@ -511,73 +498,23 @@ class UserPage extends React.Component {
 			</Form>
 			</div>
 
-			<br/>
-			<Form horizontal id="WechatUserForm" style={{display: this.state.formShow}}>
-			<ButtonToolbar className="pull-right">
-			<ButtonGroup>
-				<Button onClick={this.handleUnBind}><i className="fa fa-chain-broken" aria-hidden="true"></i>&nbsp;
-					<T.span text="解除微信绑定"/>
-				</Button>
-			</ButtonGroup>
+			{
+				this.state.wechat_users.length == 0 ? null :
+				<ButtonToolbar className="pull-right">
+				<ButtonGroup>
+					<Button onClick={this.handleUnBind}><i className="fa fa-chain-broken" aria-hidden="true"></i>&nbsp;
+						<T.span text="解除微信绑定"/>
+					</Button>
+				</ButtonGroup>
+				</ButtonToolbar>
+			}
 
-			</ButtonToolbar>
-				<br /><br />
-				<input type="hidden" name="id" defaultValue={wechat_user.id}/>
-				<FormGroup controlId="formExtn">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="OpenID"/></Col>
-					<Col sm={10}><FormControl.Static><T.span text={wechat_user.openid}/></FormControl.Static></Col>
-				</FormGroup>
+			{
+				this.state.wechat_users.map((weuser) => {
+					return <WeUser wechat_user={weuser}/>
+				})
+			}
 
-				<FormGroup controlId="formExtn">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="UnionID"/></Col>
-					<Col sm={10}><FormControl.Static><T.span text={wechat_user.unionid}/></FormControl.Static></Col>
-				</FormGroup>
-
-				<FormGroup controlId="formExtn">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Headimgurl"/></Col>
-					<Col sm={10}><FormControl.Static><img src={src} style={style}/></FormControl.Static></Col>
-				</FormGroup>
-
-				<FormGroup controlId="formExtn">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Nickname"/></Col>
-					<Col sm={10}><FormControl.Static><T.span text={wechat_user.nickname}/></FormControl.Static></Col>
-				</FormGroup>
-
-				<FormGroup controlId="formExtn">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Sex"/></Col>
-					<Col sm={10}><FormControl.Static><T.span text={sex}/></FormControl.Static></Col>
-				</FormGroup>
-
-				<FormGroup controlId="formExtn">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Province"/></Col>
-					<Col sm={10}><FormControl.Static><T.span text={wechat_user.province}/></FormControl.Static></Col>
-				</FormGroup>
-
-				<FormGroup controlId="formExtn">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="City"/></Col>
-					<Col sm={10}><FormControl.Static><T.span text={wechat_user.city}/></FormControl.Static></Col>
-				</FormGroup>
-
-				<FormGroup controlId="formExtn">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Country"/></Col>
-					<Col sm={10}><FormControl.Static><T.span text={wechat_user.country}/></FormControl.Static></Col>
-				</FormGroup>
-
-				<FormGroup controlId="formExtn">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Language"/></Col>
-					<Col sm={10}><FormControl.Static><T.span text={wechat_user.language}/></FormControl.Static></Col>
-				</FormGroup>
-
-				<FormGroup controlId="formExtn">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Privilege"/></Col>
-					<Col sm={10}><FormControl.Static><T.span text={wechat_user.privilege}/></FormControl.Static></Col>
-				</FormGroup>
-
-				<FormGroup controlId="formExtn">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="App_type"/></Col>
-					<Col sm={10}><FormControl.Static><T.span text={wechat_user.app_type}/></FormControl.Static></Col>
-				</FormGroup>
-			</Form>
 		</div>
 	}
 }
@@ -725,6 +662,75 @@ class UsersPage extends React.Component {
 
 			<NewUser show={this.state.formShow} onHide={formClose} handleNewUserAdded={this.handleUserAdded.bind(this)}/>
 			<ImportUser show={this.state.formShow1} onHide={formClose1} handleNewUserAdded={this.handleUserAdded.bind(this)}/>
+		</div>
+	}
+}
+
+class WeUser extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+
+	render() {
+		const wechat_user = this.props.wechat_user;
+		const sex = <T.span text={wechat_user.sex == "1" ? "Male" : "Female"} />
+
+		return <div>
+			<input type="hidden" name="id" defaultValue={"wechat_user.id"}/>
+			<FormGroup controlId="formExtn">
+				<Col componentClass={ControlLabel} sm={2}><T.span text="OpenID"/></Col>
+				<Col sm={10}><FormControl.Static><T.span text={wechat_user.openid}/></FormControl.Static></Col>
+			</FormGroup>
+
+			<FormGroup controlId="formExtn">
+				<Col componentClass={ControlLabel} sm={2}><T.span text="UnionID"/></Col>
+				<Col sm={10}><FormControl.Static><T.span text={wechat_user.unionid}/></FormControl.Static></Col>
+			</FormGroup>
+
+			<FormGroup controlId="formExtn">
+				<Col componentClass={ControlLabel} sm={2}><T.span text="Headimgurl"/></Col>
+				<Col sm={10}><FormControl.Static><img src={wechat_user.headimgurl} style={style}/></FormControl.Static></Col>
+			</FormGroup>
+
+			<FormGroup controlId="formExtn">
+				<Col componentClass={ControlLabel} sm={2}><T.span text="Nickname"/></Col>
+				<Col sm={10}><FormControl.Static><T.span text={wechat_user.nickname}/></FormControl.Static></Col>
+			</FormGroup>
+
+			<FormGroup controlId="formExtn">
+				<Col componentClass={ControlLabel} sm={2}><T.span text="Sex"/></Col>
+				<Col sm={10}><FormControl.Static><T.span text={sex}/></FormControl.Static></Col>
+			</FormGroup>
+
+			<FormGroup controlId="formExtn">
+				<Col componentClass={ControlLabel} sm={2}><T.span text="Province"/></Col>
+				<Col sm={10}><FormControl.Static><T.span text={wechat_user.province}/></FormControl.Static></Col>
+			</FormGroup>
+
+			<FormGroup controlId="formExtn">
+				<Col componentClass={ControlLabel} sm={2}><T.span text="City"/></Col>
+				<Col sm={10}><FormControl.Static><T.span text={wechat_user.city}/></FormControl.Static></Col>
+			</FormGroup>
+
+			<FormGroup controlId="formExtn">
+				<Col componentClass={ControlLabel} sm={2}><T.span text="Country"/></Col>
+				<Col sm={10}><FormControl.Static><T.span text={wechat_user.country}/></FormControl.Static></Col>
+			</FormGroup>
+
+			<FormGroup controlId="formExtn">
+				<Col componentClass={ControlLabel} sm={2}><T.span text="Language"/></Col>
+				<Col sm={10}><FormControl.Static><T.span text={wechat_user.language}/></FormControl.Static></Col>
+			</FormGroup>
+
+			<FormGroup controlId="formExtn">
+				<Col componentClass={ControlLabel} sm={2}><T.span text="Privilege"/></Col>
+				<Col sm={10}><FormControl.Static><T.span text={wechat_user.privilege}/></FormControl.Static></Col>
+			</FormGroup>
+
+			<FormGroup controlId="formExtn">
+				<Col componentClass={ControlLabel} sm={2}><T.span text="App_type"/></Col>
+				<Col sm={10}><FormControl.Static><T.span text={wechat_user.app_type}/></FormControl.Static></Col>
+			</FormGroup>
 		</div>
 	}
 }

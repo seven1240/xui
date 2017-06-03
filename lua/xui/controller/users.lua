@@ -53,6 +53,7 @@ get('/', function(params)
 end)
 
 get('/wechat', function(params)
+	freeswitch.consoleLog("WARNING", "/users/wechat is Deprecated!!, use /users/:id/wechat_users")
 	users = xdb.find_one("users", {id = xtra.session.user_id})
 	if n > 0 then
 		return users
@@ -80,6 +81,19 @@ get('/:id', function(params)
 		return user
 	else
 		return 404
+	end
+end)
+
+get('/:id/wechat_users', function(params)
+	if not (params.id == xtra.session.user_id) then
+		return 404
+	end
+
+	n, we_users = xdb.find_by_cond("wechat_users", {user_id = xtra.session.user_id})
+	if n > 0 then
+		return we_users
+	else
+		return "[]"
 	end
 end)
 
