@@ -65,6 +65,7 @@ class Phone extends React.Component {
 		this.handleHangup = this.handleHangup.bind(this);
 		this.handleAnswer = this.handleAnswer.bind(this);
 		this.handleShare = this.handleShare.bind(this);
+		this.handleVideoToggle = this.handleVideoToggle.bind(this);
 		this.handleDTMF = this.handleDTMF.bind(this);
 		this.toggleVideo = this.toggleVideo.bind(this);
 		this.inCall = this.inCall.bind(this);
@@ -316,6 +317,20 @@ class Phone extends React.Component {
 		}
 	}
 
+	handleVideoToggle() {
+		const video = document.getElementById('webcam'); // todo fix hardcoded
+		const display = video.style.display;
+		switch (display) {
+			case "block":
+				video.style.display = "none";
+				break;
+			case "":
+			case "none":
+			default:
+				video.style.display = "block";
+		}
+	}
+
 	handleDTMF(e) {
 		var dtmf = e.target.getAttribute("data-dtmf");
 
@@ -491,10 +506,16 @@ class Phone extends React.Component {
 			</Button>
 		}
 
-		const shareButton = (this.inCall() && this.useVideo()) ? <Button bsStyle="primary" bsSize="xsmall" onClick={this.handleShare}>
+		const shareButton = !(this.inCall() && this.useVideo()) ? null :
+		<Button bsStyle="primary" bsSize="xsmall" onClick={this.handleShare}>
 			<i className="fa fa-desktop" aria-hidden="true"></i>&nbsp;
 			<T.span text={this.state.shareCall ? "Stop Sharing" : "Share"}/>
-		</Button> : null;
+		</Button>
+
+		const tVideoButton = !(this.inCall() && this.useVideo()) ? null :
+		<Button bsStyle="primary" bsSize="xsmall" onClick={this.handleVideoToggle}>
+			<i className="fa fa-video-camera" aria-hidden="true"></i>
+		</Button>
 
 		if (this.state.displayStyle == "xtop") {
 			xtopDisplay = <span>
@@ -503,7 +524,8 @@ class Phone extends React.Component {
 				{answerButton}&nbsp;
 				{hangupButton}&nbsp;
 				{transferButton}&nbsp;
-				{shareButton}
+				{shareButton}&nbsp;
+				{tVideoButton}
 				&nbsp;&nbsp;
 			</span>
 		} else {
