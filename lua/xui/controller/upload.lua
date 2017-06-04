@@ -117,6 +117,7 @@ post('/', function(params)
 					record.ext = v.ext
 					record.original_file_name = v.filename
 					record.mime = v.content_type
+					record.type = 'UPLOAD'
 					record.description = 'UPLOAD'
 					record.abs_path = v.abs_filename
 					record.dir_path = config.upload_path

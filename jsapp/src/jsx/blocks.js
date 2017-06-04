@@ -559,7 +559,7 @@ var toolbox = `<xml id="toolbox" style="display: none">
 			});
 		});
 
-		xFetchJSON('/api/media_files').then((obj) => {
+		xFetchJSON('/api/media_files?client=BLOCKLY').then((obj) => {
 			console.log("data", obj);
 
 			obj.forEach(function(row) {

@@ -71,6 +71,7 @@ if auto_record == "true" and record_path then
 		end
 		rec.abs_path = record_path
 		rec.file_size = "" .. size
+		rec.type = "AUTORECORD"
 		rec.description = "Auto Record"
 		rec.dir_path = config.recording_path
 		rec.channel_uuid = uuid

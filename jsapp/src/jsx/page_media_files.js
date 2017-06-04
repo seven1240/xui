@@ -130,14 +130,12 @@ class NewRecordFile extends React.Component {
 	}
 
 	componentDidMount() {
-		verto.subscribe("FSevent.record_start", {handler: this.handleFSEvent});
-		verto.subscribe("FSevent.record_stop", {handler: this.handleFSEvent});
+		verto.subscribe("FSevent.custom::xui::record_start", {handler: this.handleFSEvent});
 		verto.subscribe("FSevent.custom::xui::record_complete", {handler: this.handleFSEvent});
 	}
 
 	componentWillUnmount() {
-		verto.unsubscribe("FSevent.record_start");
-		verto.unsubscribe("FSevent.record_stop");
+		verto.subscribe("FSevent.custom::xui::record_start");
 		verto.subscribe("FSevent.custom::xui::record_complete");
 	}
 
@@ -166,12 +164,12 @@ class NewRecordFile extends React.Component {
 	handleFSEvent(v, e) {
 		console.log("FSevent:", e);
 
-		if (e.eventChannel == "FSevent.record_start") {
-			const path = e.data["Record-File-Path"];
+		if (e.eventChannel == "FSevent.custom::xui::record_start") {
+			const path = e.data.rel_path;
 			this.setState({recordingMSG: <T.span text={{key:"Recording to", path: path}}/>,audio: null});
-		} else if (e.eventChannel == "FSevent.record_stop") {
-			const path = e.data["Record-File-Path"];
-			let src = "/assets/upload/" + path.split('/')[6];
+		} else if (e.eventChannel == "FSevent.custom::xui::record_complete") {
+			const path = e.data.rel_path;
+			const src = "/recordings/" + path;
 			this.setState({recordingMSG: <T.span text={{key:"Record completed", path: path}}/>,
 			audio: <div><Col sm={2}>录音试听：</Col><Col sm={4}><audio src={src} controls="controls" /></Col>
 						<Col><Button  bsSize="small" onClick={this.handleDeleteOneRecodring}><T.span text="Delete"/></Button></Col></div>});
@@ -180,7 +178,7 @@ class NewRecordFile extends React.Component {
 
 	doCallbackRecord() {
 		console.log("callback record ...");
-		fsAPI("bgapi", "originate user/" + this.refs.callbackNumber.value + " *991234", function(s) {
+		verto.fsAPI("bgapi", "originate user/" + this.refs.callbackNumber.value + " *991234", function(s) {
 			console.log(s);
 		}, function(s) {
 			console.error(s);
@@ -231,7 +229,7 @@ class NewRecordFile extends React.Component {
 					<Col sm={10}>
 						<input type="input" name="number" placeholder="1000" ref="callbackNumber"/>&nbsp;
 						<Button onClick={this.doCallbackRecord.bind(this)}>
-							<i className="fa fa-phone" aria-hidden="true" onClick={this.doCallbackRecord.bind(this)}></i>
+							<i className="fa fa-phone" aria-hidden="true"></i>
 						</Button>
 					</Col>
 				</FormGroup>

@@ -77,6 +77,16 @@ INSERT INTO dicts (realm, k, v) VALUES ('TONE', 'uk-ring', '%(400,200,400,450);%
 INSERT INTO dicts (realm, k, v) VALUES ('TONE', 'us-ring', '%(2000,4000,440,480)');
 INSERT INTO dicts (realm, k, v) VALUES ('TONE', 'beep', '%(1000,0,640)');
 
+INSERT INTO dicts (realm, k, v) VALUES ('MFILE_TYPE', 'UPLOAD', 'UPLOAD');
+INSERT INTO dicts (realm, k, v) VALUES ('MFILE_TYPE', 'RECORD', 'RECORD');
+INSERT INTO dicts (realm, k, v) VALUES ('MFILE_TYPE', 'AUTORECORD', 'AUTORECORD');
+INSERT INTO dicts (realm, k, v) VALUES ('MFILE_TYPE', 'FIFO', 'FIFO');
+INSERT INTO dicts (realm, k, v) VALUES ('MFILE_TYPE', 'BLOCK', 'BLOCK');
+INSERT INTO dicts (realm, k, v) VALUES ('MFILE_TYPE', 'FAX', 'FAX');
+INSERT INTO dicts (realm, k, v) VALUES ('MFILE_TYPE', 'PDF', 'PDF');
+INSERT INTO dicts (realm, k, v) VALUES ('MFILE_TYPE', 'AUDIO', 'AUDIO');
+INSERT INTO dicts (realm, k, v) VALUES ('MFILE_TYPE', 'VIDEO', 'VIDEO');
+
 INSERT INTO dicts (realm, k, v) VALUES ('MCAST_CODEC_NAME', 'PCMU', 'PCMU');
 INSERT INTO dicts (realm, k, v) VALUES ('MCAST_CODEC_NAME', 'PCMA', 'PCMA');
 INSERT INTO dicts (realm, k, v) VALUES ('MCAST_CODEC_NAME', 'G722', 'G722');

@@ -123,6 +123,7 @@ if fifoAction == "push" or fifoAction == "abort" or fifoAction == "pre-dial" or 
 		end
 		rec.abs_path = record_path
 		rec.file_size = "" .. size
+		rec.type = "FIFO"
 		rec.description = fifo_name
 		rec.dir_path = config.fiforecord_path
 		rec.channel_uuid = uuid

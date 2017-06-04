@@ -38,7 +38,13 @@ require 'xdb'
 xdb.bind(xtra.dbh)
 
 get('/', function(params)
-	n, mfiles = xdb.find_all("media_files")
+	local client = env:getHeader("client")
+
+	if client == "BLOCKLY" then
+		n, mfiles = xdb.find_by_cond("media_files", "type = 'RECORD' or type = 'UPLOAD'")
+	else
+		n, mfiles = xdb.find_all("media_files", "id DESC", nil, 5000) -- todo fix hardcoded limit
+	end
 
 	if (n > 0) then
 		return mfiles
