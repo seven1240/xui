@@ -103,6 +103,10 @@ xdb.find_by_sql(sql, function(row)
 		table.insert(actions_table, {app = "set", data = "api_hangup_hook=lua xui/record_record.lua"})
 	end
 
+	xdb.find_by_cond("params", {realm = "route", ref_id = row.id}, "id", function(app)
+		table.insert(actions_table, {app = app.k, data = app.v})
+	end)
+
 	if (row.dest_type == 'FS_DEST_SYSTEM') then
 		lines = csplit(row.body, "\n")
 		for k, v in pairs(lines) do
@@ -150,12 +154,6 @@ xdb.find_by_sql(sql, function(row)
 			conf_name = room.nbr
 		else
 			conf_name = row.body
-		end
-
-		if room.profile_id then
-			xdb.find_by_cond("params", {realm = "route", ref_id = row.id}, "id", function(row)
-				table.insert(actions_table, {app = k, data = v})
-			end)
 		end
 
 		table.insert(actions_table, {app = "conference", data = conf_name .. "-$${domain}@" .. profile_name .. flags})
