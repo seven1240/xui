@@ -38,7 +38,7 @@ CREATE TABLE users (
 	login VARCHAR,
 	email VARCHAR,
 	type VARCHAR,
-	auto_record BOOLEAN NOT NULL DEFAULT 0 CHECK(disabled IN (0, 1, '0', '1')),
+	auto_record BOOLEAN NOT NULL DEFAULT 0 CHECK(auto_record IN (0, 1, '0', '1')),
 	disabled BOOLEAN NOT NULL DEFAULT 0 CHECK(disabled IN (0, 1, '0', '1')),
 
 	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
