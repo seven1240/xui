@@ -123,10 +123,6 @@ post('/', function(params)
 					record.rel_path = string.sub(record.abs_path, string.len(record.dir_path) + 2)
 					record.file_size = "" .. v.file_size .. ""
 
-					record.channel_uuid = env:getHeader("Core-UUID")
-					record.created_epoch = "" .. os.time() .. ""
-					record.updated_epoch = record.created_epoch
-
 					local media_file = xdb.create_return_object('media_files', record)
 
 					if media_file then

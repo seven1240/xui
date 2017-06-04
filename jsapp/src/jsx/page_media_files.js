@@ -625,10 +625,10 @@ class MediaFilesPage extends React.Component {
 
 		const rows = this.state.rows.map(function(row) {
 			return <tr key={row.id}>
-					<td>{row.id}</td>
-					<td><Link to={`/settings/media_files/${row.id}`}>{row.name}</Link></td>
-					<td>{row.mime}</td>
+					<td>{row.created_epoch}</td>
+					<td><Link to={`/settings/media_files/${row.id}`}>{row.name.substring(0, 36)}</Link></td>
 					<td>{row.description}</td>
+					<td>{row.mime}</td>
 					<td>{row.file_size}</td>
 					<td><T.a onClick={() => _this.handleDelete(row.id)} text="Delete" className={danger}/></td>
 			</tr>;
@@ -679,10 +679,10 @@ class MediaFilesPage extends React.Component {
 				<table className="table">
 				<tbody>
 				<tr>
-					<th><T.span text="ID"/></th>
+					<th><T.span text="Created"/></th>
 					<th><T.span text="Name"/></th>
-					<th><T.span text="Type"/></th>
 					<th><T.span text="Description"/></th>
+					<th><T.span text="Type"/></th>
 					<th><T.span text="Size"/></th>
 					<th><T.span style={hand} text="Delete" className={danger} onClick={toggleDanger} title={T.translate("Click me to toggle fast delete mode")}/></th>
 				</tr>

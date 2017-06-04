@@ -203,10 +203,11 @@ end
 -- if cb is a callback function, run cb(row) for each row
 -- if sort is not nil, ORDER BY sort string
 
-function xdb.find_all(t, sort, cb)
+function xdb.find_all(t, sort, cb, limit)
 	local sql = "SELECT * FROM " .. t
 
 	if sort then sql = sql .. " ORDER BY " .. sort end
+	if limit then sql = sql .. " LIMIT " .. limit end
 
 	return xdb.find_by_sql(sql, cb)
 end

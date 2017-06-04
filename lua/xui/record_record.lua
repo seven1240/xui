@@ -56,9 +56,12 @@ if auto_record == "true" and record_path then
 
 	if f then
 		local size = assert(f:seek("end"))
+		local cidNumber = env:getHeader("Caller-Caller-ID-Number") or "UNKNOWN"
+		local destNumber = env:getHeader("Caller-Destination-Number") or "UNKNOWN"
 
 		rec = {}
-		rec.name = filename
+		rec.name = 'record-' .. cidNumber .. '-' .. destNumber
+
 		if ext == ".wav" then
 			rec.mime = "audio/wave"
 			rec.ext = "wav"
@@ -68,7 +71,7 @@ if auto_record == "true" and record_path then
 		end
 		rec.abs_path = record_path
 		rec.file_size = "" .. size
-		rec.description = fifo_name
+		rec.description = "Auto Record"
 		rec.dir_path = config.recording_path
 		rec.channel_uuid = uuid
 		rec.original_file_name = filename

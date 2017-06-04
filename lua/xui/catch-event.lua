@@ -112,7 +112,8 @@ if fifoAction == "push" or fifoAction == "abort" or fifoAction == "pre-dial" or 
 
 		local f = assert(io.open(record_path),"rb")
 		local size = assert(f:seek("end"))
-		rec.name = filename
+
+		rec.name = 'fifo-' .. cidNumber .. '-' .. destNumber
 		if ext == ".wav" then
 			rec.mime = "audio/wave"
 			rec.ext = "wav"
