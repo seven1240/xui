@@ -249,7 +249,6 @@ class MediaFilePage extends React.Component {
 		this.handleToggleParam = this.handleToggleParam.bind(this);
 		this.handleChange = this.handleChange.bind(this);
 		this.toggleHighlight = this.toggleHighlight.bind(this);
-		this.handleToggleFileShow = this.handleToggleFileShow.bind(this);
 	}
 
 	handleSubmit(e) {
