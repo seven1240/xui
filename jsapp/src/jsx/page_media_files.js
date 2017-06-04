@@ -241,7 +241,7 @@ class MediaFilePage extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {mfile: {}, edit: false, ifFileShow: false, ifShowText: "FileShow"};
+		this.state = {mfile: {}, edit: false, ifFileShow: false, ifShowText: "FileShow", readonly: false};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -332,12 +332,15 @@ class MediaFilePage extends React.Component {
 	}
 
 	componentDidMount() {
+		const readonly = this.props.location.pathname.match(/^\/settings/) ? false : true;
+
 		var _this = this;
 		xFetchJSON("/api/media_files/" + this.props.params.id).then((data) => {
-			_this.setState({mfile: data});
+			_this.setState({mfile: data, readonly: readonly});
 			console.log(data);
 		}).catch((msg) => {
 			console.log("get media files ERR");
+			_this.setState({readoly: readoly});
 		});
 	}
 
@@ -405,6 +408,7 @@ class MediaFilePage extends React.Component {
 				var adiv = <video src={src} controls="controls"/>
 				break;
 		}
+
 		let display = this.state.ifFileShow ? {display: "block"} : {display: "none"};
 
 		return <div>
@@ -412,8 +416,13 @@ class MediaFilePage extends React.Component {
 			<ButtonGroup>
 				<Button onClick={this.handleToggleFileShow}><T.span text={this.state.ifShowText}/></Button>
 				{ save_btn }
-				<Button onClick={this.handleControlClick}><i className="fa fa-edit" aria-hidden="true"></i>&nbsp;
-				<T.span onClick={this.handleControlClick} text="Edit"/></Button>
+
+				{
+					this.state.readonly ? null :
+					<Button onClick={this.handleControlClick}><i className="fa fa-edit" aria-hidden="true"></i>&nbsp;
+						<T.span onClick={this.handleControlClick} text="Edit"/>
+					</Button>
+				}
 			</ButtonGroup>
 			</ButtonToolbar>
 
@@ -494,7 +503,7 @@ class MediaFilePage extends React.Component {
 class MediaFilesPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { formShow: false, recordFormShow: false, rows: [], danger: false, progress: -1, show: false};
+		this.state = { formShow: false, recordFormShow: false, rows: [], danger: false, progress: -1, show: false, readonly: false};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleControlClick = this.handleControlClick.bind(this);
@@ -542,13 +551,15 @@ class MediaFilesPage extends React.Component {
 	}
 
 	componentDidMount() {
+		const readonly = this.props.location.pathname.match(/^\/settings/) ? false : true;
 		const search = this.props.location.search || "";
 
 		var _this = this;
 		xFetchJSON("/api/media_files" + search).then((data) => {
-			_this.setState({rows: data});
+			_this.setState({rows: data, readonly: readonly});
 		}).catch((msg) => {
 			console.log("get media_files ERR");
+			this.setState({readonly: readonly});
 		});
 	}
 
@@ -562,6 +573,8 @@ class MediaFilesPage extends React.Component {
 		const _this = this;
 		console.log('Accepted files: ', acceptedFiles);
 		console.log('Rejected files: ', rejectedFiles);
+
+		if (this.state.readonly) return;
 
 		const formdataSupported = !!window.FormData;
 
@@ -614,6 +627,7 @@ class MediaFilesPage extends React.Component {
 		const formClose = () => this.setState({ formShow: false });
 		const toggleDanger = () => this.setState({ danger: !this.state.danger });
 	    const danger = this.state.danger ? "danger" : "";
+	    const settings = this.state.readonly ? "" : "/settings";
 
 		const _this = this;
 
@@ -622,7 +636,7 @@ class MediaFilesPage extends React.Component {
 		const rows = this.state.rows.map(function(row) {
 			return <tr key={row.id}>
 					<td>{row.created_epoch}</td>
-					<td><Link to={`/settings/media_files/${row.id}`}>{row.name.substring(0, 36)}</Link></td>
+					<td><Link to={`${settings}/media_files/${row.id}`}>{row.name.substring(0, 36)}</Link></td>
 					<td>{row.description}</td>
 					<td>{row.mime}</td>
 					<td>{row.file_size}</td>
@@ -649,25 +663,33 @@ class MediaFilesPage extends React.Component {
 		return <Dropzone ref={(node) => { this.dropzone = node; }} onDrop={this.onDrop} className="dropzone" activeClassName="dropzone_active" disableClick={true}><div>
 			<NewRecordFile show={this.state.recordFormShow}/>
 
-			<ButtonToolbar className="pull-right">
-			<ButtonGroup>
-				<Button onClick={() => this.handleControlClick("new")}>
-					<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
-					<T.span text="Upload" />
-				</Button>
-			</ButtonGroup>
+			{
+				this.state.readonly ? null :
+				<ButtonToolbar className="pull-right">
+				<ButtonGroup>
+					<Button onClick={() => this.handleControlClick("new")}>
+						<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
+						<T.span text="Upload" />
+					</Button>
+				</ButtonGroup>
 
-			<ButtonGroup>
-				<Button onClick={() => this.handleControlClick("ivr")}>
-					<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
-					<T.span text="TTS" />
-				</Button>
-			</ButtonGroup>
+				<ButtonGroup>
+					<Button onClick={() => this.handleControlClick("ivr")}>
+						<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
+						<T.span text="TTS" />
+					</Button>
+				</ButtonGroup>
 
-			{btng}
-			</ButtonToolbar>
+				{btng}
+				</ButtonToolbar>
+			}
 
-			<h1><T.span text="Media Files"/> <small><T.span text="Drag and drop files here to upload"/></small></h1>
+
+			<h1><T.span text="Media Files"/>
+			{
+				this.state.readonly ? null : <small>&nbsp;&nbsp;<T.span text="Drag and drop files here to upload"/></small>
+			}
+			</h1>
 
 			{progress_bar}
 
