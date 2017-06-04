@@ -241,7 +241,7 @@ class MediaFilePage extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {mfile: {}, edit: false, ifFileShow: false, ifShowText: "FileShow", readonly: false};
+		this.state = {mfile: {}, edit: false, readonly: false};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -344,17 +344,6 @@ class MediaFilePage extends React.Component {
 		});
 	}
 
-	handleToggleFileShow() {
-		this.setState({ifFileShow: !this.state.ifFileShow});
-		let ifShowText;
-		if(this.state.ifShowText == "HiddenFileShow" ) {
-			ifShowText = "FileShow";
-		}else{
-			ifShowText = "HiddenFileShow";
-		}
-		this.setState({ifShowText: ifShowText});
-	}
-
 	render() {
 		const mfile = this.state.mfile;
 		const _this = this;
@@ -386,35 +375,41 @@ class MediaFilePage extends React.Component {
 		}
 
 		let src;
-		if (mfile.dir_path == '/usr/local/freeswitch/storage/upload') {
-			src = "/assets/upload/" + mfile.rel_path;
-			console.log(src);
-		} else if (mfile.dir_path == '/usr/local/freeswitch/recordings') {
+		if ((mfile.dir_path || '').match(/upload$/)) {
+			src = "/upload/" + mfile.rel_path;
+		} else if ((mfile.dir_path || '').match(/recordings$/)) {
 			src = "/recordings/" + mfile.rel_path;
-			console.log(src);
 		};
 
-		switch (mfile.ext) {
-			case "jpg":
-			case "png":
-			case "jpeg":
-				var adiv = <img src= {src}/>
-				break;
-			case "mp3":
-			case "wav":
-				var adiv = <audio src={src} controls="controls"/>
-				break;
-			case "mp4":
-				var adiv = <video src={src} controls="controls"/>
-				break;
-		}
+		console.log(src);
 
-		let display = this.state.ifFileShow ? {display: "block"} : {display: "none"};
+		const media_type = (mfile.mime || "").split('/')[0]
+		var mcontrol = null;
+		var position = null;
+
+		switch (media_type) {
+			case "image":
+				mcontrol = <img src={src} style={{maxWidth: "80%", maxHeight: "200px"}}/>
+				break;
+			case "audio":
+				mcontrol = <audio src={src} controls="controls"/>
+				position = "toolbar";
+				break;
+			case "video":
+				mcontrol = <video src={src} controls="controls" style={{maxWidth: "80%", maxHeight: "200px"}}/>
+				break;
+			default:
+				mcontrol = <Button><T.a href={src} text="Download" target="_blank"/></Button>
+				position = "toolbar";
+		}
 
 		return <div>
 			<ButtonToolbar className="pull-right">
 			<ButtonGroup>
-				<Button onClick={this.handleToggleFileShow}><T.span text={this.state.ifShowText}/></Button>
+				{position == "toolbar" ? mcontrol : null}
+			</ButtonGroup>
+
+			<ButtonGroup>
 				{ save_btn }
 
 				{
@@ -429,9 +424,7 @@ class MediaFilePage extends React.Component {
 			<h1>{mfile.name} <small>{mfile.extn}</small></h1>
 			<hr/>
 
-			<div  style={display}>
-			{ adiv }
-			</div>
+			<div style={{textAlign: "center"}}>{position == null ? mcontrol : null}</div>
 
 			<Form horizontal id="newMediaFilesForm">
 				<input type="hidden" name="id" defaultValue={mfile.id}/>
