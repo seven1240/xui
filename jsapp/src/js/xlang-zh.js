@@ -50,6 +50,7 @@ LANGUAGES["zh"] = {
 	"Confirm Password": "确认密码",
 	"Password confirmation doesn't match": "两次密码确认不匹配",
 	"Password successfully changed": "密码修改成功",
+	"Are you sure?": "确定要这么做吗？",
 
 	Overview: "状态",
 	Calls: "呼叫",

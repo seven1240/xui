@@ -288,7 +288,9 @@ class Phone extends React.Component {
 	handleShare() {
 		const _this = this;
 		if (this.state.shareCall) {
-			this.state.shareCall.hangup();
+			if (confirm(T.translate("Stop Sharing") + " " + T.translate("Are you sure?"))) {
+				this.state.shareCall.hangup();
+			}
 			return;
 		}
 
@@ -477,7 +479,7 @@ class Phone extends React.Component {
 		} else {
 			callButton = <span>
 				<input id='top_dest_number' value={this.state.destNumber} onChange={this.handleDestNumberChange}
-					style={{color: "#776969", border: 0, backgroundColor: "#FFF", width: "80pt", textAlign: "right"}}/>
+					style={{color: "#776969", border: 0, backgroundColor: "#FFF", width: "72pt", textAlign: "right", paddingRight: "5px"}}/>
 					&nbsp;&nbsp;
 
 				<Button bsStyle="success" bsSize="xsmall" onClick={this.handleCall}>
@@ -507,13 +509,12 @@ class Phone extends React.Component {
 		}
 
 		const shareButton = !(this.inCall() && this.useVideo()) ? null :
-		<Button bsStyle="primary" bsSize="xsmall" onClick={this.handleShare}>
+		<Button bsStyle={this.state.shareCall ? "danger" : "primary"} bsSize="xsmall" onClick={this.handleShare}>
 			<i className="fa fa-desktop" aria-hidden="true"></i>&nbsp;
-			<T.span text={this.state.shareCall ? "Stop Sharing" : "Share"}/>
 		</Button>
 
 		const tVideoButton = !(this.inCall() && this.useVideo()) ? null :
-		<Button bsStyle="primary" bsSize="xsmall" onClick={this.handleVideoToggle}>
+		<Button bsStyle="" bsSize="xsmall" onClick={this.handleVideoToggle}>
 			<i className="fa fa-video-camera" aria-hidden="true"></i>
 		</Button>
 
