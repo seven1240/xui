@@ -40,11 +40,18 @@ class CDRPage extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {cdr: {}, edit: false};
+		this.state = {cdr: {}, edit: false, mfiles: []};
 	}
 
 	componentDidMount() {
+		const _this = this;
 		this.setState({cdr: this.props.cdr});
+
+		xFetchJSON("/api/media_files?uuid=" + this.props.cdr.uuid).then((data) => {
+			_this.setState({mfiles: data});
+		}).catch((err) => {
+			console.err("mediaFile Err", err);
+		})
 	}
 
 	render() {
@@ -116,9 +123,20 @@ class CDRPage extends React.Component {
 						<Col sm={10}><EditControl edit={this.state.edit} name="account_code" defaultValue={cdr.account_code}/></Col>
 					</FormGroup>
 
-					<FormGroup controlId="formLink">
-						<Col componentClass={ControlLabel} sm={2}><T.span text="Link"/></Col>
-						<Col sm={10}><Link to={"/media_files?uuid=" + cdr.uuid}>{cdr.uuid}</Link></Col>
+					<FormGroup controlId="formRecord">
+						<Col componentClass={ControlLabel} sm={2}><T.span text="Record"/></Col>
+						<Col sm={10}><ul>
+						{
+							this.state.mfiles.map((mfile) => {
+								return <div key={mfile.id}>
+									<Link to={`/media_files/${mfile.id}`} target="_blank">{mfile.name}</Link><br/>
+									{
+										(mfile.mime || "").match(/^audio/) ? <audio src={'/recordings/' + mfile.rel_path} controls/> : null
+									}
+								</div>
+							})
+						}
+						</ul></Col>
 					</FormGroup>
 				</Form>
 			</Modal.Body>

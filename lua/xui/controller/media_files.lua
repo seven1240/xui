@@ -42,10 +42,10 @@ get('/', function(params)
 	local uuid = env:getHeader("uuid")
 
 	if client == "BLOCKLY" then
-		n, mfiles = xdb.find_by_cond("media_files", "type = 'RECORD' or type = 'UPLOAD'")
+		n, mfiles = xdb.find_by_cond("media_files", "type IN ('RECORD', 'UPLOAD', 'BLOCKLY')", "id", nil, 100)
 	else
 		if uuid then
-			n, mfiles = xdb.find_by_cond("media_files", {channel_uuid = uuid}, "id DESC")
+			n, mfiles = xdb.find_by_cond("media_files", {channel_uuid = uuid}, "id DESC", nil, 100)
 		else
 			n, mfiles = xdb.find_all("media_files", "id DESC", nil, 5000) -- todo fix hardcoded limit
 		end

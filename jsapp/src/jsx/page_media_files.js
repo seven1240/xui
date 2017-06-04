@@ -474,12 +474,12 @@ class MediaFilePage extends React.Component {
 
 				<FormGroup controlId="formDescription">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="created_epoch"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="created_epoch" defaultValue={mfile.created_epoch}/></Col>
+					<Col sm={10}><FormControl.Static>{mfile.created_epoch}</FormControl.Static></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formDescription">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="updated_epoch"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="updated_epoch" defaultValue={mfile.updated_epoch}/></Col>
+					<Col sm={10}><FormControl.Static>{mfile.updated_epoch}</FormControl.Static></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formSave">
