@@ -129,6 +129,7 @@ LANGUAGES["zh"] = {
 	Total: "总数",
 
 	"Conference Rooms": "会议室",
+	"Conference Room": "会议室",
 	"Create New Room": "创建新会议室",
 	"Add New Member": "添加与会者",
 	"Add Member": "添加与会者",
