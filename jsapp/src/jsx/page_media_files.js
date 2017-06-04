@@ -77,8 +77,6 @@ class NewMediaFile extends React.Component {
 	}
 
 	render() {
-		console.log(this.props);
-
 		const props = Object.assign({}, this.props);
 		const mfiles = props.mfiles;
 		delete props.mfiles;
@@ -498,8 +496,6 @@ class MediaFilesPage extends React.Component {
 		super(props);
 		this.state = { formShow: false, recordFormShow: false, rows: [], danger: false, progress: -1, show: false};
 
-		console.log("location", this.props.location.query)
-
 		// This binding is necessary to make `this` work in the callback
 		this.handleControlClick = this.handleControlClick.bind(this);
 		this.handleDelete = this.handleDelete.bind(this);
@@ -546,8 +542,10 @@ class MediaFilesPage extends React.Component {
 	}
 
 	componentDidMount() {
+		const search = this.props.location.search || "";
+
 		var _this = this;
-		xFetchJSON("/api/media_files").then((data) => {
+		xFetchJSON("/api/media_files" + search).then((data) => {
 			_this.setState({rows: data});
 		}).catch((msg) => {
 			console.log("get media_files ERR");

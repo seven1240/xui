@@ -31,6 +31,7 @@ data.description = "Audio Record"
 data.file_name = recording_filename
 data.mime = "audio/wave"
 data.ext = "wav"
+data.channel_uuid = uuid
 data.abs_path = recording_filename
 data.dir_path = recording_dir
 data.rel_path = string.sub(data.abs_path, string.len(data.dir_path) + 2)

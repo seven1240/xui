@@ -172,6 +172,11 @@ class Home extends React.Component{
 
 				<Route path="conferences" component={Conferences} />
 
+				<Route path="media_files">
+					<IndexRoute component={MediaFilesPage}/>
+					<Route path=":id" component={MediaFilePage}/>
+				</Route>
+
 				<Route path="settings">
 				    <IndexRoute components={{sidebar: Settings, main: UsersPage}}/>
 					<Route path="users">

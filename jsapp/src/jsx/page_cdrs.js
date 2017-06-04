@@ -40,31 +40,23 @@ class CDRPage extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {cdr: {}, edit: false, uuid: ''};
-		this.handleSubmit = this.handleSubmit.bind(this);
+		this.state = {cdr: {}, edit: false};
 	}
 
-	handleSubmit(e) {
-	}
-
-	componentWillReceiveProps(nextProps) {
-		if(nextProps.uuid) {
-			xFetchJSON("/api/cdrs/" + nextProps.uuid).then((data) => {
-				this.setState({cdr: data});
-			});
-		}
+	componentDidMount() {
+		this.setState({cdr: this.props.cdr});
 	}
 
 	render() {
 		var _this = this;
 		const cdr = this.state.cdr;
 		const props = Object.assign({}, this.props);
-		delete props.uuid;
+		delete props.cdr;
 
 		return <Modal  {...props} aria-labelledby="contained-modal-title-lg">
 			<Modal.Header closeButton>
 				<Modal.Title id="contained-modal-title-lg">
-				   <T.span text="CDR"/><small>{_this.props.uuid}</small>
+				   <T.span text="CDR"/>&nbsp;<small>{cdr.uuid}</small>
 				</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
@@ -122,6 +114,11 @@ class CDRPage extends React.Component {
 					<FormGroup controlId="formAccountCode">
 						<Col componentClass={ControlLabel} sm={2}><T.span text="Account Code"/></Col>
 						<Col sm={10}><EditControl edit={this.state.edit} name="account_code" defaultValue={cdr.account_code}/></Col>
+					</FormGroup>
+
+					<FormGroup controlId="formLink">
+						<Col componentClass={ControlLabel} sm={2}><T.span text="Link"/></Col>
+						<Col sm={10}><Link to={"/media_files?uuid=" + cdr.uuid}>{cdr.uuid}</Link></Col>
 					</FormGroup>
 				</Form>
 			</Modal.Body>
@@ -266,7 +263,7 @@ class CDRsPage extends React.Component {
 				<td>{row.hangup_cause}</td>
 				<td>{row.account_code}</td>
 				<td>{row.sip_hangup_disposition}</td>
-				<td><a onClick={()=>{_this.setState({formShow: true, uuid: row.uuid})}} style={{cursor: "pointer"}}>{T.translate("Detail")}</a></td>
+				<td><a onClick={()=>{_this.setState({formShow: true, cdr: row})}} style={{cursor: "pointer"}}>{T.translate("Detail")}</a></td>
 			</tr>
 		})
 
@@ -379,7 +376,10 @@ class CDRsPage extends React.Component {
 			<div style={{textAlign: "center"}}>
 				<img style={loadSpinner} src="assets/img/loading.gif"/>
 			</div>
-			<CDRPage show={this.state.formShow} onHide={formClose} uuid={_this.state.uuid} />
+			{
+				!this.state.formShow ? null :
+				<CDRPage show={this.state.formShow} onHide={formClose} cdr={this.state.cdr}/>
+			}
 		</div>
 	}
 };

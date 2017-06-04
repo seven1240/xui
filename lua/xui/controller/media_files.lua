@@ -39,11 +39,16 @@ xdb.bind(xtra.dbh)
 
 get('/', function(params)
 	local client = env:getHeader("client")
+	local uuid = env:getHeader("uuid")
 
 	if client == "BLOCKLY" then
 		n, mfiles = xdb.find_by_cond("media_files", "type = 'RECORD' or type = 'UPLOAD'")
 	else
-		n, mfiles = xdb.find_all("media_files", "id DESC", nil, 5000) -- todo fix hardcoded limit
+		if uuid then
+			n, mfiles = xdb.find_by_cond("media_files", {channel_uuid = uuid}, "id DESC")
+		else
+			n, mfiles = xdb.find_all("media_files", "id DESC", nil, 5000) -- todo fix hardcoded limit
+		end
 	end
 
 	if (n > 0) then
