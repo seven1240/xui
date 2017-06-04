@@ -71,7 +71,6 @@ if auto_record == "true" and record_path then
 		rec.description = fifo_name
 		rec.dir_path = config.recording_path
 		rec.channel_uuid = uuid
-		rec.created_epoch = "" .. os.time()
 		rec.original_file_name = filename
 		rec.rel_path = filename
 

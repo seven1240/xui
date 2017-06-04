@@ -95,7 +95,15 @@ xdb.find_by_sql(sql, function(row)
 		table.insert(actions_table, {app = "set", data = "effective_caller_id_number=" .. sdnc_number})
 	end
 
-	local auto_record = params:getHeader("variable_auto_record")
+	local auto_record
+
+	if row.auto_record == "1" then
+		auto_record = "true"
+		table.insert(actions_table, {app = "set", data = "auto_record=true"})
+	else
+		auto_record = params:getHeader("variable_auto_record")
+	end
+
 	if auto_record == "true" then
 		local record_path = config.recording_path .. "/auto-record-" .. '${strftime(%Y%m%d-%H%M%S)}' .. "-" .. '${uuid}' .. '.wav'
 		table.insert(actions_table, {app = "set", data = "auto_record_path=" .. record_path})

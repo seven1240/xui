@@ -12,6 +12,8 @@ CREATE TABLE routes (
 	dest_type VARCHAR,
 	dest_uuid VARCHAR,
 	body TEXT,
+	auto_record BOOLEAN NOT NULL DEFAULT 0 CHECK(auto_record IN (0, 1, '0', '1')),
+
 	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
 	updated_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
 	deleted_epoch INTEGER
