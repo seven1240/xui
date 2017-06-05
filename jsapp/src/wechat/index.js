@@ -73,6 +73,20 @@ class Home extends React.Component {
 		}).catch((e) => {
 		});
 	}
+	previewImageShow(e) {
+		var showImgs = [];
+		xFetchJSON('/api/wechat_upload/' + e).then((data) => {
+			var showImg = data.base_url + "/assets/img/wechat/big/" + e + ".jpg";
+			data.img_urls.map((img) =>  {
+				showImgs.push(data.base_url + "/assets/img/wechat/big/" + img.img_url + ".jpg")
+			})
+			wx.previewImage({
+				current: showImg,
+				urls: showImgs
+			});
+		});
+		
+	}
 	render() {
 		const _this = this;
 		const ticket = this.state.ticket;
@@ -82,6 +96,12 @@ class Home extends React.Component {
 			</div>
 		}
 		const comments = this.state.ticket_comments.map((comment) => {
+			const wechat_img = comment.imgs.map((w_img) => {
+				var small_img = "/assets/img/wechat/small/" + w_img.img_url + ".jpg"
+				return <span>
+						<img style={{width:"30px"}} onClick={ () => _this.previewImageShow(w_img.img_url)} src={small_img}/>&nbsp;
+					</span>
+			})
 			return <a className="weui-media-box weui-media-box_appmsg" key={comment.id}>
 					<div className="weui-media-box__hd">
 						<img className="weui-media-box__thumb" src={comment.avatar_url} alt=""/>
@@ -94,7 +114,14 @@ class Home extends React.Component {
 									<span className="weui-form-preview__value">{comment.created_epoch}</span>
 								</div>
 								<div className="weui-form-preview__item">
-									<label className="weui-form-preview__label" style={{color:"black",fontSize:"15px"}}>{comment.content}</label>
+									<label className="weui-form-preview__label" style={{color:"black",fontSize:"15px"}}>{comment.content}
+									</label>
+									<span className="weui-form-preview__value"></span>
+								</div>
+								<div className="weui-form-preview__item">
+									<label className="weui-form-preview__label">
+										{wechat_img}
+									</label>
 									<span className="weui-form-preview__value"></span>
 								</div>
 							</div>
@@ -249,7 +276,7 @@ class Userlist extends React.Component {
 class Comment extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {content: []};
+		this.state = {content: [], localIds: [], serverIds: []};
 	}
 	componentDidMount() {
 		xFetchJSON("/api/tickets/" + current_ticket_id).then((data) => {
@@ -265,12 +292,21 @@ class Comment extends React.Component {
 	addComments(e) {
 		console.log('submit', this.state.comment_content);
 		const serverIds = this.state.serverIds;
+		const localIds = this.state.localIds;
 		if(this.state.comment_content){
 			xFetchJSON("/api/tickets/" + current_ticket_id + "/comments", {
 				method: 'POST',
 				body: JSON.stringify({content: this.state.comment_content})
 			}).then((data) => {
-				ReactDOM.render(<Home/>, document.getElementById('main'));
+				if(serverIds){
+					xFetchJSON("/api/wechat_upload/xyt/" + data.id + "/comments", {
+						method: 'POST',
+						body: JSON.stringify({serverIds: serverIds, localIds: localIds})
+					}).then((res) => {
+						ReactDOM.render(<Home/>, document.getElementById('main'));
+					}).catch((e) => {
+					});
+				}
 			}).catch((e) => {
 			});
 		}
@@ -278,8 +314,75 @@ class Comment extends React.Component {
 	noComments() {
 		ReactDOM.render(<Home/>, document.getElementById('main'));
 	}
+	delLocalId(localId) {
+		const localIds = this.state.localIds;
+		const serverIds = this.state.serverIds;
+		for(var i=0;i<localIds.length;i++) {
+			if(localId == localIds[i]) {
+				localIds.splice(i,1);
+				serverIds.splice(i,1);
+			}
+		}
+		this.setState({localIds: localIds});
+	}
+	uploadImg(e) {
+		var _this = this;
+		wx.chooseImage({
+			count: 9, // 默认9
+			sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
+			sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+			success: function (res) {
+				_this.setState({localIds: [], serverIds: []});
+				var localIds = []; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+				localIds = res.localIds;
+				_this.setState({localIds: localIds})
+				var serverIds = [];
+				localIds.map((localId) => {
+					_this.wUploadImage(localId);
+				})
+			}
+		});
+	}
+	wUploadImage(localId) {
+		var _this = this;
+		wx.uploadImage({
+			localId: localId, // 需要上传的图片的本地ID，由chooseImage接口获得
+			isShowProgressTips: 0, // 默认为1，显示进度提示
+			success: function (res) {
+				var serverId = res.serverId; // 返回图片的服务器端ID
+				_this.state.serverIds.push(serverId);
+				/*_this.wDownloadImage(serverId);*/
+			}
+		});
+	}
+	/*wDownloadImage(serverId) {
+		var _this = this;
+		wx.downloadImage({
+			serverId: serverId, // 需要下载的图片的服务器端ID，由uploadImage接口获得
+			isShowProgressTips: 1, // 默认为1，显示进度提示
+			success: function (res) {
+				var localId = res.localId; // 返回图片下载后的本地ID
+				_this.wGetImage(localId)
+			}
+		});
+	}
+	wGetImage(localId) {
+		var _this = this;
+		wx.getLocalImgData({
+			localId: localId, // 图片的localID
+			success: function (res) {
+				var localData = res.localData; // localData是图片的base64数据，可以用img标签显示
+				_this.setState({current_img: localData});
+			}
+		});
+	}*/
 	render(){
 		const _this = this;
+		const current_img = _this.state.localIds.map((c_img) => {
+			return <span>
+					<img src={c_img} style={{width:"60px",height:"60px"}}/><a style={{color:"red"}} onClick={ () => _this.delLocalId(c_img)}>X</a>&nbsp;
+				</span>
+		})
 		return <div className="weui-form-preview">
 				<div className="weui-form-preview__ft">
 				</div>
@@ -295,6 +398,9 @@ class Comment extends React.Component {
 							<textarea className="weui-textarea" placeholder="请输入内容" onChange={_this.handleInput.bind(this)} rows="3"></textarea>
 						</div>
 					</div>
+					<a href="javascript:;" onClick={ () => _this.uploadImg()} className="weui-btn weui-btn_mini weui-btn_primary">添加图片</a>
+					<br/>
+					{current_img}
 				</div>
 				<div className="weui-form-preview__bd">
 					<a href="javascript:;" className="weui-btn weui-btn_primary" onClick={ () => _this.addComments()}>添加评论</a>
@@ -312,26 +418,27 @@ class Newticket extends React.Component {
 		this.state = {input: {}, ticket_type: [], cnumber: null}
 	}
 	componentDidMount() {
+		const _this = this
 		xFetchJSON("/api/dicts/", {
 			method:"GET",
 			headers: {"realm":"TICKET_TYPE"}
 		}).then((data) => {
-			this.setState({ticket_type: data})
+			_this.setState({ticket_type: data})
 		}).catch((msg) => {
 			console.error("dicts", msg);
 		});
 		xFetchJSON("/api/users/wechat", {
 			method:"GET"
 		}).then((data) => {
-			this.setState({cnumber: data.extn})
+			_this.setState({cnumber: data.extn})
 		}).catch((msg) => {
 			console.error("dicts", msg);
 		});
-		this.setState({users: null})
+		_this.setState({users: null})
 	}
 	handleCidNumber(e) {
 		console.log('input', e.target.value);
-		this.state.input.cid_number = e.target.value;
+		this.setState({cnumber: e.target.value})
 	}
 	handleContent(e) {
 		console.log('input', e.target.value);
@@ -347,6 +454,7 @@ class Newticket extends React.Component {
 	}
 	newTicketAdd(e) {
 		var _this = this;
+		_this.state.input.cid_number = _this.state.cnumber;
 		if(!_this.state.input.cid_number || !_this.state.input.subject){
 			return false;
 		}
@@ -361,9 +469,10 @@ class Newticket extends React.Component {
 		});
 	}
 	render() {
-		 const ticket_type = this.state.ticket_type.map((type) => {
-			 return <option value={type.k}>{type.v}</option>
-		 })
+		const ticket_type = this.state.ticket_type.map((type) => {
+			return <option value={type.k}>{type.v}</option>
+		})
+		const cnumber = this.state.cnumber
 		return <div>
 				<div className="weui-cells weui-cells_form">
 					<div className="weui-cells__title">
@@ -371,10 +480,10 @@ class Newticket extends React.Component {
 					</div>
 					<div className="weui-cell">
 						<div className="weui-cell__hd">
-							<label className="weui-label">派单人</label>
+							<label className="weui-label">来电号码</label>
 						</div>
 						<div className="weui-cell__bd">
-							<input className="weui-input" type="text" onChange={this.handleCidNumber.bind(this)} value={this.state.cnumber}/>
+							<input className="weui-input" type="text" onChange={this.handleCidNumber.bind(this)} value={cnumber}/>
 						</div>
 					</div>
 					<div className="weui-cell">
@@ -565,7 +674,12 @@ xFetchJSON('/api/wechat/xyt/jsapi_ticket?url=' + escape(location.href.split('#')
 			'openLocation',
 			'getLocation',
 			'onMenuShareTimeline',
-			'onMenuShareAppMessage'
+			'onMenuShareAppMessage',
+			'chooseImage',
+			'previewImage',
+			'uploadImage',
+			'downloadImage',
+			'getLocalImgData'
 		]
 	});
 });

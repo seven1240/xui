@@ -49,19 +49,21 @@ end
 xwechat.get_token = function(realm, AppID, AppSec)
 	URL = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" .. AppID .. "&secret=" .. AppSec
 	api = freeswitch.API()
-
 	body = api:execute("curl", URL)
 	json = utils.json_decode(body)
 	-- print(serialize(list))
-
 	api:execute("hash", "insert/wechat/wechat_access_token_" .. realm .. "/" .. json.access_token)
 	return json.access_token
+end
+
+xwechat.down_load_image = function(realm, serverId)
+	URL = "http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=" .. xwechat.access_token(realm) .. "&media_id=" .. serverId
+	return URL
 end
 
 xwechat.get_js_ticket = function(realm)
 	URL = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=" .. xwechat.access_token(realm) .. "&type=jsapi"
 	api = freeswitch.API()
-
 	body = api:execute("curl", URL)
 	json = utils.json_decode(body)
 	api:execute("hash", "insert/wechat/wechat_access_token_" .. realm .. "/" .. json.ticket)
@@ -71,7 +73,6 @@ end
 xwechat.get_callback_ip = function(realm)
 	URL = "https://api.weixin.qq.com/cgi-bin/getcallbackip?access_token=" .. xwechat.access_token(realm)
 	api = freeswitch.API()
-
 	body = api:execute("curl", URL)
 	list = utils.json_decode(body)
 	print(serialize(list))
@@ -123,7 +124,6 @@ xwechat.redirect_uri = function(appid, redirect_uri, state)
 			"&response_type=code&scope=snsapi_userinfo&state=" .. state ..
 			"#wechat_redirect"
 end
-
 
 xwechat.send_ticket_notification = function(realm, openid, redirect_uri, subject, from, content)
 	if #content > 40 then

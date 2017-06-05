@@ -107,6 +107,8 @@ get('/:id/comments', function(params)
 	for i, v in pairs(comments) do
 		local n, users = xdb.find_by_cond("wechat_users", {user_id = v.user_id})
 		local user = users[1]
+		local n, imgs = xdb.find_by_cond("wechat_upload", {comment_id = v.id, type = 1})
+		v.imgs = imgs
 		-- v.avatar_url = user.headimgurl
 		table.insert(comments_res,v)
 	end
