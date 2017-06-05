@@ -35,6 +35,7 @@ import T from 'i18n-react';
 import verto from './verto/verto';
 import { Link } from 'react-router';
 import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Col } from 'react-bootstrap';
+import Select from 'react-select';
 import { EditControl, xFetchJSON } from './libs/xtools'
 import parseXML from './libs/xml_parser'
 
@@ -178,14 +179,26 @@ class NewMcast extends React.Component {
 class McastPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {mcast: {}, edit: false, enable: [], codec_name: [],
-			sample_rate: []
+		this.state = {
+			mcast: {},
+			mcast_files: [],
+			remain_files: [],
+			edit: false,
+			enable: [],
+			codec_name: [],
+			sample_rate: [],
+			select_value: []
 		};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleControlClick = this.handleControlClick.bind(this);
 		this.handleCodecNameChange = this.handleCodecNameChange.bind(this);
+		this.handleSelectChange = this.handleSelectChange.bind(this);
+		this.handleRemoveMediaFiles = this.handleRemoveMediaFiles.bind(this);
+		this.handleGetReaminMediaFiles = this.handleGetReaminMediaFiles.bind(this);
+		this.handleGetMcastMediaFiles = this.handleGetMcastMediaFiles.bind(this);
+		this.handleAddMcastMediaFiles = this.handleAddMcastMediaFiles.bind(this);
 	}
 
 	handleCodecNameChange(e) {
@@ -240,6 +253,77 @@ class McastPage extends React.Component {
 		});
 	}
 
+	handleSelectChange(value) {
+		this.setState({select_value: value});
+	}
+
+	handleGetReaminMediaFiles() {
+		var _this = this;
+
+		xFetchJSON("/api/mfile_mcasts/" + this.props.params.id + "/remain_files").then((obj) => {
+			this.setState({remain_files: obj});
+		}).catch((msg) => {
+			console.error("get remain media files ERR", msg);
+		});
+	}
+
+	handleGetMcastMediaFiles() {
+		var _this = this;
+
+		xFetchJSON("/api/mfile_mcasts/" + this.props.params.id).then((data) => {
+			_this.setState({mcast_files: data});
+		}).catch((msg) => {
+			console.log("get mcast_files ERR", msg);
+		});
+	}
+
+	handleAddMcastMediaFiles(e) {
+		var _this = this;
+
+		const mfiles = this.state.select_value.map(function(select) {
+			return {mcast_id: _this.props.params.id, mfile_id: select.value.id}
+		});
+
+		xFetchJSON("/api/mfile_mcasts", {
+			method: "POST",
+			body: JSON.stringify(mfiles)
+		}).then((data) => {
+			this.handleGetReaminMediaFiles();
+			this.handleGetMcastMediaFiles();
+			this.setState({select_value: []});
+		}).catch((msg) => {
+			console.log("add media files ERR", msg);
+		});
+	}
+
+	handleRemoveMediaFiles(e, file_id) {
+		var c = confirm(T.translate("Confirm to Delete ?"));
+		var url = "/api/mfile_mcasts/" + this.props.params.id;
+
+		if (!c) return;
+
+		if (file_id) {
+			url = url + "/" + file_id;
+		}
+
+		xFetchJSON(url, {
+			method: "DELETE"
+		}).then((obj) => {
+			var mfiles = [];
+
+			if (file_id) {
+				mfiles = this.state.mcast_files.filter(function(f) {
+					return f.id != file_id;
+				});
+			}
+
+			this.setState({mcast_files: mfiles});
+			this.handleGetReaminMediaFiles();
+		}).catch((msg) => {
+			console.error("remove media files ERR", msg);
+		});
+	}
+
 	handleControlClick(e) {
 		this.setState({edit: !this.state.edit});
 	}
@@ -259,12 +343,19 @@ class McastPage extends React.Component {
 		}).catch((msg) => {
 			console.log("get mcast ERR");
 		});
+
+		this.handleGetMcastMediaFiles();
+		this.handleGetReaminMediaFiles();
 	}
 
 	render() {
 		const mcast = this.state.mcast;
 		let save_btn = "";
 		let err_msg = "";
+		var _this = this;
+		var add_files_button_disable = false;
+		var remove_all_button_disable = false;
+		var add_files_select_disable = false;
 
 		if (this.state.edit) {
 			save_btn = <Button onClick={this.handleSubmit}><i className="fa fa-save" aria-hidden="true"></i>&nbsp;<T.span text="Save"/></Button>
@@ -279,6 +370,35 @@ class McastPage extends React.Component {
 		});
 
 		const enable_options = [[0, 0], [1, 1]];
+
+		const remain_file_options = this.state.remain_files.map(function(row){
+			return { value: row, label: row.name };
+		});
+
+		if (remain_file_options.length <= 0) {
+			add_files_select_disable = true;
+		}
+
+		if (this.state.select_value.length <= 0) {
+			add_files_button_disable = true;
+		}
+
+		if (this.state.mcast_files.length <= 0) {
+			remove_all_button_disable = true;
+		}
+
+		var files = this.state.mcast_files.map(function(f) {
+			return (
+			<tr key={f.id}>
+				<th><Link to={`/settings/media_files/${f.id}`}>{f.name}</Link></th>
+				<th>{f.file_size}</th>
+				<th>
+					<Button bsStyle="danger" bsSize="xsmall" onClick={(e) => _this.handleRemoveMediaFiles(e, f.id)} data-id={f.id}>
+						<T.span text="Remove"/>
+					</Button>
+				</th>
+			</tr>);
+		})
 
 		return <div>
 			<ButtonToolbar className="pull-right">
@@ -347,6 +467,42 @@ class McastPage extends React.Component {
 					<Col sm={10}>{save_btn}</Col>
 				</FormGroup>
 			</Form>
+
+			<h1><T.span text="PlayList"/></h1>
+			<br/>
+
+			<ButtonToolbar>
+				<Col sm={3}>
+					<Select multi="true" disabled={add_files_select_disable} value={this.state.select_value} placeholder={T.translate('Please Select')} options={remain_file_options} onChange={this.handleSelectChange}/>
+				</Col>
+
+				<Col sm={3}>
+					<Button disabled={add_files_button_disable} onClick={this.handleAddMcastMediaFiles}>
+						<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
+						<T.span text="Add"/>
+					</Button>
+				</Col>
+
+				<Col sm={6}>
+					<Button className="pull-right" bsStyle="danger" disabled={remove_all_button_disable} onClick={this.handleRemoveMediaFiles} data="new">
+						<T.span text="Remove All Files"/>
+					</Button>
+				</Col>
+			</ButtonToolbar>
+			<br/>
+			<br/>
+
+			<table className="table">
+				<tbody>
+					<tr>
+						<th><T.span text="FileName"/></th>
+						<th><T.span text="Size"/></th>
+						<th><T.span text="-"/></th>
+					</tr>
+					{files}
+				</tbody>
+			</table>
+
 		</div>
 	}
 }
