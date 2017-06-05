@@ -31,6 +31,7 @@ insert into params(realm,k,v,ref_id,disabled) values('conference','locked-sound'
 insert into params(realm,k,v,ref_id,disabled) values('conference','is-locked-sound','conference/conf-is-locked.wav',0,0);
 insert into params(realm,k,v,ref_id,disabled) values('conference','is-unlocked-sound','conference/conf-is-unlocked.wav',0,0);
 insert into params(realm,k,v,ref_id,disabled) values('conference','conference-flags','livearray-sync',0,0);
+insert into params(realm,k,v,ref_id,disabled) values('conference','member-flags','',0,1);
 insert into params(realm,k,v,ref_id,disabled) values('conference','kicked-sound','conference/conf-kicked.wav',0,0);
 insert into params(realm,k,v,ref_id,disabled) values('conference','join-only-sound','',0,0);
 insert into params(realm,k,v,ref_id,disabled) values('conference','pin-sound','conference/conf-pin.wav',0,0);
@@ -51,3 +52,4 @@ insert into params(realm,k,v,ref_id,disabled) values('conference','verbose-event
 insert into params(realm,k,v,ref_id,disabled) values('conference','video-quality','2',0,1);
 insert into params(realm,k,v,ref_id,disabled) values('conference','video-kps-debounce','100',0,1);
 insert into params(realm,k,v,ref_id,disabled) values('conference','video-mode','mux',0,1);
+insert into params(realm,k,v,ref_id,disabled) values('conference','cdr-log-dir','auto',3,0);
