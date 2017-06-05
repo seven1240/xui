@@ -245,6 +245,8 @@ CREATE TABLE media_files (
 	geo_position VARCHAR,
 	user_id INTEGER,
 	channel_uuid VARCHAR,
+	processing_flag INTEGER DEFAULT 0, -- 0 - unprocessed, 1 - processed, 2 - whatever
+
 	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
 	updated_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
 	deleted_epoch INTEGER

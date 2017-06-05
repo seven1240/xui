@@ -244,6 +244,10 @@ local function method_handler(method, path, func)
 		elseif output_type == 'function' then
 			-- not implemented
 			return coroutine.wrap(output)
+		elseif type(text) == 'nil' then
+			-- do nothing, for background style controllers
+			-- controller calls xtra.response first finish the http session and
+			-- do whatever in background and then return nil finally
 		end
 	end
 end
