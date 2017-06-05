@@ -82,8 +82,16 @@ if user then
 	xdb.find_by_cond("users", {extn = user, disabled = 0}, nil, function(row)
 		found = true
 
-		cid_name = row.cid_name or row.name
-		cid_number = row.cid_number or row.extn
+		cid_name = row.cid_name
+		cid_number = row.cid_number
+
+		if cid_name == '' then
+			cid_name = row.name
+		end
+
+		if cid_number == '' then
+			cid_number = row.extn
+		end
 
 		local dial_string = "{^^:sip_invite_domain=${dialed_domain}:presence_id=${dialed_user}@${dialed_domain}}${sofia_contact(*/${dialed_user}@${dialed_domain})},${verto_contact(${dialed_user}@${dialed_domain})}";
 
