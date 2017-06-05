@@ -80,6 +80,7 @@ end)
 post('/', function(params)
 	print(serialize(params))
 
+	params.request.source = "local_stream://".. params.request.name .. "/" .. params.request.sample_rate
 	ret = xdb.create_return_id('mcasts', params.request)
 
 	if ret then

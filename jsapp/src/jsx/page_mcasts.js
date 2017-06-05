@@ -56,7 +56,7 @@ class NewMcast extends React.Component {
 		var mcast = form2json('#newMcastForm');
 		console.log("mcast", mcast);
 
-		if (!mcast.name || !mcast.source || !mcast.codec_ms || !mcast.channels || !mcast.mcast_ip || !mcast.mcast_port) {
+		if (!mcast.name || !mcast.codec_ms || !mcast.channels || !mcast.mcast_ip || !mcast.mcast_port) {
 			this.setState({errmsg: "Mandatory fields left blank"});
 			return;
 		}
@@ -98,10 +98,12 @@ class NewMcast extends React.Component {
 					<Col sm={10}><FormControl type="input" name="name" placeholder="multicast name" /></Col>
 				</FormGroup>
 
+				{/*
 				<FormGroup controlId="formSource">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Source" className="mandatory"/></Col>
 					<Col sm={10}><FormControl type="input" name="source" placeholder="local_stream://test" /></Col>
 				</FormGroup>
+				*/}
 
 				<FormGroup controlId="formCodecName">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Codec Name"/></Col>
@@ -418,10 +420,12 @@ class McastPage extends React.Component {
 					<Col sm={10}><EditControl edit={this.state.edit} name="name" defaultValue={mcast.name}/></Col>
 				</FormGroup>
 
+				{/*
 				<FormGroup controlId="formSource">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Source" className="mandatory"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} name="source" defaultValue={mcast.source}/></Col>
 				</FormGroup>
+				*/}
 
 				<FormGroup controlId="formCodecName">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Codec Name"/></Col>
