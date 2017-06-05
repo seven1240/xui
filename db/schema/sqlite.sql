@@ -427,6 +427,17 @@ BEGIN
 	UPDATE mcasts set updated_epoch = DATETIME('now', 'localtime') WHERE id = NEW.id;
 END;
 
+CREATE TABLE mfile_mcasts (
+	id INTEGER PRIMARY KEY,
+	mfile_id INTEGER NOT NULL REFERENCES media_files(id) ON DELETE CASCADE,
+	mcast_id INTEGER NOT NULL REFERENCES mcasts(id) ON DELETE CASCADE,
+	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
+	updated_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
+	deleted_epoch INTEGER
+);
+
+CREATE UNIQUE INDEX mfile_mcast_m_m_id ON mfile_mcasts(mfile_id, mcast_id);
+
 CREATE TABLE permissions (
 	id INTEGER PRIMARY KEY,
 	action VARCHAR,
