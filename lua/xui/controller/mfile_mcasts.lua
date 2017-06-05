@@ -75,6 +75,12 @@ xtra.require_login()
 content_type("application/json")
 require 'xdb'
 xdb.bind(xtra.dbh)
+api = freeswitch.API()
+
+function local_stream_restart(name)
+	api:execute("local_stream", "stop " .. name)
+	api:execute("local_stream", "start " .. name)
+end
 
 function remove_files(mcast_id, mfile_id)
 	if mfile_id then
@@ -86,12 +92,14 @@ function remove_files(mcast_id, mfile_id)
 		xdb.find_by_sql(sql, function(row)
 			if row.mname and row.mname ~= "" then
 				os.execute("rm " .. config.upload_path .. "/" .. row.mname .. "/" .. row.sample_rate .. "/" .. row.fname)
+				local_stream_restart(row.mname .. "/" .. row.sample_rate)
 			end
 		end)
 	else
 		xdb.find_by_cond("mcasts", {id = mcast_id}, nil, function(row)
 			if row.name and row.name ~= "" then
 				os.execute("rm -r " .. config.upload_path .. "/" .. row.name)
+				local_stream_restart(row.name .. "/" .. row.sample_rate)
 			end
 		end)
 	end
@@ -113,6 +121,7 @@ function add_files(mcast_id, mfile_id)
 				os.execute("mkdir -p " .. dir_path)
 			end
 			os.execute("ln -sf " .. row.abs_path .. " " .. dir_path .. "/" .. row.fname)
+			local_stream_restart(row.mname .. "/" .. row.sample_rate)
 		end
 	end)
 end
