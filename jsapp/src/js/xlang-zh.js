@@ -341,6 +341,9 @@ LANGUAGES["zh"] = {
 
 
 	"Multicasts": "组播",
+	"Multicast": "组播",
+	"Remove": "移除",
+	"Remove All Files": "移除所有文件",
 	"Broadcast": "广播",
 	"Source": "源",
 	"Codec Name": "编码",
@@ -349,6 +352,8 @@ LANGUAGES["zh"] = {
 	"Multicast Port": "组播端口",
 	"Sample Rate": "采样频率",
 	"Create New mcast": "新建组播",
+	"Please Select": "请选择",
+	"PlayList": "播放列表",
 
 	"Terminal": "终端",
 
