@@ -94,7 +94,7 @@ class Member extends React.Component {
 	handleClick(e, member_id) {
 		const active = !this.state.active;
 		this.setState({active: active});
-		this.props.onMemberClick(member_id, active);
+		this.props.onMemberClick(member_id, active, this.props.member);
 	}
 
 	handleControlClick(e, data) {
@@ -251,7 +251,7 @@ class ConferencePage extends React.Component {
 
 				const rows = this.state.rows.map(function(row) {
 					row.active = active;
-					_this.activeMembers[row.memberID] = active;
+					_this.activeMembers[row.memberID] = row;
 					return row;
 				});
 
@@ -308,18 +308,21 @@ class ConferencePage extends React.Component {
 		}
 
 		for(var memberID in this.activeMembers) {
-			if (this.activeMembers[memberID] == true && memberID > 0) {
-				var args = this.props.name + " " + data + " " + memberID;
+			const member = this.activeMembers[memberID];
+			if (member && member.active && memberID > 0) {
+				const dm = member.verto ? member.verto.domain : domain;
+				var args = this.props.room_nbr + '-' + dm + " " + data + " " + memberID;
 				// console.log("args", args);
-				verto.fsAPI("conference", args);
+				(member.veto || verto).fsAPI("conference", args);
 				// this.cman.modCommand(data, memberID);
 			}
 		}
 	}
 
-	handleMemberClick(member_id, isActive) {
+	handleMemberClick(member_id, isActive, member) {
 		console.log('isActive', isActive)
-		this.activeMembers[member_id] = isActive;
+		member.active = isActive;
+		this.activeMembers[member_id] = member;
 	}
 
 	componentWillMount () {
