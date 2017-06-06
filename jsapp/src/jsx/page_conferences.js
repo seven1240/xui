@@ -659,7 +659,8 @@ class ConferencePage extends React.Component {
 		const members = rows.map(function(member) {
 			if (member.hidden) return null;
 			member.room_nbr = _this.props.room_nbr;
-			member.conference_name = member.room_nbr + '-' + member.verto.domain;
+			const dm = member.verto ? member.verto.domain : domain;
+			member.conference_name = member.room_nbr + '-' + dm;
 			return <Member member={member} key={member.uuid} onMemberClick={_this.handleMemberClick} displayStyle={_this.state.displayStyle}/>
 		});
 
