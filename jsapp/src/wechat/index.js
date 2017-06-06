@@ -17,8 +17,9 @@ const ticket_status = {
 class Home extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {ticket: {}, user_options: null, ass_template: null, ticket_comments: [], wechat_users: props.users, deal_user: null};
+		this.state = {ticket: {}, user_options: null, ass_template: null, call:"回拨", ticket_comments: [], wechat_users: props.users, deal_user: null};
 	}
+
 	componentDidMount() {
 		var _this = this;
 		xFetchJSON("/api/tickets/" + current_ticket_id).then((data) => {
@@ -57,13 +58,16 @@ class Home extends React.Component {
 			_this.setState({ticket_comments: data});
 		});
 	}
+
 	handleComment(e) {
 		current_ticket_id = e;
 		ReactDOM.render(<Comment/>, document.getElementById('main'));
 	}
+
 	handleAllot(e) {
 		ReactDOM.render(<Userlist/>, document.getElementById('main'));
 	}
+
 	sendAssignTem(e) {
 		is_assign = false;
 		this.setState({ass_template: null});
@@ -73,6 +77,7 @@ class Home extends React.Component {
 		}).catch((e) => {
 		});
 	}
+
 	previewImageShow(e) {
 		var showImgs = [];
 		xFetchJSON('/api/wechat_upload/' + e).then((data) => {
@@ -85,8 +90,15 @@ class Home extends React.Component {
 				urls: showImgs
 			});
 		});
-		
 	}
+
+	callBack(e) {
+			this.setState({call: "回拨中..."})
+		xFetchJSON('/api/call_back/' + e).then((data) => {
+			this.setState({call: "回拨"})
+		});
+	}
+
 	render() {
 		const _this = this;
 		const ticket = this.state.ticket;
@@ -130,8 +142,8 @@ class Home extends React.Component {
 				</a>
 		})
 		var wechat = _this.state.wechat_users;
-		if(wechat){
-			if(is_assign){
+		if (wechat) {
+			if (is_assign) {
 				_this.state.ass_template = <div className="weui-btn-area">
 							<a className="weui-btn weui-btn_primary" href="javascript:" onClick={ () => _this.sendAssignTem(ticket.id)} id="showTooltips">派发</a>
 						</div>
@@ -200,6 +212,16 @@ class Home extends React.Component {
 					<span className="weui-form-preview__value">{ticket_status[ticket.status]}</span>
 				</div>
 			</div>
+			<div className="weui-form-preview__ft">
+			</div>
+			<div className="weui-form-preview__bd">
+				<div className="weui-form-preview__item">
+					<span className="weui-form-preview__label"></span>
+					<span className="weui-form-preview__value">
+						<a href="javascript:;" onClick={() => _this.callBack(ticket.id)} className="weui-btn weui-btn_mini weui-btn_primary">{_this.state.call}</a>
+					</span>
+				</div>
+			</div>
 		</div>
 		<article className="weui-article">
 			<section>
@@ -233,6 +255,7 @@ class Userlist extends React.Component {
 		super(props);
 		this.state = {wechat_users: []};
 	}
+
 	componentDidMount() {
 		xFetchJSON("/api/users/bind").then((data) => {
 			console.log("wechat_users", data)
@@ -241,12 +264,14 @@ class Userlist extends React.Component {
 			
 		});
 	}
+
 	handleAssign(row) {
 		is_assign = <div className="weui-btn-area">
 							<a className="weui-btn weui-btn_primary" href="javascript:" onClick={ () => this.sendAssignTem(ticket.id)} id="showTooltips">派发</a>
 						</div>
 		ReactDOM.render(<Home users={row}/>, document.getElementById('main'));
 	}
+
 	render(){
 		var _this = this;
 		var wechat_users = this.state.wechat_users.map(function(row) {
@@ -273,11 +298,13 @@ class Userlist extends React.Component {
 		</div>
 	}
 }
+
 class Comment extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {content: [], localIds: [], serverIds: []};
 	}
+
 	componentDidMount() {
 		xFetchJSON("/api/tickets/" + current_ticket_id).then((data) => {
 			console.log("comments_aaaaa", data)
@@ -285,20 +312,22 @@ class Comment extends React.Component {
 		}).catch((msg) => {
 		});
 	}
+
 	handleInput(e) {
 		console.log('input', e.target.value);
 		this.state.comment_content = e.target.value;
 	}
+
 	addComments(e) {
 		console.log('submit', this.state.comment_content);
 		const serverIds = this.state.serverIds;
 		const localIds = this.state.localIds;
-		if(this.state.comment_content){
+		if (this.state.comment_content) {
 			xFetchJSON("/api/tickets/" + current_ticket_id + "/comments", {
 				method: 'POST',
 				body: JSON.stringify({content: this.state.comment_content})
 			}).then((data) => {
-				if(serverIds){
+				if (serverIds) {
 					xFetchJSON("/api/wechat_upload/xyt/" + data.id + "/comments", {
 						method: 'POST',
 						body: JSON.stringify({serverIds: serverIds, localIds: localIds})
@@ -311,20 +340,23 @@ class Comment extends React.Component {
 			});
 		}
 	}
+
 	noComments() {
 		ReactDOM.render(<Home/>, document.getElementById('main'));
 	}
+
 	delLocalId(localId) {
 		const localIds = this.state.localIds;
 		const serverIds = this.state.serverIds;
-		for(var i=0;i<localIds.length;i++) {
-			if(localId == localIds[i]) {
+		for (var i=0;i<localIds.length;i++) {
+			if (localId == localIds[i]) {
 				localIds.splice(i,1);
 				serverIds.splice(i,1);
 			}
 		}
 		this.setState({localIds: localIds});
 	}
+
 	uploadImg(e) {
 		var _this = this;
 		wx.chooseImage({
@@ -343,6 +375,7 @@ class Comment extends React.Component {
 			}
 		});
 	}
+
 	wUploadImage(localId) {
 		var _this = this;
 		wx.uploadImage({
@@ -355,27 +388,7 @@ class Comment extends React.Component {
 			}
 		});
 	}
-	/*wDownloadImage(serverId) {
-		var _this = this;
-		wx.downloadImage({
-			serverId: serverId, // 需要下载的图片的服务器端ID，由uploadImage接口获得
-			isShowProgressTips: 1, // 默认为1，显示进度提示
-			success: function (res) {
-				var localId = res.localId; // 返回图片下载后的本地ID
-				_this.wGetImage(localId)
-			}
-		});
-	}
-	wGetImage(localId) {
-		var _this = this;
-		wx.getLocalImgData({
-			localId: localId, // 图片的localID
-			success: function (res) {
-				var localData = res.localData; // localData是图片的base64数据，可以用img标签显示
-				_this.setState({current_img: localData});
-			}
-		});
-	}*/
+
 	render(){
 		const _this = this;
 		const current_img = _this.state.localIds.map((c_img) => {
@@ -417,6 +430,7 @@ class Newticket extends React.Component {
 		super(props);
 		this.state = {input: {}, ticket_type: [], cnumber: null}
 	}
+
 	componentDidMount() {
 		const _this = this
 		xFetchJSON("/api/dicts/", {
@@ -436,26 +450,31 @@ class Newticket extends React.Component {
 		});
 		_this.setState({users: null})
 	}
+
 	handleCidNumber(e) {
 		console.log('input', e.target.value);
 		this.setState({cnumber: e.target.value})
 	}
+
 	handleContent(e) {
 		console.log('input', e.target.value);
 		this.state.input.content = e.target.value;
 	}
+
 	handleType(e) {
 		console.log('input', e.target.value);
 		this.state.input.type = e.target.value;
 	}
+
 	handleSubject(e) {
 		console.log('input', e.target.value);
 		this.state.input.subject = e.target.value;
 	}
+
 	newTicketAdd(e) {
 		var _this = this;
 		_this.state.input.cid_number = _this.state.cnumber;
-		if(!_this.state.input.cid_number || !_this.state.input.subject){
+		if (!_this.state.input.cid_number || !_this.state.input.subject) {
 			return false;
 		}
 		const ticket = _this.state.input;
@@ -468,6 +487,7 @@ class Newticket extends React.Component {
 			console.error("ticket", msg);
 		});
 	}
+
 	render() {
 		const ticket_type = this.state.ticket_type.map((type) => {
 			return <option value={type.k}>{type.v}</option>
@@ -525,6 +545,7 @@ class Tickets extends React.Component {
 		super(props);
 		this.state = {tickets: []};
 	}
+
 	componentDidMount() {
 		var _this = this;
 		xFetchJSON("/api/wechat/xyt/all").then((data) => {
@@ -534,14 +555,17 @@ class Tickets extends React.Component {
 			console.error("get ticket", e);
 		});
 	}
+
 	addNewTicket() {
 		ReactDOM.render(<Newticket/>, document.getElementById('main'));
 	}
+
 	handleClick(ticket_id) {
 		console.log(ticket_id);
 		current_ticket_id = ticket_id;
 		ReactDOM.render(<Home/>, document.getElementById('main'));
 	}
+
 	render() {
 		var _this = this;
 		const tickets = this.state.tickets.map((ticket) => {
@@ -561,7 +585,6 @@ class Tickets extends React.Component {
 					<div className="weui-form-preview__ft"></div>
 					</div>
 		});
-		console.log("tickets", tickets);
 		return <div className="weui-panel">
 				<div className="weui-panel__hd">
 					<div className="weui-form-preview__bd">
@@ -583,6 +606,7 @@ class Settings extends React.Component {
 		super(props);
 		this.state = {users: []};
 	}
+
 	render() {
 		var users = this.state.users;
 		return <div className="weui-cells weui-cells_form">
@@ -604,6 +628,7 @@ class Other extends React.Component {
 		super(props);
 		this.state = {};
 	}
+
 	render() {
 		return <div>Other</div>
 	}
@@ -619,6 +644,7 @@ class App extends React.Component{
 			default: ReactDOM.render(<Home/>, document.getElementById('main'));
 		}
 	}
+
 	render() {
 		const _this = this;
 		return <div>
@@ -648,7 +674,6 @@ class App extends React.Component{
 }
 
 wx.ready(function () {
-	console.log("wx ready!");
 	is_wx_ready = true;
 
 	const shareData = {
@@ -662,7 +687,6 @@ wx.ready(function () {
 });
 
 xFetchJSON('/api/wechat/xyt/jsapi_ticket?url=' + escape(location.href.split('#')[0])).then((data) => {
-	console.log('signPackage', data);
 	wx.config({
 		// debug: true,
 		appId: data.appId,

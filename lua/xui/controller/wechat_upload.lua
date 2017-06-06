@@ -67,7 +67,7 @@ post('/:realm/:id/comments', function(params)
 	wechat = m_dict.get_obj('WECHAT/' .. params.realm)
 	xwechat.get_token(params.realm, wechat.APPID, wechat.APPSEC)
 	for i,v in pairs(serverIds) do
-		url = xwechat.down_load_image(params.realm, v)
+		url = xwechat.download_image_url(params.realm, v)
 		upload.img_url = v
 		local ret = xdb.create_return_id('wechat_upload',upload)
 		if ret then

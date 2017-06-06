@@ -35,6 +35,7 @@ CREATE TABLE users (
 	context VARCHAR,
 	domain VARCHAR,
 	password VARCHAR,
+	tel VARCHAR,
 	vm_password VARCHAR,
 	user_cidr VARCHAR,
 	login VARCHAR,

@@ -56,7 +56,7 @@ xwechat.get_token = function(realm, AppID, AppSec)
 	return json.access_token
 end
 
-xwechat.down_load_image = function(realm, serverId)
+xwechat.download_image_url = function(realm, serverId)
 	URL = "http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=" .. xwechat.access_token(realm) .. "&media_id=" .. serverId
 	return URL
 end
