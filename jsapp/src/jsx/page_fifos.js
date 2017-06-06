@@ -265,6 +265,8 @@ class FifoInfo extends React.Component {
 		xFetchJSON("/api/fifos/"+ _this.props.params.fifo_id +"/members")
 			.then((obj) => {
 				_this.setState({memberRows: obj, formShow: false});
+			}).then(() => {
+				verto.fsAPI("fifo", "reparse");
 			}).catch((msg) => {
 				console.log("ERR");
 			});
@@ -287,6 +289,8 @@ class FifoInfo extends React.Component {
 			});
 			console.log("delete row", memberRows);
 			_this.setState({memberRows: memberRows});
+		}).then(() => {
+			verto.fsAPI("fifo", "reparse");
 		}).catch((msg) => {
 			console.log("route", msg);
 		});
