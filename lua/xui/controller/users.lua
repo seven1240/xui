@@ -55,7 +55,7 @@ end)
 get('/wechat', function(params)
 	freeswitch.consoleLog("WARNING", "/users/wechat is Deprecated!!, use /users/:id/wechat_users")
 	users = xdb.find_one("users", {id = xtra.session.user_id})
-	if n > 0 then
+	if users then
 		return users
 	else
 		return "[]"

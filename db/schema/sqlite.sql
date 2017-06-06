@@ -35,6 +35,7 @@ CREATE TABLE users (
 	context VARCHAR,
 	domain VARCHAR,
 	password VARCHAR,
+	tel VARCHAR,
 	vm_password VARCHAR,
 	user_cidr VARCHAR,
 	login VARCHAR,
@@ -665,8 +666,8 @@ END;
 
 CREATE TABLE wechat_upload (
 	id INTEGER PRIMARY Key,
-	serverId VARCHAR,
 	comment_id INTEGER,
+	img_url VARCHAR,
 	type INTEGER,
 	user_id INTEGER,
 

@@ -152,28 +152,21 @@ get('/:realm/tickets/:id', function(params)
 	end
 end)
 
-
 get('/:realm/jsapi_ticket', function(params)
 	if do_debug then
 		utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", env:serialize())
 		utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", serialize(params))
 	end
-
 	url = env:getHeader("url")
-
 	sha1 = require("sha1")
 	local timestamp = os.time()
 	local nonceStr = 'AbEfgh' .. timestamp
 	wechat = m_dict.get_obj('WECHAT/' .. params.realm)
-
 	access_token = xwechat.get_token(params.realm, wechat.APPID, wechat.APPSEC)
-
 	local ticket = xwechat.get_js_ticket(params.realm)
-
 	if do_debug then
 		utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", serialize(ticket))
 	end
-
 	local str = "jsapi_ticket=" .. ticket .. "&noncestr=" .. nonceStr .. "&timestamp=" .. timestamp .. "&url=" .. url
 	local signature = sha1(str)
 	utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", signature)
