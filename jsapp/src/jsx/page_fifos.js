@@ -292,6 +292,10 @@ class FifoInfo extends React.Component {
 		});
 	}
 
+	handleReparse(e){
+		verto.fsAPI("fifo", "reparse");
+	}
+
 	render() {
 		const _this = this;
 		const props = Object.assign({}, this.props);
@@ -391,6 +395,10 @@ class FifoInfo extends React.Component {
 				<Button onClick={() => this.setState({formShow: true})}>
 					<i className="fa fa-plus" aria-hidden="true" ></i>&nbsp;
 					<T.span text="Add" />
+				</Button>
+				 <Button onClick={_this.handleReparse.bind(_this)}>
+					<i className="fa fa-refresh" aria-hidden="true" ></i>&nbsp;
+					<T.span text="Reload" />
 				</Button>
 			</ButtonToolbar>
 			<h3><T.span text="FIFO Member"/></h3>
