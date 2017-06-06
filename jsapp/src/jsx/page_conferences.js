@@ -73,12 +73,12 @@ function translateMember(member) {
 
 class Member extends React.Component {
 	propTypes: {
-		onMemberClick: React.PropTypes.func,
+		onMemberClick: React.PropTypes.func
 	}
 
 	constructor(props) {
 		super(props);
-		this.state = {active: false};
+		this.state = {active: false, calling: false};
 		this.handleClick = this.handleClick.bind(this);
 		this.handleControlClick = this.handleControlClick.bind(this);
 	}
@@ -105,16 +105,21 @@ class Member extends React.Component {
 				method: "POST",
 				body: JSON.stringify({
 					from: member.cidNumber,
-					to: member.cidNumber
+					to: member.cidNumber,
+					cidName: member.conference_name
 				})
+			}).then((res) => {
+				this.setState({calling: true});
 			}).catch((msg) => {
 				console.error("err call", msg);
 			});
 
 			return;
-		} else if (data == "floor") {
+		} else if (data == "floor" && member.memberID > 0) {
 			console.log(member.conference_name + " vid-floor " + member.memberID + " force")
 			verto.fsAPI("conference", member.conference_name + " vid-floor " + member.memberID + " force");
+			// verto.fsAPI("conference", member.conference_name + " unvmute " + member.memberID);
+			// verto.fsAPI("conference", member.conference_name + " vmute " + member.memberID);
 			return;
 		}
 
@@ -127,7 +132,11 @@ class Member extends React.Component {
 		var className = this.state.active ? "member active selected" : "member";
 		const which_floor = member.status.video ? member.status.video : member.status.audio;
 
-		const floor_color   = which_floor.floor ? "red"   : "#777" ;
+		if (member.memberID > 0) {
+			this.state.calling = false;
+		}
+
+		const floor_color   = this.state.calling ? '#DDDD00' : (which_floor.floor ? "red"   : "#777") ;
 		const video_color  = member.status.video && !member.status.video.muted ? "green" : "#ccc";
 		const muted_color   = member.status.audio.muted   ? "#ccc"   : "green";
 		const talking_color = member.status.audio.talking ? "green"  : "#777" ;
@@ -295,7 +304,7 @@ class ConferencePage extends React.Component {
 		}
 
 		for(var memberID in this.activeMembers) {
-			if (this.activeMembers[memberID] == true) {
+			if (this.activeMembers[memberID] == true && memberID > 0) {
 				var args = this.props.name + " " + data + " " + memberID;
 				// console.log("args", args);
 				verto.fsAPI("conference", args);
@@ -337,8 +346,9 @@ class ConferencePage extends React.Component {
 				}
 
 				return {
-					'uuid': m.id - 10000,
-					'memberID': m.id - 10000,
+					'uuid': m.id - 100000,
+					'fakeMemberID': m.id - 100000,
+					'memberID': m.id - 100000,
 					'cidNumber': m.num,
 					'cidName': m.name,
 					'codec': null,
@@ -425,12 +435,25 @@ class ConferencePage extends React.Component {
 
 		case "bootObj":
 			var rows = [];
-
-			this.state.static_rows.forEach((row) => {
-				rows.push(row);
+			var boot_rows = a.data.map(function(member) {
+				return translateMember(member);
 			});
 
-			a.data.forEach(function(member) {
+			this.state.static_rows.forEach((row) => {
+				let r = JSON.parse(JSON.stringify(row));
+
+				boot_rows = boot_rows.filter(function(member) {
+					if (member.cidNumber == r.cidNumber) {
+						r = Object.assign(member);
+						return false;
+					}
+					return true;
+				});
+
+				rows.push(r);
+			});
+
+			boot_rows.forEach(function(member) {
 				rows.push(translateMember(member));
 			})
 
@@ -440,7 +463,8 @@ class ConferencePage extends React.Component {
 			var found = 0;
 			var member = translateMember([a.key, a.data]);
 
-			if (member.cidName == "Outbound Call") {
+			if (true || member.cidName == this.state.name ||
+				member.cidName == "Outbound Call") {
 				var outcall_rows = this.state.outcall_rows.filter(function(row) {
 					if (row.cidNumber == member.cidNumber) {
 						found++;
@@ -454,8 +478,10 @@ class ConferencePage extends React.Component {
 
 				if (!found) {
 					const rows = this.state.rows.map(function(row) {
-						if (row.memberID < 0 && row.cidNumber == member.cidNumber) {
-							row.hidden = true;
+						if (row.fakeMemberID && row.memberID < 0 && row.cidNumber == member.cidNumber) {
+							// row.hidden = true;
+							row.memberID = member.memberID;
+							row.uuid = member.uuid;
 							found++;
 							return row;
 						} else {
@@ -465,12 +491,13 @@ class ConferencePage extends React.Component {
 
 					if (found) this.setState({rows: rows});
 				}
-
 			}
 
-			var rows = this.state.rows;
-			rows.push(member);
-			this.setState({rows: rows});
+			if (!found) {
+				var rows = this.state.rows;
+				rows.push(member);
+				this.setState({rows: rows});
+			}
 
 			break;
 		case "modify":
@@ -480,6 +507,7 @@ class ConferencePage extends React.Component {
 				if (row.uuid == a.key ) {
 					var member = translateMember([a.key, a.data]);
 					member.active = _this.activeMembers[member.memberID];
+					member.fakeMemberID = row.fakeMemberID;
 					return member;
 				} else {
 					return row;
@@ -490,7 +518,8 @@ class ConferencePage extends React.Component {
 			break;
 
 		case "del":
-			var rows = this.state.rows.filter(function(row) {
+			var rows = [];
+			this.state.rows.forEach(function(row) {
 				if (row.uuid == a.key) {
 					delete _this.activeMembers[row.memberID];
 				}
@@ -499,17 +528,26 @@ class ConferencePage extends React.Component {
 					row.hidden = false;
 				}
 
-				return row.uuid != a.key;
+				if (row.fakeMemberID && row.memberID == a.data[0]) {
+					row.memberID = row.fakeMemberID;
+					row.uuid = row.fakeMemberID;
+				}
+
+				if (row.uuid != a.key) {
+					rows.push(row);
+				}
 			});
 
 			this.setState({rows: rows});
+			// this.forceUpdate();
 			break;
 
 		case "clear":
 			var rows = [];
 
 			this.state.static_rows.forEach((row) => {
-				rows.push(row);
+				const r = JSON.parse(JSON.stringify(row));
+				rows.push(r);
 			});
 
 			this.setState({rows: rows});

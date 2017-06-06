@@ -134,6 +134,8 @@ post("/:name", function(params)
 		if (req.cidNumber) then cidNumber = req.cidNumber end
 		-- print("cidNumber: " .. cidNumber)
 		dialstr = build_dial_params("origination_caller_id_number", cidNumber) ..
+			build_dial_params("origination_caller_id_name", req.cidName) ..
+			build_dial_params("origination_callee_id_name", req.cidName) ..
 			build_dialstr(req.to)
 		-- print(dialstr)
 		ret = execute("bgapi", "conference " .. params.name .. " dial " .. dialstr)
