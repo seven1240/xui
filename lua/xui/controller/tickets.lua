@@ -53,6 +53,7 @@ xdb.bind(xtra.dbh)
 get('/', function(params)
 	startDate = env:getHeader('startDate')
 	last = tonumber(env:getHeader('last'))
+	status = env:getHeader('status')
 
 	if not startDate then
 		if not last then last = 7 end
@@ -67,7 +68,8 @@ get('/', function(params)
 
 		cond = xdb.date_cond("created_epoch", startDate, endDate) ..
 					xdb.if_cond("id", id) ..
-					xdb.if_cond("cid_number", cid_number)
+					xdb.if_cond("cid_number", cid_number) ..
+					xdb.if_cond("status", status)
 	end
 
 	if m_user.has_permission() then

@@ -512,7 +512,6 @@ class TicketsPage extends React.Component {
 		e.preventDefault();
 
 		xFetchJSON("/api/tickets?last=" + data).then((tickets) => {
-			console.log('dddddddddddddddddddddddddd', tickets)
 			this.setState({rows: tickets});
 		})
 	}
@@ -521,7 +520,8 @@ class TicketsPage extends React.Component {
 		const qs = "startDate=" + this.startDate.value +
 			"&endDate=" + this.endDate.value +
 			"&id=" + this.id.value +
-			"&cid_number=" + this.cid_number.value;
+			"&cid_number=" + this.cid_number.value +
+			"&status=" + this.status.value;
 		console.log(qs);
 
 		xFetchJSON("/api/tickets?" + qs).then((tickets) => {
@@ -593,6 +593,12 @@ class TicketsPage extends React.Component {
 				<input type="date" defaultValue={today} ref={(input) => { _this.endDate = input; }}/> &nbsp;
 				<T.span text="ID"/><input ref={(input) => { _this.id = input; }}/> &nbsp;
 				<T.span text="CID Number"/><input ref={(input) => { _this.cid_number = input; }}/> &nbsp;
+				<T.span text="Status"/>
+				<select ref={(input) => { _this.status = input; }}>
+					<option value ="TICKET_ST_NEW"><T.span text="TICKET_ST_NEW"/></option>
+					<option value ="TICKET_ST_PROCESSING"><T.span text="TICKET_ST_PROCESSING"/></option>
+					<option value="TICKET_ST_DONE"><T.span text="TICKET_ST_DONE"/></option>
+				</select>&nbsp;
 				<T.button text="Search" onClick={this.handleSearch}/>
 			</div>
 
