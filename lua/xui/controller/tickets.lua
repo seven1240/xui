@@ -51,10 +51,30 @@ require 'm_user'
 xdb.bind(xtra.dbh)
 
 get('/', function(params)
-	if m_user.has_permission() then
-		n, tickets = xdb.find_all("tickets", "id desc")
+	startDate = env:getHeader('startDate')
+	last = tonumber(env:getHeader('last'))
+
+	if not startDate then
+		if not last then last = 7 end
+
+		local theTime = os.time()
+		local theTargetTime = theTime - last*24*60*60
+		cond = " strftime('%s', created_epoch) - " .. theTargetTime .. " > 0"
 	else
-		local cond = "user_id = " .. xtra.session.user_id .. " or current_user_id = " .. xtra.session.user_id
+		local endDate = env:getHeader('endDate')
+		local id = env:getHeader('id')
+		local cid_number = env:getHeader('cid_number')		
+
+		cond = xdb.date_cond("created_epoch", startDate, endDate) ..
+					xdb.if_cond("id", id) ..
+					xdb.if_cond("cid_number", cid_number)
+	end
+
+	if m_user.has_permission() then
+		n, tickets = xdb.find_by_cond("tickets", cond, "id desc")
+	else
+		local condo = "user_id = " .. xtra.session.user_id .. " or current_user_id = " .. xtra.session.user_id
+		cond = cond .. " AND " .. condo
 		n, tickets = xdb.find_by_cond("tickets", cond, "id desc")
 	end
 

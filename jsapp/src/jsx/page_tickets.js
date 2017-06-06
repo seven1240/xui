@@ -445,10 +445,19 @@ class TicketPage extends React.Component {
 class TicketsPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {rows: [], danger: false, formShow: false};
+		this.state = {rows: [], danger: false, formShow: false, hiddendiv: 'none'};
 		this.handleDelete = this.handleDelete.bind(this);
 		this.handleControlClick = this.handleControlClick.bind(this);
+		this.handleQuery = this.handleQuery.bind(this);
+		this.handleMore = this.handleMore.bind(this);
+		this.handleSearch = this.handleSearch.bind(this);
 	}
+
+	handleMore (e) {
+		e.preventDefault();
+		this.setState({hiddendiv: this.state.hiddendiv == 'none' ? 'block' : 'none'});
+	}
+
 	handleDelete(e) {
 		var id = e.target.getAttribute("data-id");
 		var _this = this;
@@ -496,6 +505,32 @@ class TicketsPage extends React.Component {
 		}
 	}
 
+	handleQuery (e) {
+		var data = parseInt(e.target.getAttribute("data"));
+
+		this.days = data;
+		e.preventDefault();
+
+		xFetchJSON("/api/tickets?last=" + data).then((tickets) => {
+			console.log('dddddddddddddddddddddddddd', tickets)
+			this.setState({rows: tickets});
+		})
+	}
+
+	handleSearch (e) {
+		const qs = "startDate=" + this.startDate.value +
+			"&endDate=" + this.endDate.value +
+			"&id=" + this.id.value +
+			"&cid_number=" + this.cid_number.value;
+		console.log(qs);
+
+		xFetchJSON("/api/tickets?" + qs).then((tickets) => {
+			this.setState({
+				rows: tickets
+			});
+		});
+	}
+
 	render () {
 		var _this = this;
 		let hand = { cursor: "pointer"};
@@ -519,8 +554,33 @@ class TicketsPage extends React.Component {
 				<td><Link to={`/tickets/${row.id}`}><T.span text="开始处理"/></Link> | <T.a style={hand} onClick={_this.handleDelete} data-id={row.id} text="Delete" className={danger}/></td>
 			</tr>
 		})
+				var now = new Date();
+		var nowdate = Date.parse(now);
+		var sevenDaysBeforenowtime = nowdate - 7*24*60*60*1000;
+		var sevenDaysBeforenowdate = new Date(sevenDaysBeforenowtime);
+
+		function getTime(time){
+			var month = (time.getMonth() + 1);
+			var day = time.getDate();
+			if (month < 10) 
+				month = "0" + month;
+			if (day < 10)
+				day = "0" + day;
+			return time.getFullYear() + '-' + month + '-' + day;
+		}
+
+		var today = getTime(now);
+		var sevenDaysBeforeToday = getTime(sevenDaysBeforenowdate);
+
 		return <div>
 			<ButtonToolbar className="pull-right">
+				<T.span text="Last"/> &nbsp;
+				<T.a onClick={this.handleQuery} text={{key:"days", day: 7}} data="7" href="#"/>&nbsp;|&nbsp;
+				<T.a onClick={this.handleQuery} text={{key:"days", day: 15}} data="15" href="#"/>&nbsp;|&nbsp;
+				<T.a onClick={this.handleQuery} text={{key:"days", day: 30}} data="30" href="#"/>&nbsp;|&nbsp;
+				<T.a onClick={this.handleQuery} text={{key:"days", day: 60}} data="60" href="#"/>&nbsp;|&nbsp;
+				<T.a onClick={this.handleQuery} text={{key:"days", day: 90}} data="90" href="#"/>&nbsp;|&nbsp;
+				<T.a onClick={this.handleMore} text="More" data="more" href="#"/>...
 				<Button onClick={this.handleControlClick} data="new">
 					<i className="fa fa-plus" aria-hidden="true" onClick={this.handleControlClick} data="new"></i>&nbsp;
 					<T.span onClick={this.handleControlClick} data="new" text="New" />
@@ -528,6 +588,13 @@ class TicketsPage extends React.Component {
 			</ButtonToolbar>
 
 			<h1><T.span text="Tickets" /></h1>
+			<div style={{padding: "5px", display: _this.state.hiddendiv}} className="pull-right">
+				<input type="date" defaultValue={sevenDaysBeforeToday} ref={(input) => { _this.startDate = input; }}/> -&nbsp;
+				<input type="date" defaultValue={today} ref={(input) => { _this.endDate = input; }}/> &nbsp;
+				<T.span text="ID"/><input ref={(input) => { _this.id = input; }}/> &nbsp;
+				<T.span text="CID Number"/><input ref={(input) => { _this.cid_number = input; }}/> &nbsp;
+				<T.button text="Search" onClick={this.handleSearch}/>
+			</div>
 
 			<table className="table">
 				<tbody>
