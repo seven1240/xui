@@ -445,18 +445,18 @@ class ConferencePage extends React.Component {
 							return;
 						}
 
-						// const laChannelName = _this.getChannelName("liveArray", '192.168.3.119');
-						const laChannelName = 'conference-liveArray.3000-192.168.3.119@192.168.3.119';
+						// const laChannelName = _this.getChannelName("liveArray", '10.84.0.33');
+						const laChannelName = 'conference-liveArray.4000-10.84.0.33@10.84.0.33';
 						v.subscribe(laChannelName, {handler: _this.handleFSEvent.bind(_this),
 							userData: v,
 							subParams: {}
 						});
 
-						verto.broadcast(laChannelName, {
+						v.broadcast(laChannelName, {
 							liveArray: {
 								command: "bootstrap",
 								context: laChannelName,
-								name: '3000-192.168.3.119',
+								name: '4000-10.84.0.33',
 								obj: {}
 							}
 						});
@@ -473,7 +473,7 @@ class ConferencePage extends React.Component {
 
 				}
 
-				const domains = ['192.168.3.119'];
+				const domains = ['10.84.0.33'];
 				this.vertos = [];
 
 				domains.forEach(function(dm) {
@@ -531,7 +531,7 @@ class ConferencePage extends React.Component {
 			});
 
 			boot_rows.forEach(function(member) {
-				rows.push(translateMember(member));
+				rows.push(member);
 			})
 
 			this.setState({rows: rows});
@@ -743,7 +743,7 @@ class ConferencePage extends React.Component {
 
 			<ButtonToolbar>
 				<T.span text="Conference Name"/>: {this.props.name} |&nbsp;
-				<T.span text="Total"/>: {Object.keys(this.activeMembers).length}
+				<T.span text="Total"/>: {this.state.rows.length}
 			</ButtonToolbar>
 
 			<div>
