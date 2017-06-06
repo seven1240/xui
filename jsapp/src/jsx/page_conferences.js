@@ -329,6 +329,12 @@ class ConferencePage extends React.Component {
 		if (this.la) this.la.destroy();
 		if (this.cman) this.cman.destroy();
 		if (this.binding) verto.unsubscribe(this.binding);
+
+		if (this.vertos) {
+			this.vertos.forEach((v) => {
+				v.logout("conference gone");
+			})
+		}
 	}
 
 	componentDidMount () {
@@ -473,15 +479,17 @@ class ConferencePage extends React.Component {
 
 				}
 
-				const domains = ['10.84.0.33'];
-				this.vertos = [];
+				xFetchJSON("/api/dicts?realm=CONF_NODE").then((data) => {
+					this.vertos = [];
 
-				domains.forEach(function(dm) {
-					const v = new Verto();
-					v.domain = dm;
-					v.connect(verto_params(dm), verto_callbacks);
-					_this.vertos.push(v);
-				});
+					data.forEach(function(dict) {
+						const v = new Verto();
+						v.domain = dict.k;
+						v.connect(verto_params(v.domain), verto_callbacks);
+						_this.vertos.push(v);
+					});
+				})
+
 			}
 		});
 	}
