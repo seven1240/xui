@@ -4,7 +4,7 @@ import React from 'react';
 import verto from './verto/verto';
 import { Verto } from './verto/verto';
 
-export function verto_params() {
+export function verto_params(host) {
 	var protocol = window.location.protocol == "https:" ? "wss://" : "ws://";
 	var username = localStorage.getItem('xui.username');
 	var password = localStorage.getItem('xui.password');
@@ -28,7 +28,7 @@ export function verto_params() {
 
 export const verto_callbacks = {
 	onMessage: function(verto, dialog, msg, data) {
-		console.log("GOT MSG", msg);
+		console.log("cluster GOT MSG", msg);
 
 		switch (msg) {
 		case Verto.enum.message.pvtEvent:
@@ -42,36 +42,26 @@ export const verto_callbacks = {
 	},
 
 	onDialogState: function(d) {
-		fire_event("verto-dialog-state", d);
+		// fire_event("verto-dialog-state", d);
 	},
 
 	onWSLogin: function(v, success) {
-		console.log("onWSLogin", v);
-		console.log("onWSLogin", success);
+		console.log("cluster onWSLogin", v);
+		console.log("cluster onWSLogin", success);
 		verto_loginState = true;
-		verto.domain = domain;
 
 		if (!success) {
-			fire_event("verto-login-error", v);
+			console.error("cluster veroto login err");
 			return;
 		}
-
-		setCookie("freeswitch_xtra_session_id", v.sessid);
-
-		fire_event("verto-login", v);
-
-		verto.fsStatus(function(s) {
-			// fire a "update-status" event so the OverView component can update
-			fire_event("update-status", s);
-		});
 	},
 
 	onWSClose: function(v, success) {
-		console.log("onWSClose", v);
-		fire_event("verto-disconnect", v);
+		console.log("cluster:onWSClose", v);
+		// fire_event("verto-disconnect", v);
 	},
 
 	onEvent: function(v, e) {
-		console.debug("GOT EVENT", e);
+		console.debug("cluster:GOT EVENT", e);
 	}
 };

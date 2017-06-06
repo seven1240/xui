@@ -34,9 +34,11 @@ import React from 'react';
 import T from 'i18n-react';
 import { ButtonToolbar, ButtonGroup, Button, ProgressBar, Thumbnail } from 'react-bootstrap';
 import verto from './verto/verto';
+import { Verto } from './verto/verto';
 import { VertoLiveArray } from './verto/verto-livearray';
 import VertoConfMan from './verto/verto-confman';
 import { xFetchJSON } from './libs/xtools';
+import {verto_params} from "./verto_cluster";
 
 // translate conference member
 function translateMember(member) {
@@ -117,13 +119,14 @@ class Member extends React.Component {
 			return;
 		} else if (data == "floor" && member.memberID > 0) {
 			console.log(member.conference_name + " vid-floor " + member.memberID + " force")
-			verto.fsAPI("conference", member.conference_name + " vid-floor " + member.memberID + " force");
+			member.verto.fsAPI("conference", member.conference_name + " vid-floor " + member.memberID + " force");
 			// verto.fsAPI("conference", member.conference_name + " unvmute " + member.memberID);
 			// verto.fsAPI("conference", member.conference_name + " vmute " + member.memberID);
 			return;
 		}
 
-		verto.fsAPI("conference", member.conference_name + " " + data + " " + member.memberID);
+		// member.verto.fsAPI("conference", member.conference_name + " " + data + " " + member.memberID);
+		member.verto.fsAPI("conference", member.room_nbr + '-' + member.verto.domain + " " + data + " " + member.memberID);
 	}
 
 	render() {
@@ -179,7 +182,7 @@ class Member extends React.Component {
 					<td>{member.email}</td>
 			</tr>;
 		} else if (this.props.displayStyle == 'list') {
-			const imgClass = which_floor.floor ? "conf-avatar conf-avatar-1" : ((parseInt(member.memberID) < 0) ? "conf-avatar conf-avatar-3" : "conf-avatar conf-avatar-2");
+			const imgClass = (member.verto && member.verto.domain == domain) && which_floor.floor ? "conf-avatar conf-avatar-1" : ((parseInt(member.memberID) < 0) ? "conf-avatar conf-avatar-3" : "conf-avatar conf-avatar-2");
 
 			return  <div  className={className} onClick={(e) => _this.handleClick(e, member.memberID)} style={{width: "185px", height: "90px", marginTop:"30px", marginRight:"20px", border:"1px solid #c0c0c0", display:"inline-block"}}>
 				<div style={{float:"left"}}>
@@ -225,8 +228,8 @@ class ConferencePage extends React.Component {
 		this.handleMemberClick = this.handleMemberClick.bind(this);
 	}
 
-	getChannelName(what) { // liveArray chat mod
-		return "conference-" + what + "." + this.props.name + "@" + domain;
+	getChannelName(what, dm) { // liveArray chat mod
+		return "conference-" + what + "." + this.props.name + "@" + (dm || domain);
 	}
 
 	handleOutcallNumberChange(e) {
@@ -248,7 +251,7 @@ class ConferencePage extends React.Component {
 				const rows = this.state.rows.map(function(row) {
 					row.active = active;
 					_this.activeMembers[row.memberID] = active;
-					return row
+					return row;
 				});
 
 				this.setState({rows: rows});
@@ -393,6 +396,7 @@ class ConferencePage extends React.Component {
 					chatCallback: chatCallback
 				});
 			} else {
+				verto.domain = domain;
 				const laChannelName = _this.getChannelName("liveArray");
 				_this.binding = verto.subscribe(laChannelName, {handler: _this.handleFSEvent.bind(_this),
 					userData: verto,
@@ -407,6 +411,77 @@ class ConferencePage extends React.Component {
 						obj: {}
 					}
 				});
+
+
+				// verto cluster
+
+
+				const verto_callbacks = {
+					onMessage: function(verto, dialog, msg, data) {
+						console.log("cluster GOT MSG", msg);
+
+						switch (msg) {
+						case Verto.enum.message.pvtEvent:
+							console.error("cluster pvtEvent", data.pvtData);
+							break;
+						case Verto.enum.message.display:
+							break;
+						default:
+							break;
+						}
+					},
+
+					onDialogState: function(d) {
+						// fire_event("verto-dialog-state", d);
+					},
+
+					onWSLogin: function(v, success) {
+						console.log("cluster onWSLogin", v);
+						console.log("cluster onWSLogin", success);
+						verto_loginState = true;
+
+						if (!success) {
+							console.error("cluster veroto login err");
+							return;
+						}
+
+						// const laChannelName = _this.getChannelName("liveArray", '192.168.3.119');
+						const laChannelName = 'conference-liveArray.3000-192.168.3.119@192.168.3.119';
+						v.subscribe(laChannelName, {handler: _this.handleFSEvent.bind(_this),
+							userData: v,
+							subParams: {}
+						});
+
+						verto.broadcast(laChannelName, {
+							liveArray: {
+								command: "bootstrap",
+								context: laChannelName,
+								name: '3000-192.168.3.119',
+								obj: {}
+							}
+						});
+					},
+
+					onWSClose: function(v, success) {
+						console.log("cluster:onWSClose", v);
+						// fire_event("verto-disconnect", v);
+					},
+
+					onEvent: function(v, e) {
+						console.debug("cluster:GOT EVENT", e);
+					}
+
+				}
+
+				const domains = ['192.168.3.119'];
+				this.vertos = [];
+
+				domains.forEach(function(dm) {
+					const v = new Verto(verto_params(dm), verto_callbacks);
+					v.connect(verto_params(dm));
+					v.domain = dm;
+					_this.vertos.push(v);
+				});
 			}
 		});
 	}
@@ -419,10 +494,10 @@ class ConferencePage extends React.Component {
 	}
 
 	handleFSEvent(verto, e) {
-		this.handleConferenceEvent(null, e.data);
+		this.handleConferenceEvent(null, e.data, verto);
 	}
 
-	handleConferenceEvent (la, a) {
+	handleConferenceEvent (la, a, vt) {
 		console.log("onChange FSevent:", a.action, a);
 		const _this = this;
 
@@ -436,7 +511,9 @@ class ConferencePage extends React.Component {
 		case "bootObj":
 			var rows = [];
 			var boot_rows = a.data.map(function(member) {
-				return translateMember(member);
+				let m = translateMember(member);
+				m.verto = vt;
+				return m;
 			});
 
 			this.state.static_rows.forEach((row) => {
@@ -463,6 +540,8 @@ class ConferencePage extends React.Component {
 			var found = 0;
 			var member = translateMember([a.key, a.data]);
 
+			member.verto = vt;
+
 			if (true || member.cidName == this.state.name ||
 				member.cidName == "Outbound Call") {
 				var outcall_rows = this.state.outcall_rows.filter(function(row) {
@@ -482,6 +561,7 @@ class ConferencePage extends React.Component {
 							// row.hidden = true;
 							row.memberID = member.memberID;
 							row.uuid = member.uuid;
+							row.verto = vt;
 							found++;
 							return row;
 						} else {
@@ -508,6 +588,7 @@ class ConferencePage extends React.Component {
 					var member = translateMember([a.key, a.data]);
 					member.active = _this.activeMembers[member.memberID];
 					member.fakeMemberID = row.fakeMemberID;
+					member.verto = vt;
 					return member;
 				} else {
 					return row;
@@ -570,6 +651,7 @@ class ConferencePage extends React.Component {
 		const members = rows.map(function(member) {
 			if (member.hidden) return null;
 			member.conference_name = _this.props.name;
+			member.room_nbr = _this.props.room_nbr;
 			return <Member member={member} key={member.uuid} onMemberClick={_this.handleMemberClick} displayStyle={_this.state.displayStyle}/>
 		});
 
