@@ -229,7 +229,8 @@ class ConferencePage extends React.Component {
 	}
 
 	getChannelName(what, dm) { // liveArray chat mod
-		return "conference-" + what + "." + this.props.name + "@" + (dm || domain);
+		if (!dm) dm = domain;
+		return "conference-" + what + "." + this.props.room_nbr + '-' + dm + "@" + dm;
 	}
 
 	handleOutcallNumberChange(e) {
@@ -445,8 +446,7 @@ class ConferencePage extends React.Component {
 							return;
 						}
 
-						// const laChannelName = _this.getChannelName("liveArray", '10.84.0.33');
-						const laChannelName = 'conference-liveArray.4000-10.84.0.33@10.84.0.33';
+						const laChannelName = _this.getChannelName("liveArray", v.domain);
 						v.subscribe(laChannelName, {handler: _this.handleFSEvent.bind(_this),
 							userData: v,
 							subParams: {}
@@ -456,7 +456,7 @@ class ConferencePage extends React.Component {
 							liveArray: {
 								command: "bootstrap",
 								context: laChannelName,
-								name: '4000-10.84.0.33',
+								name: _this.props.room_nbr + '-' + v.domain,
 								obj: {}
 							}
 						});
@@ -477,9 +477,9 @@ class ConferencePage extends React.Component {
 				this.vertos = [];
 
 				domains.forEach(function(dm) {
-					const v = new Verto(verto_params(dm), verto_callbacks);
-					v.connect(verto_params(dm));
+					const v = new Verto();
 					v.domain = dm;
+					v.connect(verto_params(dm), verto_callbacks);
 					_this.vertos.push(v);
 				});
 			}
@@ -650,8 +650,8 @@ class ConferencePage extends React.Component {
 
 		const members = rows.map(function(member) {
 			if (member.hidden) return null;
-			member.conference_name = _this.props.name;
 			member.room_nbr = _this.props.room_nbr;
+			member.conference_name = member.room_nbr + '-' + member.verto.domain;
 			return <Member member={member} key={member.uuid} onMemberClick={_this.handleMemberClick} displayStyle={_this.state.displayStyle}/>
 		});
 
