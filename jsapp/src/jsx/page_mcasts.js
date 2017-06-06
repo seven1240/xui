@@ -239,7 +239,7 @@ class McastPage extends React.Component {
 		var mcast = form2json('#newMcastForm');
 		console.log("mcast", mcast);
 
-		if (!mcast.name || !mcast.source || !mcast.codec_ms || !mcast.channels || !mcast.mcast_ip || !mcast.mcast_port) {
+		if (!mcast.name || !mcast.codec_ms || !mcast.channels || !mcast.mcast_ip || !mcast.mcast_port) {
 			notify(<T.span text="Mandatory fields left blank"/>, "error");
 			return;
 		}
