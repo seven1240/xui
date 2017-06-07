@@ -103,12 +103,16 @@ class Member extends React.Component {
 		const member = this.props.member;
 
 		if (data == "call") {
+			if (member.memberID > 0) return;
+
 			xFetchJSON("/api/conferences/" + member.conference_name, {
 				method: "POST",
 				body: JSON.stringify({
 					from: member.cidNumber,
-					to: member.cidNumber,
-					cidName: member.conference_name
+					to: member.cidNumber.indexOf('.') ? member.room_nbr : member.cidNumber,
+					context: member.cidNumber.indexOf('.') ? member.cidNumber : 'default',
+					cidName: member.conference_name,
+					ignoreDisplayUpdates: "true"
 				})
 			}).then((res) => {
 				this.setState({calling: true});
@@ -360,15 +364,15 @@ class ConferencePage extends React.Component {
 				}
 
 				return {
-					'uuid': m.id - 100000,
-					'fakeMemberID': m.id - 100000,
-					'memberID': m.id - 100000,
-					'cidNumber': m.num,
-					'cidName': m.name,
-					'codec': null,
-					'status': {audio: audio},
-					'email': null,
-					'active': false
+					uuid: m.id - 100000,
+					fakeMemberID: m.id - 100000,
+					memberID: m.id - 100000,
+					cidNumber: m.num,
+					cidName: m.name,
+					codec: null,
+					status: {audio: audio},
+					email: null,
+					active: false
 				};
 			});
 
@@ -491,6 +495,26 @@ class ConferencePage extends React.Component {
 						v.domain = dict.k;
 						v.connect(verto_params(v.domain), verto_callbacks);
 						_this.vertos.push(v);
+
+						const audio = {
+							talking: false,
+							deaf: false,
+							muted: false,
+							onHold: false,
+							energyScore: 0
+						}
+
+						_this.state.static_rows.push({
+							uuid: dict.k,
+							fakeMemberID: -1,
+							memberID: -1,
+							cidNumber: dict.k,
+							cidName: dict.k,
+							codec: null,
+							status: {audio: audio},
+							email: null,
+							active: false
+						});
 					});
 				})
 

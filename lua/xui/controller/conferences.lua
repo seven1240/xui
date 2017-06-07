@@ -52,12 +52,12 @@ function build_dial_params(var, val)
 	return "{" .. var .. "=" .. "'" .. val .. "'}"
 end
 
-function build_dialstr(destNumber)
+function build_dialstr(destNumber, context)
 	if (config.prefix_table) then
 		return "prefix/" .. config.prefix_table .. "/" .. destNumber
 	end
 
-	return m_dialstring.build(destNumber)
+	return m_dialstring.build(destNumber, context)
 
 	-- return "user/" .. destNumber
 end
@@ -136,7 +136,9 @@ post("/:name", function(params)
 		dialstr = build_dial_params("origination_caller_id_number", cidNumber) ..
 			build_dial_params("origination_caller_id_name", req.cidName) ..
 			build_dial_params("origination_callee_id_name", req.cidName) ..
-			build_dialstr(req.to)
+			build_dial_params("origination_callee_id_number", cidNumber) ..
+			build_dial_params("ignore_display_updates", req.ignoreDisplayUpdates) ..
+			build_dialstr(req.to, req.context)
 		-- print(dialstr)
 
 		if req.transfer then
@@ -151,7 +153,7 @@ post("/:name", function(params)
 			if (v.cidNumber) then cidNumber = v.cidNumber end
 			-- print("cidNumber: " .. cidNumber)
 			dialstr = build_dial_params("origination_caller_id_number", cidNumber) ..
-				build_dialstr(v.to)
+				build_dialstr(v.to, v.context)
 			-- print(dialstr)
 			ret = execute("conference", params.name .. " bgdial " .. dialstr)
 		end
