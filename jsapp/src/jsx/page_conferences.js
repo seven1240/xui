@@ -496,6 +496,7 @@ class ConferencePage extends React.Component {
 						v.connect(verto_params(v.domain), verto_callbacks);
 						_this.vertos.push(v);
 
+						return;
 						const audio = {
 							talking: false,
 							deaf: false,
@@ -545,26 +546,28 @@ class ConferencePage extends React.Component {
 			break;
 
 		case "bootObj":
-			var rows = [];
+			var rows = this.state.rows;
 			var boot_rows = a.data.map(function(member) {
 				let m = translateMember(member);
 				m.verto = vt;
 				return m;
 			});
 
-			this.state.static_rows.forEach((row) => {
-				let r = JSON.parse(JSON.stringify(row));
+			if (vt.domain == domain) {
+				this.state.static_rows.forEach((row) => {
+					let r = JSON.parse(JSON.stringify(row));
 
-				boot_rows = boot_rows.filter(function(member) {
-					if (member.cidNumber == r.cidNumber) {
-						r = Object.assign(member);
-						return false;
-					}
-					return true;
+					boot_rows = boot_rows.filter(function(member) {
+						if (member.cidNumber == r.cidNumber) {
+							r = Object.assign(member);
+							return false;
+						}
+						return true;
+					});
+
+					rows.push(r);
 				});
-
-				rows.push(r);
-			});
+			}
 
 			boot_rows.forEach(function(member) {
 				rows.push(member);
@@ -660,11 +663,9 @@ class ConferencePage extends React.Component {
 			break;
 
 		case "clear":
-			var rows = [];
-
-			this.state.static_rows.forEach((row) => {
-				const r = JSON.parse(JSON.stringify(row));
-				rows.push(r);
+			const rows = this.state.rows.filter((row) => {
+				if (row.fakeMemberID) return true;
+				return !(vt.domain == (row.verto ? row.verto.domain : domain));
 			});
 
 			this.setState({rows: rows});
