@@ -59,14 +59,14 @@ function translateMember(member) {
 	}
 
 	const m = {
-		'uuid': member[0],
-		'memberID': member[1][0],
-		'cidNumber': member[1][1],
-		'cidName': member[1][2],
-		'codec': member[1][3],
-		'status': status,
-		'email': email,
-		'active': false
+		uuid: member[0],
+		memberID: member[1][0],
+		cidNumber: member[1][1],
+		cidName: member[1][2],
+		codec: member[1][3],
+		status: status,
+		email: email,
+		active: false
 	};
 
 	// console.log("m", m);
