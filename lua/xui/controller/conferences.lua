@@ -138,8 +138,13 @@ post("/:name", function(params)
 			build_dial_params("origination_callee_id_name", req.cidName) ..
 			build_dialstr(req.to)
 		-- print(dialstr)
-		ret = execute("bgapi", "conference " .. params.name .. " dial " .. dialstr)
 
+		if req.transfer then
+			ret = execute("bgapi", "originate " .. dialstr .. ' ' .. req.transfer)
+		else
+			profile = req.profile or 'default'
+			ret = execute("bgapi", "originate " .. dialstr .. " &conference(" .. params.name .. '@' .. profile .. ")")
+		end
 	elseif(req and req.participants) then
 		for i, v in ipairs(req.participants) do
 			cidNumber = v.from
