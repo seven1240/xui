@@ -192,7 +192,8 @@ class Member extends React.Component {
 				<div style={{float: "left", marginLeft: "5px", marginTop: "5px"}}>
 					<div className="conf-member-cidname">{member.cidName}</div>
 					<div className="conf-member-cidnumber">{member.cidNumber}</div>
-					<div style={{marginTop: "23px"}}>
+					<div className="conf-member-cidnumber">{member.verto ? member.verto.domain : domain}</div>
+					<div style={{marginTop: "3px"}}>
 						<a className="conf-control fa fa-star" style={{color: floor_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, "floor")}></a>&nbsp;
 						<i className="fa fa-volume-up" style={{color: talking_color}} aria-hidden="true"></i>&nbsp;
 						<a className={deaf_class} style={{color: deaf_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, member.status.audio.deaf ? "undeaf" : "deaf")}></a>&nbsp;
