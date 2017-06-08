@@ -180,6 +180,20 @@ class TicketPage extends React.Component {
 		this.handleControlClick = this.handleControlClick.bind(this);
 		this.handleSubmitChange = this.handleSubmitChange.bind(this);
 		this.handleControlClose = this.handleControlClose.bind(this);
+		this.handleClickChange = this.handleClickChange.bind(this);
+	}
+
+	handleClickChange(e) {
+		const users = this.state.users;
+		const ticket = this.state.ticket;
+		delete ticket.current_user_id;
+		let deal_user = <FormControl componentClass="select" name="current_user_id">{
+				users.map(function(row) {
+					return <option key={row.id} value={row.id}>{row.name} ({row.extn}) {row.nickname}</option>
+				})
+			}
+		</FormControl>;
+		this.setState({deal_user: deal_user});
 	}
 
 	handleControlClose () {
@@ -280,6 +294,7 @@ class TicketPage extends React.Component {
 	}
 
 	render() {
+		let _this = this;
 		let savebtn = "";
 		if (this.state.edit) {
 			savebtn = <Button onClick={this.handleSubmitChange}><i className="fa fa-save" aria-hidden="true"></i>&nbsp;<T.span text="Save"/></Button>
@@ -323,7 +338,7 @@ class TicketPage extends React.Component {
 		if(ticket.current_user_id){
 			users.map(function(row) {
 				if(row.id == ticket.current_user_id){
-					deal_user = <FormControl.Static><T.span text={row.name}/></FormControl.Static>
+					deal_user = <FormControl.Static><T.span text={row.name} onClick={_this.handleClickChange}/></FormControl.Static>
 					hidden_user = <FormControl type="hidden" name="current_user_id" value={row.id}/>
 				}
 			})
