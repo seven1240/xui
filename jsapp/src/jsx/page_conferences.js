@@ -42,6 +42,7 @@ import {verto_params} from "./verto_cluster";
 
 let global_conference_links = {};
 let global_conference_links_local = {};
+let global_conference_profile = {name: 'default'};
 
 // translate conference member
 function translateMember(member) {
@@ -103,6 +104,8 @@ class Member extends React.Component {
 	handleControlClick(e, data) {
 		console.log("data", data);
 		e.stopPropagation();
+
+		const _this = this;
 		const member = this.props.member;
 
 		if (data == "call") {
@@ -118,6 +121,7 @@ class Member extends React.Component {
 					to: member.cidNumber.indexOf('.') ? member.room_nbr : member.cidNumber,
 					context: member.cidNumber.indexOf('.') ? member.cidNumber : 'default',
 					cidName: member.conference_name,
+					profile: global_conference_profile.name,
 					ignoreDisplayUpdates: "true"
 				})
 			}).then((res) => {
@@ -391,6 +395,12 @@ class ConferencePage extends React.Component {
 		this.setState({displayStyle: displayStyle});
 
 		this.state.domain_rows[domain] = []; // init our domain;
+
+		xFetchJSON("/api/conference_profiles/" + this.props.room.profile_id).then((data) => {
+			global_conference_profile = data;
+		}).catch((err) => {
+			console.error("err", err);
+		});
 
 		xFetchJSON("/api/conference_rooms/" + this.props.room_id + "/members").then((members) => {
 			_this.state.static_rows = members.map(function(m) {
