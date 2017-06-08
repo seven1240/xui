@@ -35,12 +35,12 @@ CREATE TABLE users (
 	context VARCHAR,
 	domain VARCHAR,
 	password VARCHAR,
-	tel VARCHAR,
 	vm_password VARCHAR,
 	user_cidr VARCHAR,
 	login VARCHAR,
 	email VARCHAR,
 	type VARCHAR,
+	tel VARCHAR,
 	auto_record BOOLEAN NOT NULL DEFAULT 0 CHECK(auto_record IN (0, 1, '0', '1')),
 	disabled BOOLEAN NOT NULL DEFAULT 0 CHECK(disabled IN (0, 1, '0', '1')),
 

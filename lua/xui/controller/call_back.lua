@@ -42,10 +42,10 @@ xdb.bind(xtra.dbh)
 
 get('/:id', function(params)
 	n, tels = xdb.find_by_sql([[SELECT a.tel
-	FROM users AS a 
-	INNER JOIN tickets AS b 
+	FROM users AS a
+	INNER JOIN tickets AS b
 	ON a.id = b.user_id OR a.id = b.current_user_id
-	WHERE b.id = ]] .. params.id)
+	WHERE b.id = ]] .. xdb.escape(params.id))
 	if (n > 1) then
 		freeswitch.consoleLog("ERR",serialize(tels))
 		api = freeswitch.API()

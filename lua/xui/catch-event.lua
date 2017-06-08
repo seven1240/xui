@@ -73,7 +73,6 @@ if fifoAction == "push" or fifoAction == "abort" or fifoAction == "pre-dial" or 
 		rec.start_epoch = "" .. os.time() + config.tz*60*60
 		xdb.create('fifo_cdrs', rec)
 
-
 		if config.fifo_ticket then -- create a ticket
 			ticket = {}
 			ticket.user_id = 0
@@ -83,7 +82,7 @@ if fifoAction == "push" or fifoAction == "abort" or fifoAction == "pre-dial" or 
 			ticket.type = 'TICKET_TYPE_1'
 			ticket.subject = cidNumber
 			ticket.content = cidNumber .. '来电'
-			xdb.create('tickets', ticket);
+			local ticket_id = xdb.create_return_id('tickets', ticket);
 		end
 
 	elseif fifoAction == "pre-dial" then
@@ -130,10 +129,11 @@ if fifoAction == "push" or fifoAction == "abort" or fifoAction == "pre-dial" or 
 		rec.created_epoch = "" .. os.time()
 		rec.original_file_name = filename
 		rec.rel_path = filename
-		
 		media_file_id = xdb.create_return_id('media_files', rec)
 		xdb.update_by_cond('fifo_cdrs', {channel_uuid = uuid}, {media_file_id = media_file_id})
-
+		if config.fifo_ticket then
+			xdb.update_by_cond('tickets', {id = ticket_id}, {media_file_id = media_file_id})
+		end
 		if config.fifo_ticket then -- update ?
 			rec = {}
 			rec.media_file_id = media_file_id

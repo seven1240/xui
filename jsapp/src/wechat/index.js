@@ -99,6 +99,22 @@ class Home extends React.Component {
 		});
 	}
 
+	onWork(e) {
+		xFetchJSON("/api/fifos/" + e + "/work/onwork", {
+			method: 'PUT'
+		}).then((data) => {
+		}).catch((e) => {
+		});
+	}
+
+	afterWork(e) {
+		xFetchJSON("/api/fifos/" + e + "/work/afterWork", {
+			method: 'PUT'
+		}).then((data) => {
+		}).catch((e) => {
+		});
+	}
+
 	render() {
 		const _this = this;
 		const ticket = this.state.ticket;
@@ -163,8 +179,26 @@ class Home extends React.Component {
 						</a>
 						{_this.state.ass_template}
 					</div>
-		}else{
+		} else {
 			var assigns = <a className="weui-form-preview__btn weui-form-preview__btn_primary" onClick={ () => _this.handleAllot(ticket.id)}>派发</a>
+		}
+		const record = "/recordings/" + ticket.original_file_name
+		if (ticket.user_state) {
+			var work_radio = <span>
+								<input type="radio" defaultChecked="checked" name="work" onChange={() => _this.onWork(ticket.id)}/>
+								上班
+								&nbsp;&nbsp;&nbsp;
+								<input type="radio" name="work" onChange={() => _this.afterWork(ticket.id)}/>
+								下班
+							</span>
+		} else {
+			var work_radio = <span>
+								<input type="radio" name="work" onChange={() => _this.onWork(ticket.id)}/>
+								上班
+								&nbsp;&nbsp;&nbsp;
+								<input type="radio" defaultChecked="checked" name="work" onChange={() => _this.afterWork(ticket.id)}/>
+								下班
+							</span>
 		}
 		return <div>
 			<div className="weui-cells__title">
@@ -216,12 +250,33 @@ class Home extends React.Component {
 			</div>
 			<div className="weui-form-preview__bd">
 				<div className="weui-form-preview__item">
+					<span style={{color:"black"}} className="weui-form-preview__label">值班</span>
+					<span className="weui-form-preview__value">
+						{work_radio}
+					</span>
+				</div>
+			</div>
+			<div className="weui-form-preview__ft">
+			</div>
+			<div className="weui-form-preview__bd">
+				<div className="weui-form-preview__item">
+					<span style={{color:"black"}} className="weui-form-preview__label">录音</span>
+					<span className="weui-form-preview__value">
+						<audio src={record} controls="controls">
+						</audio>
+				</span>
+			</div>
+			<div className="weui-form-preview__ft">
+			</div>
+			<div className="weui-form-preview__bd">
+				<div className="weui-form-preview__item">
 					<span className="weui-form-preview__label"></span>
 					<span className="weui-form-preview__value">
 						<a href="javascript:;" onClick={() => _this.callBack(ticket.id)} className="weui-btn weui-btn_mini weui-btn_primary">{_this.state.call}</a>
 					</span>
 				</div>
 			</div>
+		</div>
 		</div>
 		<article className="weui-article">
 			<section>
@@ -360,16 +415,14 @@ class Comment extends React.Component {
 	uploadImg(e) {
 		var _this = this;
 		wx.chooseImage({
-			count: 9, // 默认9
+			count: 1, // 默认9
 			sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
 			sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
 			success: function (res) {
-				_this.setState({localIds: [], serverIds: []});
-				var localIds = []; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
-				localIds = res.localIds;
+				_this.state.localIds.push(res.localIds);
+				var localIds = _this.state.localIds;
 				_this.setState({localIds: localIds})
-				var serverIds = [];
-				localIds.map((localId) => {
+				res.localIds.map((localId) => {
 					_this.wUploadImage(localId);
 				})
 			}
