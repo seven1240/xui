@@ -297,7 +297,10 @@ class TicketPage extends React.Component {
 		})
 
 		const ticket = this.state.ticket;
-
+		let types = {};
+		this.state.types.forEach((type) => {
+			types[type.k] = type.v;
+		})
 		var status = '';
 		var style = null;
 		if(ticket.status == "TICKET_ST_NEW"){
@@ -350,7 +353,7 @@ class TicketPage extends React.Component {
 		if (this.state.edit == false) {
 			FORM = <FormGroup controlId="formType">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Type"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="type" defaultValue={ticket.type}/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} name="type" defaultValue={types[ticket.type]}/></Col>
 				</FormGroup>;
 		} else {
 			FORM = <FormGroup controlId="formType">
