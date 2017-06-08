@@ -680,4 +680,8 @@ CREATE TRIGGER t_wechat_upload AFTER UPDATE ON wechat_upload
 BEGIN
 	UPDATE wechat_upload set updated_epoch = DATETIME('now', 'localtime') WHERE id = NEW.id;
 END;
+
+-- cdrs auto generated when load mod_cdr_sqlite;
+-- ALTER TABLE cdrs add sip_hangup_disposition VARCHAR;
+
 -- END
