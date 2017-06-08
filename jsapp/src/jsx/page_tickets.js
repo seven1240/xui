@@ -286,7 +286,11 @@ class TicketPage extends React.Component {
 		}
 
 		const ticket_comments = this.state.ticket_comments.map(function(row) {
-			let src = row.avatar_url;
+			if (row.avatar_url) {
+				var src = row.avatar_url;
+			} else {
+				var src = "/assets/img/default_avatar.png";
+			}
 			let style = {width: '40px'};
 			return <Row key={row.id}>
 				<Col componentClass={ControlLabel} sm={1} smOffset={2}><img src={src} style={style}/></Col>
