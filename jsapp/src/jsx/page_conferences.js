@@ -321,7 +321,8 @@ class ConferencePage extends React.Component {
 				const dm = member.verto ? member.verto.domain : domain;
 				var args = this.props.room_nbr + '-' + dm + " " + data + " " + memberID;
 				// console.log("args", args);
-				(member.veto || verto).fsAPI("conference", args);
+				const vt = member.verto ? member.verto : verto;
+				vt.fsAPI("conference", args);
 				// this.cman.modCommand(data, memberID);
 			}
 		}
