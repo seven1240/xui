@@ -218,11 +218,16 @@ class Member extends React.Component {
 			</tr>;
 		} else if (this.props.displayStyle == 'list') {
 			const imgClass = (member.verto && member.verto.domain == domain) && which_floor.floor ? "conf-avatar conf-avatar-1" : ((parseInt(member.memberID) < 0) ? "conf-avatar conf-avatar-3" : "conf-avatar conf-avatar-2");
+			let memberIDStyle = {textAlign: "center"};
+
+			if (member.cidNumber.indexOf('.') > 0) {
+				memberIDStyle.color = 'blue';
+			}
 
 			return  <div  className={className} onClick={(e) => _this.handleClick(e, member.memberID)} style={{width: "185px", height: "90px", marginTop:"30px", marginRight:"20px", border:"1px solid #c0c0c0", display:"inline-block"}}>
 				<div style={{float:"left"}}>
 					<div className={imgClass}></div>
-					<div style={{textAlign: "center"}}>{member.memberID}</div>
+					<div style={memberIDStyle}>{member.memberID}</div>
 				</div>
 				<div style={{float: "left", marginLeft: "5px", marginTop: "5px"}}>
 					<div className="conf-member-cidname">{member.cidName}</div>
