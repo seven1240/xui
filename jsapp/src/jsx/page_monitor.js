@@ -173,7 +173,14 @@ class MonitorPage extends React.Component {
 	}
 
 	handleHangup() {
-		this.state.curCall.hangup();
+		let users = this.state.users;
+		let activeKey = this.state.activeKey;
+
+		for (let i = 0; i < users.length; i++) {
+			if (users[i].groupID == activeKey && users[i].selectedState == "selected" && users[i].channelUUID) {
+				verto.fsAPI("uuid_kill", users[i].channelUUID);
+			}
+		}
 	}
 
 	handleTabSelect(selectedKey) {
@@ -305,7 +312,7 @@ class MonitorPage extends React.Component {
 
 		users.forEach(function(user) {
 			if (user.userExten == compareNumber) {
-				user.channelUUID == channelUUID;
+				user.channelUUID = channelUUID;
 				user.channelCallState = channelCallState;
 				user.callDirection = callDirection;
 				usersChanged = true;
