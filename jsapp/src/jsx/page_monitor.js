@@ -57,8 +57,8 @@ class TabContent extends React.Component {
 
 			let curCall = verto.newCall({
 				destination_number: user.userExten,
-				caller_id_name: currentLoginUser.userName,
-				caller_id_number: currentLoginUser.userExten,
+				caller_id_name: localStorage.getItem('xui.username'),
+				caller_id_number: localStorage.getItem('xui.username'),
 				useVideo: false,
 				useStereo: false
 			});
@@ -86,23 +86,31 @@ class TabContent extends React.Component {
 		let userImageUrl = user.registerState == "registered" ? "/assets/img/phone-green.png" : "/assets/img/phone-grey.png";
 
 		let userSelectedClass = user.selectedState == "selected" ? "user-selected" : "";
-		let userCallClass = channelCallState!= "idle" ? "use-sate-" + channelCallState : "";
+		let userCallClass = channelCallState!= "idle" ? "td_" + channelCallState : "";
 		let textClass = channelCallState!= "idle" ? "user-text" : "text-default";
-		let divClass = userSelectedClass + userCallClass + " user-item btn btn-default";
+		let divClass = userSelectedClass + " " + userCallClass + " user-item btn btn-default";
+		let userRegStateText = user.registerState == "registered" ? "Online" : "Offline";
+		let userCallStateText = "Idle";
+
+		if (channelCallState == "ringing") {
+			userCallStateText = "Ringing";
+		} else if (channelCallState == "active") {
+			userCallStateText = "Answered";
+		}
 
 		return (
 			<div className={divClass}>
 				<div className="pull-left user-state-area">
 					<div><img src={userImageUrl} onClick={this.handleCall}/></div>
 					<div>
-						<div className={textClass}>{"Offline"}</div>
-						<div className={textClass}>{"Idle"}</div>
+						<div className={textClass}><T.span text={userRegStateText}/></div>
+						<div className={textClass}><T.span text={userCallStateText}/></div>
 					</div>
 				</div>
 
 				<div className="pull-right user-info-area" onClick={this.handleToggleSelect}><br/>
 					<div className={textClass}>{user.userName}</div>
-					<div className={textClass}>{user.extn}</div>
+					<div className={textClass}>{user.userExtn}</div>
 				</div>
 			</div>
 		)
@@ -133,7 +141,7 @@ class MonitorPage extends React.Component {
 		let users = this.state.users;
 		let activeKey = this.state.activeKey;
 		let currentLoginUser = this.state.currentLoginUser;
-		for (let i = 0; i < 1; i++) { // only call the first selected user
+		for (let i = 0; i < users.length; i++) { // only call the first selected user
 			if (users[i].groupID == activeKey && users[i].selectedState == "selected" &&
 				users[i].registerState == "registered" && users[i].channelCallState == "idle"
 				&& currentLoginUser.channelCallState == "idle") {
@@ -279,6 +287,7 @@ class MonitorPage extends React.Component {
 		let users = this.state.users;
 		let currentLoginUserChanged = false;
 		let usersChanged = false;
+		let compareNumber = callerNumber;
 
 		if (callerNumber == "0000000000") return;
 
@@ -290,43 +299,20 @@ class MonitorPage extends React.Component {
 			channelCallState = "idle";
 		}
 
-		if (callDirection == "inbound") {
-			if (currentLoginUser.userExtn == callerNumber) {
-				currentLoginUser.channelUUID = channelUUID;
-				currentLoginUser.channelCallState = channelCallState;
-				currentLoginUser.callDirection = callDirection;
-				currentLoginUserChanged = true;
-			} else {
-				users.forEach(function(user) {
-					if (user.extn == callerNumber) {
-						user.channelUUID == channelUUID;
-						user.channelCallState = channelCallState;
-						user.callDirection = callDirection;
-						usersChanged = true;
-					}
-				})
-
-			}
-		} else if (callDirection == "outbound") {
-			if (currentLoginUser.userExtn == calleeNumber) {
-				currentLoginUser.channelUUID = channelUUID;
-				currentLoginUser.channelCallState = channelCallState;
-				currentLoginUser.callDirection = callDirection;
-				currentLoginUserChanged = true;
-			} else {
-				users.forEach(function(user) {
-					if (user.extn == calleeNumber) {
-						user.channelUUID == channelUUID;
-						user.channelCallState = channelCallState;
-						user.callDirection = callDirection;
-						usersChanged = true;
-					}
-				})
-			}
+		if (callDirection == "outbound") {
+			compareNumber = calleeNumber;
 		}
 
-		if (currentLoginUserChanged) this.setState({currentLoginUser: currentLoginUser});
+		users.forEach(function(user) {
+			if (user.userExten == compareNumber) {
+				user.channelUUID == channelUUID;
+				user.channelCallState = channelCallState;
+				user.callDirection = callDirection;
+				usersChanged = true;
+			}
+		})
 
+		//if (currentLoginUserChanged) this.setState({currentLoginUser: currentLoginUser});
 		if (usersChanged) this.setState({users: users});
 	}
 
@@ -436,7 +422,7 @@ class MonitorPage extends React.Component {
 				}
 			}
 
-			navItems.push(<NavItem eventKey={group_users[defaultActiveKey].groupID} key={group_users[defaultActiveKey].groupID}>{group_users[defaultActiveKey].groupName}</NavItem>);
+			navItems.push(<NavItem eventKey={group_users[defaultActiveKey].groupID} key={group_users[defaultActiveKey].groupID}><T.span text={group_users[defaultActiveKey].groupName}/></NavItem>);
 			for (let id in group_users) {
 				let tabPanes = [];
 				if (id == defaultActiveKey) {

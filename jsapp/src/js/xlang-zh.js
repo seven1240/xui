@@ -96,6 +96,7 @@ LANGUAGES["zh"] = {
 	"Remove All Member(s)": "移除所有用户",
 	"Group Members": "组成员",
 	"Create New Group": "新建组",
+	"ungrouped": "未分组",
 	Contact: "联系地址",
 	Reg: "注册",
 	Unreg: "注销",

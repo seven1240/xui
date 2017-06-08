@@ -145,6 +145,18 @@ tr.HELD {color: #ea8619 !important;}
 
 td.running {background-color: lime;}
 
+.td_ringing {
+  background: #ffe600 !important;
+}
+
+.td_active {
+  background: #ed1941 !important;
+}
+
+.td_held {
+	color: #ea8619 !important;
+}
+
 .webcam {
 	width: 100%;
 	height: 100%;
