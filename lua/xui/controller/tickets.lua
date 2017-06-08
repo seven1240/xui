@@ -99,6 +99,10 @@ get('/:id', function(params)
 	if ticket then
 		n, user_name = xdb.find_by_cond("users", {id = ticket.user_id})
 		ticket.user_name = user_name[1].name
+		c, res = xdb.find_by_cond("fifo_members", {extn = user_name[1].extn})
+		if c > 0 then
+			ticket.user_state = true
+		end
 		if (ticket.current_user_id == '') then
 			cname = "待定"
 		else

@@ -99,6 +99,22 @@ class Home extends React.Component {
 		});
 	}
 
+	onWork(e) {
+		xFetchJSON("/api/fifos/" + e + "/work/onwork", {
+			method: 'PUT'
+		}).then((data) => {
+		}).catch((e) => {
+		});
+	}
+
+	afterWork(e) {
+		xFetchJSON("/api/fifos/" + e + "/work/afterWork", {
+			method: 'PUT'
+		}).then((data) => {
+		}).catch((e) => {
+		});
+	}
+
 	render() {
 		const _this = this;
 		const ticket = this.state.ticket;
@@ -167,6 +183,23 @@ class Home extends React.Component {
 			var assigns = <a className="weui-form-preview__btn weui-form-preview__btn_primary" onClick={ () => _this.handleAllot(ticket.id)}>派发</a>
 		}
 		const record = "/recordings/" + ticket.original_file_name
+		if (ticket.user_state) {
+			var work_radio = <span>
+								<input type="radio" defaultChecked="checked" name="work" onChange={() => _this.onWork(ticket.id)}/>
+								上班
+								&nbsp;&nbsp;&nbsp;
+								<input type="radio" name="work" onChange={() => _this.afterWork(ticket.id)}/>
+								下班
+							</span>
+		} else {
+			var work_radio = <span>
+								<input type="radio" name="work" onChange={() => _this.onWork(ticket.id)}/>
+								上班
+								&nbsp;&nbsp;&nbsp;
+								<input type="radio" defaultChecked="checked" name="work" onChange={() => _this.afterWork(ticket.id)}/>
+								下班
+							</span>
+		}
 		return <div>
 			<div className="weui-cells__title">
 				<h1 style={{ textAlign:"center",color:"black" }}>{ticket.subject}</h1>
@@ -211,6 +244,16 @@ class Home extends React.Component {
 				<div className="weui-form-preview__item">
 					<span style={{color:"black"}} className="weui-form-preview__label">状态</span>
 					<span className="weui-form-preview__value">{ticket_status[ticket.status]}</span>
+				</div>
+			</div>
+			<div className="weui-form-preview__ft">
+			</div>
+			<div className="weui-form-preview__bd">
+				<div className="weui-form-preview__item">
+					<span style={{color:"black"}} className="weui-form-preview__label">值班</span>
+					<span className="weui-form-preview__value">
+						{work_radio}
+					</span>
 				</div>
 			</div>
 			<div className="weui-form-preview__ft">
