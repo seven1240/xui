@@ -40,6 +40,8 @@ import VertoConfMan from './verto/verto-confman';
 import { xFetchJSON } from './libs/xtools';
 import {verto_params} from "./verto_cluster";
 
+let global_conference_links = {};
+
 // translate conference member
 function translateMember(member) {
 	let status;
@@ -129,6 +131,18 @@ class Member extends React.Component {
 			member.verto.fsAPI("conference", member.conference_name + " vid-floor " + member.memberID + " force");
 			// verto.fsAPI("conference", member.conference_name + " unvmute " + member.memberID);
 			// verto.fsAPI("conference", member.conference_name + " vmute " + member.memberID);
+
+			// try auto click other floors
+			console.log('links', global_conference_links);
+			if (member.verto.domain == domain) {
+				Object.keys(global_conference_links).forEach((k) => {
+					const m = global_conference_links[k];
+					m.verto.fsAPI("conference", m.conference_name + " vid-floor " + m.memberID + " force");
+				});
+			} else {
+				// todo
+			}
+
 			return;
 		}
 
@@ -561,6 +575,11 @@ class ConferencePage extends React.Component {
 			var boot_rows = a.data.map(function(member) {
 				let m = translateMember(member);
 				m.verto = vt;
+
+				if (m.verto.domain == m.cidNumber) {
+					global_conference_links[m.verto.domain] = m;
+				}
+
 				return m;
 			});
 
@@ -593,6 +612,10 @@ class ConferencePage extends React.Component {
 			var member = translateMember([a.key, a.data]);
 
 			member.verto = vt;
+			if (vt.domain == member.cidNumber) {
+				console.log("link member id", member.memberID);
+				global_conference_links[vt.domain] = member;
+			}
 
 			if (true || member.cidName == this.state.name ||
 				member.cidName == "Outbound Call") {
