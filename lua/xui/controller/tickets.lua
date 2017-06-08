@@ -94,12 +94,11 @@ get('/:id', function(params)
 	FROM tickets as u left join dicts as w
 	ON u.type = w.k
 	WHERE u.id = 
-	]] .. pid)
+	]] .. xdb.escape(pid))
 	ticket = tickets[1]
 	if ticket then
 		n, user_name = xdb.find_by_cond("users", {id = ticket.user_id})
 		ticket.user_name = user_name[1].name
-		freeswitch.consoleLog("ERR",current_user_id)
 		if (ticket.current_user_id == '') then
 			cname = "待定"
 		else
@@ -115,6 +114,10 @@ get('/:id', function(params)
 		current_user = xdb.find_one("users", {id = ticket.current_user_id})
 		if current_user then
 			ticket.current_user_name = current_user.name
+		end
+		media_file = xdb.find_one("media_files", {id = ticket.media_file_id})
+		if media_file then
+			ticket.original_file_name = media_file.original_file_name
 		end
 
 		return ticket
@@ -171,8 +174,7 @@ post('/hb', function(params)
 	for i, v in pairs(check) do
 		freeswitch.consoleLog("ERR",utils.json_encode(v.cid_number))
 	end
-	
-	sql = "update ticket_comments set ticket_id = " .. tid_t[1] .. " where ticket_id in(" .. tid .. ")";
+	sql = "UPDATE ticket_comments SET ticket_id = " .. tid_t[1] .. " WHERE ticket_id IN(" .. tid .. ")";
 	n, ret = xdb.find_by_sql(sql)
 	if (n > 0) then
 		return '{"res":"ok"}'

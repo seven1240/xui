@@ -42,10 +42,11 @@ xdb.bind(xtra.dbh)
 
 get('/:id', function(params)
 	n, img_urls = xdb.find_by_sql([[SELECT img_url
-	FROM wechat_upload where comment_id = 
+	FROM wechat_upload WHERE comment_id =
 	(SELECT comment_id
 	FROM wechat_upload
-	WHERE img_url = ']]..params.id..[[')
+	]] .. xdb.cond({img_url = params.id}) .. [[
+	)
 	]])
 	if (n > 0) then
 		return {base_url = config.wechat_base_url, img_urls = img_urls}
@@ -73,7 +74,8 @@ post('/:realm/:id/comments', function(params)
 		if ret then
 			wget = "wget -O /usr/local/freeswitch/xui/www/assets/img/wechat/big/" .. v .. ".jpg '" .. url .. "'"
 			os.execute(wget)
-			convert = "convert -sample 20%x20% /usr/local/freeswitch/xui/www/assets/img/wechat/big/" .. v .. ".jpg /usr/local/freeswitch/xui/www/assets/img/wechat/small/" .. v .. ".jpg"
+			convert = "convert -resize 20%*20% /usr/local/freeswitch/xui/www/assets/img/wechat/big/" .. v .. ".jpg /usr/local/freeswitch/xui/www/assets/img/wechat/small/" .. v .. ".jpg"
+			freeswitch.consoleLog("ERR",convert)
 			os.execute(convert)
 		end
 	end
