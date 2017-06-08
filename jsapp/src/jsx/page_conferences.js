@@ -41,6 +41,7 @@ import { xFetchJSON } from './libs/xtools';
 import {verto_params} from "./verto_cluster";
 
 let global_conference_links = {};
+let global_conference_links_local = {};
 
 // translate conference member
 function translateMember(member) {
@@ -134,13 +135,26 @@ class Member extends React.Component {
 
 			// try auto click other floors
 			console.log('links', global_conference_links);
+			console.log('local', global_conference_links_local);
 			if (member.verto.domain == domain) {
 				Object.keys(global_conference_links).forEach((k) => {
 					const m = global_conference_links[k];
+					console.log(m.verto.domain, "conference", m.conference_name + " vid-floor " + m.memberID + " force");
 					m.verto.fsAPI("conference", m.conference_name + " vid-floor " + m.memberID + " force");
 				});
 			} else {
-				// todo
+				const m = global_conference_links_local[member.verto.domain];
+				console.log(m.verto.domain, "conference", m.conference_name + " vid-floor " + m.memberID + " force");
+				m.verto.fsAPI("conference", m.conference_name + " vid-floor " + m.memberID + " force");
+
+				Object.keys(global_conference_links).forEach((k) => {
+					const m = global_conference_links[k];
+
+					if (m.verto.domain == member.verto.domain) return;
+
+					console.log(m.verto.domain, "conference", m.conference_name + " vid-floor " + m.memberID + " force");
+					m.verto.fsAPI("conference", m.conference_name + " vid-floor " + m.memberID + " force");
+				});
 			}
 
 			return;
@@ -519,7 +533,8 @@ class ConferencePage extends React.Component {
 						v.connect(verto_params(v.domain), verto_callbacks);
 						_this.vertos.push(v);
 
-						return;
+						return; // return fast
+
 						const audio = {
 							talking: false,
 							deaf: false,
@@ -575,9 +590,12 @@ class ConferencePage extends React.Component {
 			var boot_rows = a.data.map(function(member) {
 				let m = translateMember(member);
 				m.verto = vt;
+				m.conference_name = a.name;
 
 				if (m.verto.domain == m.cidNumber) {
 					global_conference_links[m.verto.domain] = m;
+				} else if (m.verto.domain == domain && m.cidNumber.indexOf('.') > 0) {
+					global_conference_links_local[m.cidNumber] = m;
 				}
 
 				return m;
@@ -612,9 +630,13 @@ class ConferencePage extends React.Component {
 			var member = translateMember([a.key, a.data]);
 
 			member.verto = vt;
+			member.conference_name = a.name;
+
 			if (vt.domain == member.cidNumber) {
 				console.log("link member id", member.memberID);
 				global_conference_links[vt.domain] = member;
+			} else if (vt.domain == domain && member.cidNumber.indexOf('.') > 0) {
+				global_conference_links_local[member.cidNumber] = member;
 			}
 
 			if (true || member.cidName == this.state.name ||
