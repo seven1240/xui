@@ -400,7 +400,7 @@ class TicketPage extends React.Component {
 
 				<FormGroup controlId="formUser">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="派单人"/></Col>
-					<Col sm={10}><FormControl.Static><T.span text={ticket.user_id}/></FormControl.Static></Col>
+					<Col sm={10}><FormControl.Static><T.span text={ticket.user_name}/></FormControl.Static></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formCaller_id_name">
