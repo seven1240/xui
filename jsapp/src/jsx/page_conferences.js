@@ -103,7 +103,10 @@ class Member extends React.Component {
 		const member = this.props.member;
 
 		if (data == "call") {
-			if (member.memberID > 0) return;
+			if (member.memberID > 0) {
+				notify("Cannot call this member");
+				return;
+			}
 
 			xFetchJSON("/api/conferences/" + member.conference_name, {
 				method: "POST",
@@ -216,7 +219,7 @@ class ConferencePage extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			name: this.props.name, rows: [], static_rows: [], la: null,
+			name: this.props.name, domain_rows: {}, static_rows: [], la: null,
 			last_outcall_member_id: 0, outcall_rows: [],
 			outcallNumber: '', outcallNumberShow: false,
 			displayStyle: 'table', toolbarText: false
@@ -251,7 +254,7 @@ class ConferencePage extends React.Component {
 			verto.fsAPI("conference", this.props.name + " unlock");
 		} else if (data == "select") {
 			var _this = this;
-			if (this.state.rows.length > 0) {
+			if (this.state.total > 0) {
 				var active = !this.state.rows[0].active;
 
 				const rows = this.state.rows.map(function(row) {
@@ -353,6 +356,8 @@ class ConferencePage extends React.Component {
 		const displayStyle = localStorage.getItem("xui.conference.displayStyle") || "table";
 		this.setState({displayStyle: displayStyle});
 
+		this.state.domain_rows[domain] = []; // init our domain;
+
 		xFetchJSON("/api/conference_rooms/" + this.props.room_id + "/members").then((members) => {
 			_this.state.static_rows = members.map(function(m) {
 				const audio = {
@@ -363,6 +368,10 @@ class ConferencePage extends React.Component {
 					energyScore: 0
 				}
 
+				const video = {
+
+				}
+
 				return {
 					uuid: m.id - 100000,
 					fakeMemberID: m.id - 100000,
@@ -370,7 +379,7 @@ class ConferencePage extends React.Component {
 					cidNumber: m.num,
 					cidName: m.name,
 					codec: null,
-					status: {audio: audio},
+					status: {audio: audio, video: video},
 					email: null,
 					active: false
 				};
@@ -429,8 +438,6 @@ class ConferencePage extends React.Component {
 
 
 				// verto cluster
-
-
 				const verto_callbacks = {
 					onMessage: function(verto, dialog, msg, data) {
 						console.log("cluster GOT MSG", msg);
@@ -493,6 +500,7 @@ class ConferencePage extends React.Component {
 					data.forEach(function(dict) {
 						const v = new Verto();
 						v.domain = dict.k;
+						_this.state.domain_rows[dict.k] = [];
 						v.connect(verto_params(v.domain), verto_callbacks);
 						_this.vertos.push(v);
 
@@ -505,6 +513,8 @@ class ConferencePage extends React.Component {
 							energyScore: 0
 						}
 
+						const video = {}
+
 						_this.state.static_rows.push({
 							uuid: dict.k,
 							fakeMemberID: -1,
@@ -512,7 +522,7 @@ class ConferencePage extends React.Component {
 							cidNumber: dict.k,
 							cidName: dict.k,
 							codec: null,
-							status: {audio: audio},
+							status: {audio: audio, video: video},
 							email: null,
 							active: false
 						});
@@ -545,8 +555,8 @@ class ConferencePage extends React.Component {
 		case "init":
 			break;
 
-		case "bootObj":
-			var rows = this.state.rows;
+		case "bootObj": {
+			let rows = [];
 			var boot_rows = a.data.map(function(member) {
 				let m = translateMember(member);
 				m.verto = vt;
@@ -573,9 +583,11 @@ class ConferencePage extends React.Component {
 				rows.push(member);
 			})
 
-			this.setState({rows: rows});
+			this.state.domain_rows[vt.domain] = rows;
+			this.setState({domain_rows: this.state.domain_rows});
 			break;
-		case "add":
+		}
+		case "add": {
 			var found = 0;
 			var member = translateMember([a.key, a.data]);
 
@@ -594,8 +606,8 @@ class ConferencePage extends React.Component {
 
 				if (found) this.setState({outcall_rows: outcall_rows});
 
-				if (!found) {
-					const rows = this.state.rows.map(function(row) {
+				if (!found && vt.domain == domain) {
+					const rows = this.state.domain_rows[vt.domain].map(function(row) {
 						if (row.fakeMemberID && row.memberID < 0 && row.cidNumber == member.cidNumber) {
 							// row.hidden = true;
 							row.memberID = member.memberID;
@@ -608,21 +620,20 @@ class ConferencePage extends React.Component {
 						}
 					});
 
-					if (found) this.setState({rows: rows});
+					this.state.domain_rows[vt.domain] = rows;
+					if (found) this.setState({domain_rows: this.state.domain_rows});
 				}
 			}
 
 			if (!found) {
-				var rows = this.state.rows;
-				rows.push(member);
-				this.setState({rows: rows});
+				this.state.domain_rows[vt.domain].push(member);
+				this.setState({domain_rows: this.state.domain_rows});
 			}
 
 			break;
-		case "modify":
-			var rows = [];
-
-			this.state.rows = this.state.rows.map(function(row) {
+		}
+		case "modify": {
+			const rows = this.state.domain_rows[vt.domain].map(function(row) {
 				if (row.uuid == a.key ) {
 					var member = translateMember([a.key, a.data]);
 					member.active = _this.activeMembers[member.memberID];
@@ -634,12 +645,13 @@ class ConferencePage extends React.Component {
 				}
 			});
 
-			this.setState(this.state);
+			this.state.domain_rows[vt.domain] = rows;
+			this.setState({domain_rows: this.state.domain_rows});
 			break;
-
-		case "del":
-			var rows = [];
-			this.state.rows.forEach(function(row) {
+		}
+		case "del": {
+			let rows = [];
+			this.state.domain_rows[vt.domain].forEach(function(row) {
 				if (row.uuid == a.key) {
 					delete _this.activeMembers[row.memberID];
 				}
@@ -658,22 +670,29 @@ class ConferencePage extends React.Component {
 				}
 			});
 
-			this.setState({rows: rows});
+
+			this.state.domain_rows[vt.domain] = rows;
+			this.setState({domain_rows: this.state.domain_rows});
 			// this.forceUpdate();
 			break;
+		}
+		case "clear": {
+			let rows = [];
 
-		case "clear":
-			const rows = this.state.rows.filter((row) => {
-				if (row.fakeMemberID) return true;
-				return !(vt.domain == (row.verto ? row.verto.domain : domain));
-			});
+			if (vt.domain == domain) {
+				rows = this.state.static_rows.map((row) => {
+					return JSON.parse(JSON.stringify(row));
+				});
+			}
 
-			this.setState({rows: rows});
+			this.state.domain_rows[vt.domain] = rows;
+			this.setState({domain_rows: this.state.domain_rows});
 			break;
-
-		case "reorder":
+		}
+		case "reorder": {
+			console.log("recorder ... " + vt.domain);
 			break;
-
+		}
 		default:
 			console.log("unknow action: ", a.action);
 			break;
@@ -683,10 +702,17 @@ class ConferencePage extends React.Component {
 	render () {
 		var _this = this;
 
-		const rows = this.state.outcall_rows.concat(this.state.rows);
+		let rows = this.state.outcall_rows;
+
+		Object.keys(this.state.domain_rows).forEach((dm) => {
+			rows = rows.concat(this.state.domain_rows[dm]);
+		});
+
+		this.state.total = rows.length;
+		this.state.rows = rows;
 
 		const members = rows.map(function(member) {
-			if (member.hidden) return null;
+			if (member && member.hidden) return null;
 			member.room_nbr = _this.props.room_nbr;
 			const dm = member.verto ? member.verto.domain : domain;
 			member.conference_name = member.room_nbr + '-' + dm;
@@ -781,7 +807,7 @@ class ConferencePage extends React.Component {
 
 			<ButtonToolbar>
 				<T.span text="Conference Name"/>: {this.props.name} |&nbsp;
-				<T.span text="Total"/>: {this.state.rows.length}
+				<T.span text="Total"/>: {this.state.total}
 			</ButtonToolbar>
 
 			<div>
