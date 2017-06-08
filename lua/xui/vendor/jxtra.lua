@@ -460,7 +460,7 @@ function xtra.start_session()
 		xtra.session_uuid = xtra.create_uuid()
 	else
 		xtra.session_uuid = cookie:match("freeswitch_xtra_session_id=([^;]*).*$")
-		print(xtra.session_uuid)
+		-- print(xtra.session_uuid)
 		if not xtra.session_uuid then
 			xtra.session_uuid = xtra.create_uuid()
 		end

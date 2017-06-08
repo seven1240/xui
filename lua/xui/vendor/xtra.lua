@@ -375,8 +375,8 @@ function response_start(code, phrase)
 		local c = "Set-Cookie: "
 
 		for k, v in pairs(xtra.cookies) do
-			xtra.log("ERR", k)
-			xtra.log("ERR", v)
+			-- xtra.log("ERR", k)
+			-- xtra.log("ERR", v)
 			c = c .. k .. "=" .. v .. ";path=/"
 		end
 		stream:write(c .. "\r\n");
@@ -504,7 +504,7 @@ function xtra.start_session()
 		end
 	else
 		xtra.session_uuid = cookie:match("freeswitch_xtra_session_id=([^;]*).*$")
-		print(xtra.session_uuid)
+		-- print(xtra.session_uuid)
 		if not xtra.session_uuid then
 			xtra.session_uuid = xtra.create_uuid()
 		end
