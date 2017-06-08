@@ -47,7 +47,7 @@ out:
 
 tar: out
 	echo $(HASH)
-	cd .. && tar cvzf xui/out/xui-1.0.0.$(HASH).tar.gz xui/www xui/lua xui/db/schema
+	cd .. && tar cvzf xui/out/xui-1.2.0.$(HASH).tar.gz xui/www xui/lua xui/db/schema
 	ls out
 
 sync:
