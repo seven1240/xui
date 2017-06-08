@@ -453,13 +453,16 @@ class GatewayPage extends React.Component {
 	handleReg(e) {
 		verto.fsAPI("sofia", "profile " + this.state.gw.profile_name + " register " + this.state.gw.name);
 	}
+
 	handleUnreg(e) {
 		verto.fsAPI("sofia", "profile " + this.state.gw.profile_name + " unregister " + this.state.gw.name);
 	}
+
 	handleStart(e) {
 		verto.fsAPI("sofia", "profile " + this.state.gw.profile_name + " startgw " + this.state.gw.name);
-		verto.fsAPI("sofia", "profile " + this.state.gw.profile_name + " rescan");
+		// verto.fsAPI("sofia", "profile " + this.state.gw.profile_name + " rescan");
 	}
+
 	handleStop(e) {
 		verto.fsAPI("sofia", "profile " + this.state.gw.profile_name + " killgw " + this.state.gw.name);
 	}
