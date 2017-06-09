@@ -339,12 +339,12 @@ class Comment extends React.Component {
 				method: 'POST',
 				body: JSON.stringify({content: this.state.comment_content})
 			}).then((data) => {
+				ReactDOM.render(<Home/>, document.getElementById('main'));
 				if (serverIds) {
 					xFetchJSON("/api/wechat_upload/xyt/" + data.id + "/comments", {
 						method: 'POST',
 						body: JSON.stringify({serverIds: serverIds, localIds: localIds})
 					}).then((res) => {
-						ReactDOM.render(<Home/>, document.getElementById('main'));
 					}).catch((e) => {
 					});
 				}
@@ -421,9 +421,9 @@ class Comment extends React.Component {
 							<textarea className="weui-textarea" placeholder="请输入内容" onChange={_this.handleInput.bind(this)} rows="3"></textarea>
 						</div>
 					</div>
-					<a href="javascript:;" onClick={ () => _this.uploadImg()} className="weui-btn weui-btn_mini weui-btn_primary">添加图片</a>
+					{/* <a href="javascript:;" onClick={ () => _this.uploadImg()} className="weui-btn weui-btn_mini weui-btn_primary">添加图片</a>
 					<br/>
-					{current_img}
+					{current_img}*/}
 				</div>
 				<div className="weui-form-preview__bd">
 					<a href="javascript:;" className="weui-btn weui-btn_primary" onClick={ () => _this.addComments()}>添加评论</a>

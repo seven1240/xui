@@ -174,7 +174,7 @@ post('/hb', function(params)
 	for i, v in pairs(check) do
 		freeswitch.consoleLog("ERR",utils.json_encode(v.cid_number))
 	end
-	sql = "UPDATE ticket_comments SET ticket_id = " .. tid_t[1] .. " WHERE ticket_id IN(" .. tid .. ")";
+	sql = "UPDATE ticket_comments SET ticket_id = " .. tid_t[1] .. " WHERE ticket_id IN (" .. tid .. ")";
 	n, ret = xdb.find_by_sql(sql)
 	if (n > 0) then
 		return '{"res":"ok"}'
