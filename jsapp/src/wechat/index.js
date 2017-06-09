@@ -492,7 +492,8 @@ class Newticket extends React.Component {
 			method:"POST",
 			body: JSON.stringify(ticket)
 		}).then((data) => {
-			ReactDOM.render(<Tickets/>, document.getElementById('main'));
+			current_ticket_id = data.id
+			ReactDOM.render(<Home/>, document.getElementById('main'));
 		}).catch((msg) => {
 			console.error("ticket", msg);
 		});
@@ -669,6 +670,10 @@ class Settings extends React.Component {
 							</span>
 						</div>
 					</div>
+					<div className="weui-form-preview__ft">
+					</div>
+					<br/>
+					<br/>
 					<div className="weui-media-box__hd">
 						<img className="weui-media-box__thumb" style={{width:"40%",marginLeft:"30%"}} src="http://www.x-y-t.cn/img/banner/xyt.jpg" alt=""/>
 					</div>
