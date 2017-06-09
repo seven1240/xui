@@ -71,6 +71,19 @@ get('/:id/members', function(params)
 	end
 end)
 
+get('/members/:method', function(params)
+	user_id = xtra.session.user_id
+	user = xdb.find_one("users", {id = user_id})
+	if user then
+		fifo = xdb.find_one("fifo_members", {extn = user.extn})
+		if fifo then
+			return {user_state = true}
+		else
+			return {user_state = false}
+		end
+	end
+end)
+
 get('/:id/members/:members_id', function(params)
 	n, fifo_members = xdb.find_by_cond("fifo_members", {fifo_id = params.id, id = params.members_id})
 	if fifo_members then
@@ -80,25 +93,21 @@ get('/:id/members/:members_id', function(params)
 	end
 end)
 
-put('/:id/work/:state',function(params)
+put('/work/:state', function(params)
 	local state = params.state
-	n, tickets = xdb.find_by_sql([[SELECT b.name,b.tel,b.extn
-	FROM tickets AS a
-	LEFT JOIN users AS b
-	ON a.current_user_id = b.id
-	WHERE a.id = ]] .. xdb.escape(params.id))
-	local ticket = tickets[1]
+	user_id = xtra.session.user_id
+	user = xdb.find_one("users", {id = user_id})
 	if state == 'onwork' then
-		local n, check = xdb.find_by_cond("fifo_members", {extn = ticket.extn})
+		local n, check = xdb.find_by_cond("fifo_members", {extn = user.extn})
 		if n == 0 then
-			ret = xdb.create_return_id("fifo_members", {name = ticket.name, extn = ticket.extn, fifo_id = 1, dial_string = 'sofia/gateway/beijingSIP/' .. ticket.tel})
+			ret = xdb.create_return_id("fifo_members", {name = user.name, extn = user.extn, fifo_id = 1, dial_string = 'sofia/gateway/beijingSIP/' .. user.tel})
 			if ret == 1 then
 				api = freeswitch.API()
 				api:execute("bgapi", "fifo reparse")
 			end
 		end
-	elseif state == 'afterWork' then
-		ret = xdb.delete("fifo_members", {extn = ticket.extn})
+	elseif state == 'afterwork' then
+		ret = xdb.delete("fifo_members", {extn = user.extn})
 	end
 	if ret == 1 then
 		return {}
