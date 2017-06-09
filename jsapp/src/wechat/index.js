@@ -484,7 +484,16 @@ class Newticket extends React.Component {
 	newTicketAdd(e) {
 		var _this = this;
 		_this.state.input.cid_number = _this.state.cnumber;
-		if (!_this.state.input.cid_number || !_this.state.input.subject) {
+		if (!_this.state.input.cid_number) {
+			alert("请输入来电号码");
+			return false;
+		}
+		if (!_this.state.input.subject) {
+			alert("请输入主题");
+			return false;
+		}
+		if (!_this.state.input.content) {
+			alert("请输入内容");
 			return false;
 		}
 		const ticket = _this.state.input;
