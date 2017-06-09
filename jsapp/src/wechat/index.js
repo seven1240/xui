@@ -589,9 +589,23 @@ class Tickets extends React.Component {
 	render() {
 		var _this = this;
 		const tickets = this.state.tickets.map((ticket) => {
+			var ticket_state = ticket.status;
+			var ticket_style = '';
+			if (ticket_state == 'TICKET_ST_NEW') {
+				ticket_style = "2px solid red";
+			}
+			if (ticket_state == 'TICKET_ST_PROCESSING') {
+				ticket_style = "2px solid yellow";
+			}
+			if (ticket_state == 'TICKET_ST_DONE') {
+				ticket_style = "2px solid green";
+			}
 			return <div className="weui-form-preview__bd" onClick={() => _this.handleClick(ticket.id)} key={ticket.id} >
 						<div className="weui-form-preview__item">
-							<label className="weui-form-preview__label" style={{color:"black"}}>{ticket.subject}</label>
+							<label className="weui-form-preview__label" style={{color:"black"}}>
+								<span style={{border:ticket_style}}></span>
+								{ticket.subject}
+							</label>
 							<span className="weui-form-preview__value" style={{color:"black"}}>{ticket.cid_number}</span>
 						</div>
 						<div className="weui-form-preview__item">
