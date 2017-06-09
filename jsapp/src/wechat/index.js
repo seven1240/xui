@@ -99,22 +99,6 @@ class Home extends React.Component {
 		});
 	}
 
-	onWork(e) {
-		xFetchJSON("/api/fifos/" + e + "/work/onwork", {
-			method: 'PUT'
-		}).then((data) => {
-		}).catch((e) => {
-		});
-	}
-
-	afterWork(e) {
-		xFetchJSON("/api/fifos/" + e + "/work/afterWork", {
-			method: 'PUT'
-		}).then((data) => {
-		}).catch((e) => {
-		});
-	}
-
 	render() {
 		const _this = this;
 		const ticket = this.state.ticket;
@@ -183,23 +167,6 @@ class Home extends React.Component {
 			var assigns = <a className="weui-form-preview__btn weui-form-preview__btn_primary" onClick={ () => _this.handleAllot(ticket.id)}>派发</a>
 		}
 		const record = "/recordings/" + ticket.original_file_name
-		if (ticket.user_state) {
-			var work_radio = <span>
-								<input type="radio" defaultChecked="checked" name="work" onChange={() => _this.onWork(ticket.id)}/>
-								上班
-								&nbsp;&nbsp;&nbsp;
-								<input type="radio" name="work" onChange={() => _this.afterWork(ticket.id)}/>
-								下班
-							</span>
-		} else {
-			var work_radio = <span>
-								<input type="radio" name="work" onChange={() => _this.onWork(ticket.id)}/>
-								上班
-								&nbsp;&nbsp;&nbsp;
-								<input type="radio" defaultChecked="checked" name="work" onChange={() => _this.afterWork(ticket.id)}/>
-								下班
-							</span>
-		}
 		return <div>
 			<div className="weui-cells__title">
 				<h1 style={{ textAlign:"center",color:"black" }}>{ticket.subject}</h1>
@@ -244,16 +211,6 @@ class Home extends React.Component {
 				<div className="weui-form-preview__item">
 					<span style={{color:"black"}} className="weui-form-preview__label">状态</span>
 					<span className="weui-form-preview__value">{ticket_status[ticket.status]}</span>
-				</div>
-			</div>
-			<div className="weui-form-preview__ft">
-			</div>
-			<div className="weui-form-preview__bd">
-				<div className="weui-form-preview__item">
-					<span style={{color:"black"}} className="weui-form-preview__label">值班</span>
-					<span className="weui-form-preview__value">
-						{work_radio}
-					</span>
 				</div>
 			</div>
 			<div className="weui-form-preview__ft">
@@ -382,12 +339,12 @@ class Comment extends React.Component {
 				method: 'POST',
 				body: JSON.stringify({content: this.state.comment_content})
 			}).then((data) => {
+				ReactDOM.render(<Home/>, document.getElementById('main'));
 				if (serverIds) {
 					xFetchJSON("/api/wechat_upload/xyt/" + data.id + "/comments", {
 						method: 'POST',
 						body: JSON.stringify({serverIds: serverIds, localIds: localIds})
 					}).then((res) => {
-						ReactDOM.render(<Home/>, document.getElementById('main'));
 					}).catch((e) => {
 					});
 				}
@@ -464,9 +421,9 @@ class Comment extends React.Component {
 							<textarea className="weui-textarea" placeholder="请输入内容" onChange={_this.handleInput.bind(this)} rows="3"></textarea>
 						</div>
 					</div>
-					<a href="javascript:;" onClick={ () => _this.uploadImg()} className="weui-btn weui-btn_mini weui-btn_primary">添加图片</a>
+					{/* <a href="javascript:;" onClick={ () => _this.uploadImg()} className="weui-btn weui-btn_mini weui-btn_primary">添加图片</a>
 					<br/>
-					{current_img}
+					{current_img}*/}
 				</div>
 				<div className="weui-form-preview__bd">
 					<a href="javascript:;" className="weui-btn weui-btn_primary" onClick={ () => _this.addComments()}>添加评论</a>
@@ -527,7 +484,16 @@ class Newticket extends React.Component {
 	newTicketAdd(e) {
 		var _this = this;
 		_this.state.input.cid_number = _this.state.cnumber;
-		if (!_this.state.input.cid_number || !_this.state.input.subject) {
+		if (!_this.state.input.cid_number) {
+			alert("请输入来电号码");
+			return false;
+		}
+		if (!_this.state.input.subject) {
+			alert("请输入主题");
+			return false;
+		}
+		if (!_this.state.input.content) {
+			alert("请输入内容");
 			return false;
 		}
 		const ticket = _this.state.input;
@@ -535,7 +501,8 @@ class Newticket extends React.Component {
 			method:"POST",
 			body: JSON.stringify(ticket)
 		}).then((data) => {
-			ReactDOM.render(<Tickets/>, document.getElementById('main'));
+			current_ticket_id = data.id
+			ReactDOM.render(<Home/>, document.getElementById('main'));
 		}).catch((msg) => {
 			console.error("ticket", msg);
 		});
@@ -622,9 +589,23 @@ class Tickets extends React.Component {
 	render() {
 		var _this = this;
 		const tickets = this.state.tickets.map((ticket) => {
+			var ticket_state = ticket.status;
+			var ticket_style = '';
+			if (ticket_state == 'TICKET_ST_NEW') {
+				ticket_style = "2px solid red";
+			}
+			if (ticket_state == 'TICKET_ST_PROCESSING') {
+				ticket_style = "2px solid yellow";
+			}
+			if (ticket_state == 'TICKET_ST_DONE') {
+				ticket_style = "2px solid green";
+			}
 			return <div className="weui-form-preview__bd" onClick={() => _this.handleClick(ticket.id)} key={ticket.id} >
 						<div className="weui-form-preview__item">
-							<label className="weui-form-preview__label" style={{color:"black"}}>{ticket.subject}</label>
+							<label className="weui-form-preview__label" style={{color:"black"}}>
+								<span style={{border:ticket_style}}></span>
+								{ticket.subject}
+							</label>
 							<span className="weui-form-preview__value" style={{color:"black"}}>{ticket.cid_number}</span>
 						</div>
 						<div className="weui-form-preview__item">
@@ -657,12 +638,65 @@ class Tickets extends React.Component {
 class Settings extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {users: []};
+		this.state = {user_state: null};
+	}
+
+	componentDidMount() {
+		xFetchJSON('/api/fifos/members/check').then((data) => {
+			this.setState({user_state: data.user_state})
+		});
+	}
+
+	onWork() {
+		xFetchJSON("/api/fifos/work/onwork", {
+			method: 'PUT'
+		}).then((data) => {
+		}).catch((e) => {
+		});
+	}
+
+	afterWork() {
+		xFetchJSON("/api/fifos/work/afterwork", {
+			method: 'PUT'
+		}).then((data) => {
+		}).catch((e) => {
+		});
 	}
 
 	render() {
-		var users = this.state.users;
+		var _this = this;
+		if (_this.state.user_state) {
+			var work_radio = <span>
+								<input type="radio" defaultChecked="checked" name="work" onChange={() => _this.onWork()}/>
+								上班
+								&nbsp;&nbsp;&nbsp;
+								<input type="radio" name="work" onChange={() => _this.afterWork()}/>
+								下班
+							</span>
+		} else {
+			var work_radio = <span>
+								<input type="radio" name="work" onChange={() => _this.onWork()}/>
+								上班
+								&nbsp;&nbsp;&nbsp;
+								<input type="radio" defaultChecked="checked" name="work" onChange={() => _this.afterWork()}/>
+								下班
+							</span>
+		}
 		return <div className="weui-cells weui-cells_form">
+					<div className="weui-form-preview__ft">
+					</div>
+					<div className="weui-form-preview__bd">
+						<div className="weui-form-preview__item">
+							<span style={{color:"black"}} className="weui-form-preview__label">值班</span>
+							<span className="weui-form-preview__value">
+								{work_radio}
+							</span>
+						</div>
+					</div>
+					<div className="weui-form-preview__ft">
+					</div>
+					<br/>
+					<br/>
 					<div className="weui-media-box__hd">
 						<img className="weui-media-box__thumb" style={{width:"40%",marginLeft:"30%"}} src="http://www.x-y-t.cn/img/banner/xyt.jpg" alt=""/>
 					</div>

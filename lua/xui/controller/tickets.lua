@@ -99,10 +99,6 @@ get('/:id', function(params)
 	if ticket then
 		n, user_name = xdb.find_by_cond("users", {id = ticket.user_id})
 		ticket.user_name = user_name[1].name
-		c, res = xdb.find_by_cond("fifo_members", {extn = user_name[1].extn})
-		if c > 0 then
-			ticket.user_state = true
-		end
 		if (ticket.current_user_id == '') then
 			cname = "待定"
 		else
@@ -178,7 +174,7 @@ post('/hb', function(params)
 	for i, v in pairs(check) do
 		freeswitch.consoleLog("ERR",utils.json_encode(v.cid_number))
 	end
-	sql = "UPDATE ticket_comments SET ticket_id = " .. tid_t[1] .. " WHERE ticket_id IN(" .. tid .. ")";
+	sql = "UPDATE ticket_comments SET ticket_id = " .. tid_t[1] .. " WHERE ticket_id IN (" .. tid .. ")";
 	n, ret = xdb.find_by_sql(sql)
 	if (n > 0) then
 		return '{"res":"ok"}'
@@ -252,7 +248,6 @@ post('/:id/comments', function(params)
 	xdb.update_by_cond("tickets",
 		"id = " .. ticket.id .. " AND status = 'TICKET_ST_NEW'",
 		{status = 'TICKET_ST_PROCESSING'})
-
 
 	if config.wechat_realm and (not comment.action == 'TICKET_ACTION_CHAT') then
 		realm = config.wechat_realm
