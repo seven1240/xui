@@ -342,7 +342,6 @@ class UserPage extends React.Component {
 		console.log("submit...");
 		var pass = form2json('#passwordForm');
 		pass.id = _this.state.user.id;
-		console.log('paasssssssssssssssssss', pass)
 
 		if (!pass.password || !(pass.password == pass.password2)) {
 			this.setState({errmsg: "Password confirmation doesn't match"});
@@ -431,6 +430,11 @@ class UserPage extends React.Component {
 				<FormGroup controlId="formType">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Type" /></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} name="type" defaultValue={user.type}/></Col>
+				</FormGroup>
+
+				<FormGroup controlId="formTel">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Tel" /></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} name="tel" defaultValue={user.tel}/></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formAutoRecord">
