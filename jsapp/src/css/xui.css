@@ -283,6 +283,7 @@ span.log0 {color: black;}
 	float: left;
 	width: 160px;
 	height: 120px;
+	overflow: hidden;
 	background-color:#F5F5F5;
 }
 
