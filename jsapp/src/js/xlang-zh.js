@@ -236,6 +236,7 @@ LANGUAGES["zh"] = {
 	Register: "注册",
 	Reg: "注册",
 	Unreg: "注销",
+	"Leave black if you do not want to change the password": "如果不修改密码请不要填",
 
 	Realm: "域",
 	Key: "键",

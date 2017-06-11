@@ -32,7 +32,7 @@
 
 import React from 'react';
 import T from 'i18n-react';
-import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Radio, Col } from 'react-bootstrap';
+import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Radio, Col, HelpBlock } from 'react-bootstrap';
 import { Link } from 'react-router';
 import { RIEToggle, RIEInput, RIETextArea, RIENumber, RIETags, RIESelect } from 'riek'
 import { EditControl,xFetchJSON } from './libs/xtools';
@@ -271,14 +271,14 @@ class GatewayPage extends React.Component {
 	handleSubmit(e) {
 		var _this = this;
 
-		console.log("submit...");
-		var gw = form2json('#newGatewayForm');
-		console.log("gw", gw);
+		var gw = form2json('#gatewayForm');
 
-		if (!gw.realm || !gw.name) {
+		if (!gw.realm || !gw.name || !gw.username) {
 			this.setState({errmsg: "Mandatory fields left blank"});
 			return;
 		}
+
+		if (gw.password == "") delete gw.password;
 
 		xFetchJSON( "/api/gateways/" + gw.id, {
 			method: "PUT",
@@ -313,7 +313,6 @@ class GatewayPage extends React.Component {
 
 		xFetchJSON( "/api/gateways/" + this.props.params.id, {
 		}).then((data) => {
-			console.log('data', data)
 			const params = data.params;
 			delete data.params;
 
@@ -583,7 +582,7 @@ class GatewayPage extends React.Component {
 			<h1><T.span text="Gateway"/><small className={this.state.class_name}>&nbsp;{gw.name} {gw.username}</small></h1>
 			<hr/>
 
-			<Form horizontal id="newGatewayForm">
+			<Form horizontal id="gatewayForm">
 				<input type="hidden" name="id" defaultValue={gw.id}/>
 				<FormGroup controlId="formName">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Name" className="mandatory"/></Col>
@@ -601,8 +600,14 @@ class GatewayPage extends React.Component {
 				</FormGroup>
 
 				<FormGroup controlId="formPassword">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Password" className="mandatory"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="password" defaultValue={gw.password} type="password"/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Password"/></Col>
+					<Col sm={10}>
+						<EditControl edit={this.state.edit} name="password" type="password"/>
+						{
+							!this.state.edit ? null :
+							<HelpBlock><T.span text="Leave black if you do not want to change the password"/></HelpBlock>
+						}
+					</Col>
 				</FormGroup>
 
 				<FormGroup controlId="formDescription">

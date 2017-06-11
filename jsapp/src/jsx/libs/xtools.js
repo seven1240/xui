@@ -69,6 +69,10 @@ class EditControl extends FormControl {
 			return <pre>{props.defaultValue}</pre>
 		}
 
+		if (this.props.type == "password") {
+			text = "**********";
+		}
+
 		return <FormControl.Static>{text ? text : props.defaultValue}</FormControl.Static>
 	}
 

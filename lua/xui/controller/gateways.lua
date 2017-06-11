@@ -47,6 +47,10 @@ get('/', function(params)
 	n, gateways = xdb.find_all("gateways")
 
 	if (n > 0) then
+		for k,v in ipairs(gateways) do
+			gateways[k].password = nil
+		end
+
 		return gateways
 	else
 		return "[]"
@@ -56,6 +60,7 @@ end)
 get('/:id', function(params)
 	gw = xdb.find("gateways", params.id)
 	if gw then
+		gw.password = nil
 		p_params = m_gateway.params(params.id)
 		gw.params = p_params
 		return gw
