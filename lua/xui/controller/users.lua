@@ -46,6 +46,9 @@ get('/', function(params)
 	end
 
 	if n > 0 then
+		for k,v in ipairs(users) do
+			users[k].password = nil
+		end
 		return users
 	else
 		return "[]"
@@ -78,6 +81,7 @@ end)
 get('/:id', function(params)
 	user = xdb.find("users", params.id)
 	if user then
+		user.password = nil
 		return user
 	else
 		return 404

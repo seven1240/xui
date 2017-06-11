@@ -315,7 +315,7 @@ class UserPage extends React.Component {
 
 	componentDidMount() {
 		xFetchJSON("/api/users/" + this.props.params.id).then((data) => {
-			console.log("user", data);
+			// console.log("user", data);
 			this.setState({user: data});
 		}).catch((msg) => {
 			console.log("get user ERR");
@@ -323,7 +323,7 @@ class UserPage extends React.Component {
 		});
 
 		xFetchJSON("/api/users/" + this.props.params.id + "/wechat_users").then((data) => {
-			console.log("wechat_users", data);
+			// console.log("wechat_users", data);
 			this.setState({wechat_users: data});
 		}).catch((msg) => {
 			console.log("no wechat_user linked to this user", msg);
