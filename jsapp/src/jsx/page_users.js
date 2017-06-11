@@ -557,7 +557,7 @@ class UsersPage extends React.Component {
 
 	componentDidMount() {
 		xFetchJSON("/api/users").then((data) => {
-			console.log("users", data)
+			// console.log("users", data)
 			this.setState({rows: data});
 		}).catch((msg) => {
 			console.log("get users ERR", msg);
