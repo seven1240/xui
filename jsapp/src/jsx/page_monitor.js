@@ -110,7 +110,7 @@ class TabContent extends React.Component {
 
 				<div className="pull-right user-info-area" onClick={this.handleToggleSelect}><br/>
 					<div className={textClass}>{user.userName}</div>
-					<div className={textClass}>{user.userExtn}</div>
+					<div className={textClass}>{user.userExten}</div>
 				</div>
 			</div>
 		)
@@ -332,6 +332,54 @@ class MonitorPage extends React.Component {
 
 	}
 
+	syncUserCallState() {
+		let _this = this;
+
+		verto.fsAPI("show", "channels as xml", function(data) {
+			let users = [];
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(data.message, "text/xml");
+
+			const msg = parseXML(doc);
+
+			let channels = [];
+
+			if (msg) {
+				if (isArray(msg.row)) {
+					channels = msg.row;
+				} else if (isObject(msg.row)) {
+					channels.push(msg.row);
+				} else if (isArray(msg)) {
+					channels = msg;
+				} else if (isObject(msg)) {
+					channels.push(msg);
+				}
+			}
+
+			channels.forEach(function(c) {
+				var exten = c.dest;
+
+				if (c.direction == "inbound") exten = c.cid_num;
+
+				users = _this.state.users.map(function(u) {
+					if (u.userExten == exten) {
+						u.channelUUID = c.uuid;
+
+						if (c.callstate == "ACTIVE") {
+							u.channelCallState = "active";
+						} else if (c.callstate == "RINGING" || c.callstate == "EARLY") {
+							u.channelCallState = "ringing";
+						}
+					}
+					return u;
+				});
+			});
+
+			if (users.length) _this.setState({users: users});
+
+		});
+	}
+
 	syncUserRegisterStatus() {
 		let _this = this;
 
@@ -450,6 +498,7 @@ class MonitorPage extends React.Component {
 			this.setState({tabPanesMounted: tabPanesMounted});
 			this.setState({activeKey: defaultActiveKey});
 			this.syncUserRegisterStatus();
+			this.syncUserCallState();
 
 		}).catch((e) => {
 			console.log("get group_users ERR");
