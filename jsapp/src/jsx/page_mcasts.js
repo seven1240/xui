@@ -417,7 +417,7 @@ class McastPage extends React.Component {
 				<input type="hidden" name="id" defaultValue={mcast.id}/>
 				<FormGroup controlId="formName">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Name" className="mandatory"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="name" defaultValue={mcast.name}/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} disabled={true} name="name" defaultValue={mcast.name}/></Col>
 				</FormGroup>
 
 				{/*
@@ -436,7 +436,7 @@ class McastPage extends React.Component {
 
 				<FormGroup controlId="formSampleRate">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Sample Rate"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} componentClass="select" name="sample_rate" options={sample_rate_options} text={T.translate(mcast.sample_rate)} defaultValue={mcast.sample_rate}/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} disabled={true} componentClass="select" name="sample_rate" options={sample_rate_options} text={T.translate(mcast.sample_rate)} defaultValue={mcast.sample_rate}/></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formCodecMs">
