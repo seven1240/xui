@@ -209,6 +209,8 @@ LANGUAGES["zh"] = {
 	"Invalid username or password": "用户名/密码错误",
 
 	"Mandatory fields left blank": "红色字段不能为空",
+	"Some time fields left blank": "部分时间字段为空",
+	"Time format incorrent": "时间格式错误",
 	"Saved at": "最后保存于 *{time}*",
 	"Created At": "创建时间",
 	HTTPERR: "[{code}] {statusText}",
@@ -344,6 +346,9 @@ LANGUAGES["zh"] = {
 
 	"Multicasts": "组播",
 	"Multicast": "组播",
+	"Auto Mode": "自动模式",
+	"Auto Start Time": "自动开始时间",
+	"Auto Stop Time": "自动结束时间",
 	"Remove": "移除",
 	"Remove All Files": "移除所有文件",
 	"Broadcast": "广播",

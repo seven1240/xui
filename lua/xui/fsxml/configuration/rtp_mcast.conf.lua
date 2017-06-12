@@ -20,6 +20,9 @@ function build_mcasts(mcast_name)
 		p = p .. '<param name="mcast-ip"' .. ' value="' .. row.mcast_ip .. '"/>'
 		p = p .. '<param name="mcast-port"' .. ' value="' .. row.mcast_port .. '"/>'
 		p = p .. '<param name="enable"' .. ' value="' .. row.enable .. '"/>'
+		p = p .. '<param name="auto-mode"' .. ' value="' .. row.auto_mode .. '"/>'
+		p = p .. '<param name="auto-start-time"' .. ' value="' .. row.auto_start_time .. '"/>'
+		p = p .. '<param name="auto-stop-time"' .. ' value="' .. row.auto_stop_time .. '"/>'
 
 		local mcast = '<mcast name="' .. row.name .. '">' .. p .. '</mcast>'
 

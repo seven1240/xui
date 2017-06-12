@@ -412,7 +412,10 @@ CREATE TABLE mcasts (
 	mcast_port VARCHAR,
 	sample_rate VARCHAR,
 	enable BOOLEAN NOT NULL DEFAULT 0 CHECK(enable IN (0, 1, '0', '1')),
-	
+	auto_mode BOOLEAN NOT NULL DEFAULT 0 CHECK(enable IN (0, 1, '0', '1')),
+	auto_start_time INTEGER DEFAULT (STRFTIME('%H:%M', 'now', 'localtime')),
+	auto_stop_time INTEGER DEFAULT (STRFTIME('%H:%M', 'now', 'localtime')),
+
 	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
 	updated_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
 	deleted_epoch INTEGER

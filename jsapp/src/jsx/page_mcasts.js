@@ -61,6 +61,27 @@ class NewMcast extends React.Component {
 			return;
 		}
 
+		if (mcast.auto_start_time && mcast.auto_stop_time) {
+			var reg = /^(20|21|22|23|[0-1]\d):[0-5]\d$/;
+			var regExp = new RegExp(reg);
+
+			if (!regExp.test(mcast.auto_start_time) || !regExp.test(mcast.auto_stop_time)) {
+				this.setState({errmsg: "Time format incorrent"});
+				return;
+			}
+		} else if (mcast.auto_start_time || mcast.auto_stop_time) {
+			this.setState({errmsg: "Some time fields left blank"});
+			return;
+		} else {
+			if (Number(mcast.auto_mode) == 1) {
+				this.setState({errmsg: "Some time fields left blank"});
+				return;
+			}
+		}
+
+		if (!mcast.auto_start_time) delete mcast.auto_start_time;
+		if (!mcast.auto_stop_time) delete mcast.auto_stop_time;
+
 		xFetchJSON("/api/mcasts", {
 			method: "POST",
 			body: JSON.stringify(mcast)
@@ -86,6 +107,21 @@ class NewMcast extends React.Component {
 	render() {
 		const props = Object.assign({}, this.props);
 		delete props.handleNewMcastAdded;
+
+		var enable_options = [[1, "Yes"], [0, "No"]];
+		var startDate = new Date();
+		var stopDate = new Date();
+
+		var formatTime = function(date) {
+			var fHour = date.getHours() >= 10 ? date.getHours() : "0" + date.getHours();
+			var fMin = date.getMinutes() >= 10 ? date.getMinutes() : "0" + date.getMinutes();
+
+			return fHour + ":" + fMin;
+		};
+
+		stopDate.setHours(stopDate.getHours() + 1);
+		var defaultStartTime = formatTime(startDate);
+		var defaultStopTime = formatTime(stopDate);
 
 		return <Modal {...props} aria-labelledby="contained-modal-title-lg">
 			<Modal.Header closeButton>
@@ -147,12 +183,38 @@ class NewMcast extends React.Component {
 					<Col sm={10}><FormControl type="input" name="mcast_port" placeholder="4598"/></Col>
 				</FormGroup>
 
+				<FormGroup controlId="formAutoStartTime">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Start Time"/></Col>
+					<Col sm={10}>
+						<FormControl type="input" name="auto_start_time" placeholder={defaultStartTime}/>
+					</Col>
+				</FormGroup>
+
+				<FormGroup controlId="formAutoStopTime">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Stop Time"/></Col>
+					<Col sm={10}>
+						<FormControl type="input" name="auto_stop_time" placeholder={defaultStopTime}/>
+					</Col>
+				</FormGroup>
+
+				<FormGroup controlId="formAutoMode">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Mode" /></Col>
+					<Col sm={10}>
+						<FormControl componentClass="select" name="auto_mode">
+							{enable_options.map(function(o) {
+								return <option key={o[0]} value={o[0]}><T.span text={o[1]}/></option>;
+							})}
+						</FormControl>
+					</Col>
+				</FormGroup>
+
 				<FormGroup controlId="formEnable">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Enabled" /></Col>
 					<Col sm={10}>
 						<FormControl componentClass="select" name="enable">
-							<option value="1">1</option>
-							<option value="0">0</option>
+							{enable_options.map(function(o) {
+								return <option key={o[0]} value={o[0]}><T.span text={o[1]}/></option>;
+							})}
 						</FormControl>
 					</Col>
 				</FormGroup>
@@ -242,6 +304,24 @@ class McastPage extends React.Component {
 		if (!mcast.name || !mcast.codec_ms || !mcast.channels || !mcast.mcast_ip || !mcast.mcast_port) {
 			notify(<T.span text="Mandatory fields left blank"/>, "error");
 			return;
+		}
+
+		if (mcast.auto_start_time && mcast.auto_stop_time) {
+			var reg = /^(20|21|22|23|[0-1]\d):[0-5]\d$/;
+			var regExp = new RegExp(reg);
+
+			if (!regExp.test(mcast.auto_start_time) || !regExp.test(mcast.auto_stop_time)) {
+				notify(<T.span text="Time format incorrent"/>, "error");
+				return;
+			}
+		} else if (mcast.auto_start_time || mcast.auto_stop_time) {
+			notify(<T.span text="Some time fields left blank"/>, "error");
+			return;
+		} else {
+			if (Number(mcast.auto_mode) == 1) {
+				notify(<T.span text="Some time fields left blank"/>, "error");
+				return;
+			}
 		}
 
 		xFetchJSON("/api/mcasts/" + mcast.id, {
@@ -358,6 +438,8 @@ class McastPage extends React.Component {
 		var add_files_button_disable = false;
 		var remove_all_button_disable = false;
 		var add_files_select_disable = false;
+		var enable_default_value = "";
+		var auto_mode_default_value = "";
 
 		if (this.state.edit) {
 			save_btn = <Button onClick={this.handleSubmit}><i className="fa fa-save" aria-hidden="true"></i>&nbsp;<T.span text="Save"/></Button>
@@ -371,7 +453,7 @@ class McastPage extends React.Component {
 			return [row.k, row.k];
 		});
 
-		const enable_options = [[0, 0], [1, 1]];
+		const enable_options = [[1, "Yes"], [0, "No"]];
 
 		const remain_file_options = this.state.remain_files.map(function(row){
 			return { value: row, label: row.name };
@@ -388,6 +470,11 @@ class McastPage extends React.Component {
 		if (this.state.mcast_files.length <= 0) {
 			remove_all_button_disable = true;
 		}
+
+		enable_options.map(function(o){
+			if (o[0] == Number(_this.state.mcast.auto_mode)) auto_mode_default_value = o[1];
+			if (o[0] == Number(_this.state.mcast.enable)) enable_default_value = o[1];
+		});
 
 		var files = this.state.mcast_files.map(function(f) {
 			return (
@@ -459,11 +546,27 @@ class McastPage extends React.Component {
 					<Col sm={10}><EditControl edit={this.state.edit} name="mcast_port" defaultValue={mcast.mcast_port}/></Col>
 				</FormGroup>
 
+				<FormGroup controlId="formAutoStartTime">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Start Time"/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} name="auto_start_time" defaultValue={mcast.auto_start_time}/></Col>
+				</FormGroup>
+
+				<FormGroup controlId="formAutoStopTime">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Stop Time"/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} name="auto_stop_time" defaultValue={mcast.auto_stop_time}/></Col>
+				</FormGroup>
+
+				<FormGroup controlId="formAutoMode">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Mode"/></Col>
+					<Col sm={10}>
+						<EditControl edit={this.state.edit} componentClass="select" name="auto_mode" options={enable_options} text={auto_mode_default_value} defaultValue={auto_mode_default_value}/>
+					</Col>
+				</FormGroup>
+
 				<FormGroup controlId="formEnabled">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Enabled"/></Col>
 					<Col sm={10}>
-						<EditControl edit={this.state.edit} componentClass="select" name="enable" options={enable_options} text={T.translate(mcast.enable)} defaultValue={mcast.enable}/>
-
+						<EditControl edit={this.state.edit} componentClass="select" name="enable" options={enable_options} text={enable_default_value} defaultValue={enable_default_value}/>
 					</Col>
 				</FormGroup>
 				<FormGroup controlId="formSave">
