@@ -371,7 +371,7 @@ class Phone extends React.Component {
 		if (verto_loginState) this.handleVertoLogin();
 
 		this.setState({
-			displayStyle: localStorage.getItem('phone.displayStyle'),
+			displayStyle: localStorage.getItem('phone.displayStyle') || "xtop",
 			destNumber: localStorage.getItem('phone.destNumber') || '',
 			videoMode: localStorage.getItem('phone.videoMode') || "audio"
 		});
