@@ -362,8 +362,8 @@ class TicketPage extends React.Component {
 			<Col sm={2}>{save_btn}</Col>
 		</FormGroup>;
 
-		if (ticket.record_path) {
-			const src = "http://118.89.102.147:8081/" + ticket.record_path;
+		if (ticket.original_file_name) {
+			const src = "/recordings/" + ticket.original_file_name;
 			let Audio = <audio src={src} controls="controls" />;
 		} else {
 			let Audio = <div></div>;

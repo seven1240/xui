@@ -42,6 +42,7 @@ destNumber=event:getHeader("Other-Leg-Destination-Number") or event:getHeader("C
 fifoAction = event:getHeader("FIFO-Action")
 httpFifoNotificationURL = nil -- "http://localhost:9999/"
 
+local ticket_id = ''
 if fifoAction == "push" or fifoAction == "abort" or fifoAction == "pre-dial" or fifoAction == "bridge-caller-start" or fifoAction == "bridge-caller-stop" or fifoAction == "consumer_stop" then
 
 	local cur_dir = debug.getinfo(1).source;
@@ -82,7 +83,7 @@ if fifoAction == "push" or fifoAction == "abort" or fifoAction == "pre-dial" or 
 			ticket.type = 'TICKET_TYPE_1'
 			ticket.subject = cidNumber
 			ticket.content = cidNumber .. '来电'
-			local ticket_id = xdb.create_return_id('tickets', ticket);
+			ticket_id = xdb.create_return_id('tickets', ticket);
 		end
 
 	elseif fifoAction == "pre-dial" then
