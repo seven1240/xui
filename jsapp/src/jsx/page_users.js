@@ -390,6 +390,37 @@ class UserPage extends React.Component {
 			<h1><T.span text="User"/> <small>{user.name} &lt;{user.extn}&gt;</small></h1>
 			<hr/>
 
+			<div style={{display: this.state.style1}}>
+			<h3><T.span text="Change Password"/></h3>
+			<Form horizontal id="passwordForm">
+				<FormGroup controlId="formOldPassword">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Old Password" className="mandatory"/></Col>
+					<Col sm={8}><FormControl type="password" name="old_password"/></Col>
+				</FormGroup>
+
+				<FormGroup controlId="formPassword">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="New Password" className="mandatory"/></Col>
+					<Col sm={8}><FormControl type="password" name="password" placeholder="a$veryComplicated-Passw0rd" /></Col>
+				</FormGroup>
+
+				<FormGroup controlId="formConfirmPassword">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Confirm Password" className="mandatory"/></Col>
+					<Col sm={8}><FormControl type="password" name="password2" placeholder="a$veryComplicated-Passw0rd" /></Col>
+				</FormGroup>
+
+				<FormGroup>
+					<Col smOffset={2} sm={8}>
+						<Button type="button" bsStyle="primary" onClick={this.handleChangePassword}>
+							<i className="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;
+							<T.span text="Save" />
+						</Button>
+						&nbsp;&nbsp;
+						<T.span className="danger" text={this.state.errmsg}/>
+					</Col>
+				</FormGroup>
+			</Form>
+			</div>
+
 			<Form horizontal id="newUserForm">
 				<input type="hidden" name="id" defaultValue={user.id}/>
 				<FormGroup controlId="formExtn">
@@ -457,38 +488,6 @@ class UserPage extends React.Component {
 					<Col sm={10}>{groups}</Col>
 				</FormGroup>
 			</Form>
-
-			<div style={{display: this.state.style1}}>
-			<h3><T.span text="Change Password"/></h3>
-			<Form horizontal id="passwordForm">
-				<FormGroup controlId="formOldPassword">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Old Password" className="mandatory"/></Col>
-					<Col sm={10}><FormControl type="password" name="old_password"/></Col>
-				</FormGroup>
-
-				<FormGroup controlId="formPassword">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="New Password" className="mandatory"/></Col>
-					<Col sm={10}><FormControl type="password" name="password" placeholder="a$veryComplicated-Passw0rd" /></Col>
-				</FormGroup>
-
-				<FormGroup controlId="formConfirmPassword">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Confirm Password" className="mandatory"/></Col>
-					<Col sm={10}><FormControl type="password" name="password2" placeholder="a$veryComplicated-Passw0rd" /></Col>
-				</FormGroup>
-
-				<FormGroup>
-					<Col smOffset={2} sm={10}>
-						<Button type="button" bsStyle="primary" onClick={this.handleChangePassword}>
-							<i className="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;
-							<T.span text="Save" />
-						</Button>
-						&nbsp;&nbsp;
-						<T.span className="danger" text={this.state.errmsg}/>
-					</Col>
-				</FormGroup>
-			</Form>
-			</div>
-
 			{
 				this.state.wechat_users.map((weuser) => {
 					return <WeUser key={weuser.id} wechat_user={weuser}/>
