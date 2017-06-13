@@ -174,7 +174,7 @@ class NewTicket extends React.Component {
 class TicketPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {ticket: {}, users: [], user_options: null, ticket_comments: [], deal_user: null, edit: false, types: []};
+		this.state = {ticket: {}, users: [], user_options: null, ticket_comments: [], deal_user: null, edit: false, types: [], call: "回拨"};
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleCommit = this.handleCommit.bind(this);
 		this.handleControlClick = this.handleControlClick.bind(this);
@@ -293,6 +293,13 @@ class TicketPage extends React.Component {
 		});
 	}
 
+	callBack(e) {
+		this.setState({call: "回拨中..."});
+		xFetchJSON('/api/call_back/' + e).then((data) => {
+			this.setState({call: "回拨"});
+		});
+	}
+
 	render() {
 		let _this = this;
 		let savebtn = "";
@@ -392,6 +399,9 @@ class TicketPage extends React.Component {
 		};
 		return <div>
 			<ButtonToolbar className="pull-right">
+			<ButtonGroup>
+				<Button onClick={() => _this.callBack(ticket.id)}><i className="fa fa-phone-square" aria-hidden="true"></i>&nbsp;<T.span text={_this.state.call}/></Button>
+			</ButtonGroup>
 			<ButtonGroup>
 				<Button onClick={this.handleControlClose}><i className="fa fa-check-square" aria-hidden="true"></i>&nbsp;<T.span text="Close"/></Button>
 				{ savebtn }
