@@ -73,18 +73,22 @@ class ChangeIpPage extends React.Component {
 			<h1><T.span text="Change IP"/></h1>
 			<hr />
 			<Form horizontal id="ChangeIpForm">
+				<FormGroup controlId="formDescription">
+					<Col sm={2}></Col>
+					<Col sm={10}><FormControl.Static>修改IP会使系统重启，2分钟内请勿有任何操作</FormControl.Static></Col>
+				</FormGroup>
 				<FormGroup controlId="formAddress">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Address"  className="mandatory"/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Address" className="mandatory"/></Col>
 					<Col sm={8}><FormControl type="input" name="address" /></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formNetmask">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Netmask"  className="mandatory"/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Netmask" className="mandatory"/></Col>
 					<Col sm={8}><FormControl type="input" name="netmask" /></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formGateway">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Gateway"  className="mandatory"/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Gateway" className="mandatory"/></Col>
 					<Col sm={8}><FormControl type="input" name="gateway" /></Col>
 				</FormGroup>
 
