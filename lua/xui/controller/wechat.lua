@@ -58,12 +58,17 @@ get('/anyway/:realm', function(params)
 	return 	env:getHeader("echostr")
 end)
 
-get('/:realm/all', function(params)
+get('/:realm/all/:page', function(params)
+	freeswitch.consoleLog("ERR", "asdajsldkjal")
 	local user_id = xtra.session.user_id
+	local size = 6
+	local page = params.page * size
 	n, tickets = xdb.find_by_sql([[SELECT u.*, w.v as dtype
 	FROM tickets as u left join dicts as w
 	ON u.type = w.k
-	ORDER BY id DESC]])
+	ORDER BY id DESC
+	LIMIT ]] .. page .. [[,]] .. size .. [[
+	]])
 	return tickets
 end)
 
