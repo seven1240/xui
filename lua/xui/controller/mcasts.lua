@@ -37,6 +37,7 @@ content_type("application/json")
 require 'xdb'
 require 'm_mcast'
 xdb.bind(xtra.dbh)
+api = freeswitch.API()
 
 get('/', function(params)
 	n, mcasts = xdb.find_all("mcasts")
@@ -70,6 +71,7 @@ put('/:id', function(params)
 		ret = xdb.update("mcasts", params.request)
 
 		if ret then
+			api:execute("rtp_mcast", "start " .. params.request.name)
 			return 200, "{}"
 		end
 	end
@@ -84,6 +86,7 @@ post('/', function(params)
 	ret = xdb.create_return_id('mcasts', params.request)
 
 	if ret then
+		api:execute("rtp_mcast", "start " .. params.request.name)
 		return {id = ret}
 	else
 		return 500, "{}"
