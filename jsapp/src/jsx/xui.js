@@ -48,6 +48,7 @@ import AboutPage from "./page_about";
 import DashBoard from "./dashboard";
 import OverViewPage from "./page_overview";
 import ChannelsPage from "./page_channels";
+import ChangeIpPage from "./page_change_ip";
 import RegistrationsPage from "./page_registrations";
 import CallsPage from "./page_calls";
 import FSUsersPage from "./page_fs_users";
@@ -143,6 +144,7 @@ class Home extends React.Component{
 				<Route path="overview" components={{sidebar: DashBoard, main: OverViewPage}} onlyActiveOnIndex/>
 				<Route path="calls" components = {{sidebar: DashBoard, main: CallsPage}}/>
 				<Route path="channels" components = {{sidebar: DashBoard, main: ChannelsPage}}/>
+				<Route path="changeip" components = {{sidebar: DashBoard, main: ChangeIpPage}}/>
 				<Route path="registrations" components = {{sidebar: DashBoard, main: RegistrationsPage}}/>
 				<Route path="users" components = {{sidebar: DashBoard, main: FSUsersPage}}/>
 				<Route path="sofia" components = {{sidebar: DashBoard, main: SofiaPage}}/>
