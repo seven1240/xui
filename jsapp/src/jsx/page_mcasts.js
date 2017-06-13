@@ -548,12 +548,12 @@ class McastPage extends React.Component {
 
 				<FormGroup controlId="formAutoStartTime">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Start Time"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="auto_start_time" defaultValue={mcast.auto_start_time}/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} name="auto_start_time" defaultValue={mcast.auto_start_time} placeholder={mcast.auto_start_time}/></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formAutoStopTime">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Stop Time"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="auto_stop_time" defaultValue={mcast.auto_stop_time}/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} name="auto_stop_time" defaultValue={mcast.auto_stop_time} placeholder={mcast.auto_stop_time}/></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formAutoMode">
