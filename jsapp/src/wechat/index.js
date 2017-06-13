@@ -563,17 +563,40 @@ class Newticket extends React.Component {
 class Tickets extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {tickets: []};
+		this.state = {tickets: [], page: 0, scro: true};
 	}
 
 	componentDidMount() {
 		var _this = this;
-		xFetchJSON("/api/wechat/xyt/all").then((data) => {
-			console.log("ticket", data);
+		window.addEventListener('scroll', _this.ticketList.bind(_this))
+		var page = _this.state.page
+		xFetchJSON("/api/wechat/xyt/all/" + page).then((data) => {
 			_this.setState({tickets: data});
 		}).catch((e) => {
 			console.error("get ticket", e);
 		});
+	}
+
+	ticketList() {
+		var _this = this;
+		var scrollBottom = $(document).height() - $(window).height() - $(window).scrollTop()
+		if (!scrollBottom && _this.state.scro) {
+			_this.setState({scro: false});
+			var page = _this.state.page + 1
+			xFetchJSON("/api/wechat/xyt/all/" + page).then((data) => {
+				if (data.length > 0) {
+					console.log("ticket", data);
+					var tickets = _this.state.tickets
+					data.map((ticket) => {
+						tickets.push(ticket)
+					});
+					_this.setState({tickets: tickets, page: page, scro: true});
+				
+				}
+			}).catch((e) => {
+				console.error("get ticket", e);
+			});
+		}
 	}
 
 	addNewTicket() {
@@ -588,7 +611,7 @@ class Tickets extends React.Component {
 
 	render() {
 		var _this = this;
-		const tickets = this.state.tickets.map((ticket) => {
+		const tickets = _this.state.tickets.map((ticket) => {
 			var ticket_state = ticket.status;
 			var ticket_style = '';
 			if (ticket_state == 'TICKET_ST_NEW') {
