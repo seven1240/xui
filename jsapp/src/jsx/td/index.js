@@ -72,6 +72,7 @@ import Footer from '../footer';
 import Terminal from '../terminal';
 import verto from '../verto/verto';
 import PasswordPage from '../page_password';
+import ChangeIpPage from "../page_change_ip";
 
 const lang_map = detect_language();
 if (lang_map) T.setTexts(lang_map);
@@ -219,6 +220,7 @@ class Home extends React.Component{
 						<IndexRoute components={{sidebar: Settings, main: McastsPage}} onEnter={ensureVisible}/>
 						<Route path=":id" components={{sidebar: Settings, main: McastPage}}/>
 					</Route>
+					<Route path="changeip" components = {{sidebar: Settings, main: ChangeIpPage}} onEnter={ensureVisible}/>
 					<Route path="system" components={{sidebar: Settings, main: SystemPage}} onEnter={ensureVisible}/>
 					<Route path="term" components={{sidebar: Settings, main: Terminal}}/>
 				</Route>

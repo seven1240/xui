@@ -90,6 +90,12 @@ class Settings extends React.Component {
 				</NavItem>
 			</LinkContainer>
 
+			<LinkContainer to="/settings/changeip" key="M_CAHNGEIP">
+				<NavItem eventKey="M_CAHNGEIP">
+					<i className="fa fa-wrench" aria-hidden="true"></i>&nbsp;
+					<T.span text="Change IP"/>
+				</NavItem>
+			</LinkContainer>
 
 			<LinkContainer to="/settings/system" key="M_SYSTEM">
 				<NavItem eventKey="M_SYSTEM">
