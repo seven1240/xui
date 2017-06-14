@@ -769,8 +769,16 @@ class ConferencePage extends React.Component {
 			rows = rows.concat(this.state.domain_rows[dm]);
 		});
 
+		const sort_member = function(a, b) {
+			return a.cidNumber < b.cidNumber ? -1 : (a.cidNumber > b.cidNumber ? 1 : 0);
+		}
+
 		this.state.total = rows.length;
 		this.state.rows = rows;
+
+		if (!window.xui_global_disable_sort) {
+			rows = rows.sort(sort_member);
+		}
 
 		const members = rows.map(function(member) {
 			if (member && member.hidden) return null;
