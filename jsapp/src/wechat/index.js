@@ -294,7 +294,7 @@ class Userlist extends React.Component {
 							</div>
 							<div className="weui-media-box__bd">
 								<div className="weui-form-preview__item">
-									<span className="weui-form-preview__value" style={{fontSize:"12px",color:"black"}}>{row.name}&nbsp;&nbsp;&nbsp;{row.extn}&nbsp;&nbsp;&nbsp;{row.nickname}</span>
+									<span className="weui-form-preview__value" style={{fontSize:"17px",color:"black"}}>{row.name}&nbsp;&nbsp;&nbsp;{row.extn}&nbsp;&nbsp;&nbsp;{row.nickname}</span>
 								</div>
 							</div>
 						</a>
