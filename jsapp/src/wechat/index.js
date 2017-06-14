@@ -14,6 +14,12 @@ const ticket_status = {
 	"TICKET_ST_DONE": "已完成"
 }
 
+const emergency = {
+	"URGENT": "紧急",
+	"EMERGENT": "较紧急",
+	"NORMAL": "不紧急"
+}
+
 class Home extends React.Component {
 	constructor(props) {
 		super(props);
@@ -211,6 +217,14 @@ class Home extends React.Component {
 				<div className="weui-form-preview__item">
 					<span style={{color:"black"}} className="weui-form-preview__label">状态</span>
 					<span className="weui-form-preview__value">{ticket_status[ticket.status]}</span>
+				</div>
+			</div>
+			<div className="weui-form-preview__ft">
+			</div>
+			<div className="weui-form-preview__bd">
+				<div className="weui-form-preview__item">
+					<span style={{color:"black"}} className="weui-form-preview__label">紧急程度</span>
+					<span className="weui-form-preview__value">{emergency[ticket.emergency]}</span>
 				</div>
 			</div>
 			<div className="weui-form-preview__ft">
@@ -476,6 +490,11 @@ class Newticket extends React.Component {
 		this.state.input.type = e.target.value;
 	}
 
+	handleEmergency(e) {
+		console.log('input', e.target.value);
+		this.state.input.emergency = e.target.value;
+	}
+
 	handleSubject(e) {
 		console.log('input', e.target.value);
 		this.state.input.subject = e.target.value;
@@ -541,6 +560,18 @@ class Newticket extends React.Component {
 						<div className="weui-cell__bd">
 							<select className="weui-select" name="select1" onChange={this.handleType.bind(this)}>
 								{ticket_type}
+							</select>
+						</div>
+					</div>
+				</div>
+				<div className="weui-cells__title" style={{color:"black"}}>紧急程度</div>
+				<div className="weui-cells">
+					<div className="weui-cell weui-cell_select">
+						<div className="weui-cell__bd">
+							<select className="weui-select" name="select1" onChange={this.handleEmergency.bind(this)}>
+								<option value="URGENT">紧急</option>
+								<option value="EMERGENT">较紧急</option>
+								<option value="NORMAL">不紧急</option>
 							</select>
 						</div>
 					</div>

@@ -300,6 +300,10 @@ post('/', function(params)
 		ticket.type = 'TICKET_TYPE_1'
 	end
 
+	if not ticket.emergency then
+		ticket.emergency = 'EMERGENCY'
+	end
+
 	ticket = xdb.create_return_object('tickets', ticket)
 
 	if ticket then
