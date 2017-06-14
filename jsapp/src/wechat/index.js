@@ -174,13 +174,13 @@ class Home extends React.Component {
 				{ticket.content}
 			</p> */}
 			</div>
-		<div className="weui-form-preview">
 			<div className="weui-form-preview__bd">
 				<div className="weui-form-preview__item">
-					<span style={{color:"black"}} className="weui-form-preview__label">时间</span>
+					<span style={{color:"black"}} className="weui-form-preview__label">{ticket.id}</span>
 					<span className="weui-form-preview__value">{ticket.created_epoch}</span>
 				</div>
 			</div>
+		<div className="weui-form-preview">
 			<div className="weui-form-preview__ft">
 			</div>
 			<div className="weui-form-preview__bd">
@@ -591,7 +591,6 @@ class Tickets extends React.Component {
 						tickets.push(ticket)
 					});
 					_this.setState({tickets: tickets, page: page, scro: true});
-				
 				}
 			}).catch((e) => {
 				console.error("get ticket", e);
