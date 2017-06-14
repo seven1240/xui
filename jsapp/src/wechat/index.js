@@ -535,7 +535,7 @@ class Newticket extends React.Component {
 						</div>
 					</div>
 				</div>
-				<div className="weui-cells__title">类型</div>
+				<div className="weui-cells__title" style={{color:"black"}}>类型</div>
 				<div className="weui-cells">
 					<div className="weui-cell weui-cell_select">
 						<div className="weui-cell__bd">
@@ -545,7 +545,7 @@ class Newticket extends React.Component {
 						</div>
 					</div>
 				</div>
-				<div className="weui-cells__title">内容</div>
+				<div className="weui-cells__title" style={{color:"black"}}>内容</div>
 				<div className="weui-cells">
 					<div className="weui-cell">
 						<div className="weui-cell__bd">
