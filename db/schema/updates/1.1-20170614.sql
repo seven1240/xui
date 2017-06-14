@@ -1,2 +1,2 @@
 alter table tickets add emergency VARCHAR;
-alter table tickets add end_date VARCHAR;
+alter table tickets add completed_epoch VARCHAR;
