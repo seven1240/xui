@@ -98,6 +98,21 @@ class Home extends React.Component {
 		});
 	}
 
+	backWithdraw(e) {
+		var user_id = this.state.ticket.user_id;
+		var wechat_userid = this.state.ticket.wechat_userid;
+		if (user_id != wechat_userid) {
+			alert("无权限撤回非本人工单");
+			return false;
+		}
+		if (!confirm("确定撤回工单？")) return;
+		xFetchJSON("/api/tickets/" + this.state.ticket.id, {method: "DELETE"}).then(() => {
+			ReactDOM.render(<Tickets/>, document.getElementById('main'));
+		}).catch((msg) => {
+			notify(msg, 'error');
+		});
+	}
+
 	callBack(e) {
 			this.setState({call: "回拨中..."})
 		xFetchJSON('/api/call_back/' + e).then((data) => {
@@ -117,7 +132,7 @@ class Home extends React.Component {
 			const wechat_img = comment.imgs.map((w_img) => {
 				var small_img = "/assets/img/wechat/small/" + w_img.img_url + ".jpg"
 				return <span>
-						<img style={{width:"30px"}} onClick={ () => _this.previewImageShow(w_img.img_url)} src={small_img}/>&nbsp;
+						<img style={{width:"30px",height:"30px"}} onClick={ () => _this.previewImageShow(w_img.img_url)} src={small_img}/>&nbsp;
 					</span>
 			})
 			return <a className="weui-media-box weui-media-box_appmsg" key={comment.id}>
@@ -241,9 +256,11 @@ class Home extends React.Component {
 			</div>
 			<div className="weui-form-preview__bd">
 				<div className="weui-form-preview__item">
-					<span className="weui-form-preview__label"></span>
-					<span className="weui-form-preview__value">
+					<span className="weui-form-preview__label">
 						<a href="javascript:;" onClick={() => _this.callBack(ticket.id)} className="weui-btn weui-btn_mini weui-btn_primary">{_this.state.call}</a>
+					</span>
+					<span className="weui-form-preview__value">
+						<a href="javascript:;" onClick={() => _this.backWithdraw(ticket.id)} className="weui-btn weui-btn_mini weui-btn_warn">撤回</a>
 					</span>
 				</div>
 			</div>
@@ -435,9 +452,9 @@ class Comment extends React.Component {
 							<textarea className="weui-textarea" placeholder="请输入内容" onChange={_this.handleInput.bind(this)} rows="3"></textarea>
 						</div>
 					</div>
-					{/* <a href="javascript:;" onClick={ () => _this.uploadImg()} className="weui-btn weui-btn_mini weui-btn_primary">添加图片</a>
+					<a href="javascript:;" onClick={ () => _this.uploadImg()} className="weui-btn weui-btn_mini weui-btn_primary">添加图片</a>
 					<br/>
-					{current_img}*/}
+					{current_img}
 				</div>
 				<div className="weui-form-preview__bd">
 					<a href="javascript:;" className="weui-btn weui-btn_primary" onClick={ () => _this.addComments()}>添加评论</a>
