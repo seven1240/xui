@@ -79,15 +79,14 @@ if (lang_map) T.setTexts(lang_map);
 
 const MENUS = [
 	// {id: "MM_CONFERENCES", description: <T.span text={{ key: "Conference"}} />, data: '/conferences'},
-	{id: "MM_MONITOR", description: <T.span text={{ key: "Monitor"}} />, data: '/monitor'},
-	{id: "MM_BCAST", description: <T.span text={{ key: "Broadcast"}} />, data: '/settings/mcasts'},
-	{id: "MM_CDRS", description: <T.span text={{ key: "CDR"}} />, data: '/cdrs'},
-	{id: "MM_ABOUT", description: <T.span text={{ key: "About"}} />, data: '/about'}
+	{id: "MM_MONITOR", description: "Monitor", data: '/monitor'},
+	{id: "MM_BCAST", description: "Broadcast", data: '/settings/mcasts'},
+	{id: "MM_CDRS", description: "CDR", data: '/cdrs'},
+	{id: "MM_ABOUT", description: "About", data: '/about'}
 ];
 
 const RMENUS = [
-	{id: "MM_SETTINGS", description: <T.span text="Settings" />, data: "/settings/users"},
-	// {id: "MM_PROFILE", description: <T.span text={{ key: "Profiles"}} />, data:"/profiles"},
+	{id: "MM_SETTINGS", description: "Settings", data: "/settings/users"}
 ];
 
 class App extends React.Component{
