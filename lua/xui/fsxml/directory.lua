@@ -64,6 +64,7 @@ local purpose = params:getHeader("purpose")
 local vars = ""
 local pars = ""
 local found = false
+local user_id = nil
 
 if purpose then freeswitch.consoleLog("INFO", "purpose:" .. purpose) end
 
@@ -81,6 +82,7 @@ end
 if user then
 	xdb.find_by_cond("users", {extn = user, disabled = 0}, nil, function(row)
 		found = true
+		user_id = row.id
 
 		cid_name = row.cid_name
 		cid_number = row.cid_number
@@ -119,7 +121,16 @@ if user then
 	end)
 end
 
+function is_admin(user_id)
+	return user_id == 1 or user_id == "1"
+end
+
 if (found) then
+
+	local fsapis = "console_complete,log,version,help,conference,uuid_phone_event,status,show,jsapi,list_users,callcenter_config,jsjson,originate,rtp_mcast,fifo"
+	if is_admin(user_id) then
+		fsapis = fsapis .. ",lua,unload,reload,load,bgapi,sofia,uuid_kill"
+	end
 
 	XML_STRING = [[<domain name="]] .. domain .. [[">
 		<user id="]] .. user .. [[">
@@ -127,7 +138,7 @@ if (found) then
 				<!-- These are required for Verto to function properly -->
 				<param name="jsonrpc-allowed-methods" value="verto.subscribe,verto,txtapi,jsapi,xmlapi,makeCall,callcenter_config"/>
 				<param name="jsonrpc-allowed-jsapi" value="cti,mips,fsapi,show,status,jsjson,lua,luarun"/>
-				<param name="jsonrpc-allowed-fsapi" value="console_complete,log,version,help,conference,unload,reload,load,bgapi,uuid_phone_event,status,show,fsapi,jsapi,sofia,list_users,callcenter_config,jsjson,conference,originate,rtp_mcast,fifo,uuid_kill"/>
+				<param name="jsonrpc-allowed-fsapi" value="]] .. fsapis .. [["/>
 				<param name="jsonrpc-allowed-event-channels" value="demo,conference,conference-liveArray,conference-chat,conference-mod,presence,cti,FSevent,FSLog"/>
 				]] .. pars .. [[
 			</params>
