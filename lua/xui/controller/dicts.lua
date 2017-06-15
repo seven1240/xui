@@ -53,7 +53,11 @@ get('/', function(params)
 	elseif realm then
 		n, dicts = xdb.find_by_cond("dicts", {realm = realm})
 	else
-		n, dicts = xdb.find_all("dicts")
+		if not m_user.has_permission() then
+			n = 0
+		else
+			n, dicts = xdb.find_all("dicts")
+		end
 	end
 
 	if (n > 0) then
