@@ -74,7 +74,7 @@ post('/:realm/:id/comments', function(params)
 		if ret then
 			wget = "wget -O /usr/local/freeswitch/xui/www/assets/img/wechat/big/" .. v .. ".jpg '" .. url .. "'"
 			os.execute(wget)
-			convert = "convert -resize 20%*20% /usr/local/freeswitch/xui/www/assets/img/wechat/big/" .. v .. ".jpg /usr/local/freeswitch/xui/www/assets/img/wechat/small/" .. v .. ".jpg"
+			convert = "convert -resize 64x64! /usr/local/freeswitch/xui/www/assets/img/wechat/big/" .. v .. ".jpg /usr/local/freeswitch/xui/www/assets/img/wechat/small/" .. v .. ".jpg"
 			freeswitch.consoleLog("ERR",convert)
 			os.execute(convert)
 		end

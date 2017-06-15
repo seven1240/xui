@@ -119,7 +119,7 @@ get('/:id', function(params)
 		if media_file then
 			ticket.original_file_name = media_file.original_file_name
 		end
-
+		ticket.wechat_userid = xtra.session.user_id
 		return ticket
 	else
 		return 404
@@ -298,6 +298,10 @@ post('/', function(params)
 
 	if not ticket.type then
 		ticket.type = 'TICKET_TYPE_1'
+	end
+
+	if not ticket.emergency then
+		ticket.emergency = 'EMERGENCY'
 	end
 
 	ticket = xdb.create_return_object('tickets', ticket)

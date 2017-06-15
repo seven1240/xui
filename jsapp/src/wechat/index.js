@@ -14,6 +14,12 @@ const ticket_status = {
 	"TICKET_ST_DONE": "已完成"
 }
 
+const emergency = {
+	"URGENT": "紧急",
+	"EMERGENT": "较紧急",
+	"NORMAL": "不紧急"
+}
+
 class Home extends React.Component {
 	constructor(props) {
 		super(props);
@@ -92,6 +98,21 @@ class Home extends React.Component {
 		});
 	}
 
+	backWithdraw(e) {
+		var user_id = this.state.ticket.user_id;
+		var wechat_userid = this.state.ticket.wechat_userid;
+		if (user_id != wechat_userid) {
+			alert("无权限撤回非本人工单");
+			return false;
+		}
+		if (!confirm("确定撤回工单？")) return;
+		xFetchJSON("/api/tickets/" + this.state.ticket.id, {method: "DELETE"}).then(() => {
+			ReactDOM.render(<Tickets/>, document.getElementById('main'));
+		}).catch((msg) => {
+			notify(msg, 'error');
+		});
+	}
+
 	callBack(e) {
 			this.setState({call: "回拨中..."})
 		xFetchJSON('/api/call_back/' + e).then((data) => {
@@ -111,7 +132,7 @@ class Home extends React.Component {
 			const wechat_img = comment.imgs.map((w_img) => {
 				var small_img = "/assets/img/wechat/small/" + w_img.img_url + ".jpg"
 				return <span>
-						<img style={{width:"30px"}} onClick={ () => _this.previewImageShow(w_img.img_url)} src={small_img}/>&nbsp;
+						<img style={{width:"30px",height:"30px"}} onClick={ () => _this.previewImageShow(w_img.img_url)} src={small_img}/>&nbsp;
 					</span>
 			})
 			return <a className="weui-media-box weui-media-box_appmsg" key={comment.id}>
@@ -174,13 +195,13 @@ class Home extends React.Component {
 				{ticket.content}
 			</p> */}
 			</div>
-		<div className="weui-form-preview">
 			<div className="weui-form-preview__bd">
 				<div className="weui-form-preview__item">
-					<span style={{color:"black"}} className="weui-form-preview__label">时间</span>
+					<span style={{color:"black"}} className="weui-form-preview__label">{ticket.id}</span>
 					<span className="weui-form-preview__value">{ticket.created_epoch}</span>
 				</div>
 			</div>
+		<div className="weui-form-preview">
 			<div className="weui-form-preview__ft">
 			</div>
 			<div className="weui-form-preview__bd">
@@ -217,6 +238,14 @@ class Home extends React.Component {
 			</div>
 			<div className="weui-form-preview__bd">
 				<div className="weui-form-preview__item">
+					<span style={{color:"black"}} className="weui-form-preview__label">紧急程度</span>
+					<span className="weui-form-preview__value">{emergency[ticket.emergency]}</span>
+				</div>
+			</div>
+			<div className="weui-form-preview__ft">
+			</div>
+			<div className="weui-form-preview__bd">
+				<div className="weui-form-preview__item">
 					<span style={{color:"black"}} className="weui-form-preview__label">录音</span>
 					<span className="weui-form-preview__value">
 						<audio src={record} controls="controls">
@@ -227,9 +256,11 @@ class Home extends React.Component {
 			</div>
 			<div className="weui-form-preview__bd">
 				<div className="weui-form-preview__item">
-					<span className="weui-form-preview__label"></span>
-					<span className="weui-form-preview__value">
+					<span className="weui-form-preview__label">
 						<a href="javascript:;" onClick={() => _this.callBack(ticket.id)} className="weui-btn weui-btn_mini weui-btn_primary">{_this.state.call}</a>
+					</span>
+					<span className="weui-form-preview__value">
+						<a href="javascript:;" onClick={() => _this.backWithdraw(ticket.id)} className="weui-btn weui-btn_mini weui-btn_warn">撤回</a>
 					</span>
 				</div>
 			</div>
@@ -294,7 +325,7 @@ class Userlist extends React.Component {
 							</div>
 							<div className="weui-media-box__bd">
 								<div className="weui-form-preview__item">
-									<span className="weui-form-preview__value" style={{fontSize:"12px",color:"black"}}>{row.name}&nbsp;&nbsp;&nbsp;{row.extn}&nbsp;&nbsp;&nbsp;{row.nickname}</span>
+									<span className="weui-form-preview__value" style={{fontSize:"17px",color:"black"}}>{row.name}&nbsp;&nbsp;&nbsp;{row.extn}&nbsp;&nbsp;&nbsp;{row.nickname}</span>
 								</div>
 							</div>
 						</a>
@@ -421,9 +452,9 @@ class Comment extends React.Component {
 							<textarea className="weui-textarea" placeholder="请输入内容" onChange={_this.handleInput.bind(this)} rows="3"></textarea>
 						</div>
 					</div>
-					{/* <a href="javascript:;" onClick={ () => _this.uploadImg()} className="weui-btn weui-btn_mini weui-btn_primary">添加图片</a>
+					<a href="javascript:;" onClick={ () => _this.uploadImg()} className="weui-btn weui-btn_mini weui-btn_primary">添加图片</a>
 					<br/>
-					{current_img}*/}
+					{current_img}
 				</div>
 				<div className="weui-form-preview__bd">
 					<a href="javascript:;" className="weui-btn weui-btn_primary" onClick={ () => _this.addComments()}>添加评论</a>
@@ -476,9 +507,18 @@ class Newticket extends React.Component {
 		this.state.input.type = e.target.value;
 	}
 
+	handleEmergency(e) {
+		console.log('input', e.target.value);
+		this.state.input.emergency = e.target.value;
+	}
+
 	handleSubject(e) {
 		console.log('input', e.target.value);
 		this.state.input.subject = e.target.value;
+	}
+
+	handleDateEnd(e) {
+		this.state.input.completed_epoch = e.target.value;
 	}
 
 	newTicketAdd(e) {
@@ -495,6 +535,16 @@ class Newticket extends React.Component {
 		if (!_this.state.input.content) {
 			alert("请输入内容");
 			return false;
+		}
+		var timestamp1 = Date.parse(new Date());
+		var now = timestamp1 / 1000;
+		var timestamp2 = Date.parse(_this.state.input.completed_epoch);
+		var completed_epoch = timestamp2 / 1000;
+		if (now >= completed_epoch) {
+			alert("请选择正确的期限时间");
+			return false;
+		} else {
+			_this.state.input.completed_epoch = completed_epoch;
 		}
 		const ticket = _this.state.input;
 		xFetchJSON("/api/tickets", {
@@ -535,7 +585,7 @@ class Newticket extends React.Component {
 						</div>
 					</div>
 				</div>
-				<div className="weui-cells__title">类型</div>
+				<div className="weui-cells__title" style={{color:"black"}}>类型</div>
 				<div className="weui-cells">
 					<div className="weui-cell weui-cell_select">
 						<div className="weui-cell__bd">
@@ -545,7 +595,27 @@ class Newticket extends React.Component {
 						</div>
 					</div>
 				</div>
-				<div className="weui-cells__title">内容</div>
+				<div className="weui-cells__title" style={{color:"black"}}>紧急程度</div>
+				<div className="weui-cells">
+					<div className="weui-cell weui-cell_select">
+						<div className="weui-cell__bd">
+							<select className="weui-select" name="select1" onChange={this.handleEmergency.bind(this)}>
+								<option value="URGENT">紧急</option>
+								<option value="EMERGENT">较紧急</option>
+								<option value="NORMAL">不紧急</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div className="weui-cells__title" style={{color:"black"}}>处理期限</div>
+				<div className="weui-form-preview__ft">
+				</div>
+				<div className="weui-cells__title" style={{color:"black"}}>
+					<input type="date" onChange={this.handleDateEnd.bind(this)} style={{width:"30%"}}/>
+				</div>
+				<div className="weui-form-preview__ft">
+				</div>
+				<div className="weui-cells__title" style={{color:"black"}}>内容</div>
 				<div className="weui-cells">
 					<div className="weui-cell">
 						<div className="weui-cell__bd">
@@ -591,7 +661,6 @@ class Tickets extends React.Component {
 						tickets.push(ticket)
 					});
 					_this.setState({tickets: tickets, page: page, scro: true});
-				
 				}
 			}).catch((e) => {
 				console.error("get ticket", e);
@@ -611,6 +680,8 @@ class Tickets extends React.Component {
 
 	render() {
 		var _this = this;
+		const timestamp1 = Date.parse(new Date());
+		const now = timestamp1 / 1000;
 		const tickets = _this.state.tickets.map((ticket) => {
 			var ticket_state = ticket.status;
 			var ticket_style = '';
@@ -623,13 +694,17 @@ class Tickets extends React.Component {
 			if (ticket_state == 'TICKET_ST_DONE') {
 				ticket_style = "2px solid green";
 			}
+			var completed_epoch = ticket.completed_epoch;
+			if (now >= completed_epoch && completed_epoch) {
+				var warning = <i className="weui-icon-warn"></i>
+			}
 			return <div className="weui-form-preview__bd" onClick={() => _this.handleClick(ticket.id)} key={ticket.id} >
 						<div className="weui-form-preview__item">
 							<label className="weui-form-preview__label" style={{color:"black"}}>
 								<span style={{border:ticket_style}}></span>
 								{ticket.subject}
 							</label>
-							<span className="weui-form-preview__value" style={{color:"black"}}>{ticket.cid_number}</span>
+							<span className="weui-form-preview__value" style={{color:"black"}}>{ticket.cid_number}{warning}</span>
 						</div>
 						<div className="weui-form-preview__item">
 							<label className="weui-form-preview__label">{ticket.content.slice(0,20)}</label>
