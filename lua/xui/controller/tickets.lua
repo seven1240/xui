@@ -119,7 +119,7 @@ get('/:id', function(params)
 		if media_file then
 			ticket.original_file_name = media_file.original_file_name
 		end
-
+		ticket.wechat_userid = xtra.session.user_id
 		return ticket
 	else
 		return 404
