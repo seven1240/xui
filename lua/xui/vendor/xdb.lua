@@ -289,7 +289,7 @@ end
 -- execute sql and return affected rows
 function xdb.execute(sql)
 	xdb.dbh:query(sql)
-	return xtra.dbh:affected_rows()
+	return xdb.dbh:affected_rows()
 end
 
 function xdb.date_cond(field, date1, date2)
@@ -307,7 +307,7 @@ end
 
 -- return the last affacted rows
 function xdb.affected_rows()
-	return xtra.dbh:affected_rows()
+	return xdb.dbh:affected_rows()
 end
 
 xdb.cond = _cond_string;
