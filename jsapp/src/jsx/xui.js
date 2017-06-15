@@ -35,7 +35,6 @@ import React from 'react'
 import ReactDOM from 'react-dom';
 import T from 'i18n-react';
 import { Row, Col, Button } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
 import { Router, Route, IndexRoute, Link, hashHistory, Redirect } from 'react-router'
 import Languages from "./languages";
 import MainMenu from './main-menu';
@@ -77,24 +76,29 @@ import Terminal from './terminal';
 import verto from './verto/verto';
 import { ACLPage, ACLsPage } from './page_acls';
 import PasswordPage from './page_password';
+import {xFetchJSON } from './libs/xtools';
 
 const lang_map = detect_language();
 if (lang_map) T.setTexts(lang_map);
 
-const MENUS = [
-	{id: "MM_MONITOR", description: <T.span text={{ key: "Monitor"}} />, data: '/monitor'},
-	{id: "MM_CONFERENCES", description: <T.span text={{ key: "Conference"}} />, data: '/conferences'},
-	{id: "MM_TICKETS", description: <T.span text={{ key: "Tickets"}} />, data: '/tickets'},
-	{id: "MM_CDRS", description: <T.span text={{ key: "CDR"}} />, data: '/cdrs'},
-	{id: "MM_ABOUT", description: <T.span text={{ key: "About"}} />, data: '/about'}
-];
-
-const RMENUS = [
-	{id: "MM_SETTINGS", description: <T.span text="Settings" />, data: "/settings/users"},
-	// {id: "MM_PROFILE", description: <T.span text={{ key: "Profiles"}} />, data:"/profiles"},
-];
-
 class App extends React.Component{
+	constructor(props) {
+		super(props);
+
+		this.state = {menus:[], rmenus: []};
+	}
+
+	componentDidMount() {
+		const _this = this;
+		xFetchJSON("/api/menus?realm=MENUS").then((data) => {
+			_this.setState({menus: data});
+		});
+
+		xFetchJSON("/api/menus?realm=RMENUS").then((data) => {
+			_this.setState({rmenus: data});
+		});
+	}
+
 	render() {
 		let main = <div></div>;
 
@@ -115,7 +119,7 @@ class App extends React.Component{
 		}
 
 		return <div id = 'main_area'>
-			<MainMenu menus = {MENUS} rmenus = {RMENUS}/>
+			<MainMenu menus = {this.state.menus} rmenus = {this.state.rmenus}/>
 			{ main }
 			<Footer/>
 		</div>

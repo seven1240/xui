@@ -82,14 +82,28 @@ class Notice extends React.Component {
 class MainMenu extends React.Component {
 	render() {
 		const menus = this.props.menus.map(function(item) {
+			if (item.data == 'DROPDOWN') {
+				console.log('item', item.items)
+				const items = (item.items || []).map((i) => {
+					return <LinkContainer to={i.data} key={i.id}>
+						<MenuItem eventKey={i.id} id={i.id}>{T.translate(i.description)}</MenuItem>
+				    </LinkContainer>
+				});
+				console.log('item', items)
+
+				return <NavDropdown id={item.id} key={item.id} eventKey={item.id} title={T.translate(item.description)}>
+					{items}
+				</NavDropdown>
+			}
+
 			return <LinkContainer to={item.data} key={item.id}>
-				<NavItem eventKey={item.id}>{item.description}</NavItem>
+				<NavItem eventKey={item.id}><T.span text={item.description}/></NavItem>
 			</LinkContainer>
 		});
 
 		const rmenus = this.props.rmenus.map(function(item) {
 			return <LinkContainer to={item.data} key={item.id}>
-				<NavItem eventKey={item.id}>{item.description}</NavItem>
+				<NavItem eventKey={item.id}>{T.translate(item.description)}</NavItem>
 			</LinkContainer>
 		});
 

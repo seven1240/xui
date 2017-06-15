@@ -15,7 +15,7 @@ INSERT INTO dicts (realm, k, v) VALUES ('REALMS', 'TICKET_ACTION', 'TICKET_ACTIO
 -- k,v to each realm
 INSERT INTO dicts (realm, k, v) VALUES ('XUI', 'NAME', 'XUI');
 INSERT INTO dicts (realm, k, v) VALUES ('XUI', 'VER', '1.2.0');
-INSERT INTO dicts (realm, k, v) VALUES ('XUI', 'DBVER', '1.2.0');
+INSERT INTO dicts (realm, k, v) VALUES ('XUI', 'DBVER', '1.2.1');
 
 INSERT INTO dicts (realm, k, v) VALUES ('GLOBAL', 'default_password', '1234');
 INSERT INTO dicts (realm, k, v) VALUES ('GLOBAL', 'domain', 'xui');
@@ -108,5 +108,16 @@ INSERT INTO dicts (realm, k, v) VALUES ('TICKET_ACTION', 'TICKET_ACTION_CREATE',
 INSERT INTO dicts (realm, k, v) VALUES ('TICKET_ACTION', 'TICKET_ACTION_COMMENT', 'TICKET_ACTION_COMMENT');
 INSERT INTO dicts (realm, k, v) VALUES ('TICKET_ACTION', 'TICKET_ACTION_CLOSE', 'TICKET_ACTION_CLOSE');
 INSERT INTO dicts (realm, k, v) VALUES ('TICKET_ACTION', 'TICKET_ACTION_CHAT', 'TICKET_ACTION_CHAT');
+
+INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Monitor', '/monitor');
+INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Conference', '/conferences');
+INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Tickets', '/tickets');
+INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'CDR', '/cdrs');
+INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'About', '/about');
+-- INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Dropdown', 'DROPDOWN'); -- v = 'DROPDOWN' for drop menus
+-- INSERT INTO dicts (realm, k, v) VALUES ('MENUS_Dropdown', 'About', '/about');
+
+INSERT INTO dicts (realm, k, v) VALUES ('RMENUS', 'Settings', '/settings');
+-- INSERT INTO dicts (realm, k, v) VALUES ('Profiles', 'Settings', '/profiles');
 
 -- END
