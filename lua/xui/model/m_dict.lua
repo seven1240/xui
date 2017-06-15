@@ -30,9 +30,15 @@
  */
 ]]
 
+require 'xtra_config'
+
 m_dict = {}
 
 m_dict.get_obj = function(realm)
+	if config.wechat and config.wechat[realm] then
+		return config.wechat[realm]
+	end
+
 	n, dicts = xdb.find_by_cond("dicts", {realm = realm})
 	local obj = {}
 

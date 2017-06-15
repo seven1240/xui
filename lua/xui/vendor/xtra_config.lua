@@ -29,3 +29,5 @@ config.view_path = config.base_dir .. "/xui/lua/xui/view"
 config.tz = 8
 config.wechat_base_url = "http://example.com"
 config.wechat_realm = "xyt"
+-- config.wechat = {}
+-- config.wechat.xyt = {APPID = 'wx', APPSEC = ''}
