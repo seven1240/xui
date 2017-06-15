@@ -155,6 +155,19 @@ post('/comments', function(params)
 	return utils.json_encode(ret)
 end)
 
+put('/:id/satisfied', function(params)
+	local ticket_id = params.id
+	local satisfied = params.request.satisfied
+
+	ret = xdb.update("tickets", {id = ticket_id, satisfied = satisfied})
+
+	if ret == 1 then
+		return satisfied
+	else
+		return 500
+	end
+end)
+
 post('/hb', function(params)
 	tids = env:getHeader("tids")
 	tid_t = utils.json_decode(tids)

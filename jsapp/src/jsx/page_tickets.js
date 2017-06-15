@@ -32,7 +32,7 @@
 
 import React from 'react';
 import T from 'i18n-react';
-import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col } from 'react-bootstrap';
+import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col, Radio } from 'react-bootstrap';
 import { Link } from 'react-router';
 import { EditControl, xFetchJSON } from './libs/xtools';
 
@@ -181,6 +181,28 @@ class TicketPage extends React.Component {
 		this.handleSubmitChange = this.handleSubmitChange.bind(this);
 		this.handleControlClose = this.handleControlClose.bind(this);
 		this.handleClickChange = this.handleClickChange.bind(this);
+		this.handleSatisfiedSubmit = this.handleSatisfiedSubmit.bind(this);
+	}
+
+	handleSatisfiedSubmit(e) {
+		var _this = this;
+		var satisfied = form2json('#SatisfiedForm');
+
+		xFetchJSON("/api/tickets/" + this.state.ticket.id + "/satisfied", {
+			method: "PUT",
+			body: JSON.stringify(satisfied)
+		}).then((obj) => {
+			console.log('submit successfully')
+		}).catch((err) => {
+			console.error("satisfied", err);
+			notify(err, "error");
+		});
+		xFetchJSON("/api/tickets/" + _this.props.params.id).then((data) => {
+			console.log("ticket", data);
+			_this.setState({ticket: data});
+		}).catch((e) => {
+			console.error("get ticket", e);
+		});
 	}
 
 	handleClickChange(e) {
@@ -397,6 +419,48 @@ class TicketPage extends React.Component {
 					</Col>
 				</FormGroup>;
 		};
+		let satisfied;
+		switch(_this.state.ticket.satisfied){
+			case undefined:
+			case null:
+			case '': satisfied = <Form horizontal id="SatisfiedForm">
+									<FormGroup>
+										<Col componentClass={ControlLabel} sm={2}><T.span text="满意度" /></Col>
+										<Col sm={3}>
+											<span>
+												<Radio name="satisfied" value="1" inline defaultChecked><T.span text="Satisfied"/></Radio>
+												<Radio name="satisfied" value="0" inline><T.span text="Unsatisfied"/></Radio>
+											</span>
+										</Col>
+										<Col sm={7}>
+											<Button onClick={this.handleSatisfiedSubmit}><T.span onClick={this.handleSatisfiedSubmit} text="Submit"/></Button>
+										</Col>
+									</FormGroup>
+								</Form>;
+								break;
+			case '1': satisfied = <Form horizontal id="SatisfiedForm">
+									<FormGroup>
+										<Col componentClass={ControlLabel} sm={2}><T.span text="满意度" /></Col>
+										<Col sm={3}>
+											<span>
+												<T.span text="Satisfied"/>
+											</span>
+										</Col>
+									</FormGroup>
+								</Form>;
+								break;
+			case '0': satisfied = <Form horizontal id="SatisfiedForm">
+									<FormGroup>
+										<Col componentClass={ControlLabel} sm={2}><T.span text="满意度" /></Col>
+										<Col sm={3}>
+											<span>
+												<T.span text="Unsatisfied"/>
+											</span>
+										</Col>
+									</FormGroup>
+								</Form>;
+								break;
+		}
 		return <div>
 			<ButtonToolbar className="pull-right">
 			<ButtonGroup>
@@ -467,7 +531,7 @@ class TicketPage extends React.Component {
 					<Col sm={10}>{commit_btn}</Col>
 				</FormGroup>
 			</Form>
-
+			{satisfied}
 			<hr/>
 			{ticket_comments}
 		</div>
