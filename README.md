@@ -45,7 +45,8 @@ need recent version of npm, check <https://docs.npmjs.com/getting-started/what-i
 
     cd jsapp
     npm install
-    bower install
+   
+   
 
 or if you are in China, use taobao mirror would be faster
 
@@ -63,7 +64,7 @@ or use cnpm see <https://npm.taobao.org/> for more info
 
     cd jsapp
     cnpm install
-    bower install
+    
 
 ## Development
 
@@ -105,7 +106,7 @@ Enjoy!
 
 ## config
 
-see: conf/verto-directory-conf.xml
+see: conf/samples/verto-directory-conf.xml
 
 enable livearry-sync on conference profile:
 
