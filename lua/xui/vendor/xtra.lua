@@ -81,6 +81,7 @@ xtra.status = 200
 xtra.response_state = 0 -- 0:INIT 1:HEADER 2: BODY
 xtra.session = {}
 xtra.cookies = {}
+xtra.ignored_actions = {}
 xtra.write = function(s)
 	if xtra.response_state == 0 then
 		response_start(xtra.status)
@@ -443,6 +444,11 @@ end
 
 function xtra.require_login()
 	if config.auth and not xtra.session.user_id then
+
+		if xtra.is_ignored(xtra.rest_path) then
+			return
+		end
+
 		get = function(path, func)
 			if xtra.response_state ~= 0 then return end
 			content_type("application/json")
@@ -454,6 +460,14 @@ function xtra.require_login()
 		delete = get
 		xtra.rest_matched = true
 	end
+end
+
+function xtra.ignore_login(a)
+	xtra.ignored_actions[a] = true
+end
+
+function xtra.is_ignored(a)
+	return xtra.ignored_actions[a]
 end
 
 function xtra.create_uuid()
@@ -492,7 +506,7 @@ end
 xtra.serialize = serialize
 
 function xtra.start_session()
-	print(__FILE__() .. ':' .. __LINE__() .. " start session")
+	utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", "start session")
 	cookie = env:getHeader("Cookie")
 
 	if not cookie then
