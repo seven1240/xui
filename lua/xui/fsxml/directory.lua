@@ -129,7 +129,7 @@ if (found) then
 
 	local fsapis = "console_complete,log,version,help,conference,uuid_phone_event,status,show,jsapi,list_users,callcenter_config,jsjson,originate,rtp_mcast,fifo"
 	if is_admin(user_id) then
-		fsapis = fsapis .. ",lua,unload,reload,load,bgapi,sofia,uuid_kill"
+		fsapis = fsapis .. ",lua,unload,reload,load,bgapi,sofia,uuid_kill,select,ifconfig,sip"
 	end
 
 	XML_STRING = [[<domain name="]] .. domain .. [[">
