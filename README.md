@@ -83,7 +83,7 @@ or if you are in China:
 
     make csetup
 
-on terminal 1:
+on terminal 1: // if needed, skip this one if not working
 
     make livereload
 
