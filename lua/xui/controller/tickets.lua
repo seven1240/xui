@@ -102,6 +102,16 @@ get('/onetype', function(params)
 	end
 end)
 
+get('/get_amount', function(params)
+	n0, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_1'})
+	n1, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_2'})
+	n2, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_3'})
+	n3, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_4'})
+	n4, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_5'})
+	n5, tickets = xdb.find_all("tickets")
+	return '[ ' .. n0 .. ',' .. n1 .. ',' .. n2 .. ',' .. n3 .. ','  .. n4 .. ',' .. n5 .. ']'
+end)
+
 get('/:id', function(params)
 	local ticket = {}
 	local pid = params.id
