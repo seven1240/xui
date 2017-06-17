@@ -62,7 +62,7 @@ get('/', function(params)
 	end
 
 	if not rowPerPage then
-		rowPerPage = 20
+		rowPerPage = 1000
 	end
 
 	if not startDate then
