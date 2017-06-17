@@ -289,6 +289,7 @@ LANGUAGES["zh"] = {
 
 	"ORIGINATOR_CANCEL": "主叫挂机",
 	"NORMAL_CLEARING": "正常释放",
+	"NORMAL_TEMPORARY_FAILURE": "临时故障",
 	"USER_BUSY": "用户忙",
 	"MEDIA_TIMEOUT": "媒体超时",
 	"CALL_REJECTED": "拒绝呼叫",
@@ -300,6 +301,7 @@ LANGUAGES["zh"] = {
 	"NETWORK_OUT_OF_ORDER": "网络异常",
 	"RECOVERY_ON_TIMER_EXPIRE": "呼叫超时",
 	"USER_NOT_REGISTERED": "用户未注册",
+	"SUBSCRIBER_ABSENT": "用户未注册",
 	"GATEWAY_DOWN": "网关故障",
 	"MANDATORY_IE_MISSING": "SIP消息不全",
 	"SYSTEM_SHUTDOWN": "系统关机",
