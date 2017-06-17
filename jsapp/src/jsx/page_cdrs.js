@@ -276,7 +276,7 @@ class CDRsPage extends React.Component {
 			return <tr key={row.uuid}>
 				<td>{row.caller_id_name}</td>
 				<td>{row.caller_id_number}</td>
-				<td>{row.destination_number}</td>
+				<td style={{maxWidth: "10em", overflow: "hidden", textOverflow: "ellipsis"}}>{row.destination_number}</td>
 				<td>{row.context}</td>
 				<td>{row.network_addr}{row.network_port ? ':' : ''}{row.network_port}</td>
 				<td>{row.start_stamp}</td>
