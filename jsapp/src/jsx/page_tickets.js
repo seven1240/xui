@@ -477,7 +477,7 @@ class TicketPage extends React.Component {
 class TicketsPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {rows: [], danger: false, formShow: false, hiddendiv: 'none'};
+		this.state = {rows: [], danger: false, formShow: false, hiddendiv: 'none', loaded: false};
 		this.handleDelete = this.handleDelete.bind(this);
 		this.handleControlClick = this.handleControlClick.bind(this);
 		this.handleQuery = this.handleQuery.bind(this);
@@ -518,7 +518,7 @@ class TicketsPage extends React.Component {
 
 	componentDidMount () {
 		xFetchJSON("/api/tickets").then((data) => {
-			this.setState({rows: data});
+			this.setState({rows: data, loaded: true});
 		});
 	}
 
@@ -604,6 +604,20 @@ class TicketsPage extends React.Component {
 		var today = getTime(now);
 		var sevenDaysBeforeToday = getTime(sevenDaysBeforenowdate);
 
+		let isShow;
+		if(this.state.loaded){
+			isShow = "none";
+		}
+		const loadSpinner = {
+			width: "200px",
+			height: "200px",
+			margin: "auto", 
+			clear: "both",
+			display: "block",
+			color: 'gray',
+			display : isShow
+		}
+
 		return <div>
 			<ButtonToolbar className="pull-right">
 				<T.span text="Last"/> &nbsp;
@@ -648,6 +662,9 @@ class TicketsPage extends React.Component {
 				</tbody>
 			</table>
 			<NewTicket show={this.state.formShow} onHide={formClose} handleNewTicketAdded={this.handleTicketAdded.bind(this)}/>
+			<div style={{textAlign: "center"}}>
+				<img style={loadSpinner} src="assets/img/loading.gif"/>
+			</div>
 		</div>
 	}
 }
