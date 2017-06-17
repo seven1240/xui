@@ -302,6 +302,7 @@ LANGUAGES["zh"] = {
 	"USER_NOT_REGISTERED": "用户未注册",
 	"GATEWAY_DOWN": "网关故障",
 	"MANDATORY_IE_MISSING": "SIP消息不全",
+	"SYSTEM_SHUTDOWN": "系统关机",
 
 	"Import New Users": "导入新用户",
 
