@@ -440,6 +440,11 @@ class TicketPage extends React.Component {
 					<Col sm={10}>{Audio}</Col>
 				</FormGroup>
 
+				<Form horizontal id="ticketAppointForm">
+					{this.state.hidden_user}
+					{options}
+				</Form>
+
 				<FormGroup controlId="formSubject">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Subject"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} name="subject" defaultValue={ticket.subject}/></Col>
@@ -451,10 +456,7 @@ class TicketPage extends React.Component {
 				</FormGroup>
 			</Form>
 			<br/>
-			<Form horizontal id="ticketAppointForm">
-				{this.state.hidden_user}			
-				{options}
-			</Form>
+
 			<Form horizontal id="ticketProcessingForm">
 				<FormGroup>
 					<Col componentClass={ControlLabel} sm={2}><T.span text="内容"/></Col>
