@@ -485,6 +485,8 @@ LANGUAGES["zh"] = {
 	"Change IP": "更改IP",
 	Address: "IP地址",
 	Netmask: "子网掩码",
+	Satisfied: "满意",
+	Unsatisfied: "不满意",
 
 	Copyright: "版权所有 2016-" + new Date().getFullYear() + " 烟台小樱桃网络科技有限公司 保留所有权利",
 	the_last_line_______: "Don't put anything beyond this line"
