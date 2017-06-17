@@ -277,6 +277,7 @@ LANGUAGES["zh"] = {
 	"Recording to": "正在录音 *{path}*",
 	"Record completed": "录音完成 *{path}*",
 
+	"IP:Port": "IP:端口",
 	"Dest Number": "被叫号码",
 	Start: "开始",
 	End: "结束",

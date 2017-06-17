@@ -684,7 +684,28 @@ BEGIN
 	UPDATE wechat_upload set updated_epoch = DATETIME('now', 'localtime') WHERE id = NEW.id;
 END;
 
--- cdrs auto generated when load mod_cdr_sqlite;
--- ALTER TABLE cdrs add sip_hangup_disposition VARCHAR;
+-- cdrs could be auto generated when load mod_cdr_sqlite, but, we want to create it with more fields
+CREATE TABLE cdrs (
+	caller_id_name VARCHAR,
+	caller_id_number VARCHAR,
+	destination_number VARCHAR,
+	context VARCHAR,
+	start_stamp DATETIME,
+	answer_stamp DATETIME,
+	end_stamp DATETIME,
+	duration INTEGER,
+	billsec INTEGER,
+	hangup_cause VARCHAR,
+	uuid VARCHAR,
+	bleg_uuid VARCHAR,
+	account_code VARCHAR
+);
+
+ALTER TABLE cdrs ADD sip_hangup_disposition VARCHAR;
+ALTER TABLE cdrs ADD network_addr VARCHAR;
+ALTER TABLE cdrs ADD network_port VARCHAR;
+
+CREATE INDEX cdrs_uuid ON cdrs(uuid);
+CREATE INDEX start_stamp ON cdrs(start_stamp);
 
 -- END

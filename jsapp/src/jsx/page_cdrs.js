@@ -273,6 +273,7 @@ class CDRsPage extends React.Component {
 				<td>{row.caller_id_number}</td>
 				<td>{row.destination_number}</td>
 				<td>{row.context}</td>
+				<td>{row.network_addr}{row.network_port ? ':' : ''}{row.network_port}</td>
 				<td>{row.start_stamp}</td>
 				<td>{row.answer_stamp}</td>
 				<td>{row.end_stamp}</td>
@@ -372,6 +373,7 @@ class CDRsPage extends React.Component {
 					<th><T.span text="CID Number"/></th>
 					<th><T.span text="Dest Number"/></th>
 					<th><T.span text="Context"/></th>
+					<th><T.span text="IP:Port"/></th>
 					<th><T.span text="Start"/></th>
 					<th><T.span text="Answer"/></th>
 					<th><T.span text="End"/></th>
