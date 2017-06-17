@@ -88,6 +88,11 @@ class CDRPage extends React.Component {
 						<Col sm={10}><EditControl edit={this.state.edit} name="start_stamp" defaultValue={cdr.context}/></Col>
 					</FormGroup>
 
+					<FormGroup controlId="formNetworkAddr">
+						<Col componentClass={ControlLabel} sm={2}><T.span text="Network Addr"/></Col>
+						<Col sm={10}><EditControl edit={this.state.edit} name="network_addr" defaultValue={cdr.network_addr}/></Col>
+					</FormGroup>
+
 					<FormGroup controlId="formStart">
 						<Col componentClass={ControlLabel} sm={2}><T.span text="Start"/></Col>
 						<Col sm={10}><EditControl edit={this.state.edit} name="end_stamp" defaultValue={cdr.start_stamp}/></Col>
@@ -105,7 +110,7 @@ class CDRPage extends React.Component {
 
 					<FormGroup controlId="formDuration">
 						<Col componentClass={ControlLabel} sm={2}><T.span text="Duration"/></Col>
-						<Col sm={10}><EditControl edit={this.state.edit} name="hangup_cause" defaultValue={cdr.duration}/></Col>
+						<Col sm={10}><EditControl edit={this.state.edit} name="duration" defaultValue={cdr.duration}/></Col>
 					</FormGroup>
 
 					<FormGroup controlId="formBillSec">
@@ -115,7 +120,7 @@ class CDRPage extends React.Component {
 
 					<FormGroup controlId="formCause">
 						<Col componentClass={ControlLabel} sm={2}><T.span text="Cause"/></Col>
-						<Col sm={10}><EditControl edit={this.state.edit} name="account_code" defaultValue={cdr.hangup_cause}/></Col>
+						<Col sm={10}><EditControl edit={this.state.edit} name="cause" defaultValue={cdr.hangup_cause}/></Col>
 					</FormGroup>
 
 					<FormGroup controlId="formAccountCode">
@@ -279,7 +284,7 @@ class CDRsPage extends React.Component {
 				<td>{row.end_stamp}</td>
 				<td>{row.duration}</td>
 				<td>{row.billsec}</td>
-				<td>{row.hangup_cause}</td>
+				<td><T.span text={row.hangup_cause} title={row.hangup_cause}/></td>
 				<td>{row.account_code}</td>
 				<td>{row.sip_hangup_disposition}</td>
 				<td><a onClick={()=>{_this.setState({formShow: true, cdr: row})}} style={{cursor: "pointer"}}>{T.translate("Detail")}</a></td>
@@ -373,7 +378,7 @@ class CDRsPage extends React.Component {
 					<th><T.span text="CID Number"/></th>
 					<th><T.span text="Dest Number"/></th>
 					<th><T.span text="Context"/></th>
-					<th><T.span text="IP:Port"/></th>
+					<th><T.span text="Network Addr"/></th>
 					<th><T.span text="Start"/></th>
 					<th><T.span text="Answer"/></th>
 					<th><T.span text="End"/></th>
