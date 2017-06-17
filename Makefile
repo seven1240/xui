@@ -25,6 +25,9 @@ setup: init
 	npm install #&& \
 #	bower install
 
+link:
+	ln -sf /usr/local/freeswitch/storage/* www/
+
 td:
 	cd jsapp/src/jsx && ln -sf td/index.js index.js
 
@@ -39,6 +42,10 @@ release:
 clean:
 	rm -f www/assets/js/jsx/*
 	rm -rf www/assets/css/xui*.css
+	rm -f www/recording
+	rm -f www/recordings
+	rm -f www/upload
+	rm -f www/voicemail
 	rm -f out/*
 
 
