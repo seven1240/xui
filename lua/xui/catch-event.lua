@@ -48,6 +48,8 @@ if fifoAction == "push" or fifoAction == "abort" or fifoAction == "pre-dial" or 
 	local cur_dir = debug.getinfo(1).source;
 	cur_dir = string.gsub(debug.getinfo(1).source, "^@(.+/)[^/]+$", "%1")
 
+	package.path = package.path .. ";/etc/xtra/?.lua"
+	package.path = package.path .. ";" .. cur_dir .. "?.lua"
 	package.path = package.path .. ";" .. cur_dir .. "vendor/?.lua"
 
 	require 'utils'

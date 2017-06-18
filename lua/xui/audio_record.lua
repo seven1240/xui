@@ -9,6 +9,8 @@ session:streamFile("tone_stream://%(250,0,1000)")
 local cur_dir = debug.getinfo(1).source;
 cur_dir = string.gsub(debug.getinfo(1).source, "^@(.+/)[^/]+$", "%1")
 
+package.path = package.path .. ";/etc/xtra/?.lua"
+package.path = package.path .. ";" .. cur_dir .. "?.lua"
 package.path = package.path .. ";" .. cur_dir .. "vendor/?.lua"
 
 require 'utils'
