@@ -32,7 +32,7 @@
 
 import React from 'react';
 import T from 'i18n-react';
-import { ButtonToolbar, ButtonGroup, Button, ProgressBar, Thumbnail } from 'react-bootstrap';
+import { ButtonToolbar, ButtonGroup, Button, ProgressBar, Thumbnail, Checkbox } from 'react-bootstrap';
 import verto from './verto/verto';
 import { Verto } from './verto/verto';
 import { VertoLiveArray } from './verto/verto-livearray';
@@ -259,7 +259,8 @@ class ConferencePage extends React.Component {
 			name: this.props.name, domain_rows: {}, static_rows: [], la: null,
 			last_outcall_member_id: 0, outcall_rows: [],
 			outcallNumber: '', outcallNumberShow: false,
-			displayStyle: 'table', toolbarText: false
+			displayStyle: 'table', toolbarText: false,
+			showSettings: false
 		};
 
 		this.la = null;
@@ -283,7 +284,7 @@ class ConferencePage extends React.Component {
 	}
 
 	handleControlClick(data) {
-		console.log("data", data);
+		console.log("clicked data", data);
 
 		if (data == "lock") {
 			verto.fsAPI("conference", this.props.name + " lock");
@@ -349,6 +350,9 @@ class ConferencePage extends React.Component {
 		} else if (data == "table" || data == "list") {
 			this.setState({displayStyle: data});
 			localStorage.setItem("xui.conference.displayStyle", data);
+			return;
+		} else if (data == "settings") {
+			this.setState({showSettings: !this.state.showSettings});
 			return;
 		}
 
@@ -870,6 +874,12 @@ class ConferencePage extends React.Component {
 			</ButtonGroup>
 
 
+			<ButtonGroup>
+				<Button onClick={() => _this.handleControlClick("settings")} title={T.translate("Settings")}>
+					<i className="fa fa-gear" aria-hidden="true"></i>
+				</Button>
+			</ButtonGroup>
+
 			</ButtonToolbar>
 
 			<h1><T.span text={{ key: "Conference"}} /></h1>
@@ -878,6 +888,18 @@ class ConferencePage extends React.Component {
 				<T.span text="Conference Name"/>: {this.props.name} |&nbsp;
 				<T.span text="Total"/>: {this.state.total}
 			</ButtonToolbar>
+
+			{
+				!this.state.showSettings ? null :
+				<div style={{position: "absolute", right: "10px", width: "200px", border: "1px solid grey", padding: "5px", zIndex: 1002, backgroundColor: "#EEE", textAlign: "right"}}>
+					<T.span text="Conference Settings"/>
+					<br/>
+					<br/>
+					<Checkbox checked>
+						<T.span text="Auto Sort"/>
+					</Checkbox>
+				</div>
+			}
 
 			<div>
 				{member_list}
