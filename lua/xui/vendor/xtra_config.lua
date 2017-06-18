@@ -1,6 +1,7 @@
 config = {}
 
 config.dsn = "sqlite://xui"
+-- config.dsn = "odbc://xui:user:pass"
 config.db_user = "root"
 config.db_pass = "root"
 config.db_auto_connect = true

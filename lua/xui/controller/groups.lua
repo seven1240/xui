@@ -144,7 +144,7 @@ end)
 
 get('/build_group_options_tree/:id', function(params)
 	parent_groups = {}
-	n, parent_groups = xdb.find_by_cond("groups", "(group_id IS NULL OR group_id = '') AND id <> " .. params.id)
+	n, parent_groups = xdb.find_by_cond("groups", "group_id IS NULL AND id <> " .. params.id)
 	options_tab  = {}
 
 	build_group_options_tree_t(parent_groups, options_tab, params.id)
