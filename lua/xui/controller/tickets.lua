@@ -58,13 +58,15 @@ get('/', function(params)
 	if not startDate then
 		if not last then last = 7 end
 
-		local theTime = os.time()
-		local theTargetTime = theTime - last*24*60*60
-		cond = " strftime('%s', created_epoch) - " .. theTargetTime .. " > 0"
+		local sdate = os.time() - last * 24 * 60 * 60
+		startDate = os.date('%Y-%m-%d', sdate)
+		cond = " created_epoch > '" .. startDate .. "'"
 	else
 		local endDate = env:getHeader('endDate')
 		local id = env:getHeader('id')
 		local cid_number = env:getHeader('cid_number')		
+
+		endDate = utils.date_diff(endDate, 1)
 
 		cond = xdb.date_cond("created_epoch", startDate, endDate) ..
 					xdb.if_cond("id", id) ..

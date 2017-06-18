@@ -292,12 +292,9 @@ function xdb.execute(sql)
 	return xdb.dbh:affected_rows()
 end
 
+-- data1, date2 should always be string ISO format like 2017-06-18
 function xdb.date_cond(field, date1, date2)
-	return field .. " BETWEEN " .. escape(date1) .. " AND DATE(" .. escape(date2) .. ", '+1 day')"
-end
-
-function xdb.date_cond_of_fifo(field, date1, date2)
-	return field .. " BETWEEN " .. "strftime('%s'," .. escape(date1) .. ") AND DATE(strftime('%s'," .. escape(date2) .. "), '+1 day')"
+	return field .. " BETWEEN " .. escape(date1) .. " AND " .. escape(date2)
 end
 
 function xdb.if_cond(field, val)

@@ -68,14 +68,16 @@ get('/', function(params)
 	if not startDate then
 		if not last then last = 7 end
 
-		local theTime = os.time()
-		local theTargetTime = theTime - last*24*60*60
-		cond = " strftime('%s', start_stamp) - " .. theTargetTime .. " > 0"
-
+		local sdate = os.time() - last * 24 * 60 * 60
+		startDate = os.date('%Y-%m-%d', sdate)
+		cond = " start_stamp > '" .. startDate .. "'"
 	else
 		local endDate = env:getHeader('endDate')
 		local cidNumber = env:getHeader('cidNumber')
 		local destNumber = env:getHeader('destNumber')
+
+		-- endDate + 1 day so we never missing records in the current day
+		endDate = utils.date_diff(endDate, 1)
 
 		cond = xdb.date_cond("start_stamp", startDate, endDate) ..
 					xdb.if_cond("caller_id_number", cidNumber) ..

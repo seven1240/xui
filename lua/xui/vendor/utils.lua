@@ -342,4 +342,13 @@ end
 
 utils.serialize = serialize
 
+-- input: ISO date string like 2017-06-18, output: ISO date string
+-- diff: integer, days diff, can be negtive
+
+utils.date_diff = function(d, diff)
+	local y,m,d = d:match('(20[0-9][0-9])-([01][0-9])-([0-3][0-9])')
+	local endTime = os.time({year = y, month = m, day = d}) + 24 * 60 * 60
+	return os.date('%Y-%m-%d', endTime)
+end
+
 return utils

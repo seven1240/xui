@@ -69,17 +69,19 @@ get('/', function(params)
 	else
 		if not startDate then
 			if (not last or last == 'undefined') then last = 7 end
-			local theTime = os.time()
-			local theTargetTime = theTime - last*24*60*60
-			cond = " strftime('%s', start_epoch) - " .. theTargetTime .. " > 0"
 
+			local sdate = os.time() - last * 24 * 60 * 60
+			startDate = os.date('%Y-%m-%d', sdate)
+			cond = " start_epoch > '" .. startDate .. "'"
 		else
 			local endDate = env:getHeader('endDate')
 			local ani = env:getHeader('ani')
 			local dest_number = env:getHeader('dest_number')
 			local bridged_number = env:getHeader('bridged_number')
 
-			cond = xdb.date_cond_of_fifo("start_epoch", startDate, endDate) ..
+			endDate = utils.date_diff(endDate, 1)
+
+			cond = xdb.date_cond("start_epoch", startDate, endDate) ..
 						xdb.if_cond("ani", ani) ..
 						xdb.if_cond("dest_number", dest_number) ..
 						xdb.if_cond("bridged_number", bridged_number)
