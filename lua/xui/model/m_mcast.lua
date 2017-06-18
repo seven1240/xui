@@ -36,7 +36,7 @@ xdb.bind(xtra.dbh)
 m_mcast = {}
 
 function m_mcast.toggle(mcast_id)
-	sql = "UPDATE mcasts SET enable = NOT enable " ..
+	sql = "UPDATE mcasts SET enable = 1 - enable " ..
 		xdb.cond({id = mcast_id})
 	print(sql)
 

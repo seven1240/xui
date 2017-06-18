@@ -78,7 +78,7 @@ function params(route_id)
 end
 
 function toggle_param(rt_id, param_id)
-	sql = "UPDATE params SET disabled = NOT disabled" ..
+	sql = "UPDATE params SET disabled = 1 - disabled" ..
 		xdb.cond({realm = 'route', ref_id = rt_id, id = param_id})
 	print(sql)
 	xdb.execute(sql)

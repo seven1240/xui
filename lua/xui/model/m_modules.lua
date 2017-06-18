@@ -41,7 +41,7 @@ function find_all()
 end
 
 function toggle_param(param_id)
-	sql = "UPDATE params SET disabled = NOT disabled" ..
+	sql = "UPDATE params SET disabled = 1 - disabled" ..
 		xdb.cond({realm = 'modules', id = param_id})
 	print(sql)
 	xdb.execute(sql)

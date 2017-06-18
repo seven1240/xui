@@ -53,7 +53,7 @@ put('/event_socket/:id', function(params)
 	ret = nil;
 
 	if params.request.action and params.request.action == "toggle" then
-		sql = "UPDATE params SET disabled = NOT disabled" ..
+		sql = "UPDATE params SET disabled = 1 - disabled" ..
 			xdb.cond({realm = 'event_socket', id = params.id})
 		print(sql)
 		xdb.execute(sql)

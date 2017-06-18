@@ -84,7 +84,7 @@ function params(profile_id)
 end
 
 function toggle(profile_id)
-	sql = "UPDATE sip_profiles SET disabled = NOT disabled" ..
+	sql = "UPDATE sip_profiles SET disabled = 1 - disabled" ..
 		xdb.cond({id = profile_id})
 	print(sql)
 
@@ -96,7 +96,7 @@ function toggle(profile_id)
 end
 
 function toggle_param(profile_id, param_id)
-	sql = "UPDATE params SET disabled = NOT disabled" ..
+	sql = "UPDATE params SET disabled = 1 - disabled" ..
 		xdb.cond({realm = 'sip_profile', ref_id = profile_id, id = param_id})
 	print(sql)
 	xdb.execute(sql)

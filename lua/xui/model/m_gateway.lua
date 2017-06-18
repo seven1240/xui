@@ -85,7 +85,7 @@ function params(gw_id)
 end
 
 function toggle_param(gw_id, param_id)
-	sql = "UPDATE params SET disabled = NOT disabled" ..
+	sql = "UPDATE params SET disabled = 1 - disabled" ..
 		xdb.cond({realm = 'gateway', ref_id = gw_id, id = param_id})
 	print(sql)
 	xdb.execute(sql)
