@@ -1,5 +1,19 @@
 -- XUI tables
 
+-- temp solution for SQLite compatable last_insert_rowid()
+CREATE OR REPLACE FUNCTION LAST_INSERT_ROWID() RETURNS INTEGER AS
+$$
+DECLARE
+	insert_id INTEGER;
+
+BEGIN
+        SELECT INTO insert_id lastval();
+        return insert_id;
+END;
+$$
+LANGUAGE plpgsql;
+
+
 CREATE TABLE routes (
 	id SERIAL PRIMARY KEY,
 	name VARCHAR NOT NULL,
