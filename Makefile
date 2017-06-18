@@ -55,7 +55,7 @@ out:
 tar: out
 	echo $(HASH)
 	$(shell date +xui-1.2.0-%Y%m%d%H%M%S-$(HASH) > VERSION)
-	cd .. && tar cvzf xui/out/`cat xui/VERSION`.tar.gz xui/www xui/lua xui/db xui/VERSION
+	cd .. && tar cvzf xui/out/`cat xui/VERSION`.tar.gz --exclude xui/lua/xui/xtra_config.lua xui/www xui/lua xui/db xui/VERSION
 	ls out
 
 sync:
