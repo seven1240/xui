@@ -58,7 +58,9 @@ xdb.find_by_sql(sql, function(row)
 			stream:write(comma .. k)
 			comma = ","
 		end
+		stream:write("\n")
 	end
+
 	first = false
 
 	comma = ""
