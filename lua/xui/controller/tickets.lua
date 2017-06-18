@@ -33,7 +33,8 @@
 xtra.start_session()
 xtra.require_login()
 
-local do_debug = true
+local do_debug = config.do_debug
+-- do_debug = true
 
 function __FILE__() return debug.getinfo(2,'S').source end
 function __LINE__() return debug.getinfo(2, 'l').currentline end
@@ -44,7 +45,6 @@ content_type("application/json")
 require 'xdb'
 require 'xwechat'
 require 'm_dict'
-require 'xtra_config'
 require 'utils'
 require 'm_ticket'
 require 'm_user'

@@ -30,7 +30,8 @@
  */
 ]]
 
--- local do_debug = true
+local do_debug = false
+-- do_debug = true
 
 function __FILE__() return debug.getinfo(2,'S').source end
 function __LINE__() return debug.getinfo(2, 'l').currentline end

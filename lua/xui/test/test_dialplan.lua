@@ -35,7 +35,8 @@ params.getHeader = function(p, header)
 	return p[header]
 end
 
-do_debug = true
+local do_debug = config.do_debug
+-- do_debug = true
 
 require 'fs_xml_handler'
 print(XML_STRING)

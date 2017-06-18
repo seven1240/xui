@@ -2,11 +2,13 @@
 	<hook event="CUSTOM" subclass="verto::login" script="/usr/local/freeswitch/xui/lua/xui/auth-hook.lua"/>
 ]]
 
+local do_debug = false
 -- do_debug = true
 
 function __FILE__() return debug.getinfo(2,'S').source end
 function __LINE__() return debug.getinfo(2, 'l').currentline end
 function __FUNC__() return debug.getinfo(1).name end
+
 
 if do_debug then
 	freeswitch.consoleLog("INFO", event:serialize() .. "\n")

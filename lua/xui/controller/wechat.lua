@@ -44,7 +44,8 @@ function __FILE__() return debug.getinfo(2,'S').source end
 function __LINE__() return debug.getinfo(2, 'l').currentline end
 function __FUNC__() return debug.getinfo(1).name end
 
-do_debug = true
+local do_debug = config.do_debug
+-- do_debug = true
 
 -- realm to support multiple wechat accounds, e.g. sipsip, xyt
 

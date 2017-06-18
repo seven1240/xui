@@ -30,6 +30,7 @@
  */
 ]]
 
+local do_debug = config.do_debug
 -- do_debug = true
 
 function __FILE__() return debug.getinfo(2,'S').source end
