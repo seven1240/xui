@@ -117,7 +117,7 @@ end)
 get('/build_group_tree', function(params)
 	parent_groups = {}
 	groups_tab  = {}
-	n, parent_groups = xdb.find_by_cond("groups", "group_id IS NULL OR group_id = ''")
+	n, parent_groups = xdb.find_by_cond("groups", "group_id IS NULL")
 
 	if n > 0 then
 		build_group_tree(parent_groups, groups_tab)
@@ -131,7 +131,7 @@ end)
 get('/build_group_options_tree', function(params)
 	parent_groups = {}
 	options_tab  = {}
-	n, parent_groups = xdb.find_by_cond("groups", "group_id IS NULL OR group_id = ''")
+	n, parent_groups = xdb.find_by_cond("groups", "group_id IS NULL")
 
 	if n > 0 then
 		build_group_options_tree(parent_groups, options_tab)
@@ -216,7 +216,14 @@ end)
 
 post('/', function(params)
 	print(serialize(params))
-	ret = xdb.create_return_id('groups', params.request)
+
+	local group = params.request
+
+	if group.group_id == "" then
+		group.group_id = nil
+	end
+
+	ret = xdb.create_return_id('groups', group)
 
 	if ret then
 		return {id = ret}
