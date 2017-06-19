@@ -849,19 +849,19 @@ class App extends React.Component{
 				<div className="weui-tabbar" style={{position: "fixed"}}>
 					<a className="weui-tabbar__item" onClick={() => _this.handleClick("last")}>
 						<div className="weui-tabbar__icon">
-							<img src="http://weui.github.io/weui/images/icon_nav_button.png" alt=""/>
+							<img src="/assets/wechat_img/icon_nav_button.png" alt=""/>
 						</div>
 						<p className="weui-tabbar__label">我的</p>
 					</a>
 					<a className="weui-tabbar__item" onClick={() => _this.handleClick("tickets")}>
 						<div className="weui-tabbar__icon">
-							<img src="http://weui.github.io/weui/images/icon_nav_article.png" alt=""/>
+							<img src="/assets/wechat_img/icon_nav_article.png" alt=""/>
 						</div>
 						<p className="weui-tabbar__label">全部</p>
 					</a>
 					<a className="weui-tabbar__item">
 						<div className="weui-tabbar__icon" onClick={() => _this.handleClick("settings")}>
-							<img src="http://weui.github.io/weui/images/icon_nav_cell.png" alt=""/>
+							<img src="/assets/wechat_img/icon_nav_cell.png" alt=""/>
 						</div>
 						<p className="weui-tabbar__label">设置</p>
 					</a>
