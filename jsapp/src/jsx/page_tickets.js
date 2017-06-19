@@ -39,11 +39,10 @@ import { EditControl, xFetchJSON } from './libs/xtools';
 class NewTicket extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {errmsg: '', types: [], tem: null, modal: true};
+		this.state = {errmsg: '', types: [], cid_number: null};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
-		this.handleChangeTemplate = this.handleChangeTemplate.bind(this);
 	}
 
 	handleSubmit(e) {
@@ -69,8 +68,12 @@ class NewTicket extends React.Component {
 		});
 	}
 
-	handleChangeTemplate(e) {
-		this.setState({modal: !this.state.modal});
+	componentWillMount() {
+		var _this = this;
+		const username = localStorage.getItem('xui.username');
+		xFetchJSON("/api/users/cur_user/" + username).then((data) => {
+			_this.setState({cid_number: data.cid_number});
+		});
 	}
 
 	componentDidMount() {
@@ -85,12 +88,16 @@ class NewTicket extends React.Component {
 
 		const props = Object.assign({}, this.props);
 		delete props.handleNewTicketAdded;
-		let value = "联系人:" + "\n" + "投诉电话:" + "\n" + "事故地点:"; 
 
-		let tem = this.state.modal ? 
-			<div><FormGroup controlId="formCIDNumber">
+		return <Modal {...props} aria-labelledby="contained-modal-title-lg">
+			<Modal.Header closeButton>
+				<Modal.Title id="contained-modal-title-lg"><T.span text="Create New Ticket" /></Modal.Title>
+			</Modal.Header>
+			<Modal.Body>
+			<Form horizontal id="newTicketForm">
+				<FormGroup controlId="formCIDNumber">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="CID Number" className="mandatory"/></Col>
-					<Col sm={10}><FormControl type="input" name="cid_number" /></Col>
+					<Col sm={10}><FormControl type="input" name="cid_number" value={this.state.cid_number} /></Col>
 				</FormGroup>
 				<FormGroup controlId="formSubject">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Subject" className="mandatory"/></Col>
@@ -111,39 +118,6 @@ class NewTicket extends React.Component {
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Content"/></Col>
 					<Col sm={10}><FormControl componentClass="textarea" rows="5" name="content" placeholder="" /></Col>
 				</FormGroup>
-			</div> : 
-			<div><FormGroup controlId="formCIDNumber">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="CID Number" className="mandatory"/></Col>
-					<Col sm={10}><FormControl type="input" name="cid_number" value="1000"/></Col>
-				</FormGroup>
-				<FormGroup controlId="formSubject">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Subject" className="mandatory"/></Col>
-					<Col sm={10}><FormControl type="input" name="subject" /></Col>
-				</FormGroup>
-				<FormGroup controlId="formType">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Type"/></Col>
-
-					<Col sm={10}>
-						<FormControl componentClass="select" name="type">
-							{this.state.types.map(function(t) {
-								return <option key={t.id} value={t.v}>{T.translate(t.v)}</option>;
-							})}
-						</FormControl>
-					</Col>
-				</FormGroup>
-				<FormGroup controlId="formContent">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Content"/></Col>
-					<Col sm={10}><FormControl componentClass="textarea" rows="5" name="content" value={value} /></Col>
-				</FormGroup>
-			</div>
-
-		return <Modal {...props} aria-labelledby="contained-modal-title-lg">
-			<Modal.Header closeButton>
-				<Modal.Title id="contained-modal-title-lg"><T.span text="Create New Ticket" /></Modal.Title>
-			</Modal.Header>
-			<Modal.Body>
-			<Form horizontal id="newTicketForm">
-				{tem}
 				<FormGroup>
 					<Col smOffset={2} sm={2}>
 						<Button type="button" bsStyle="primary" onClick={this.handleSubmit}>
@@ -151,12 +125,6 @@ class NewTicket extends React.Component {
 							<T.span text="Save" />
 						</Button>
 						&nbsp;&nbsp;<T.span className="danger" text={this.state.errmsg}/>
-					</Col>
-					<Col smOffset={6} sm={2}>
-						<Button type="button" bsStyle="primary" onClick={this.handleChangeTemplate}>
-							<i className="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;
-							<T.span text="Template" />
-						</Button>
 					</Col>
 				</FormGroup>
 			</Form>
