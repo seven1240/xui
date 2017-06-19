@@ -100,36 +100,32 @@ class MainMenu extends React.Component {
 	}
 }
 
-var BlocksPage = React.createClass({
-	// overview is so special because it must wait the websocket connected before it can get any data
-	getInitialState: function() {
-		return {msg: "connecting ..."};
-	},
+class BlocksPage extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {msg: "connecting ..."};
+	}
 
-	handleClick: function(x) {
-	},
-
-	componentWillMount: function() {
+	componentWillMount() {
 		// listen to "update-status" event
 		window.addEventListener("update-status", this.handleUpdateStatus);
-	},
+	}
 
-	componentWillUnmount: function() {
+	componentWillUnmount() {
 		window.removeEventListener("update-status", this.handleUpdateStatus);
-	},
+	}
+	componentDidMount() {
+	}
 
-	componentDidMount: function() {
-	},
-
-	handleUpdateStatus: function(e) {
+	handleUpdateStatus(e) {
 		// console.log("eeee", e.detail);
 		this.setState({msg: e.detail.message});
-	},
-
-	render: function() {
-		return <div><pre>Blah</pre></div>;
 	}
-});
+	render() {
+		return <div><pre>Blah</pre></div>
+	}
+}
+
 $(document).ready(function(){
 
 	var MENUS = [
