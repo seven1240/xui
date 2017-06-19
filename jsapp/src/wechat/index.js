@@ -472,7 +472,7 @@ class Comment extends React.Component {
 					<a href="javascript:;" className="weui-btn weui-btn_primary" onClick={ () => _this.addComments()}>添加评论</a>
 				</div>
 				<div className="weui-form-preview__bd">
-					<a href="javascript:;" className="weui-btn weui-btn_warn" onClick={ () => _this.noComments()}>取消</a>
+					<a href="javascript:;" style={{color:"black"}} className="weui-btn weui-plain-default" onClick={ () => _this.noComments()}>取消</a>
 				</div>
 			</div>
 	}
