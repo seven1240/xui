@@ -194,7 +194,8 @@ class Member extends React.Component {
 
 			return <tr className={className} onClick={(e) => _this.handleClick(e, member.memberID)} key={member.uuid}>
 					<td>{member.memberID}</td>
-					<td>"{member.cidName}" &lt;{member.cidNumber}&gt;</td>
+					<td>{member.cidNumber} | {member.cidName}</td>
+					<td>{member.verto ? member.verto.domain : domain}</td>
 					<td><div className='inlineleft'>
 						<a className="conf-control fa fa-star" style={{color: floor_color}} aria-hidden="true" onClick={(e) => {
 							if (!which_floor.floor) {
@@ -850,6 +851,7 @@ class ConferencePage extends React.Component {
 				<tr>
 					<th><T.span text="Member ID"/></th>
 					<th><T.span text="CID"/></th>
+					<th><T.span text="Domain"/></th>
 					<th><T.span text="Status"/></th>
 					<th><T.span text="Email"/></th>
 				</tr>
