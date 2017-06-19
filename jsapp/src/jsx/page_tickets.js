@@ -675,9 +675,9 @@ class TicketsPage extends React.Component {
 				<T.span text="CID Number"/><input ref={(input) => { _this.cid_number = input; }}/> &nbsp;
 				<T.span text="Status"/>
 				<select ref={(input) => { _this.status = input; }}>
-					<option value ="TICKET_ST_NEW"><T.span text="TICKET_ST_NEW"/></option>
-					<option value ="TICKET_ST_PROCESSING"><T.span text="TICKET_ST_PROCESSING"/></option>
-					<option value="TICKET_ST_DONE"><T.span text="TICKET_ST_DONE"/></option>
+					<option value ="TICKET_ST_NEW">{T.translate("TICKET_ST_NEW")}</option>
+					<option value ="TICKET_ST_PROCESSING">{T.translate("TICKET_ST_PROCESSING")}</option>
+					<option value="TICKET_ST_DONE">{T.translate("TICKET_ST_DONE")}</option>
 				</select>&nbsp;
 				<T.button text="Search" onClick={this.handleSearch}/>
 			</div>
