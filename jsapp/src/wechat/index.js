@@ -262,10 +262,10 @@ class Home extends React.Component {
 			<div className="weui-form-preview__bd">
 				<div className="weui-form-preview__item">
 					<span className="weui-form-preview__label">
-						<a href="javascript:;" onClick={() => _this.callBack(ticket.id)} className="weui-btn weui-btn_mini weui-btn_primary">{_this.state.call}</a>
+						<a href="javascript:;" onClick={() => _this.callBack(ticket.id)} className="weui-btn weui-btn_mini weui-btn_default">{_this.state.call}</a>
 					</span>
 					<span className="weui-form-preview__value">
-						<a href="javascript:;" onClick={() => _this.backWithdraw(ticket.id)} className="weui-btn weui-btn_mini weui-btn_warn">撤回</a>
+						<a href="javascript:;" onClick={() => _this.backWithdraw(ticket.id)} className="weui-btn weui-btn_mini weui-btn weui-btn_default">撤回</a>
 					</span>
 				</div>
 			</div>
