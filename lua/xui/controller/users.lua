@@ -65,6 +65,16 @@ get('/wechat', function(params)
 	end
 end)
 
+get('/cur_user/:username', function(params)
+	local username = params.username
+	user = xdb.find_one("users", {extn = username})
+	if user then
+		return user
+	else
+		return "[]"
+	end
+end)
+
 get('/bind', function(params)
 	n, users = xdb.find_by_sql([[SELECT u.*, w.id AS wechat_id, openid, headimgurl, nickname
 		FROM users u, wechat_users w
