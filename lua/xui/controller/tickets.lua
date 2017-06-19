@@ -316,7 +316,7 @@ post('/', function(params)
 	end
 
 	if not ticket.emergency then
-		ticket.emergency = 'EMERGENCY'
+		ticket.emergency = 'URGENT'
 	end
 
 	ticket = xdb.create_return_object('tickets', ticket)

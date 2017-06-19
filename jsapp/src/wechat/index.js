@@ -187,7 +187,18 @@ class Home extends React.Component {
 		} else {
 			var assigns = <a className="weui-form-preview__btn weui-form-preview__btn_primary" onClick={ () => _this.handleAllot(ticket.id)}>派发</a>
 		}
-		const record = "/recordings/" + ticket.original_file_name
+		var record = '';
+		if (ticket.original_file_name) {
+			const rec = "/recordings/" + ticket.original_file_name
+			var record = <div><span style={{color:"black"}} className="weui-form-preview__label">录音</span>
+					<span className="weui-form-preview__value">
+						<audio src={rec} controls="controls">
+						</audio>
+					</span>
+			<div className="weui-form-preview__ft">
+			</div>
+				</div>
+		}
 		return <div>
 			<div className="weui-cells__title">
 				<h1 style={{ textAlign:"center",color:"black" }}>{ticket.subject}</h1>
@@ -246,21 +257,15 @@ class Home extends React.Component {
 			</div>
 			<div className="weui-form-preview__bd">
 				<div className="weui-form-preview__item">
-					<span style={{color:"black"}} className="weui-form-preview__label">录音</span>
-					<span className="weui-form-preview__value">
-						<audio src={record} controls="controls">
-						</audio>
-				</span>
-			</div>
-			<div className="weui-form-preview__ft">
+				{record}
 			</div>
 			<div className="weui-form-preview__bd">
 				<div className="weui-form-preview__item">
 					<span className="weui-form-preview__label">
-						<a href="javascript:;" onClick={() => _this.callBack(ticket.id)} className="weui-btn weui-btn_mini weui-btn_primary">{_this.state.call}</a>
+						<a href="javascript:;" onClick={() => _this.callBack(ticket.id)} className="weui-btn weui-btn_mini weui-btn_default">{_this.state.call}</a>
 					</span>
 					<span className="weui-form-preview__value">
-						<a href="javascript:;" onClick={() => _this.backWithdraw(ticket.id)} className="weui-btn weui-btn_mini weui-btn_warn">撤回</a>
+						<a href="javascript:;" onClick={() => _this.backWithdraw(ticket.id)} className="weui-btn weui-btn_mini weui-btn weui-btn_default">撤回</a>
 					</span>
 				</div>
 			</div>
@@ -315,6 +320,10 @@ class Userlist extends React.Component {
 		ReactDOM.render(<Home users={row}/>, document.getElementById('main'));
 	}
 
+	back() {
+		ReactDOM.render(<Home/>, document.getElementById('main'));
+	}
+
 	render(){
 		var _this = this;
 		var wechat_users = this.state.wechat_users.map(function(row) {
@@ -335,6 +344,9 @@ class Userlist extends React.Component {
 			<div className="weui-form-preview__bd">
 				<div className="weui-form-preview__item">
 					<span style={{color:"black"}} className="weui-form-preview__label">选择用户</span>
+					<span className="weui-form-preview__value">
+						<a href="javascript:;" className="weui-btn weui-btn_mini weui-btn_warn" onClick={ () => _this.back()}>取消</a>
+					</span>
 				</div>
 			</div>
 			{wechat_users}
@@ -452,7 +464,7 @@ class Comment extends React.Component {
 							<textarea className="weui-textarea" placeholder="请输入内容" onChange={_this.handleInput.bind(this)} rows="3"></textarea>
 						</div>
 					</div>
-					<a href="javascript:;" onClick={ () => _this.uploadImg()} className="weui-btn weui-btn_mini weui-btn_primary">添加图片</a>
+					<a onClick={ () => _this.uploadImg()}>添加图片</a>
 					<br/>
 					{current_img}
 				</div>
@@ -460,7 +472,7 @@ class Comment extends React.Component {
 					<a href="javascript:;" className="weui-btn weui-btn_primary" onClick={ () => _this.addComments()}>添加评论</a>
 				</div>
 				<div className="weui-form-preview__bd">
-					<a href="javascript:;" className="weui-btn weui-btn_warn" onClick={ () => _this.noComments()}>取消</a>
+					<a href="javascript:;" style={{color:"black"}} className="weui-btn weui-plain-default" onClick={ () => _this.noComments()}>取消</a>
 				</div>
 			</div>
 	}
