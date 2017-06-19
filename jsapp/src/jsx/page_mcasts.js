@@ -47,6 +47,36 @@ class NewMcast extends React.Component {
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
+		this.handleCodecNameChange = this.handleCodecNameChange.bind(this);
+	}
+
+	handleCodecNameChange(e) {
+		const _this = this;
+
+		switch(e.target.value) {
+			case 'PCMU':
+				xFetchJSON("/api/dicts?realm=MCAST_SAMPLE_RATE&k=8000").then((data) => {
+					_this.setState({sample_rate: data});
+				});
+				break;
+			case 'PCMA':
+				xFetchJSON("/api/dicts?realm=MCAST_SAMPLE_RATE&k=8000").then((data) => {
+					_this.setState({sample_rate: data});
+				});
+				break;
+			case 'G722':
+				xFetchJSON("/api/dicts?realm=MCAST_SAMPLE_RATE&k=16000").then((data) => {
+					_this.setState({sample_rate: data});
+				});
+				break;
+			case 'CELT':
+				xFetchJSON("/api/dicts?realm=MCAST_SAMPLE_RATE&k=48000").then((data) => {
+					_this.setState({sample_rate: data});
+				});
+				break;
+			default:
+				break;
+		}
 	}
 
 	handleSubmit(e) {
