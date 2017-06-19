@@ -671,22 +671,38 @@ class ConferencePage extends React.Component {
 
 				if (found) this.setState({outcall_rows: outcall_rows});
 
-				if (!found && vt.domain == domain) {
-					const rows = this.state.domain_rows[vt.domain].map(function(row) {
+				if (!found) {
+					let add_member = false;
+					const rows = this.state.domain_rows[domain].map(function(row) {
 						if (row.fakeMemberID && row.memberID < 0 && row.cidNumber == member.cidNumber) {
-							// row.hidden = true;
-							row.memberID = member.memberID;
-							row.uuid = member.uuid;
-							row.verto = vt;
 							found++;
+
+							if (vt.domain == domain) {
+								row.memberID = member.memberID;
+								row.uuid = member.uuid;
+								row.verto = vt;
+							} else {
+								row.hidden = true;
+								add_member = true;
+							}
 							return row;
 						} else {
 							return row;
 						}
 					});
 
-					this.state.domain_rows[vt.domain] = rows;
-					if (found) this.setState({domain_rows: this.state.domain_rows});
+					if (found) {
+						if (add_member) {
+							this.state.domain_rows[vt.domain].push(member);
+						}
+
+						this.state.domain_rows[domain] = rows;
+						this.setState({domain_rows: this.state.domain_rows});
+					}
+				}
+
+				if (!found && vt.domain != domain) {
+
 				}
 			}
 
@@ -735,6 +751,22 @@ class ConferencePage extends React.Component {
 				}
 			});
 
+			if (vt.domain != domain) { // find the hidden member and show
+				var member = translateMember([a.key, a.data]);
+				var matched = 0;
+
+				const our_rows = this.state.domain_rows[domain].map((m) => {
+					if (m.memberID < 0 && m.hidden && m.cidNumber == member.cidNumber) {
+						m.hidden = false;
+						matched++;
+					}
+					return m;
+				});
+
+				if (matched) {
+					this.state.domain_rows[domain] = our_rows;
+				}
+			}
 
 			this.state.domain_rows[vt.domain] = rows;
 			this.setState({domain_rows: this.state.domain_rows});
