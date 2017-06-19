@@ -187,7 +187,18 @@ class Home extends React.Component {
 		} else {
 			var assigns = <a className="weui-form-preview__btn weui-form-preview__btn_primary" onClick={ () => _this.handleAllot(ticket.id)}>派发</a>
 		}
-		const record = "/recordings/" + ticket.original_file_name
+		var record = '';
+		if (ticket.original_file_name) {
+			const rec = "/recordings/" + ticket.original_file_name
+			var record = <div><span style={{color:"black"}} className="weui-form-preview__label">录音</span>
+					<span className="weui-form-preview__value">
+						<audio src={rec} controls="controls">
+						</audio>
+					</span>
+			<div className="weui-form-preview__ft">
+			</div>
+				</div>
+		}
 		return <div>
 			<div className="weui-cells__title">
 				<h1 style={{ textAlign:"center",color:"black" }}>{ticket.subject}</h1>
@@ -246,13 +257,7 @@ class Home extends React.Component {
 			</div>
 			<div className="weui-form-preview__bd">
 				<div className="weui-form-preview__item">
-					<span style={{color:"black"}} className="weui-form-preview__label">录音</span>
-					<span className="weui-form-preview__value">
-						<audio src={record} controls="controls">
-						</audio>
-				</span>
-			</div>
-			<div className="weui-form-preview__ft">
+				{record}
 			</div>
 			<div className="weui-form-preview__bd">
 				<div className="weui-form-preview__item">
