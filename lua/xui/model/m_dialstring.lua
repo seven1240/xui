@@ -51,7 +51,7 @@ xdb.bind(xtra.dbh)
 require 'sqlescape'
 local escape = sqlescape.EscapeFunction()
 
-local context = "default"
+local found = false
 
 local function csplit(str, sep)
 	local ret={}
@@ -80,6 +80,8 @@ function build(dest, context, cid_number)
 	end
 
 	xdb.find_by_sql(sql, function(row)
+		found = true
+
 		if row.dnc and not (row.dnc == '') then
 			dest = utils.apply_dnc(dest, row.dnc)
 		end
@@ -122,6 +124,15 @@ function build(dest, context, cid_number)
 			dialstr = "loopback/" .. dest
 		end
 	end)
+
+	if not found then
+		if context:match("^[0-9]+$") then
+			-- if context is a number then treat as local user, special case ...
+			dialstr = "user/" .. context
+		elseif context:match("[0-9]+%.[0-9]+%.[0-9]+%.[0-9]+") then -- context is an ipv4 addr
+			dialstr = "sofia/public/" .. dest .. '@' .. context .. ":5080"
+		end
+	end
 
 	if do_debug then
 		utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", dialstr)
