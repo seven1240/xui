@@ -320,6 +320,10 @@ class Userlist extends React.Component {
 		ReactDOM.render(<Home users={row}/>, document.getElementById('main'));
 	}
 
+	back() {
+		ReactDOM.render(<Home/>, document.getElementById('main'));
+	}
+
 	render(){
 		var _this = this;
 		var wechat_users = this.state.wechat_users.map(function(row) {
@@ -340,6 +344,9 @@ class Userlist extends React.Component {
 			<div className="weui-form-preview__bd">
 				<div className="weui-form-preview__item">
 					<span style={{color:"black"}} className="weui-form-preview__label">选择用户</span>
+					<span className="weui-form-preview__value">
+						<a href="javascript:;" className="weui-btn weui-btn_mini weui-btn_warn" onClick={ () => _this.back()}>取消</a>
+					</span>
 				</div>
 			</div>
 			{wechat_users}
