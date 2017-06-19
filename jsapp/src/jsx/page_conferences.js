@@ -748,6 +748,24 @@ class ConferencePage extends React.Component {
 
 				if (row.uuid != a.key) {
 					rows.push(row);
+				} else if (true) { // keep member ?
+					row.memberID = 0 - row.memberID;
+					row.fakeMemberID = row.memberID;
+					row.verto = null;
+					if (vt.domain != domain) { // check if we should push to the main one so it can be matched later
+						let found = 0;
+						_this.state.domain_rows[domain].forEach(function(r) {
+							if (r.fakeMemberID && r.memberID < 0 && r.cidNumber == row.cidNumber) {
+								found++;
+							}
+						});
+
+						if (!found) {
+							_this.state.domain_rows[domain].push(row);
+						}
+					} else {
+						rows.push(row);
+					}
 				}
 			});
 
