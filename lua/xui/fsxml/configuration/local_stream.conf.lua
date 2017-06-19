@@ -1,5 +1,13 @@
 local sounds_dir = config.sounds_dir
 local default_stream =
+  [[<directory name="default/8000" path="]] .. sounds_dir .. [[/music/8000">]] .. "\n" ..
+  [[  <param name="rate" value="8000"/>]] .. "\n" ..
+  [[  <param name="shuffle" value="true"/>]] .. "\n" ..
+  [[  <param name="channels" value="1"/>]] .. "\n" ..
+  [[  <param name="interval" value="20"/>]] .. "\n" ..
+  [[  <param name="timer-name" value="soft"/>]] .. "\n" ..
+  [[</directory>]] .. "\n\n" ..
+
   [[<directory name="moh/8000" path="]] .. sounds_dir .. [[/music/8000">]] .. "\n" ..
   [[  <param name="rate" value="8000"/>]] .. "\n" ..
   [[  <param name="shuffle" value="true"/>]] .. "\n" ..
