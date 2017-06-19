@@ -9,6 +9,10 @@ www/index.html
 www/assets/js/jsx/*
 www/assets/css/xui.css
 www/assets/css/xui.*.css
+www/upload
+www/http_file_cache
+www/recodings
+www/voicemail
 npm-debug.log*
 
 bower_components/
