@@ -212,7 +212,7 @@ class Home extends React.Component {
 			</div>
 			<div className="weui-form-preview__bd">
 				<div className="weui-form-preview__item">
-					<span style={{color:"black"}} className="weui-form-preview__label">{ticket.id}</span>
+					<span style={{color:"black"}} className="weui-form-preview__label">{ticket.serial_number}</span>
 					<span className="weui-form-preview__value">{ticket.created_epoch}</span>
 				</div>
 			</div>
