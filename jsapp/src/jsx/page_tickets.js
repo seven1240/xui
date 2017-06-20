@@ -147,7 +147,7 @@ class NewTicket extends React.Component {
 class TicketPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {ticket: {}, users: [], user_options: null, ticket_comments: [], deal_user: null, edit: false, types: [], call: "回拨"};
+		this.state = {ticket: {}, users: [], user_options: null, ticket_comments: [], deal_user: null, edit: false, types: [], call: "回拨", content: false, appraise: ''};
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleCommit = this.handleCommit.bind(this);
 		this.handleControlClick = this.handleControlClick.bind(this);
@@ -155,6 +155,7 @@ class TicketPage extends React.Component {
 		this.handleControlClose = this.handleControlClose.bind(this);
 		this.handleClickChange = this.handleClickChange.bind(this);
 		this.handleSatisfiedSubmit = this.handleSatisfiedSubmit.bind(this);
+		this.handleAppraiseSubmit = this.handleAppraiseSubmit.bind(this);
 	}
 
 	handleSatisfiedSubmit(e) {
@@ -233,6 +234,22 @@ class TicketPage extends React.Component {
 			var rows = this.state.ticket_comments;
 			rows.unshift(obj);
 			this.setState({ticket_comments: rows, deal_user: null,hidden_user: null});
+		}).catch((err) => {
+			console.error("ticket", err);
+			notify(err, "error");
+		});
+	}
+
+	handleAppraiseSubmit(e) {
+		var _this = this;
+		var ticket = form2json('#FormAppraise');
+
+		xFetchJSON("/api/tickets/" + this.state.ticket.id + "/appraise", {
+			method: "PUT",
+			body: JSON.stringify(ticket)
+		}).then((data) => {
+			console.log('data', data);
+			_this.setState({appraise: data.appraise, content: true});
 		}).catch((err) => {
 			console.error("ticket", err);
 			notify(err, "error");
@@ -399,7 +416,7 @@ class TicketPage extends React.Component {
 			case '': satisfied = <Form horizontal id="SatisfiedForm">
 									<FormGroup>
 										<Col componentClass={ControlLabel} sm={2}><T.span text="满意度" /></Col>
-										<Col sm={3}>
+										<Col sm={2}>
 											<span>
 												<Radio name="satisfied" value="1" inline defaultChecked><T.span text="Satisfied"/></Radio>
 												<Radio name="satisfied" value="0" inline><T.span text="Unsatisfied"/></Radio>
@@ -434,6 +451,8 @@ class TicketPage extends React.Component {
 								</Form>;
 								break;
 		}
+		console.log('this.state.appraise', this.state.appraise);
+		console.log('this.state.content', this.state.content);
 		return <div>
 			<ButtonToolbar className="pull-right">
 			<ButtonGroup>
@@ -493,7 +512,7 @@ class TicketPage extends React.Component {
 				</FormGroup>
 			</Form>
 			<br/>
-
+			<hr />
 			<Form horizontal id="ticketProcessingForm">
 				<FormGroup>
 					<Col componentClass={ControlLabel} sm={2}><T.span text="内容"/></Col>
@@ -506,7 +525,24 @@ class TicketPage extends React.Component {
 					<Col sm={10}>{commit_btn}</Col>
 				</FormGroup>
 			</Form>
+			<hr />
 			{satisfied}
+			<hr />
+			<Form horizontal id="FormAppraise">
+				<FormGroup>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="评价" /></Col>
+					<Col sm={6}>
+						{
+							this.state.content
+							? <EditControl componentClass="textarea" name="appraise" defaultValue={this.state.appraise}/>
+							: <FormControl componentClass="textarea" name="appraise" placeholder="评价内容" />
+						}
+					</Col>
+					<Col sm={1}>
+						<Button onClick={this.handleAppraiseSubmit}><T.span onClick={this.handleAppraiseSubmit} text="Submit"/></Button>
+					</Col>
+				</FormGroup>
+			</Form>
 			<hr/>
 			{ticket_comments}
 		</div>
