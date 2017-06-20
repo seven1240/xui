@@ -91,6 +91,8 @@ INSERT INTO dicts (realm, k, v) VALUES ('MCAST_CODEC_NAME', 'PCMU', 'PCMU');
 INSERT INTO dicts (realm, k, v) VALUES ('MCAST_CODEC_NAME', 'PCMA', 'PCMA');
 INSERT INTO dicts (realm, k, v) VALUES ('MCAST_CODEC_NAME', 'G722', 'G722');
 INSERT INTO dicts (realm, k, v) VALUES ('MCAST_CODEC_NAME', 'CELT', 'CELT');
+INSERT INTO dicts (realm, k, v) VALUES ('MCAST_CODEC_NAME', 'L16', 'L16');
+INSERT INTO dicts (realm, k, v) VALUES ('MCAST_CODEC_NAME', 'OPUS', 'OPUS');
 
 INSERT INTO dicts (realm, k, v) VALUES ('MCAST_SAMPLE_RATE', '8000', '8000');
 INSERT INTO dicts (realm, k, v) VALUES ('MCAST_SAMPLE_RATE', '16000', '16000');

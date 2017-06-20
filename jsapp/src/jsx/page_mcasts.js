@@ -52,31 +52,29 @@ class NewMcast extends React.Component {
 
 	handleCodecNameChange(e) {
 		const _this = this;
+		var qs = "";
 
 		switch(e.target.value) {
 			case 'PCMU':
-				xFetchJSON("/api/dicts?realm=MCAST_SAMPLE_RATE&k=8000").then((data) => {
-					_this.setState({sample_rate: data});
-				});
+				qs = "&k=8000";
 				break;
 			case 'PCMA':
-				xFetchJSON("/api/dicts?realm=MCAST_SAMPLE_RATE&k=8000").then((data) => {
-					_this.setState({sample_rate: data});
-				});
+				qs = "&k=8000";
 				break;
 			case 'G722':
-				xFetchJSON("/api/dicts?realm=MCAST_SAMPLE_RATE&k=16000").then((data) => {
-					_this.setState({sample_rate: data});
-				});
+				qs = "&k=16000";
 				break;
 			case 'CELT':
-				xFetchJSON("/api/dicts?realm=MCAST_SAMPLE_RATE&k=48000").then((data) => {
-					_this.setState({sample_rate: data});
-				});
+			case 'OPUS':
+				qs = "&k=48000";
 				break;
 			default:
 				break;
 		}
+
+		xFetchJSON("/api/dicts?realm=MCAST_SAMPLE_RATE" + qs).then((data) => {
+			_this.setState({sample_rate: data});
+		});
 	}
 
 	handleSubmit(e) {
@@ -297,31 +295,29 @@ class McastPage extends React.Component {
 
 	handleCodecNameChange(e) {
 		const _this = this;
+		var qs = "";
 
 		switch(e.target.value) {
 			case 'PCMU':
-				xFetchJSON("/api/dicts?realm=MCAST_SAMPLE_RATE&k=8000").then((data) => {
-					_this.setState({sample_rate: data});
-				});
+				qs = "&k=8000";
 				break;
 			case 'PCMA':
-				xFetchJSON("/api/dicts?realm=MCAST_SAMPLE_RATE&k=8000").then((data) => {
-					_this.setState({sample_rate: data});
-				});
+				qs = "&k=8000";
 				break;
 			case 'G722':
-				xFetchJSON("/api/dicts?realm=MCAST_SAMPLE_RATE&k=16000").then((data) => {
-					_this.setState({sample_rate: data});
-				});
+				qs = "&k=16000";
 				break;
 			case 'CELT':
-				xFetchJSON("/api/dicts?realm=MCAST_SAMPLE_RATE").then((data) => {
-					_this.setState({sample_rate: data});
-				});
+			case 'OPUS':
+				qs = "&k=48000";
 				break;
 			default:
 				break;
 		}
+
+		xFetchJSON("/api/dicts?realm=MCAST_SAMPLE_RATE" + qs).then((data) => {
+			_this.setState({sample_rate: data});
+		});
 	}
 
 	handleSubmit(e) {
