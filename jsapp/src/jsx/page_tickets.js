@@ -147,7 +147,9 @@ class NewTicket extends React.Component {
 class TicketPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {ticket: {}, users: [], user_options: null, ticket_comments: [], deal_user: null, edit: false, types: [], call: "回拨", content: false, appraise: ''};
+
+		this.state = {ticket: {}, users: [], user_options: null, ticket_comments: [], deal_user: null, edit: false, types: [], call: "回拨", content: false, appraise: '', record_src: ''};
+
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleCommit = this.handleCommit.bind(this);
 		this.handleControlClick = this.handleControlClick.bind(this);
@@ -287,6 +289,9 @@ class TicketPage extends React.Component {
 		xFetchJSON("/api/tickets/" + _this.props.params.id).then((data) => {
 			console.log("ticket", data);
 			_this.setState({ticket: data});
+			xFetchJSON("/api/tickets/" + _this.props.params.id + '/record?file_id=' + _this.state.ticket.media_file_id).then((data) => {
+				this.setState({record_src: data.rel_path});
+			});
 		}).catch((e) => {
 			console.error("get ticket", e);
 		});
@@ -296,7 +301,7 @@ class TicketPage extends React.Component {
 		});
 
 		xFetchJSON("/api/tickets/" + _this.props.params.id + '/comments').then((data) => {
-			console.log('addddd', data)
+			console.log('data', data)
 			this.setState({ticket_comments: data});
 		});
 
@@ -380,9 +385,8 @@ class TicketPage extends React.Component {
 			</Col>
 			<Col sm={2}>{save_btn}</Col>
 		</FormGroup>;
-
-		if (ticket.original_file_name) {
-			const src = "/recordings/" + ticket.original_file_name;
+		if (_this.state.record_src) {
+			const src = "/recordings/" + _this.state.record_src;
 			let Audio = <audio src={src} controls="controls" />;
 		} else {
 			let Audio = <div></div>;
