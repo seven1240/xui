@@ -76,10 +76,14 @@ class Home extends React.Component {
 
 	sendAssignTem(e) {
 		is_assign = false;
-		this.setState({ass_template: null});
-		xFetchJSON("/api/tickets/" + e + "/assign/" + this.state.wechat_users.id, {
+		var _this = this;
+		_this.setState({ass_template: null});
+		xFetchJSON("/api/tickets/" + e + "/assign/" + _this.state.wechat_users.id, {
 			method: 'PUT'
 		}).then((data) => {
+			xFetchJSON('/api/tickets/' + current_ticket_id + '/comments').then((data) => {
+				_this.setState({ticket_comments: data});
+			});
 		}).catch((e) => {
 		});
 	}
