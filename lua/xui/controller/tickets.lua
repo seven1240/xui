@@ -363,3 +363,16 @@ put('/:id', function(params)
 		return 500
 	end
 end)
+
+put('/:id/appraise', function(params)
+	local ticket_id = params.id
+	local appraise = params.request.appraise
+
+	ret = xdb.update("tickets", {id = ticket_id, appraise = appraise})
+	
+	if ret == 1 then
+		return '{"appraise":"' .. appraise .. '"}'
+	else
+		return 500 
+	end
+end)
