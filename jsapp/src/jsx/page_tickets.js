@@ -39,10 +39,15 @@ import { EditControl, xFetchJSON } from './libs/xtools';
 class NewTicket extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {errmsg: '', types: [], cid_number: null};
+		this.state = {errmsg: '', types: [], tel: null};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
+		this.handleChange = this.handleChange.bind(this);
+	}
+
+	handleChange(e) {
+		this.setState({tel: e.target.value});
 	}
 
 	handleSubmit(e) {
@@ -72,7 +77,7 @@ class NewTicket extends React.Component {
 		var _this = this;
 		const username = localStorage.getItem('xui.username');
 		xFetchJSON("/api/users/cur_user/" + username).then((data) => {
-			_this.setState({cid_number: data.cid_number});
+			_this.setState({tel: data.tel});
 		});
 	}
 
@@ -97,7 +102,7 @@ class NewTicket extends React.Component {
 			<Form horizontal id="newTicketForm">
 				<FormGroup controlId="formCIDNumber">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="CID Number" className="mandatory"/></Col>
-					<Col sm={10}><FormControl type="input" name="cid_number" value={this.state.cid_number} /></Col>
+					<Col sm={10}><FormControl type="input" name="cid_number" value={this.state.tel} onChange={this.handleChange}/></Col>
 				</FormGroup>
 				<FormGroup controlId="formSubject">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Subject" className="mandatory"/></Col>
