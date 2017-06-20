@@ -76,10 +76,14 @@ class Home extends React.Component {
 
 	sendAssignTem(e) {
 		is_assign = false;
-		this.setState({ass_template: null});
-		xFetchJSON("/api/tickets/" + e + "/assign/" + this.state.wechat_users.id, {
+		var _this = this;
+		_this.setState({ass_template: null});
+		xFetchJSON("/api/tickets/" + e + "/assign/" + _this.state.wechat_users.id, {
 			method: 'PUT'
 		}).then((data) => {
+			xFetchJSON('/api/tickets/' + current_ticket_id + '/comments').then((data) => {
+				_this.setState({ticket_comments: data});
+			});
 		}).catch((e) => {
 		});
 	}
@@ -208,7 +212,7 @@ class Home extends React.Component {
 			</div>
 			<div className="weui-form-preview__bd">
 				<div className="weui-form-preview__item">
-					<span style={{color:"black"}} className="weui-form-preview__label">{ticket.id}</span>
+					<span style={{color:"black"}} className="weui-form-preview__label">{ticket.serial_number}</span>
 					<span className="weui-form-preview__value">{ticket.created_epoch}</span>
 				</div>
 			</div>

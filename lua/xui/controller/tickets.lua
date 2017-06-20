@@ -221,7 +221,21 @@ put('/:id/assign/:dest_id',function(params)
 			redirect_uri = config.wechat_base_url .. "/api/wechat/" .. realm .. "/tickets/" .. pid
 			freeswitch.consoleLog("ERR",serialize(ticket))
 			result = m_ticket.send_wechat_notification(realm, dest_id, redirect_uri, ticket.subject, ticket.current_user_name, ticket.content)
-			print(result)
+			if result then
+				local user = xdb.find("users", xtra.session.user_id)
+				local weuser = xdb.find_one("wechat_users", {
+					user_id = xtra.session.user_id
+				})
+				local comment = {}
+				comment.ticket_id = pid
+				comment.user_id = xtra.session.user_id
+				comment.content = "我把此工单指派给了" .. dest_user.name
+				comment.user_name = user.name
+				if weuser then
+					comment.avatar_url = weuser.headimgurl
+				end
+				ret = xdb.create_return_object("ticket_comments", comment)
+			end
 		end
 		return ticket
 	else
