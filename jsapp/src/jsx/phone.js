@@ -251,6 +251,8 @@ class Phone extends React.Component {
 			caller_id_number: localStorage.getItem('xui.username'),
 			useVideo: useVideo,
 			useCamera: ds.videoDevice,
+			useMic: ds.audioInDevice,
+			useSpeak: ds.audioOutDevice,
 			useStereo: true,
 			outgoingBandwidth: 'default',
 			incomingBandwidth: 'default',
