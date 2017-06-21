@@ -25,7 +25,7 @@
  *
  * Seven Du <dujinfang@x-y-t.cn>
  *
- * index.jsx - Blocks Page
+ * index.jsx - XUI
  *
  */
 
