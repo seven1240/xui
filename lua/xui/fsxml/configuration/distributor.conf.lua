@@ -45,6 +45,8 @@ build_lists = function()
 		end
 
 		lists = lists .. [[    <node name="]] .. row.k .. [[" weight="]] .. row.v .. '"/>\n'
+
+		last_realm = realm
 	end)
 
 	lists = lists .. "</list>"

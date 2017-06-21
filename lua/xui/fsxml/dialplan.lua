@@ -193,14 +193,41 @@ xdb.find_by_sql(sql, function(row)
 
 		ip = lines[index]
 
-		if index == 1 then -- the first one always join our own
+		if count == 1 and ip:sub(1,7) == "cluster" then
+			local api = freeswitch.API()
+			local ret = api:execute("distributor", ip:sub(9))
+
+			if ret == "self" or ret == ip then
+				-- myself
+			else
+				ip = ret
+				index = 9999999
+			end
+		end
+
+		if index == 1 then
 			conf_name = dest
 			profile_name = "default"
 			flags = ""
+
+			local room = xdb.find_one("conference_rooms", {name = dest})
+
+			if room then
+				if cidNumber == room.moderator then
+					flags = "+flags{join-vid-floor|moderator}"
+				end
+
+				if room.profile_id then
+					profile = xdb.find("conference_profiles", room.profile_id)
+					if profile then
+						profile_name = profile.name
+					end
+				end
+			end
+
 			table.insert(actions_table, {app = "conference", data = conf_name .. "-$${domain}@" .. profile_name .. flags})
 		elseif index > 1 then
 			conf_name = dest
-			profile_name = "default"
 			flags=""
 			table.insert(actions_table, {app = "set", data = "bypass_media=true"})
 			table.insert(actions_table, {app = "bridge", data = "sofia/public/" .. conf_name .. '@' .. ip})
@@ -210,6 +237,11 @@ end)
 
 if found then
 	build_actions(actions_table)
+
+	if do_debug then
+		utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", actions)
+	end
+
 	XML_STRING = [[<context name="]] .. context .. [[">
 		<extension name="LUA Dialplan">
 			<condition>]] .. actions .. [[</condition>
