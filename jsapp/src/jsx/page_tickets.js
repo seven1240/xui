@@ -385,11 +385,12 @@ class TicketPage extends React.Component {
 			</Col>
 			<Col sm={2}>{save_btn}</Col>
 		</FormGroup>;
+		let Audio;
 		if (_this.state.record_src) {
 			const src = "/recordings/" + _this.state.record_src;
-			let Audio = <audio src={src} controls="controls" />;
+			Audio = <audio src={src} controls="controls" />;
 		} else {
-			let Audio = <div></div>;
+			Audio = <div></div>;
 		};
 		let FORM;
 		if (this.state.edit == false) {
