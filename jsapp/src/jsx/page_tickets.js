@@ -32,7 +32,7 @@
 
 import React from 'react';
 import T from 'i18n-react';
-import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col, Radio } from 'react-bootstrap';
+import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col, Radio, Nav, NavItem } from 'react-bootstrap';
 import { Link } from 'react-router';
 import { EditControl, xFetchJSON } from './libs/xtools';
 
@@ -455,8 +455,6 @@ class TicketPage extends React.Component {
 								</Form>;
 								break;
 		}
-		console.log('this.state.appraise', this.state.appraise);
-		console.log('this.state.content', this.state.content);
 		return <div>
 			<ButtonToolbar className="pull-right">
 			<ButtonGroup>
@@ -556,12 +554,13 @@ class TicketPage extends React.Component {
 class TicketsPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {rows: [], danger: false, formShow: false, hiddendiv: 'none', loaded: false};
+		this.state = {rows: [], danger: false, formShow: false, hiddendiv: 'none', loaded: false, activeKey: 0, types: [], display: 'inline'};
 		this.handleDelete = this.handleDelete.bind(this);
 		this.handleControlClick = this.handleControlClick.bind(this);
 		this.handleQuery = this.handleQuery.bind(this);
 		this.handleMore = this.handleMore.bind(this);
 		this.handleSearch = this.handleSearch.bind(this);
+		this.handleSelect = this.handleSelect.bind(this);
 	}
 
 	handleMore (e) {
@@ -596,8 +595,13 @@ class TicketsPage extends React.Component {
 	}
 
 	componentDidMount () {
+		var _this = this;
 		xFetchJSON("/api/tickets").then((data) => {
 			this.setState({rows: data, loaded: true});
+		});
+
+		xFetchJSON("/api/dicts?realm=TICKET_TYPE").then((data) => {
+			_this.setState({types: data});
 		});
 	}
 
@@ -640,6 +644,20 @@ class TicketsPage extends React.Component {
 				rows: tickets
 			});
 		});
+	}
+
+	handleSelect(selectedKey) {
+		let _this = this;
+		let types = _this.state.types.map((type) => { return type.v; });
+		if (selectedKey == 0) {
+			xFetchJSON("/api/tickets").then((data) => {
+				this.setState({rows: data, activeKey: selectedKey, display: 'inline'});
+			});
+		}else{
+			xFetchJSON("/api/tickets/onetype?theType=" + types[selectedKey-1]).then((data) => {
+				_this.setState({rows: data, activeKey: selectedKey, display: 'none'});
+			});
+		}
 	}
 
 	render () {
@@ -697,15 +715,18 @@ class TicketsPage extends React.Component {
 			display : isShow
 		}
 
+		let types = this.state.types.map((type) => { return type.v; });
 		return <div>
 			<ButtonToolbar className="pull-right">
-				<T.span text="Last"/> &nbsp;
-				<T.a onClick={this.handleQuery} text={{key:"days", day: 7}} data="7" href="#"/>&nbsp;|&nbsp;
-				<T.a onClick={this.handleQuery} text={{key:"days", day: 15}} data="15" href="#"/>&nbsp;|&nbsp;
-				<T.a onClick={this.handleQuery} text={{key:"days", day: 30}} data="30" href="#"/>&nbsp;|&nbsp;
-				<T.a onClick={this.handleQuery} text={{key:"days", day: 60}} data="60" href="#"/>&nbsp;|&nbsp;
-				<T.a onClick={this.handleQuery} text={{key:"days", day: 90}} data="90" href="#"/>&nbsp;|&nbsp;
-				<T.a onClick={this.handleMore} text="More" data="more" href="#"/>...
+				<div style={{display: _this.state.display}}>
+					<T.span text="Last"/> &nbsp;
+					<T.a onClick={this.handleQuery} text={{key:"days", day: 7}} data="7" href="#"/>&nbsp;|&nbsp;
+					<T.a onClick={this.handleQuery} text={{key:"days", day: 15}} data="15" href="#"/>&nbsp;|&nbsp;
+					<T.a onClick={this.handleQuery} text={{key:"days", day: 30}} data="30" href="#"/>&nbsp;|&nbsp;
+					<T.a onClick={this.handleQuery} text={{key:"days", day: 60}} data="60" href="#"/>&nbsp;|&nbsp;
+					<T.a onClick={this.handleQuery} text={{key:"days", day: 90}} data="90" href="#"/>&nbsp;|&nbsp;
+					<T.a onClick={this.handleMore} text="More" data="more" href="#"/>...
+				</div>
 				<Button onClick={this.handleControlClick} data="new">
 					<i className="fa fa-plus" aria-hidden="true" onClick={this.handleControlClick} data="new"></i>&nbsp;
 					<T.span onClick={this.handleControlClick} data="new" text="New" />
@@ -726,6 +747,15 @@ class TicketsPage extends React.Component {
 				</select>&nbsp;
 				<T.button text="Search" onClick={this.handleSearch}/>
 			</div>
+
+			<Nav bsStyle="tabs" activeKey={this.state.activeKey} onSelect={this.handleSelect}>
+				<NavItem eventKey={0} title="Item0">全部</NavItem>
+    			<NavItem eventKey={1} title="Item1">{types[0]}</NavItem>
+    			<NavItem eventKey={2} title="Item2">{types[1]}</NavItem>
+				<NavItem eventKey={3} title="Item3">{types[2]}</NavItem>
+				<NavItem eventKey={4} title="Item4">{types[3]}</NavItem>
+				<NavItem eventKey={5} title="Item5">{types[4]}</NavItem>
+  			</Nav>
 
 			<table className="table">
 				<tbody>

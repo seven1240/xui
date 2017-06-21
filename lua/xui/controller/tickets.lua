@@ -89,6 +89,19 @@ get('/', function(params)
 	end
 end)
 
+
+get('/onetype', function(params)
+	local theType = env:getHeader('theType')
+	if theType then
+		n, tickets = xdb.find_by_cond("tickets", {type = theType})
+	end
+	if n > 0 then
+		return tickets
+	else
+		return '[]'
+	end
+end)
+
 get('/:id', function(params)
 	local ticket = {}
 	local pid = params.id
