@@ -859,7 +859,7 @@ class ConferencePage extends React.Component {
 				</tbody>
 			</table>
 		} else if (this.state.displayStyle == 'list') {
-			member_list = <ul>{members}</ul>
+			member_list = <div>{members}</div>
 		}
 
 		const toolbarTextStyle = this.state.toolbarText ? null : {display: 'none'};
