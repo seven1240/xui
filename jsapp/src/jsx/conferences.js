@@ -129,6 +129,7 @@ class Conferences extends React.Component {
 		super(props, context);
 
 		this.state = {
+			leftBarShow: true,
 			formShow: false,
 			rows: []
 		};
@@ -154,6 +155,11 @@ class Conferences extends React.Component {
 		});
 	}
 
+	handleToggleLeftBar(e) {
+		e.preventDefault();
+		this.setState({leftBarShow: !this.state.leftBarShow});
+	}
+
 	render() {
 		let formClose = () => this.setState({ formShow: false });
 		const defaultActiveKey = this.state.rows.length > 0 ? this.state.rows[0].id : 0;
@@ -169,7 +175,7 @@ class Conferences extends React.Component {
 
 		return <Tab.Container id="conference-tabs" defaultActiveKey={defaultActiveKey}>
 			<Row className="clearfix">
-				<Col sm={2}>
+				{ !this.state.leftBarShow ? null : <Col sm={2}>
 					<br />
 					<Nav bsStyle="pills" stacked>
 						{ items }
@@ -183,8 +189,15 @@ class Conferences extends React.Component {
 					</Button>
 
 					<NewRoom show={this.state.formShow} onHide={formClose} onNewRoomAdded={this.handleNewRoomAdded.bind(this)}/>
-				</Col>
-				<Col sm={10} className="leftBar">
+				</Col>}
+
+				<div style={{position:"absolute", left: 0}}>
+					<a href='#' onClick={this.handleToggleLeftBar.bind(this)}>
+						{this.state.leftBarShow ? "<<" : ">>"}
+					</a>
+				</div>
+
+				<Col sm={this.state.leftBarShow ? 10 : 12} className="leftBar">
 					<Tab.Content animation>
 						{ panes }
 					</Tab.Content>
