@@ -816,12 +816,17 @@ class ConferencePage extends React.Component {
 	}
 
 	render () {
-		var _this = this;
+		const _this = this;
+		let effective_rows = 0;
 
 		let rows = this.state.outcall_rows;
 
 		Object.keys(this.state.domain_rows).forEach((dm) => {
 			rows = rows.concat(this.state.domain_rows[dm]);
+		});
+
+		rows.forEach((row) => {
+			if (row.memberID > 0) effective_rows++;
 		});
 
 		const sort_member = function(a, b) {
@@ -938,7 +943,7 @@ class ConferencePage extends React.Component {
 
 			<ButtonToolbar>
 				<T.span text="Conference Name"/>: {this.props.name} |&nbsp;
-				<T.span text="Total"/>: {this.state.total}
+				<T.span text="Total"/>: {effective_rows}/{this.state.total}
 			</ButtonToolbar>
 
 			{
