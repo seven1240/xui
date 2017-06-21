@@ -373,6 +373,16 @@ put('/:id/appraise', function(params)
 	if ret == 1 then
 		return '{"appraise":"' .. appraise .. '"}'
 	else
-		return 500 
+		return 500
+	end
+end)
+
+get('/:id/record', function(params)
+	file_id = env:getHeader('file_id')
+	file = xdb.find_one("media_files", {id = file_id})
+	if (file) then
+		return file
+	else
+		return 404
 	end
 end)
