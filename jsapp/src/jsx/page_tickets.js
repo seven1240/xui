@@ -773,7 +773,7 @@ class TicketsPage extends React.Component {
 			</table>
 			<NewTicket show={this.state.formShow} onHide={formClose} handleNewTicketAdded={this.handleTicketAdded.bind(this)}/>
 			<div style={{textAlign: "center"}}>
-				<img style={loadSpinner} src="assets/img/loading.gif"/>
+				<img style={loadSpinner} src="/assets/img/loading.gif"/>
 			</div>
 		</div>
 	}

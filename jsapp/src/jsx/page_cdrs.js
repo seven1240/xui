@@ -399,7 +399,7 @@ class CDRsPage extends React.Component {
 				</table>
 			</div>
 			<div style={{textAlign: "center"}}>
-				<img style={loadSpinner} src="assets/img/loading.gif"/>
+				<img style={loadSpinner} src="/assets/img/loading.gif"/>
 			</div>
 			{
 				!this.state.formShow ? null :
