@@ -261,7 +261,7 @@ class ConferencePage extends React.Component {
 			last_outcall_member_id: 0, outcall_rows: [],
 			outcallNumber: '', outcallNumberShow: false,
 			displayStyle: 'table', toolbarText: false,
-			showSettings: false
+			showSettings: false, autoSort: true
 		};
 
 		this.la = null;
@@ -396,8 +396,11 @@ class ConferencePage extends React.Component {
 		console.log("conference name:", this.props.name);
 		window.addEventListener("verto-login", this.handleVertoLogin);
 
+		let autoSort = localStorage.getItem("xui.conference.autoSort");
+		autoSort = autoSort == "false" ? false : true;
+
 		const displayStyle = localStorage.getItem("xui.conference.displayStyle") || "table";
-		this.setState({displayStyle: displayStyle});
+		this.setState({displayStyle: displayStyle, autoSort: autoSort});
 
 		this.state.domain_rows[domain] = []; // init our domain;
 
@@ -815,6 +818,11 @@ class ConferencePage extends React.Component {
 		}
 	}
 
+	handleAutoSortClick(e) {
+		this.setState({autoSort: e.target.checked});
+		localStorage.setItem('xui.conference.autoSort', e.target.checked);
+	}
+
 	render () {
 		const _this = this;
 		let effective_rows = 0;
@@ -836,7 +844,7 @@ class ConferencePage extends React.Component {
 		this.state.total = rows.length;
 		this.state.rows = rows;
 
-		if (!window.xui_global_disable_sort) {
+		if (this.state.autoSort) {
 			rows = rows.sort(sort_member);
 		}
 
@@ -952,7 +960,7 @@ class ConferencePage extends React.Component {
 					<T.span text="Conference Settings"/>
 					<br/>
 					<br/>
-					<Checkbox checked>
+					<Checkbox onChange={this.handleAutoSortClick.bind(this)} defaultChecked={this.state.autoSort}>
 						<T.span text="Auto Sort"/>
 					</Checkbox>
 				</div>
