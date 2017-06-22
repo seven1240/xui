@@ -122,29 +122,28 @@ get('/:id', function(params)
 	]] .. xdb.escape(pid))
 	ticket = tickets[1]
 	if ticket then
-		n, user_name = xdb.find_by_cond("users", {id = ticket.user_id})
-		ticket.user_name = user_name[1].name
-		if (ticket.current_user_id == '') then
-			cname = "待定"
-		else
-			n, current_user_name = xdb.find_by_cond("users", {id = ticket.current_user_id})
-			cname = current_user_name[1].name
-		end
-		ticket.current_user_name = cname
-		user = xdb.find_one("users", {id = ticket.user_id})
-
+		local user = xdb.find("users", ticket.user_id)
 		if user then
 			ticket.user_name = user.name
 		end
-		current_user = xdb.find_one("users", {id = ticket.current_user_id})
-		if current_user then
-			ticket.current_user_name = current_user.name
+
+		if (ticket.current_user_id == '') then
+			cname = "待定"
+		else
+			local curr_user = xdb.find("users", ticket.current_user_id)
+			if curr_user then
+				ticket.current_user_name = cname
+			end
 		end
+
 		media_file = xdb.find_one("media_files", {id = ticket.media_file_id})
+
 		if media_file then
 			ticket.original_file_name = media_file.original_file_name
 		end
+
 		ticket.wechat_userid = xtra.session.user_id
+
 		return ticket
 	else
 		return 404
