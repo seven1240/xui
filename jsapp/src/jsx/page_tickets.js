@@ -468,13 +468,18 @@ class TicketPage extends React.Component {
 			</ButtonGroup>
 			</ButtonToolbar>
 
-			<h1><T.span text="工单"/></h1>
+			<h1><T.span text="工单"/> <small>{ticket.subject}&lt;{ticket.serial_number}&gt;</small></h1>
 			<hr/>
 			<Form horizontal id="ticketForm">
 				<input type="hidden" name="id" defaultValue={ticket.id}/>
 				<FormGroup controlId="formCIDNumber">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="CID Number" className="mandatory"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} name="cid_number" defaultValue={ticket.cid_number}/></Col>
+				</FormGroup>
+
+				<FormGroup controlId="formSubject">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Subject"/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} name="subject" defaultValue={ticket.subject}/></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formCreated_epoch">
@@ -503,11 +508,6 @@ class TicketPage extends React.Component {
 					{this.state.hidden_user}
 					{options}
 				</Form>
-
-				<FormGroup controlId="formSubject">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Subject"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="subject" defaultValue={ticket.subject}/></Col>
-				</FormGroup>
 
 				<FormGroup controlId="formContent">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Content"/></Col>
