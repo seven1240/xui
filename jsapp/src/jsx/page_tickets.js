@@ -114,7 +114,7 @@ class NewTicket extends React.Component {
 					<Col sm={10}>
 						<FormControl componentClass="select" name="type">
 							{this.state.types.map(function(t) {
-								return <option key={t.id} value={t.v}>{T.translate(t.v)}</option>;
+								return <option key={t.id} value={t.k}>{T.translate(t.v)}</option>;
 							})}
 						</FormControl>
 					</Col>
