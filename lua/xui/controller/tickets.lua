@@ -170,14 +170,17 @@ get('/:id/comments', function(params)
 end)
 
 post('/comments', function(params)
+	freeswitch.consoleLog("ERR", "deprecated call to /api/comments!!")
+
 	local comment = {}
 	comment.content = env:getHeader("content")
 	comment.ticket_id = env:getHeader("ticket_id")
 	comment.user_id = env:getHeader("user_id")
 	comment.user_name = env:getHeader("user_name")
-	freeswitch.consoleLog("ERR",utils.json_encode(comment))
+	freeswitch.consoleLog("ERR", utils.serialize(comment))
+
 	local ret = xdb.create_return_object('ticket_comments',comment)
-	return utils.json_encode(ret)
+	return ret
 end)
 
 put('/:id/satisfied', function(params)
@@ -294,22 +297,37 @@ post('/:id/comments', function(params)
 	ret = xdb.create_return_object("ticket_comments", comment)
 
 	ticket = xdb.find("tickets", params.id)
+
 	if do_debug then
 		utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", serialize(ticket))
 	end
+
 	xdb.update_by_cond("tickets",
 		"id = " .. ticket.id .. " AND status = 'TICKET_ST_NEW'",
 		{status = 'TICKET_ST_PROCESSING'})
 
-	if config.wechat_realm and (not comment.action == 'TICKET_ACTION_CHAT') then
+	if config.wechat_realm and (comment.action ~= 'TICKET_ACTION_CHAT') then
 		realm = config.wechat_realm
-		if ticket and ticket.current_user_id then
+		if ticket then
 			-- todo, send to all users subscribed to this ticket ?
-
 			redirect_uri = config.wechat_base_url .. "/api/wechat/" .. realm .. "/tickets/" .. params.id
 			content = '[回复] ' .. user.name .. ": " .. params.request.content
-			result = m_ticket.send_wechat_notification(realm, ticket.current_user_id, redirect_uri, ticket.subject, user.name, content)
-			print(result)
+
+			if ticket.user_id then
+				result = m_ticket.send_wechat_notification(realm, ticket.user_id, redirect_uri, ticket.subject, user.name, content)
+
+				if do_debug then
+					utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", serialize(result))
+				end
+			end
+
+			if ticket.current_user_id and ticket.current_user_id ~= ticket.user_id then
+				result = m_ticket.send_wechat_notification(realm, ticket.current_user_id, redirect_uri, ticket.subject, user.name, content)
+
+				if do_debug then
+					utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", serialize(result))
+				end
+			end
 		end
 	end
 
