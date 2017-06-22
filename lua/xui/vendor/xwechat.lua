@@ -30,6 +30,9 @@
  */
 ]]
 
+local do_debug = false
+-- do_debug = true
+
 test_msg = "<xml><URL><![CDATA[http://wechat.freeswitch.org.cn/api/wechat]]></URL><ToUserName><![CDATA[seven1240]]></ToUserName><FromUserName><![CDATA[seven1240]]></FromUserName><CreateTime>100</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[这是一条测试消息]]></Content><MsgId>1</MsgId></xml>"
 
 xwechat = {}
@@ -103,7 +106,11 @@ end
 xwechat.send_template_msg = function(realm, msg)
 	URL = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=" .. xwechat.access_token(realm)
 	api = freeswitch.API()
-	return api:execute("curl", URL .. " post " .. fsescape(msg))
+	if do_debug then
+		return api:execute("curl", URL .. " post " .. fsescape(msg))
+	else
+		return api:execute("bgapi", "curl " .. URL .. " post " .. fsescape(msg))
+	end
 end
 
 xwechat.get_js_access_token = function(realm, appid, sec, code)
