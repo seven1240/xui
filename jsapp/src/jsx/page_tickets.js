@@ -213,12 +213,18 @@ class TicketPage extends React.Component {
 	handleSubmit(e) {
 		var _this = this;
 		var ticket = form2json('#ticketAppointForm');
-
+		var username;
+		_this.state.users.map((user) => {
+			if (user.id == ticket.current_user_id) {
+				username = user.name;
+			}
+		})
 		xFetchJSON("/api/tickets/" + this.state.ticket.id + "/assign/" + ticket.current_user_id, {
 			method: "PUT",
 			body: JSON.stringify(ticket)
 		}).then(() => {
-			console.log('appoint successfully')
+			console.log('appoint successfully');
+			notify(<T.span text={'工单指派给'+username}/>);
 		}).catch((err) => {
 			console.error("ticket", err);
 			notify(err, "error");
