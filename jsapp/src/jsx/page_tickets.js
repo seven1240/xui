@@ -717,8 +717,10 @@ class TicketsPage extends React.Component {
 		}
 
 		let types = this.state.types.map((type) => { return type.v; });
+
 		return <div>
 			<ButtonToolbar className="pull-right">
+				<br/>
 				<div style={{display: _this.state.display}}>
 					<T.span text="Last"/> &nbsp;
 					<T.a onClick={this.handleQuery} text={{key:"days", day: 7}} data="7" href="#"/>&nbsp;|&nbsp;
@@ -734,7 +736,18 @@ class TicketsPage extends React.Component {
 				</Button>
 			</ButtonToolbar>
 
-			<h1><T.span text="Tickets" /></h1>
+			<h1 style={{float: "left"}}><T.span text="Tickets" />&nbsp;&nbsp;&nbsp;&nbsp;</h1>
+
+			<br/>
+			<Nav bsStyle="tabs" activeKey={this.state.activeKey} onSelect={this.handleSelect}>
+				<NavItem eventKey={0} title="Item0">全部</NavItem>
+				<NavItem eventKey={1} title="Item1">{types[0]}</NavItem>
+				<NavItem eventKey={2} title="Item2">{types[1]}</NavItem>
+				<NavItem eventKey={3} title="Item3">{types[2]}</NavItem>
+				<NavItem eventKey={4} title="Item4">{types[3]}</NavItem>
+				<NavItem eventKey={5} title="Item5">{types[4]}</NavItem>
+			</Nav>
+
 			<div style={{padding: "5px", display: _this.state.hiddendiv}} className="pull-right">
 				<input type="date" defaultValue={sevenDaysBeforeToday} ref={(input) => { _this.startDate = input; }}/> -&nbsp;
 				<input type="date" defaultValue={today} ref={(input) => { _this.endDate = input; }}/> &nbsp;
@@ -748,15 +761,6 @@ class TicketsPage extends React.Component {
 				</select>&nbsp;
 				<T.button text="Search" onClick={this.handleSearch}/>
 			</div>
-
-			<Nav bsStyle="tabs" activeKey={this.state.activeKey} onSelect={this.handleSelect}>
-				<NavItem eventKey={0} title="Item0">全部</NavItem>
-    			<NavItem eventKey={1} title="Item1">{types[0]}</NavItem>
-    			<NavItem eventKey={2} title="Item2">{types[1]}</NavItem>
-				<NavItem eventKey={3} title="Item3">{types[2]}</NavItem>
-				<NavItem eventKey={4} title="Item4">{types[3]}</NavItem>
-				<NavItem eventKey={5} title="Item5">{types[4]}</NavItem>
-  			</Nav>
 
 			<table className="table">
 				<tbody>
