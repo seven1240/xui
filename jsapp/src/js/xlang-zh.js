@@ -136,6 +136,7 @@ LANGUAGES["zh"] = {
 	"Create New Room": "创建新会议室",
 	"Add New Member": "添加与会者",
 	"Add Member": "添加与会者",
+	"Batch": "批量",
 	"Members": "与会者",
 
 	"Display as Table": "以表格形式显示",

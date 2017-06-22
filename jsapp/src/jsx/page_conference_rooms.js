@@ -122,10 +122,115 @@ class NewMember extends React.Component {
 	}
 }
 
+class GroupBox extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {groups: [], users: []}
+	}
+
+	handleGroupChange(e) {
+		const _this = this;
+
+		xFetchJSON("/api/groups/" + e.target.value + '/members').then((users) => {
+			_this.setState({users: users});
+		}).catch((msg) => {
+			console.error("get group users err", msg);
+		});
+	}
+
+	componentDidMount() {
+		const _this = this;
+
+		xFetchJSON("/api/groups").then((groups) => {
+			_this.setState({groups: groups});
+		}).catch((msg) => {
+			console.error("get group err", msg);
+		});
+	}
+
+	handleCheckGroup(e) {
+		const rows = this.state.users.map((user) => {
+			user.checked = e.target.checked;
+			return user;
+		});
+
+		this.setState({users: rows});
+	}
+
+	handleCheckUser(e) {
+		console.log("aaa", e.target.checked);
+
+		const rows = this.state.users.map((user) => {
+			if (user.id == e.target.value) user.checked = e.target.checked;
+			return user;
+		});
+
+		this.setState({users: rows});
+	}
+
+	batchAddMember() {
+		const _this = this;
+		this.state.users.forEach((user) => {
+			if (user.checked) {
+				const member = {
+					name: user.name,
+					description: '',
+					num: user.extn
+				};
+
+				xFetchJSON("/api/conference_rooms/" + this.props.room_id + '/members', {
+					method: "POST",
+					body: JSON.stringify(member)
+				}).then((obj) => {
+					console.log(obj);
+					member.id = obj.id;
+					_this.props.onNewMemberAdded(member);
+				}).catch((msg) => {
+					console.error("member", msg);
+				});
+			}
+		});
+	}
+
+	render() {
+		return <div style={{padding: "20px", border: "1px solid blue", textAlign: "right"}}>
+			<h2>选择用户组</h2>
+
+			<Checkbox onClick={this.handleCheckGroup.bind(this)} inline></Checkbox>
+
+			<select onChange={this.handleGroupChange.bind(this)}>
+				<option></option>
+			{
+				this.state.groups.map((group) => {
+					return <option key={group.id} value={group.id}>{group.id}-{group.name}</option>
+				})
+			}
+			</select>
+
+			<ul>
+				{
+					this.state.users.map((user) => {
+						return <li key={user.id}>
+							<Checkbox checked={user.checked} onClick={this.handleCheckUser.bind(this)} value={user.id}>
+								{user.extn} - {user.name}
+							</Checkbox>
+						</li>
+					})
+				}
+			</ul>
+
+			<br/>
+			<T.button onClick={this.batchAddMember.bind(this)} text="Add Members"/>
+		</div>
+	}
+
+}
+
 class RoomMembers extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {members: [], memberFormShow: false, danger: false}
+		this.state = {members: [], memberFormShow: false, danger: false,
+			batchAddmemberShow: false, groups: []}
 	}
 
 	handleMemberAdded(member) {
@@ -183,9 +288,22 @@ class RoomMembers extends React.Component {
 					<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
 					<T.span text="Add Member" />
 				</Button>
+
+				<Button onClick={() => this.setState({ batchAddmemberShow: !this.state.batchAddmemberShow })}>
+					<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
+					<T.span text="Batch" />
+					<T.span text="Add Member" />
+				</Button>
+
 			</ButtonGroup>
 			</ButtonToolbar>
 			<h2><T.span text="Members"/></h2>
+
+			{
+				!this.state.batchAddmemberShow ? null :
+				<GroupBox room_id={this.props.room_id} onNewMemberAdded={this.handleMemberAdded.bind(this)}/>
+			}
+
 			<table className="table">
 				<tbody>
 				<tr>

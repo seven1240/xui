@@ -180,7 +180,21 @@ xdb.find_by_sql(sql, function(row)
 			end
 		end
 
-		if count == 0 then
+		if config.conferenceForceMatchCID then -- check match caller id
+			local room = xdb.find_one("conference_rooms", {name = dest})
+			local check = nil
+			if room then
+				check = this.find_one("conference_members", {room_id = room.id, num = cidNumber})
+			end
+
+			if not check then
+				count = -1
+			end
+		end
+
+		if count == -1 then
+			table.insert(actions_table, {app = "hangup", data = "CALL_REJECTED"})
+		elseif count == 0 then
 			table.insert(actions_table, {app = "hangup", data = "NO_ROUTE_DESTINATION"})
 		elseif count == 1 then
 			index = 1
