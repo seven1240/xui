@@ -434,6 +434,7 @@ class Verto {
 						},
 
 						function(e) {
+							self.authing = false;
 							console.log("error logging in, request id:", response.id);
 							delete self._ws_callbacks[response.id];
 							error_cb(response.error, this);
