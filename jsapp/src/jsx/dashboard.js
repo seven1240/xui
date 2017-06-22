@@ -66,6 +66,9 @@ class DashBoard extends React.Component {
 			<LinkContainer to="/changeip" key="M_CAHNGEIP">
 				<NavItem eventKey="M_CAHNGEIP"><T.span text={{ key: "Change IP"}}/></NavItem>
 			</LinkContainer>
+			<LinkContainer to="/ticket_statistics" key="M_TICKETSTATISTICS">
+				<NavItem eventKey="M_TICKETSTATISTICS"><T.span text={{ key: "Ticket Statistics"}}/></NavItem>
+			</LinkContainer>
 		</Nav>
 	}
 }

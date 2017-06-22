@@ -492,6 +492,10 @@ LANGUAGES["zh"] = {
 	Netmask: "子网掩码",
 	Satisfied: "满意",
 	Unsatisfied: "不满意",
+	"Ticket Statistics": "工单统计",
+	"Ticket Type": "工单类型",
+	Amount: "总数",
+	Percentage: "百分比",
 
 	Copyright: "版权所有 2016-" + new Date().getFullYear() + " 烟台小樱桃网络科技有限公司 保留所有权利",
 	the_last_line_______: "Don't put anything beyond this line"
