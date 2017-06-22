@@ -89,11 +89,15 @@ get('/', function(params)
 	end
 end)
 
-
 get('/onetype', function(params)
 	local theType = env:getHeader('theType')
 	if theType then
-		n, tickets = xdb.find_by_cond("tickets", {type = theType})
+		if m_user.has_permission() then
+			n, tickets = xdb.find_by_cond("tickets", {type = theType}, "id desc")
+		else
+			local cond = "type = '" .. theType .. "' AND (user_id = " .. xtra.session.user_id .. " or current_user_id = " .. xtra.session.user_id .. ")"
+			n, tickets = xdb.find_by_cond("tickets", cond, "id desc")
+		end
 	end
 	if n > 0 then
 		return tickets
