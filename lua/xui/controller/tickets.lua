@@ -348,8 +348,8 @@ end)
 
 delete('/:id', function(params)
 	ret = xdb.delete("tickets", params.id);
-	xdb.delete("ticket_log", {tid = params.id});
 	if ret == 1 then
+		xdb.delete("ticket_comments", {ticket_id = params.id});
 		return 200, "{}"
 	else
 		return 500, "{}"

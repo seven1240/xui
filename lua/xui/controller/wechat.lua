@@ -338,7 +338,53 @@ post('/:realm', function(params)
 	MsgType = xml:val("MsgType")
 	Content = xml:val("Content")
 
-	Reply = "OK"
+	-- print(FromUserName)
+	-- print(MsgType)
+
+	if MsgType == "text" then
+		local ticket = xdb.find_one("tickets", {wechat_openid = FromUserName}, "created_epoch DESC")
+
+		if ticket then
+			print("ticket")
+			print(ticket.content)
+			if ticket.cid_number == FromUserName then
+				xdb.update_by_cond("tickets", {wechat_openid = FromUserName}, {
+					cid_number = Content
+				})
+
+				Reply = "请输入您要投诉的内容："
+			elseif ticket.content ~= '' then
+				local comment = {}
+				comment.content = Content
+				comment.ticket_id = ticket.id
+				comment.user_name = FromUserName
+
+				xdb.create_return_object('ticket_comments', comment)
+
+				Reply = "已收到您的投诉信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。"
+			else
+				xdb.update_by_cond("tickets", {wechat_openid = FromUserName}, {
+					content = Content
+				})
+
+				Reply = "已收到您的投诉信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。"
+			end
+		else
+			ticket = xdb.create_return_object("tickets", {
+				wechat_openid = FromUserName,
+				cid_number = FromUserName,
+				subject = '用户投诉'
+				-- content = Content
+			})
+
+			if ticket then
+				Reply = "请输入您的电话号码，以便我们能联系到您："
+				-- Reply = "已收到您的投诉信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。"
+			else
+				Reply = '系统故障，请稍后再试...'
+			end
+		end
+	end
 
 	content_type("text/xml")
 

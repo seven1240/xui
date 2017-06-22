@@ -586,6 +586,7 @@ CREATE TABLE tickets (
 	record_path VARCHAR,
 	user_id INTEGER,            -- the user created this ticket
 	current_user_id INTEGER,    -- the user processing this ticket
+	wechat_openid VARCHAR,
 
 	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
 	updated_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
