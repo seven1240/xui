@@ -812,7 +812,7 @@ class Settings extends React.Component {
 					<br/>
 					<br/>
 					<div className="weui-media-box__hd">
-						<img className="weui-media-box__thumb" style={{width:"40%",marginLeft:"30%"}} src="http://www.x-y-t.cn/img/banner/xyt.jpg" alt=""/>
+						<img className="weui-media-box__thumb" style={{width:"40%",marginLeft:"30%"}} src="/assets/img/qrcode_wechat.jpg" alt=""/>
 					</div>
 					<div className="weui-msg">
 						<div className="weui-msg__text-area">
