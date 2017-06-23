@@ -40,6 +40,7 @@ import Languages from "./languages";
 import MainMenu from './main-menu';
 import FSShow from "./fs_show";
 import { TicketsPage, TicketPage } from "./page_tickets";
+import { TrafficDictPage, TrafficDictsPage } from "./page_traffic_dicts";
 import { CDRsPage, CDRPage } from "./page_cdrs";
 import { FifoCDRsPage, FifoCDRPage } from "./page_fifo_cdrs";
 import {McastsPage, McastPage} from "./page_mcasts";
@@ -161,6 +162,11 @@ class Home extends React.Component{
 				<Route path="tickets">
 					<IndexRoute component={TicketsPage} />
 					<Route path=":id" component={TicketPage} />
+				</Route>
+
+				<Route path="traffic_dicts">
+					<IndexRoute component={TrafficDictsPage} />
+					<Route path=":id" component={TrafficDictPage} />
 				</Route>
 
 				<Route path="cdrs">
