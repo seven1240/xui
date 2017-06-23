@@ -67,9 +67,9 @@ get('/:realm/all/:page', function(params)
 	n, tickets = xdb.find_by_sql([[SELECT u.*, w.v as dtype
 	FROM tickets as u left join dicts as w
 	ON u.type = w.k
-	ORDER BY id DESC
-	LIMIT ]] .. page .. [[,]] .. size .. [[
-	]])
+	ORDER BY id DESC]])
+	-- LIMIT ]] .. page .. [[,]] .. size .. [[
+	-- ]])
 	return tickets
 end)
 
@@ -341,7 +341,7 @@ post('/:realm', function(params)
 		Content = xml:val("Content")
 	elseif MsgType == "event" then
 		-- Content = xml:val("EventKey")
-		xdb.delete("tickets", {wechat_openid = FromUserName}})
+		-- xdb.delete("tickets", {wechat_openid = FromUserName})
 	end
 	if MsgType == "text" or MsgType == "event" then
 		local ticket = xdb.find_one("tickets", {wechat_openid = FromUserName}, "created_epoch DESC")
