@@ -27,6 +27,8 @@
     <!--<param name="startup-script" value="startup_script_1.lua"/>-->
     <!--<param name="startup-script" value="startup_script_2.lua"/>-->
     
-    <!--<hook event="CUSTOM" subclass="conference::maintenance" script="catch-event.lua"/>-->
+    <hook event="CUSTOM" subclass="fifo::info" script="catch-event.lua"/>
+
+    <hook event="CUSTOM" subclass="verto::login" script="/usr/local/freeswitch/xui/lua/xui/auth-hook.lua"/>
   </settings>
 </configuration>
