@@ -878,8 +878,8 @@ wx.ready(function () {
 	is_wx_ready = true;
 
 	const shareData = {
-		title: '小樱桃工单',
-		desc: '小樱桃工单',
+		title: document.title,
+		desc: document.title,
 		link: location.href.split('#')[0] + 1,
 		imgUrl: 'http://xswitch.cn/assets/img/ticket.png'
 	};
