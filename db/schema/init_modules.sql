@@ -94,3 +94,4 @@ INSERT INTO params (realm, k, disabled) VALUES('modules', 'mod_nibblebill', 1);
 INSERT INTO params (realm, k, disabled) VALUES('modules', 'mod_callcenter', 1);
 INSERT INTO params (realm, k, disabled) VALUES('modules', 'mod_ps', 0);
 INSERT INTO params (realm, k, disabled) VALUES('modules', 'mod_odbc_cdr', 0);
+INSERT INTO params (realm, k,disabled) VALUES('modules', 'mod_distributor', 0);

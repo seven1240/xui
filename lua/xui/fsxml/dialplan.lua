@@ -181,10 +181,11 @@ xdb.find_by_sql(sql, function(row)
 		end
 
 		if config.conferenceForceMatchCID then -- check match caller id
+			local cidNumber = params:getHeader('Hunt-Caller-ID-Number')
 			local room = xdb.find_one("conference_rooms", {name = dest})
 			local check = nil
 			if room then
-				check = this.find_one("conference_members", {room_id = room.id, num = cidNumber})
+				check = xdb.find_one("conference_members", {room_id = room.id, num = cidNumber})
 			end
 
 			if not check then
