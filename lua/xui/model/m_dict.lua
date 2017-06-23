@@ -35,6 +35,8 @@ require 'xtra_config'
 m_dict = {}
 
 m_dict.get_obj = function(realm)
+	realm = realm:sub(8) -- remove WECHAT/
+
 	if config.wechat and config.wechat[realm] then
 		return config.wechat[realm]
 	end
