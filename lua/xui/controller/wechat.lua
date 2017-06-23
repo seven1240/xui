@@ -336,12 +336,14 @@ post('/:realm', function(params)
 	ToUserName = xml:val("ToUserName")
 	CreateTime = xml:val("CreateTime")
 	MsgType = xml:val("MsgType")
-	Content = xml:val("Content")
-
-	-- print(FromUserName)
-	-- print(MsgType)
-
+	
 	if MsgType == "text" then
+		Content = xml:val("Content")
+	elseif MsgType == "event" then
+		-- Content = xml:val("EventKey")
+		xdb.delete("tickets", {wechat_openid = FromUserName}})
+	end
+	if MsgType == "text" or MsgType == "event" then
 		local ticket = xdb.find_one("tickets", {wechat_openid = FromUserName}, "created_epoch DESC")
 
 		if ticket then
