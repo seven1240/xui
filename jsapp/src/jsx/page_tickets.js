@@ -388,7 +388,10 @@ class TicketPage extends React.Component {
 		let Audio;
 		if (_this.state.record_src) {
 			const src = "/recordings/" + _this.state.record_src;
-			Audio = <audio src={src} controls="controls" />;
+			Audio = <FormGroup controlId="formCaller_id_name">
+						<Col componentClass={ControlLabel} sm={2}><T.span text="Record"/></Col>
+						<Col sm={10}><audio src={src} controls="controls" /></Col>
+					</FormGroup>
 		} else {
 			Audio = <div></div>;
 		};
@@ -494,10 +497,7 @@ class TicketPage extends React.Component {
 					<Col sm={10}><FormControl.Static><T.span text={ticket.user_name}/></FormControl.Static></Col>
 				</FormGroup>
 
-				<FormGroup controlId="formCaller_id_name">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Record"/></Col>
-					<Col sm={10}>{Audio}</Col>
-				</FormGroup>
+				{Audio}
 
 				<Form horizontal id="ticketAppointForm">
 					{this.state.hidden_user}
