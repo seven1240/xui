@@ -336,16 +336,23 @@ post('/:realm', function(params)
 	ToUserName = xml:val("ToUserName")
 	CreateTime = xml:val("CreateTime")
 	MsgType = xml:val("MsgType")
-	
+
+freeswitch.consoleLog("INFO", "Got" .. MsgType)
+
 	if MsgType == "text" then
 		Content = xml:val("Content")
 	elseif MsgType == "event" then
 		-- Content = xml:val("EventKey")
 		-- xdb.delete("tickets", {wechat_openid = FromUserName})
 	end
-	if MsgType == "text" or MsgType == "event" then
-		local ticket = xdb.find_one("tickets", {wechat_openid = FromUserName}, "created_epoch DESC")
 
+	Reply = "收到"
+
+	local ticket = xdb.find_one("tickets",
+		"wechat_openid = " .. xdb.escape(FromUserName) .. " AND status <> 'TICKET_ST_DONE'",
+		"created_epoch DESC")
+
+	if MsgType == "text" or MsgType == "event" then
 		if ticket then
 			print("ticket")
 			print(ticket.content)
