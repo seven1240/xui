@@ -474,6 +474,19 @@ CREATE TABLE tickets (
 	deleted_epoch timestamp
 );
 
+CREATE OR REPLACE FUNCTION auto_update_ticket_serial() RETURNS TRIGGER AS
+$$
+BEGIN
+	NEW.serial_number = to_char(created_epoch, 'YYYYMMDD') || lpad(id::varchar, 8, '0');
+	RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS t_auto_update_ticket_serial on tickets;
+CREATE TRIGGER t_auto_update_ticket_serial AFTER INSERT ON tickets
+	FOR EACH ROW EXECUTE PROCEDURE auto_update_ticket_serial();
+
 CREATE TABLE ticket_comments (
 	id SERIAL PRIMARY Key,
 	ticket_id INTEGER,
