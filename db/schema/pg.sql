@@ -478,7 +478,8 @@ CREATE TABLE tickets (
 CREATE OR REPLACE FUNCTION auto_update_ticket_serial() RETURNS TRIGGER AS
 $$
 BEGIN
-	NEW.serial_number = to_char(created_epoch, 'YYYYMMDD') || lpad(id::varchar, 8, '0');
+	UPDATE tickets SET serial_number = to_char(NEW.created_epoch, 'YYYYMMDD') || lpad(NEW.id::varchar, 8, '0')
+		WHERE id = NEW.id;
 	RETURN NEW;
 END;
 $$
