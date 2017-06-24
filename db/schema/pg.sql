@@ -267,7 +267,7 @@ CREATE TABLE fifo_cdrs (
 	bridged_number VARCHAR,     -- bridged_number
 	media_file_id INTEGER,
 
-	start_epoch timestamp,
+	start_epoch timestamp DEFAULT NOW(),
 	bridge_epoch timestamp,
 	end_epoch timestamp
 );

@@ -73,7 +73,7 @@ if fifoAction == "push" or fifoAction == "abort" or fifoAction == "pre-dial" or 
 		rec.fifo_name = fifo_name
 		rec.ani = cidNumber
 		rec.dest_number = destNumber
-		rec.start_epoch = "" .. os.time() + config.tz*60*60
+		rec.start_epoch = os.date('%Y-%m-%d %H:%M:%S')
 		xdb.create('fifo_cdrs', rec)
 
 		if config.fifo_ticket then -- create a ticket
@@ -92,18 +92,18 @@ if fifoAction == "push" or fifoAction == "abort" or fifoAction == "pre-dial" or 
 	elseif fifoAction == "bridge-caller-start" then
 		rec = {}
 		rec.bridged_number = destNumber
-		rec.bridge_epoch = "" .. os.time() + config.tz*60*60
+		rec.bridge_epoch = os.date('%Y-%m-%d %H:%M:%S')
 
 		xdb.update_by_cond('fifo_cdrs', {channel_uuid = uuid}, rec)
 	elseif fifoAction == "bridge-caller-stop" then
 		rec = {}
-		rec.end_epoch = "" .. os.time() + config.tz*60*60
+		rec.end_epoch = os.date('%Y-%m-%d %H:%M:%S')
 		
 		xdb.update_by_cond('fifo_cdrs', {channel_uuid = uuid}, rec)
 	elseif fifoAction == "abort" then
 		rec = {}
-		rec.end_epoch = "" .. os.time() + config.tz*60*60
-		
+		rec.end_epoch = os.date('%Y-%m-%d %H:%M:%S')
+
 		xdb.update_by_cond('fifo_cdrs', {channel_uuid = uuid}, rec)
 	elseif fifoAction == "consumer_stop" then
 		uuid = event:getHeader("variable_bridge_uuid")
@@ -129,7 +129,7 @@ if fifoAction == "push" or fifoAction == "abort" or fifoAction == "pre-dial" or 
 		rec.description = fifo_name
 		rec.dir_path = config.fiforecord_path
 		rec.channel_uuid = uuid
-		rec.created_epoch = "" .. os.time()
+		rec.created_epoch = os.date('%Y-%m-%d %H:%M:%S')
 		rec.original_file_name = filename
 		rec.rel_path = filename
 		media_file_id = xdb.create_return_id('media_files', rec)
