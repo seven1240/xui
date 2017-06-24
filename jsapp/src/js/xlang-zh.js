@@ -502,6 +502,11 @@ LANGUAGES["zh"] = {
 	"Finished at": "工单完成于 *{time}*",
 	"Appointed to": "工单指派给 *{username}*",
 	Back: "返回",
+	Emergency: "紧急程度",
+	URGENT: "紧急",
+	EMERGENT: "较紧急",
+	NORMAL: "不紧急",
+	Deadline: "处理期限",
 
 	Copyright: "版权所有 2016-" + new Date().getFullYear() + " 烟台小樱桃网络科技有限公司 保留所有权利",
 	the_last_line_______: "Don't put anything beyond this line"
