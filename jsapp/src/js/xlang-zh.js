@@ -507,6 +507,8 @@ LANGUAGES["zh"] = {
 	EMERGENT: "较紧急",
 	NORMAL: "不紧急",
 	Deadline: "处理期限",
+	"Satisfied Amount": "满意数",
+	"Satisfied Percentage": "满意率",
 
 	Copyright: "版权所有 2016-" + new Date().getFullYear() + " 烟台小樱桃网络科技有限公司 保留所有权利",
 	the_last_line_______: "Don't put anything beyond this line"
