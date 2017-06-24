@@ -469,10 +469,12 @@ CREATE TABLE tickets (
 	user_id INTEGER,            -- the user created this ticket
 	current_user_id INTEGER,    -- the user processing this ticket
 	wechat_openid VARCHAR,
+	emergency VARCHAR,
 
 	created_epoch timestamp DEFAULT now(),
 	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	deleted_epoch timestamp,
+	completed_epoch timestamp
 );
 
 CREATE OR REPLACE FUNCTION auto_update_ticket_serial() RETURNS TRIGGER AS

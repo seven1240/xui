@@ -587,10 +587,12 @@ CREATE TABLE tickets (
 	user_id INTEGER,            -- the user created this ticket
 	current_user_id INTEGER,    -- the user processing this ticket
 	wechat_openid VARCHAR,
+	emergency VARCHAR,
 
 	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
 	updated_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
-	deleted_epoch INTEGER
+	deleted_epoch INTEGER,
+	completed_epoch INTEGER
 );
 
 CREATE TRIGGER t_tickets AFTER UPDATE ON tickets
