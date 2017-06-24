@@ -93,6 +93,7 @@ class NewTicket extends React.Component {
 
 		const props = Object.assign({}, this.props);
 		delete props.handleNewTicketAdded;
+		const emergencys = ['URGENT', 'EMERGENT', 'NORMAL'];
 
 		return <Modal {...props} aria-labelledby="contained-modal-title-lg">
 			<Modal.Header closeButton>
@@ -118,6 +119,20 @@ class NewTicket extends React.Component {
 							})}
 						</FormControl>
 					</Col>
+				</FormGroup>
+				<FormGroup controlId="formEmergency">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Emergency"/></Col>
+					<Col sm={10}>
+						<FormControl componentClass="select" name="emergency">
+							{emergencys.map(function(t) {
+								return <option key={t} value={t}>{T.translate(t)}</option>;
+							})}
+						</FormControl>
+					</Col>
+				</FormGroup>
+				<FormGroup controlId="formDeadline">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Deadline"/></Col>
+					<Col sm={10}><FormControl type="date" name="completed_epoch"/></Col>
 				</FormGroup>
 				<FormGroup controlId="formContent">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Content"/></Col>
@@ -414,10 +429,33 @@ class TicketPage extends React.Component {
 						<FormControl componentClass="select" name="type">
 							{this.state.types.map(function(t) {
 								if (t.v == ticket.type) {
-									return <option key={t.id} value={t.v} selected="selected">{T.translate(t.v)}</option>;
+									return <option key={t.id} value={t.k} selected="selected">{T.translate(t.v)}</option>;
 								} else {
-									return <option key={t.id} value={t.v}>{T.translate(t.v)}</option>;
-								};								
+									return <option key={t.id} value={t.k}>{T.translate(t.v)}</option>;
+								};
+							})}
+						</FormControl>
+					</Col>
+				</FormGroup>;
+		};
+		const emergencys = ['URGENT', 'EMERGENT', 'NORMAL'];
+		let EMERGENRY;
+		if (this.state.edit == false) {
+			EMERGENRY = <FormGroup controlId="formEmergency">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Emergency"/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} name="emergency" defaultValue={ticket.emergency}/></Col>
+				</FormGroup>;
+		} else {
+			EMERGENRY = <FormGroup controlId="formEmergency">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Emergency"/></Col>
+					<Col sm={10}>
+						<FormControl componentClass="select" name="emergency">
+							{emergencys.map(function(t) {
+								if (t == ticket.type) {
+									return <option key={t} value={t} defaultValue={T.translate(t)}>{T.translate(t)}</option>;
+								} else {
+									return <option key={t} value={t}>{T.translate(t)}</option>;
+								};
 							})}
 						</FormControl>
 					</Col>
@@ -501,12 +539,19 @@ class TicketPage extends React.Component {
 					<Col sm={10}><EditControl edit={this.state.edit} name="created_epoch" defaultValue={ticket.created_epoch}/></Col>
 				</FormGroup>
 
-				{FORM}				
+				<FormGroup controlId="formFinished_epoch">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Deadline"/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} name="completed_epoch" defaultValue={ticket.completed_epoch}/></Col>
+				</FormGroup>
+
+				{FORM}
 
 				<FormGroup controlId="formStatus">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Status"/></Col>
 					<Col sm={10}><FormControl.Static><T.span text={ticket.status} style={style}/></FormControl.Static></Col>
 				</FormGroup>
+
+				{EMERGENRY}
 
 				<FormGroup controlId="formUser">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="派单人"/></Col>
