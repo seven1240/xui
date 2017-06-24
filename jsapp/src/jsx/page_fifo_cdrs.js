@@ -39,36 +39,45 @@ import { EditControl, xFetchJSON } from './libs/xtools';
 class FifoCDRPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { result: "", fifocdr: "", channel_uuid: "" };
+		this.state = {media_file: null};
 	}
 
-	componentWillReceiveProps(nextProps) {
-		if(nextProps.channel_uuid) {
-				xFetchJSON("/api/fifo_cdrs/" + nextProps.channel_uuid).then((data) => {
-				this.setState({fifocdr: data.fifocdrs[0]});
-				if(data.result.length) {
-					this.setState({result: data.result[0].name});
-				}
+	fetch_media_file(cdr) {
+		const _this = this;
+
+		if (cdr && cdr.media_file_id) {
+			xFetchJSON("/api/media_files/" + cdr.media_file_id).then((data) => {
+				this.setState({media_file: data});
 			});
 		}
 	}
 
+	componentWillReceiveProps(nextProps) {
+		if(nextProps.show && nextProps.cdr) {
+			this.fetch_media_file(nextProps.cdr);
+		}
+	}
+
+	componentDidMount() {
+		this.fetch_media_file(this.props.cdr);
+	}
+
 	render() {
 		const _this = this;
-		const src = this.state.result ? "/recordings/" + this.state.result : "";
-		const fifocdr = this.state.fifocdr;
+		const src = this.state.media_file ? "/recordings/" + this.state.media_file.rel_path : null;
+		const fifocdr = this.props.cdr;
 		const props = Object.assign({}, this.props);
-		delete props.channel_uuid;
+		delete props.cdr;
 
-		return <Modal  {...props} aria-labelledby="contained-modal-title-lg">
+		return !fifocdr ? null : <Modal  {...props} aria-labelledby="contained-modal-title-lg">
 			<Modal.Header closeButton>
 				<Modal.Title id="contained-modal-title-lg">
-				   <T.span text="FIFO CDR"/><small>{_this.props.channel_uuid}</small>
+				   <T.span text="FIFO CDR"/><small>{fifocdr.channel_uuid}</small>
 				</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				<Form horizontal id="FIFOCDRForm">
-					<input type="hidden" name="id" defaultValue={_this.props.channel_uuid}/>
+					<input type="hidden" name="id" defaultValue={fifocdr.channel_uuid}/>
 					<FormGroup controlId="formCaller_id_name">
 						<Col componentClass={ControlLabel} sm={2}><T.span text="Record"/></Col>
 						<Col sm={10}><audio src={src} controls="controls" /></Col>
@@ -130,7 +139,7 @@ class FifoCDRsPage extends React.Component {
 			rows: [],
 			hiddendiv: 'none',
 			formShow: false,
-			channel_uuid: "",
+			cur_cdr: null,
 			loaded: false,
 			curPage: 1,
 			rowCount: 0,
@@ -266,7 +275,7 @@ class FifoCDRsPage extends React.Component {
 		let isShow;
 		var rows = _this.state.rows.map(function(row) {
 			return <tr key={row.id}>
-				<td><a onClick={()=>{_this.setState({formShow: true, channel_uuid: row.channel_uuid})}} style={{cursor: "pointer"}}>{row.channel_uuid}</a></td>
+				<td><a onClick={()=>{_this.setState({formShow: true, cur_cdr: row})}} style={{cursor: "pointer"}}>{row.channel_uuid}</a></td>
 				<td>{row.fifo_name}</td>
 				<td>{row.ani}</td>
 				<td>{row.dest_number}</td>
@@ -375,7 +384,10 @@ class FifoCDRsPage extends React.Component {
 				</tbody>
 				</table>
 			</div>
-			<FifoCDRPage show={this.state.formShow} onHide={formClose} channel_uuid={_this.state.channel_uuid} />
+			{
+				!this.state.cur_cdr ? null :
+				<FifoCDRPage show={this.state.formShow} onHide={formClose} cdr={_this.state.cur_cdr} />
+			}
 			<div style={{textAlign: "center"}}>
 				<img style={loadSpinner} src="assets/img/loading.gif"/>
 			</div>	
