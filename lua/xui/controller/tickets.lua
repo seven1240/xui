@@ -113,7 +113,15 @@ get('/get_amount', function(params)
 	n3, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_4'})
 	n4, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_5'})
 	n5, tickets = xdb.find_all("tickets")
-	return '[ ' .. n0 .. ',' .. n1 .. ',' .. n2 .. ',' .. n3 .. ','  .. n4 .. ',' .. n5 .. ']'
+	s0, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_1', satisfied='1'})
+	s1, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_2', satisfied='1'})
+	s2, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_3', satisfied='1'})
+	s3, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_4', satisfied='1'})
+	s4, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_5', satisfied='1'})
+	s5, tickets = xdb.find_by_cond("tickets", {satisfied='1'})
+	local amount = {n0, n1, n2, n3, n4 ,n5}
+	local satisfied_amount = {s0, s1, s2, s3, s4, s5}
+	return {amount, satisfied_amount}
 end)
 
 get('/:id', function(params)
