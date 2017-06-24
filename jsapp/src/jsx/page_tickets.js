@@ -173,6 +173,66 @@ class TicketPage extends React.Component {
 		this.handleClickChange = this.handleClickChange.bind(this);
 		this.handleSatisfiedSubmit = this.handleSatisfiedSubmit.bind(this);
 		this.handleAppraiseSubmit = this.handleAppraiseSubmit.bind(this);
+		this.handleDownload = this.handleDownload.bind(this);
+	}
+
+	exportCsv(obj) {
+		var title = obj.title;
+		var titleForKey = obj.titleForKey;
+		var data = obj.data;
+		var str = [];
+		str.push(obj.title.join(",") + "\n");
+		for (var i = 0; i < data.length; i++) {
+			var temp = [];
+			for (var j = 0; j < titleForKey.length; j++) {
+				temp.push(data[i][titleForKey[j]]);
+			}
+			str.push(temp.join(":") + "  ");
+		}
+		var uri = 'data:text/plain;charset=uft8,' + encodeURIComponent(str.join(""));
+		var downloadLink = document.createElement("a");
+		downloadLink.href = uri;
+		downloadLink.download = this.state.ticket.subject + ".txt";
+		document.body.appendChild(downloadLink);
+		downloadLink.click();
+		document.body.removeChild(downloadLink);
+	}
+
+	handleDownload() {
+		const ticket = this.state.ticket;
+		this.exportCsv({
+			title: ["工单内容", this.state.ticket.subject],
+			titleForKey: ["num1", "num2"],
+			data: [
+				{
+					num1: "主题",
+					num2: ticket.subject
+				}, {
+					num1: "主叫号码",
+					num2: ticket.cid_number
+				}, {
+					num1: "创建时间",
+					num2: ticket.created_epoch
+				}, {
+					num1: "内容",
+					num2: ticket.content
+				}, {
+					num1: "类型",
+					num2: T.translate(ticket.type)
+				}, {
+					num1: "状态",
+					num2: T.translate(ticket.status)
+				}, {
+					num1: "紧急程度",
+					num2: T.translate(ticket.emergency)
+				}, {
+					num1: "处理期限",
+					num2: ticket.deadline
+				}, {
+					num1: "派单人",
+					num2: ticket.user_name
+				}]
+		});
 	}
 
 	handleSatisfiedSubmit(e) {
@@ -509,6 +569,7 @@ class TicketPage extends React.Component {
 				<Link to={`/tickets`} className="btn btn-default">
 						<i className="fa fa-chevron-circle-left" aria-hidden="true"></i>&nbsp;<T.span text="Back"/>
 				</Link>
+				<Button onClick={this.handleDownload}><i className="fa fa-download" aria-hidden="true"></i>&nbsp;<T.span text="Download"/></Button>
 			</ButtonGroup>
 			<ButtonGroup>
 				<Button onClick={() => _this.callBack(ticket.id)}><i className="fa fa-phone-square" aria-hidden="true"></i>&nbsp;<T.span text={_this.state.call}/></Button>

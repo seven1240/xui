@@ -496,6 +496,7 @@ LANGUAGES["zh"] = {
 	"Ticket Statistics": "工单统计",
 	"Ticket Type": "工单类型",
 	Amount: "总数",
+	Download: "下载",
 	Percentage: "百分比",
 	"Traffic Dicts": "交通字典",
 	Finished: "完成",
