@@ -498,6 +498,10 @@ LANGUAGES["zh"] = {
 	Amount: "总数",
 	Percentage: "百分比",
 	"Traffic Dicts": "交通字典",
+	Finished: "完成",
+	"Finished at": "工单完成于 *{time}*",
+	"Appointed to": "工单指派给 *{username}*",
+	Back: "返回",
 
 	Copyright: "版权所有 2016-" + new Date().getFullYear() + " 烟台小樱桃网络科技有限公司 保留所有权利",
 	the_last_line_______: "Don't put anything beyond this line"

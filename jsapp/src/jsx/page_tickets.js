@@ -204,7 +204,7 @@ class TicketPage extends React.Component {
 		}).then(() => {
 			ticket.status = "TICKET_ST_DONE";
 			_this.setState({ticket: ticket});
-			notify(<T.span text={{key:"Closed at", time: Date()}}/>);
+			notify(<T.span text={{key:"Finished at", time: Date()}}/>);
 		}).catch((msg) => {
 			console.error("ticket", msg);
 		});
@@ -224,7 +224,7 @@ class TicketPage extends React.Component {
 			body: JSON.stringify(ticket)
 		}).then(() => {
 			console.log('appoint successfully');
-			notify(<T.span text={'工单指派给'+username}/>);
+			notify(<T.span text={{key:"Appointed to", username: username}}/>);
 		}).catch((err) => {
 			console.error("ticket", err);
 			notify(err, "error");
@@ -468,10 +468,15 @@ class TicketPage extends React.Component {
 		return <div>
 			<ButtonToolbar className="pull-right">
 			<ButtonGroup>
+				<Link to={`/tickets`} className="btn btn-default">
+						<i className="fa fa-chevron-circle-left" aria-hidden="true"></i>&nbsp;<T.span text="Back"/>
+				</Link>
+			</ButtonGroup>
+			<ButtonGroup>
 				<Button onClick={() => _this.callBack(ticket.id)}><i className="fa fa-phone-square" aria-hidden="true"></i>&nbsp;<T.span text={_this.state.call}/></Button>
 			</ButtonGroup>
 			<ButtonGroup>
-				<Button onClick={this.handleControlClose}><i className="fa fa-check-square" aria-hidden="true"></i>&nbsp;<T.span text="Close"/></Button>
+				<Button onClick={this.handleControlClose}><i className="fa fa-check-square" aria-hidden="true"></i>&nbsp;<T.span text="Finished"/></Button>
 				{ savebtn }
 				<Button onClick={this.handleControlClick}><i className="fa fa-edit" aria-hidden="true"></i>&nbsp;<T.span text="Edit"/></Button>
 			</ButtonGroup>
