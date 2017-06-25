@@ -337,32 +337,74 @@ post('/:realm', function(params)
 	CreateTime = xml:val("CreateTime")
 	MsgType = xml:val("MsgType")
 
-freeswitch.consoleLog("INFO", "Got" .. MsgType)
-
-	if MsgType == "text" then
-		Content = xml:val("Content")
-	elseif MsgType == "event" then
-		-- Content = xml:val("EventKey")
-		-- xdb.delete("tickets", {wechat_openid = FromUserName})
-	end
+	freeswitch.consoleLog("INFO", "Got " .. MsgType)
 
 	Reply = "收到"
+	step = 0
 
+	if MsgType == "event" then
+		Event = xml:val("Event")
+		EventKey = xml:val("EventKey")
+
+		if Event == "CLICK" and EventKey == "我要举报" then
+			step = 1
+		end
+	elseif MsgType == "text" then
+		Content = xml:val("Content")
+		if (Content == "我要举报" or Content == "举报") then
+			step = 1
+		else
+			step = 2
+		end
+	else
+		step = 3
+	end
+
+	local new_ticket = false
 	local ticket = xdb.find_one("tickets",
 		"wechat_openid = " .. xdb.escape(FromUserName) .. " AND status <> 'TICKET_ST_DONE'",
 		"created_epoch DESC")
 
-	if MsgType == "text" or MsgType == "event" then
-		if ticket then
-			print("ticket")
-			print(ticket.content)
-			if ticket.cid_number == FromUserName then
+	if not ticket then
+		if step > 1 then
+			if step == 2 then
+				cidNumber = Content
+			end
+
+			ticket = xdb.create_return_object("tickets", {
+				wechat_openid = FromUserName,
+				cid_number = cidNumber,
+				subject = '用户举报'
+			})
+
+			if not ticket then
+				Reply = '系统故障，请稍后再试...'
+				step = -1
+			end
+
+			new_ticket = true -- a new ticket is just created
+		end
+	end
+
+	if step == 1 then -- ask tel number
+		Reply = "请输入您的电话号码，以便我们能联系到您："
+	elseif step == 2 then
+		if new_ticket then
+			Reply = '请输入您要举报的内容：'
+		else
+			if ticket.cid_number == '' then
 				xdb.update_by_cond("tickets", {wechat_openid = FromUserName}, {
 					cid_number = Content
 				})
 
-				Reply = "请输入您要投诉的内容："
-			elseif ticket.content ~= '' then
+				Reply = '请输入您要举报的内容：'
+			elseif ticket.content == '' then
+				xdb.update_by_cond("tickets", {wechat_openid = FromUserName}, {
+					content = Content
+				})
+
+				Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。"
+			else
 				local comment = {}
 				comment.content = Content
 				comment.ticket_id = ticket.id
@@ -370,28 +412,55 @@ freeswitch.consoleLog("INFO", "Got" .. MsgType)
 
 				xdb.create_return_object('ticket_comments', comment)
 
-				Reply = "已收到您的投诉信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。"
-			else
-				xdb.update_by_cond("tickets", {wechat_openid = FromUserName}, {
-					content = Content
-				})
-
-				Reply = "已收到您的投诉信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。"
+				Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。"
 			end
+		end
+	elseif MsgType == "image" then -- image
+		PicUrl = xml:val("PicUrl")
+
+		local comment = {}
+		comment.content = '上传图片'
+		comment.ticket_id = ticket.id
+		comment.user_name = FromUserName
+
+		comment_id = xdb.create_return_id('ticket_comments', comment)
+
+		if comment_id then
+			local upload = {}
+			upload.comment_id = params.id
+			upload.type = 1
+			upload.img_url = PicUrl
+			local ret = xdb.create_return_id('wechat_upload', upload)
+			if ret then
+				v = 'wechat_interactive_upload_' .. ret
+				wget = "wget -O /usr/local/freeswitch/xui/www/assets/img/wechat/big/" .. v .. ".jpg '" .. PicUrl .. "'"
+				os.execute(wget)
+				convert = "convert -resize 64x64! /usr/local/freeswitch/xui/www/assets/img/wechat/big/" .. v .. ".jpg /usr/local/freeswitch/xui/www/assets/img/wechat/small/" .. v .. ".jpg"
+				freeswitch.consoleLog("ERR",convert)
+				os.execute(convert)
+			end
+		end
+
+		if new_ticket then
+			Reply = "请输入您的电话号码，以便我们能联系到您："
 		else
-			ticket = xdb.create_return_object("tickets", {
-				wechat_openid = FromUserName,
-				cid_number = FromUserName,
-				subject = '用户投诉'
-				-- content = Content
-			})
-
-			if ticket then
-				Reply = "请输入您的电话号码，以便我们能联系到您："
-				-- Reply = "已收到您的投诉信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。"
-			else
-				Reply = '系统故障，请稍后再试...'
-			end
+			Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。"
+		end
+	elseif Msg == "voice" then
+		MediaId = xml:val("MediaId")
+		print(MediaId)
+		if new_ticket then
+			Reply = "请输入您的电话号码，以便我们能联系到您："
+		else
+			Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。"
+		end
+	elseif MsgType == 'video' then
+		MediaId = xml:val("MediaId")
+		print(MediaId)
+		if new_ticket then
+			Reply = "请输入您的电话号码，以便我们能联系到您："
+		else
+			Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。"
 		end
 	end
 
