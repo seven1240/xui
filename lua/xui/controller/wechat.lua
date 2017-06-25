@@ -337,7 +337,7 @@ post('/:realm', function(params)
 	CreateTime = xml:val("CreateTime")
 	MsgType = xml:val("MsgType")
 
-	freeswitch.consoleLog("INFO", "Got " .. MsgType)
+	freeswitch.consoleLog("INFO", "Got " .. MsgType .. "\n")
 
 	Reply = "收到"
 	step = 0
@@ -462,17 +462,71 @@ post('/:realm', function(params)
 		else
 			Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。您也可以随时补充新的信息，如联系电话/邮件/联系地址等。"
 		end
-	elseif Msg == "voice" then
+	elseif MsgType == "voice" or MsgType == "video" then
 		MediaId = xml:val("MediaId")
 		print(MediaId)
-		if new_ticket then
-			Reply = "请输入您的电话号码，以便我们能联系到您："
-		else
-			Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。您也可以随时补充新的信息，如联系电话/邮件/联系地址等。"
+
+		local comment = {}
+		comment.content = '上传音频'
+		comment.ticket_id = ticket.id
+		comment.user_name = FromUserName
+
+		comment_id = xdb.create_return_id('ticket_comments', comment)
+
+		if comment_id then
+			wechat = m_dict.get_obj('WECHAT/' .. params.realm)
+			xwechat.get_token(params.realm, wechat.APPID, wechat.APPSEC)
+
+			url = xwechat.download_image_url(params.realm, v)
+			ext = "amr"
+			prefix = "wechat-voice-"
+
+			if MsgType == "video" then
+				prefix = "wechat-video-"
+				ext = "mp4"
+			end
+
+			rel_path = prefix .. os.date('%Y%m%d%H%M%S-') .. MediaId .. "." .. ext
+			local_path = config.upload_path .. "/" .. rel_path
+			wget = "wget -O " .. local_path .. " '" .. url .. "'"
+			os.execute(wget)
+
+			local f = io.open(local_path, "rb")
+
+			if f then
+				local size = assert(f:seek("end"))
+				local rec = {}
+
+				rec.name = xml:val("MsgId")
+				rec.mime = "audio/amr"
+				rec.ext = "amr"
+
+				if MsgType == "video" then
+					rec.mime = "video/mp4"
+					rec.ext = "mp4"
+				end
+
+				rec.abs_path = local_path
+				rec.file_size = "" .. size
+				rec.type = "WECHAT"
+				rec.description = "WECHAT"
+				rec.dir_path = config.upload_path
+				-- rec.channel_uuid = uuid
+				rec.original_file_name = rec.name
+				rec.rel_path = rel_path
+
+				media_file_id = xdb.create_return_id('media_files', rec)
+
+				if media_file_id then
+					local link = {}
+					link.comment_id = comment_id
+					link.media_file_id = media_file_id
+
+					xdb.create('ticket_comment_media', link)
+				end
+			end
 		end
-	elseif MsgType == 'video' then
-		MediaId = xml:val("MediaId")
-		print(MediaId)
+
 		if new_ticket then
 			Reply = "请输入您的电话号码，以便我们能联系到您："
 		else

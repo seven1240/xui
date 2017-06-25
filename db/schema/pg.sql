@@ -506,6 +506,16 @@ CREATE TABLE ticket_comments (
 	deleted_epoch timestamp
 );
 
+CREATE TABLE ticket_comment_media (
+	id SERIAL PRIMARY Key,
+	comment_id INTEGER,
+	media_file_id INTEGER,
+
+	created_epoch TIMESTAMP DEFAULT now()
+);
+
+CREATE INDEX ticket_comment_media_cid_fid ON ticket_comment_media(comment_id, media_file_id);
+
 CREATE TABLE wechat_users (
 	id SERIAL PRIMARY Key,
 	user_id INTEGER,

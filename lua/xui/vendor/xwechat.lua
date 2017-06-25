@@ -54,7 +54,7 @@ xwechat.get_token = function(realm, AppID, AppSec)
 	api = freeswitch.API()
 	body = api:execute("curl", URL)
 	json = utils.json_decode(body)
-	-- print(serialize(list))
+	-- print(body)
 	api:execute("hash", "insert/wechat/wechat_access_token_" .. realm .. "/" .. json.access_token)
 	return json.access_token
 end

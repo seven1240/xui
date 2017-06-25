@@ -629,6 +629,16 @@ BEGIN
 	UPDATE ticket_comments set updated_epoch = DATETIME('now', 'localtime') WHERE id = NEW.id;
 END;
 
+CREATE TABLE ticket_comment_media (
+	id INTEGER PRIMARY Key,
+	comment_id INTEGER,
+	media_file_id INTEGER,
+
+	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime'))
+);
+
+CREATE INDEX ticket_comment_media_cid_fid ON ticket_comment_media(comment_id, media_file_id);
+
 CREATE TABLE wechat_users (
 	id INTEGER PRIMARY Key,
 	user_id INTEGER,
