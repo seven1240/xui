@@ -403,7 +403,7 @@ post('/:realm', function(params)
 					content = Content
 				})
 
-				Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。"
+				Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。您也可以随时补充新的信息，如联系电话/邮件/联系地址等。"
 			else
 				local comment = {}
 				comment.content = Content
@@ -412,7 +412,7 @@ post('/:realm', function(params)
 
 				xdb.create_return_object('ticket_comments', comment)
 
-				Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。"
+				Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。您也可以随时补充新的信息，如联系电话/邮件/联系地址等。"
 			end
 		end
 	elseif MsgType == "image" then -- image
@@ -444,7 +444,7 @@ post('/:realm', function(params)
 		if new_ticket then
 			Reply = "请输入您的电话号码，以便我们能联系到您："
 		else
-			Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。"
+			Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。您也可以随时补充新的信息，如联系电话/邮件/联系地址等。"
 		end
 	elseif Msg == "voice" then
 		MediaId = xml:val("MediaId")
@@ -452,7 +452,7 @@ post('/:realm', function(params)
 		if new_ticket then
 			Reply = "请输入您的电话号码，以便我们能联系到您："
 		else
-			Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。"
+			Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。您也可以随时补充新的信息，如联系电话/邮件/联系地址等。"
 		end
 	elseif MsgType == 'video' then
 		MediaId = xml:val("MediaId")
@@ -460,7 +460,7 @@ post('/:realm', function(params)
 		if new_ticket then
 			Reply = "请输入您的电话号码，以便我们能联系到您："
 		else
-			Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。"
+			Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。您也可以随时补充新的信息，如联系电话/邮件/联系地址等。"
 		end
 	end
 
