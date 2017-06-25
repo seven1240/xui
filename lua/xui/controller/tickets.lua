@@ -119,9 +119,30 @@ get('/get_amount', function(params)
 	s3, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_4', satisfied='1'})
 	s4, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_5', satisfied='1'})
 	s5, tickets = xdb.find_by_cond("tickets", {satisfied='1'})
+	new0, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_1', status='TICKET_ST_NEW'})
+	new1, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_2', status='TICKET_ST_NEW'})
+	new2, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_3', status='TICKET_ST_NEW'})
+	new3, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_4', status='TICKET_ST_NEW'})
+	new4, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_5', status='TICKET_ST_NEW'})
+	new5, tickets = xdb.find_by_cond("tickets", {status='TICKET_ST_NEW'})
+	p0, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_1', status='TICKET_ST_PROCESSING'})
+	p1, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_2', status='TICKET_ST_PROCESSING'})
+	p2, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_3', status='TICKET_ST_PROCESSING'})
+	p3, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_4', status='TICKET_ST_PROCESSING'})
+	p4, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_5', status='TICKET_ST_PROCESSING'})
+	p5, tickets = xdb.find_by_cond("tickets", {status='TICKET_ST_PROCESSING'})
+	d0, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_1', status='TICKET_ST_DONE'})
+	d1, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_2', status='TICKET_ST_DONE'})
+	d2, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_3', status='TICKET_ST_DONE'})
+	d3, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_4', status='TICKET_ST_DONE'})
+	d4, tickets = xdb.find_by_cond("tickets", {type='TICKET_TYPE_5', status='TICKET_ST_DONE'})
+	d5, tickets = xdb.find_by_cond("tickets", {status='TICKET_ST_DONE'})
 	local amount = {n0, n1, n2, n3, n4 ,n5}
 	local satisfied_amount = {s0, s1, s2, s3, s4, s5}
-	return {amount, satisfied_amount}
+	local tsn = {new0, new1, new2, new3, new4, new5}
+	local tsp = {p0, p1, p2, p3, p4, p5}
+	local tsd = {d0, d1, d2, d3, d4, d5}
+	return {amount, satisfied_amount, tsn, tsp, tsd}
 end)
 
 get('/:id', function(params)
