@@ -365,10 +365,22 @@ post('/:realm', function(params)
 		"wechat_openid = " .. xdb.escape(FromUserName) .. " AND status <> 'TICKET_ST_DONE'",
 		"created_epoch DESC")
 
+	local isValidPhoneNumber = function(str)
+		return str:match("^[1][3,4,5,7,8]%d%d%d%d%d%d%d%d%d$") or
+			str:match("^%d%d%d%d%d%d%d$") or
+			str:match("^%d%d%d%d%d%d%d%d$") or
+			str:match("^0%d%d%d%d%d%d%d%d%d%d$")
+	end
+
 	if not ticket then
 		if step > 1 then
 			if step == 2 then
-				cidNumber = Content
+				if Content and isValidPhoneNumber(Content) then
+					cidNumber = Content
+				else
+					Reply = "请输入正确的电话号码"
+					step = -1
+				end
 			end
 
 			ticket = xdb.create_return_object("tickets", {
@@ -387,17 +399,21 @@ post('/:realm', function(params)
 	end
 
 	if step == 1 then -- ask tel number
-		Reply = "请输入您的电话号码，以便我们能联系到您："
+		Reply = "请点击左下角的键盘输入您的电话号码，以便我们能联系到您："
 	elseif step == 2 then
 		if new_ticket then
 			Reply = '请输入您要举报的内容：'
 		else
 			if ticket.cid_number == '' then
-				xdb.update_by_cond("tickets", {wechat_openid = FromUserName}, {
-					cid_number = Content
-				})
+				if isValidPhoneNumber(Content) then
+					xdb.update_by_cond("tickets", {wechat_openid = FromUserName}, {
+						cid_number = Content
+					})
 
-				Reply = '请输入您要举报的内容：'
+					Reply = '请输入您要举报的内容：'
+				else
+					Reply = '请输入正确的电话号码：'
+				end
 			elseif ticket.content == '' then
 				xdb.update_by_cond("tickets", {wechat_openid = FromUserName}, {
 					content = Content
