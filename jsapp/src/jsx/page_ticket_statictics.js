@@ -48,10 +48,8 @@ class TicketStatictics extends React.Component {
 		var _this = this;
 		xFetchJSON("/api/dicts?realm=TICKET_TYPE").then((data) => {
 			_this.setState({types: data});
-			console.log(_this.state.types);
 		});
 		xFetchJSON("/api/tickets/get_amount").then((data) => {
-			console.log('data', data)
 			_this.setState({rows: data[0], satisfied: data[1]});
 		});
 	}
@@ -80,14 +78,17 @@ class TicketStatictics extends React.Component {
 		types[5] = '总数';
 		var rows = _this.state.rows.map(function(row) {
 			var i = _this.indexOf(_this.state.rows, row);
+			var percent = _this.state.satisfied[i] / _this.state.rows[i];
+			percent = (percent >= 0) ? percent : 0;
+			console.log(percent)
 			return <tr>
 					<td>{T.translate(types[i])}</td>
 					<td>{_this.state.rows[i]}</td>
 					<td>{_this.toPercent(_this.state.rows[i]/_this.state.rows[5])}</td>
 					<td>{_this.state.satisfied[i]}</td>
-					<td>{_this.toPercent(_this.state.satisfied[i]/_this.state.rows[i])}</td>
-				</tr>
-		})
+					<td>{_this.toPercent(percent)}</td>
+				</tr>;
+		});
 		return <div>
 			<h1><T.span text="Ticket Statistics"/></h1>
 			<div>
