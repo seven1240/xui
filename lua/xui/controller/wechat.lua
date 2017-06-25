@@ -45,12 +45,17 @@ function __LINE__() return debug.getinfo(2, 'l').currentline end
 function __FUNC__() return debug.getinfo(1).name end
 
 local do_debug = config.do_debug
--- do_debug = true
+do_debug = true
 
 -- realm to support multiple wechat accounds, e.g. sipsip, xyt
 
 
 get('/seven', function(params)
+	print(env:serialize())
+	return 	env:getHeader("echostr")
+end)
+
+get('/xyt', function(params)
 	print(env:serialize())
 	return 	env:getHeader("echostr")
 end)
@@ -326,11 +331,13 @@ get('/:realm', function(params)
 end)
 
 post('/:realm', function(params)
-	print(serialize(params))
-	print(env:serialize())
 	req = stream:read()
-	print(req)
 	xml = utils.xml(req)
+
+	if do_debug then
+		utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", env:serialize())
+		utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", req)
+	end
 
 	FromUserName = xml:val("FromUserName")
 	ToUserName = xml:val("ToUserName")
@@ -386,7 +393,8 @@ post('/:realm', function(params)
 			ticket = xdb.create_return_object("tickets", {
 				wechat_openid = FromUserName,
 				cid_number = cidNumber,
-				subject = '用户举报'
+				subject = '用户举报',
+				status = "TICKET_ST_NEW"
 			})
 
 			if not ticket then
@@ -464,14 +472,25 @@ post('/:realm', function(params)
 		end
 	elseif MsgType == "voice" or MsgType == "video" then
 		MediaId = xml:val("MediaId")
-		print(MediaId)
 
 		local comment = {}
-		comment.content = '上传音频'
+
+		if MsgType == "image" then
+			comment.content = '上传图片'
+		elseif MsgType == "voice" then
+			comment.content = '上传音频'
+		elseif MsgType == "video" then
+			comment.content = '上传视频'
+		end
+
 		comment.ticket_id = ticket.id
 		comment.user_name = FromUserName
 
 		comment_id = xdb.create_return_id('ticket_comments', comment)
+
+		if do_debug then
+			utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", comment_id)
+		end
 
 		if comment_id then
 			wechat = m_dict.get_obj('WECHAT/' .. params.realm)
