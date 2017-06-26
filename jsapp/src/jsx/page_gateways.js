@@ -42,10 +42,15 @@ import parseXML from './libs/xml_parser';
 class NewGateway extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {errmsg: ''};
+		this.state = {errmsg: '', selectedValue: '2'};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
+		this.handleChange = this.handleChange.bind(this);
+	}
+
+	handleChange(event) {
+		this.setState({selectedValue: event.target.value});
 	}
 
 	handleSubmit(e) {
@@ -86,15 +91,6 @@ class NewGateway extends React.Component {
 			return <option value={gw.id} key={gw.id}>Gateway[{gw.name}]</option>
 		});
 
-		const sip_profile_options = sip_profiles.map(sip_profile => {
-			if (sip_profile.name == 'public') {
-				return <option value={sip_profile.id} key={sip_profile.id}  selected="selected">{sip_profile.name}</option>
-			} else {
-				return <option value={sip_profile.id} key={sip_profile.id}>{sip_profile.name}</option>
-			};
-
-		});
-
 		return <Modal {...props} aria-labelledby="contained-modal-title-lg">
 			<Modal.Header closeButton>
 				<Modal.Title id="contained-modal-title-lg"><T.span text="Create New Gateway" /></Modal.Title>
@@ -129,8 +125,9 @@ class NewGateway extends React.Component {
 				<FormGroup controlId="formSipProfile">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="SIP Profile"/></Col>
 					<Col sm={10}>
-						<FormControl componentClass="select" name="profile_id">
-							{sip_profile_options}
+						<FormControl componentClass="select" name="profile_id" value={this.state.selectedValue} onChange={this.handleChange}>
+							<option value="2">public</option>
+							<option value="1">default</option>
 						</FormControl>
 					</Col>
 				</FormGroup>
