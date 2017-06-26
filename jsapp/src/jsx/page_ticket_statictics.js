@@ -39,7 +39,7 @@ import { EditControl, xFetchJSON } from './libs/xtools';
 class TicketStatictics extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {types: [], rows: [], satisfied: []};
+		this.state = {types: [], rows: [], satisfied: [], tsn: [], tsp: [], tsd: []};
 		this.toPercent = this.toPercent.bind(this);
 		this.indexOf = this.indexOf.bind(this);
 	}
@@ -50,7 +50,7 @@ class TicketStatictics extends React.Component {
 			_this.setState({types: data});
 		});
 		xFetchJSON("/api/tickets/get_amount").then((data) => {
-			_this.setState({rows: data[0], satisfied: data[1]});
+			_this.setState({rows: data[0], satisfied: data[1], tsn: data[2], tsp: data[3], tsd: data[4]});
 		});
 	}
 
@@ -72,6 +72,9 @@ class TicketStatictics extends React.Component {
 
 	render() {
 		var _this = this;
+		const tsn = this.state.tsn;
+		const tsp = this.state.tsp;
+		const tsd = this.state.tsd;
 		var types = this.state.types.map((type) => {
 			return type.v;
 		});
@@ -80,13 +83,15 @@ class TicketStatictics extends React.Component {
 			var i = _this.indexOf(_this.state.rows, row);
 			var percent = _this.state.satisfied[i] / _this.state.rows[i];
 			percent = (percent >= 0) ? percent : 0;
-			console.log(percent)
-			return <tr>
+			return <tr key={i}>
 					<td>{T.translate(types[i])}</td>
 					<td>{_this.state.rows[i]}</td>
 					<td>{_this.toPercent(_this.state.rows[i]/_this.state.rows[5])}</td>
 					<td>{_this.state.satisfied[i]}</td>
 					<td>{_this.toPercent(percent)}</td>
+					<td>{tsn[i]}</td>
+					<td>{tsp[i]}</td>
+					<td>{tsd[i]}</td>
 				</tr>;
 		});
 		return <div>
@@ -100,6 +105,9 @@ class TicketStatictics extends React.Component {
 					<th><T.span text="Percentage"/></th>
 					<th><T.span text="Satisfied Amount"/></th>
 					<th><T.span text="Satisfied Percentage"/></th>
+					<th><T.span text="TICKET_ST_NEW"/></th>
+					<th><T.span text="TICKET_ST_PROCESSING"/></th>
+					<th><T.span text="TICKET_ST_DONE"/></th>
 				</tr>
 				{rows}
 				</tbody>

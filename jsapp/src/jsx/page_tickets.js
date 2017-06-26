@@ -621,15 +621,15 @@ class TicketPage extends React.Component {
 
 				{Audio}
 
-				<Form horizontal id="ticketAppointForm">
-					{this.state.hidden_user}
-					{options}
-				</Form>
-
 				<FormGroup controlId="formContent">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Content"/></Col>
 					<Col sm={8}><EditControl componentClass="textarea" edit={this.state.edit} name="content" defaultValue={ticket.content}/></Col>
 				</FormGroup>
+			</Form>
+
+			<Form horizontal id="ticketAppointForm">
+					{this.state.hidden_user}
+					{options}
 			</Form>
 			<br/>
 			<hr />
