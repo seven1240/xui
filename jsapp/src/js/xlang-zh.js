@@ -130,6 +130,7 @@ LANGUAGES["zh"] = {
 	Total: "总数",
 	"Conference Settings": "会议设置",
 	"Auto Sort": "自动排序",
+	"Auto Switch": "自动轮循",
 
 	"Conference Rooms": "会议室",
 	"Conference Room": "会议室",

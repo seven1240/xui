@@ -43,6 +43,8 @@ import {verto_params} from "./verto_cluster";
 let global_conference_links = {};
 let global_conference_links_local = {};
 let global_conference_profile = {name: 'default'};
+let global_switch_index = -1; // in auto switch mode
+const global_loop_interval = 10000;
 
 // translate conference member
 function translateMember(member) {
@@ -261,7 +263,7 @@ class ConferencePage extends React.Component {
 			last_outcall_member_id: 0, outcall_rows: [],
 			outcallNumber: '', outcallNumberShow: false,
 			displayStyle: 'table', toolbarText: false,
-			showSettings: false, autoSort: true
+			showSettings: false, autoSort: true, autoSwitch: false
 		};
 
 		this.la = null;
@@ -399,8 +401,11 @@ class ConferencePage extends React.Component {
 		let autoSort = localStorage.getItem("xui.conference.autoSort");
 		autoSort = autoSort == "false" ? false : true;
 
+		let autoSwitch = localStorage.getItem("xui.conference.autoSwitch");
+		autoSwitch = autoSwitch == "true" ? true : false;
+
 		const displayStyle = localStorage.getItem("xui.conference.displayStyle") || "table";
-		this.setState({displayStyle: displayStyle, autoSort: autoSort});
+		this.setState({displayStyle, autoSort, autoSwitch});
 
 		this.state.domain_rows[domain] = []; // init our domain;
 
@@ -823,6 +828,87 @@ class ConferencePage extends React.Component {
 		localStorage.setItem('xui.conference.autoSort', e.target.checked);
 	}
 
+	switchLoop() {
+		if (!this.state.autoSwitch) {
+			this.loopTimer = null;
+			console.log("auto switch stopped");
+			return;
+		}
+
+		const old_index = global_switch_index;
+		let index = global_switch_index;
+		const max = this.state.total + global_switch_index + 1;
+		let member = null;
+
+		if (this.state.total == 1) {
+			console.log("tick ...");
+			this.loopTimer = setTimeout(this.switchLoop.bind(this), global_loop_interval);
+			return;
+		}
+
+		while(++index < max) {
+			index %= this.state.total;
+			member = this.state.rows[index];
+
+			if (member && parseInt(member.memberID) > 0 && member.cidNumber.indexOf('.') < 0) {
+				global_switch_index = index;
+				break;
+			}
+		}
+
+		if (global_switch_index != old_index && member) {
+			console.log("tick ... " + global_switch_index + "/" + (this.state.total - 1) + " memberID=" + member.memberID);
+
+			console.log(member.conference_name + " vid-floor " + member.memberID + " force")
+			member.verto.fsAPI("conference", member.conference_name + " vid-floor " + member.memberID + " force");
+			// verto.fsAPI("conference", member.conference_name + " unvmute " + member.memberID);
+			// verto.fsAPI("conference", member.conference_name + " vmute " + member.memberID);
+
+			// try auto click other floors
+			console.log('links', global_conference_links);
+			console.log('local', global_conference_links_local);
+			if (member.verto.domain == domain) {
+				Object.keys(global_conference_links).forEach((k) => {
+					const m = global_conference_links[k];
+					console.log(m.verto.domain, "conference", m.conference_name + " vid-floor " + m.memberID + " force");
+					m.verto.fsAPI("conference", m.conference_name + " vid-floor " + m.memberID + " force");
+				});
+			} else {
+				const m = global_conference_links_local[member.verto.domain];
+				console.log(m.verto.domain, "conference", m.conference_name + " vid-floor " + m.memberID + " force");
+				m.verto.fsAPI("conference", m.conference_name + " vid-floor " + m.memberID + " force");
+
+				Object.keys(global_conference_links).forEach((k) => {
+					const m = global_conference_links[k];
+
+					if (m.verto.domain == member.verto.domain) return;
+
+					console.log(m.verto.domain, "conference", m.conference_name + " vid-floor " + m.memberID + " force");
+					m.verto.fsAPI("conference", m.conference_name + " vid-floor " + m.memberID + " force");
+				});
+			}
+		} else {
+			console.log("tick ... " + global_switch_index + "/" + (this.state.total - 1));
+		}
+
+		this.loopTimer = setTimeout(this.switchLoop.bind(this), global_loop_interval);
+	}
+
+	handleAutoSwitchClick(e) {
+		this.state.autoSwitch = e.target.checked;
+		// this.setState({autoSwitch: e.target.checked});
+		// localStorage.setItem('xui.conference.autoSwitch', e.target.checked);
+
+		if (e.target.checked) {
+			this.switchLoop();
+		} else {
+			if (this.loopTimer) {
+				console.log("auto switch loop stopped.");
+				clearTimeout(this.loopTimer);
+			}
+		}
+	}
+
 	render () {
 		const _this = this;
 		let effective_rows = 0;
@@ -841,12 +927,12 @@ class ConferencePage extends React.Component {
 			return a.cidNumber < b.cidNumber ? -1 : (a.cidNumber > b.cidNumber ? 1 : 0);
 		}
 
-		this.state.total = rows.length;
-		this.state.rows = rows;
-
 		if (this.state.autoSort) {
 			rows = rows.sort(sort_member);
 		}
+
+		this.state.total = rows.length;
+		this.state.rows = rows;
 
 		const members = rows.map(function(member) {
 			if (member && member.hidden) return null;
@@ -960,6 +1046,10 @@ class ConferencePage extends React.Component {
 					<T.span text="Conference Settings"/>
 					<br/>
 					<br/>
+					<Checkbox onChange={this.handleAutoSwitchClick.bind(this)} defaultChecked={this.state.autoSwitch}>
+						<T.span text="Auto Switch"/>
+					</Checkbox>
+
 					<Checkbox onChange={this.handleAutoSortClick.bind(this)} defaultChecked={this.state.autoSort}>
 						<T.span text="Auto Sort"/>
 					</Checkbox>
