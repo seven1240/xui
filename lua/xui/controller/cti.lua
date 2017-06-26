@@ -153,197 +153,245 @@ post('/setConfig', function(params)
 end)
 
 -- 1.12
-post('/agentLogin/:queue_name/:agent_id', function(params)
+post('/agentLogin', function(params)
 	local api = freeswitch.API()
-	api:execute("callcenter_config", "agent set status " .. params.agent_id .. " idle")
-	api:execute("callcenter_config", "tier add " .. params.queue_name .. " " .. params.agent_id)
+	local queue_name = params.request.queue_name
+	local agent_id = params.request.agent_id
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " idle")
+	api:execute("callcenter_config", "tier add " .. queue_name .. " " .. agent_id)
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.13
-delete('/agentLogout/:queue_name/:agent_id', function(params)
+delete('/agentLogout', function(params)
 	local api = freeswitch.API()
-	api:execute("callcenter_config", "agent set status " .. params.agent_id .. " Logged Out")
-	api:execute("callcenter_config", "tier del " .. params.queue_name .. " " .. params.agent_id)
+	local queue_name = params.request.queue_name
+	local agent_id = params.request.agent_id
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " Logged Out")
+	api:execute("callcenter_config", "tier del " .. queue_name .. " " .. agent_id)
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.14
-put('/setReady/:agent_id', function(params)
+put('/setReady', function(params)
 	local api = freeswitch.API()
-	api:execute("callcenter_config", "agent set status " .. params.agent_id .. " Available")
-	api:execute("callcenter_config", "agent set state " .. params.agent_id .. " Waiting")
+	local agent_id = params.request.agent_id
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " Available")
+	api:execute("callcenter_config", "agent set state " .. agent_id .. " Waiting")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.15
-put('/setNotReady/:agent_id', function(params)
+put('/setNotReady', function(params)
 	local api = freeswitch.API()
-	api:execute("callcenter_config", "agent set status " .. params.agent_id .. " On Break")
-	api:execute("callcenter_config", "agent set state " .. params.agent_id .. " Idle")
+	local agent_id = params.request.agent_id
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " On Break")
+	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.16
 put('/agentRest/:agent_id', function(params)
 	local api = freeswitch.API()
-	api:execute("callcenter_config", "agent set status " .. params.agent_id .. " On Break")
-	api:execute("callcenter_config", "agent set state " .. params.agent_id .. " Idle")
+	local agent_id = params.request.agent_id
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " On Break")
+	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.17
-put('/answerCall/:uuid', function(params)
+put('/answerCall', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_phone_event", params.uuid .. " talk")
+	local uuid = params.request.uuid
+	api:execute("uuid_phone_event", uuid .. " talk")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.18
-put('/callInner/:agent_id/:calledAgent', function(params)
+put('/callInner', function(params)
 	local api = freeswitch.API()
-	api:execute("bgapi", "originate user/" .. params.agent_id .. " "  .. params.calledAgent .. " XML default")
+	local agent_id = params.request.agent_id
+	local calledAgent = params.request.calledAgent
+	api:execute("bgapi", "originate user/" .. agent_id .. " "  .. calledAgent .. " XML default")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.19
-put('/callOut/:agent_id/:callerNumber/:calledNumber', function(params)
+put('/callOut', function(params)
 	local api = freeswitch.API()
-	api:execute("bgapi", "originate user/" .. params.agent_id .. " set:effective_caller_id_number=" .. params.callerNumber .. ",set:effective_caller_id_name=" .. params.callerNumber .. ",transfer:" .. "'" .. params.calledNumber .. " XML default'")
+	local agent_id = params.request.agent_id
+	local callerNumber = params.request.callerNumber
+	local calledNumber = params.request.calledNumber
+	api:execute("bgapi", "originate user/" .. agent_id .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML default'")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.20
-put('/holdCall/:uuid', function(params)
+put('/holdCall', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_hold", params.uuid)
+	local uuid = params.request.uuid
+	api:execute("uuid_hold", uuid)
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.21
-put('/retrieveCall/:uuid', function(params)
+put('/retrieveCall', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_hold", "off " .. params.uuid)
+	local uuid = params.request.uuid
+	api:execute("uuid_hold", "off " .. uuid)
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.22
-put('/releaseCall/:uuid', function(params)
+put('/releaseCall', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_kill", params.uuid)
+	local uuid = params.request.uuid
+	api:execute("uuid_kill", uuid)
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.23
 put('/sendDTMF/:uuid/:number', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_send_dtmf", params.uuid .. " " .. params.number .. " W")
+	local uuid = params.request.uuid
+	local number = params.request.number
+	api:execute("uuid_send_dtmf", uuid .. " " .. number .. " W")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.24
-put('/muteOn/:uuid', function(params)
+put('/muteOn', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_audio", params.uuid .. " start read mute 0")
-	api:execute("uuid_audio", params.uuid .. " start write mute 0")
+	local uuid = params.request.uuid
+	api:execute("uuid_audio", uuid .. " start read mute 0")
+	api:execute("uuid_audio", uuid .. " start write mute 0")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.25
-put('/muteOff/:uuid', function(params)
+put('/muteOff', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_audio", params.uuid .. " start read mute stop")
-	api:execute("uuid_audio", params.uuid .. " start write mute stop")
+	local uuid = params.request.uuid
+	api:execute("uuid_audio", uuid .. " start read mute stop")
+	api:execute("uuid_audio", uuid .. " start write mute stop")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.26
-get('/CallData/:uuid', function(params)
+get('/CallData', function(params)
 	local api = freeswitch.API()
-	callData = api:execute("uuid_dump", params.uuid .. "  json")
+	local uuid = params.request.uuid
+	callData = api:execute("uuid_dump", uuid .. "  json")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.27
-put('/CallData/:uuid/:key/:value', function(params)
+put('/CallData', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_setvar", params.uuid .. " " .. params.key .. " " .. params.value)
+	local uuid = params.request.uuid
+	local key = params.request.key
+	local value = params.request.value
+	api:execute("uuid_setvar", uuid .. " " .. key .. " " .. value)
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.28
-put('/transferIVR/:uuid/:accessCode', function(params)
+put('/transferIVR', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_transfer", params.uuid .. " " .. params.accessCode .. " XML default")
+	local uuid = params.request.uuid
+	local accessCode = params.request.accessCode
+	api:execute("uuid_transfer", uuid .. " " .. accessCode .. " XML default")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.29
-put('/transferQueue/:uuid/:acdSkillID', function(params)
+put('/transferQueue', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_transfer", params.uuid .. " callcenter:" .. params.acdSkillID .. " inline")
+	local uuid = params.request.uuid
+	local acdSkillID = params.request.acdSkillID
+	api:execute("uuid_transfer", uuid .. " callcenter:" .. acdSkillID .. " inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.30
 -- need use transfer_after_bridge in dialplan
-put('/consultIVR/:uuid/:accessCode', function(params)
+put('/consultIVR', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_transfer", params.uuid .. " " .. accessCode .. " XML default")
+	local uuid = params.request.uuid
+	local accessCode = params.request.accessCode
+	api:execute("uuid_transfer", uuid .. " " .. accessCode .. " XML default")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.31
-put('/transferOut/:uuid/:callerNumber/:calledNumber', function(params)
+put('/transferOut', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_transfer", params.uuid .. " set:effective_caller_id_number=" .. params.callerNumber .. ",set:effective_caller_id_name=" .. params.callerNumber .. ",transfer:" .. "'" .. params.calledNumber .. " XML default'")
+	local uuid = params.request.uuid
+	local callerNumber = params.request.callerNumber
+	local calledNumber = params.request.calledNumber
+	api:execute("uuid_transfer", uuid .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML default'")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.32
-put('/transferInner/:uuid/:agent_id', function(params)
+put('/transferInner', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_transfer", params.uuid .. " bridge user/"  .. params.calledNumber .. " inline")
+	local uuid = params.request.uuid
+	local agent_id = params.request.agent_id
+	api:execute("uuid_transfer", uuid .. " bridge user/"  .. agent_id .. " inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.33
-put('/consultOut/:uuid/:callerNumber/:calledNumber', function(params)
+put('/consultOut', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_transfer", params.uuid .. " set:effective_caller_id_number=" .. params.callerNumber .. ",set:effective_caller_id_name=" .. params.callerNumber .. ",transfer:" .. "'" .. params.calledNumber .. " XML default'")
+	local uuid = params.request.uuid
+	local callerNumber = params.request.callerNumber
+	local calledNumber = params.request.calledNumber
+	api:execute("uuid_transfer", uuid .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML default'")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.34
-put('/consultInner/:uuid/:agent_id', function(params)
+put('/consultInner', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_transfer", params.uuid .. " bridge:user/" .. params.agent_id .. " inline")
+	local uuid = params.request.uuid
+	local agent_id = params.request.agent_id
+	api:execute("uuid_transfer", uuid .. " bridge:user/" .. agent_id .. " inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.35
-put('/consultTransfer/:uuid/:agent_id', function(params)
+put('/consultTransfer', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_transfer", params.uuid .. " bind_meta_app:'1 b s execute_extension::xui_attended_xfer XML default',bridge:user/" .. agent_id .. " inline")
+	local uuid = params.request.uuid
+	local agent_id = params.request.agent_id
+	api:execute("uuid_transfer", uuid .. " bind_meta_app:'1 b s execute_extension::xui_attended_xfer XML default',bridge:user/" .. agent_id .. " inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.36
-put('/consultConference/:uuid/:destUUID', function(params)
+put('/consultConference', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_transfer", params.uuid .. " answer,three_way:" .. params.destUUID .. " inline")
+	local uuid = params.request.uuid
+	local destUUID = params.request.destUUID
+	api:execute("uuid_transfer", uuid .. " answer,three_way:" .. destUUID .. " inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.37
 put('/cancelConsult', function(params)
+	local api = freeswitch.API()
+	local uuid = params.request.uuid
+	api:execute("uuid_kill", uuid)
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.38
-put('/finishCall/:agent_id', function(params)
+put('/finishCall', function(params)
 	local api = freeswitch.API()
-	status = api:execute("callcenter_config", "agent set status On Break")
+	local agent_id = params.request.agent_id
+	status = api:execute("callcenter_config", "agent set status " .. agent_id .. " On Break")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -364,78 +412,90 @@ get('/allAgentStatus', function(params)
 end)
 
 -- 1.40
-get('/queueWaitNum/:acdSkillID', function(params)
+get('/queueWaitNum', function(params)
 	local api = freeswitch.API()
-	queueWaitNum = api:execute("callcenter_config", "queue count members " .. params.acdSkillID)
+	local acdSkillID = params.request.acdSkillID
+	queueWaitNum = api:execute("callcenter_config", "queue count members " .. acdSkillID)
 	return {queueWaitNum = queueWaitNum}
 end)
 
 -- 1.41
-put('/listen/:uuid/:listenNumber', function(params)
+put('/listen', function(params)
 	local api = freeswitch.API()
-	api:execute("bgapi", "originate user/" .. params.listenNumber .. " &eavesdrop(" .. params.uuid .. ")")
+	local uuid = params.request.uuid
+	local listenNumber = params.request.listenNumber
+	api:execute("bgapi", "originate user/" .. listenNumber .. " &eavesdrop(" .. uuid .. ")")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.42
-put('/stopListen/:uuid', function(params)
+put('/stopListen', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_kill", params.uuid)
+	local uuid = params.request.uuid
+	api:execute("uuid_kill", uuid)
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.43
-put('/insert/:uuid/:insertNumber', function(params)
+put('/insert', function(params)
 	local api = freeswitch.API()
-	api:execute("bgapi", "originate user/" .. params.insertNumber .. " &three_way(" .. params.uuid .. ")")
+	local uuid = params.request.uuid
+	local insertNumber = params.request.insertNumber
+	api:execute("bgapi", "originate user/" .. insertNumber .. " &three_way(" .. uuid .. ")")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.44
-put('/stopInsert/:uuid', function(params)
+put('/stopInsert', function(params)
 	local api = freeswitch.API()
-	api:execute("uuid_kill", params.uuid)
+	local uuid = params.request.uuid
+	api:execute("uuid_kill", uuid)
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.45
-put('/forceReady/:agent_id', function(params)
+put('/forceReady', function(params)
 	local api = freeswitch.API()
-	api:execute("callcenter_config", "agent set status " .. params.agent_id .. " Available")
-	api:execute("callcenter_config", "agent set state " .. params.agent_id .. " Waiting")
+	local agent_id = params.request.agent_id
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " Available")
+	api:execute("callcenter_config", "agent set state " .. agent_id .. " Waiting")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.46
-put('/forceLogout/:agent_id', function(params)
+put('/forceLogout', function(params)
 	local api = freeswitch.API()
-	api:execute("callcenter_config", "agent set status " .. params.agent_id .. " Log Out")
-	api:execute("callcenter_config", "agent set state " .. params.agent_id .. " Idle")
+	local agent_id = params.request.agent_id
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " Log Out")
+	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.47
-put('/forceBusy/:agent_id', function(params)
+put('/forceBusy', function(params)
 	local api = freeswitch.API()
-	api:execute("callcenter_config", "agent set state " .. params.agent_id .. " In a queue call")
+	local agent_id = params.request.agent_id
+	api:execute("callcenter_config", "agent set state " .. agent_id .. " In a queue call")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.48
-put('/forceLogout/:agent_id', function(params)
+put('/forceLogout', function(params)
 	local api = freeswitch.API()
-	api:execute("callcenter_config", "agent set status " .. params.agent_id .. " Log Out")
-	api:execute("callcenter_config", "agent set state " .. params.agent_id .. " Idle")
+	local agent_id = params.request.agent_id
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " Log Out")
+	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.49
-put('/playLocalFiles/:uuid', function(params)
+put('/playLocalFiles', function(params)
 	local api = freeswitch.API()
-	files = env:getHeader("files")
+	local uuid = params.request.uuid
+	local files = params.request.files
 	if files then
 		filesStr = string.gsub(files, ",", "!")
-		api:execute("uuid_transfer", params.uuid .. " set:playback_delimiter=!,playback:'" .. filesStr .. "' inline")
+		api:execute("uuid_transfer", uuid .. " set:playback_delimiter=!,playback:'" .. filesStr .. "' inline")
 		return 200, {code = 200, text = "OK"}
 	else
 	 return 500
@@ -444,7 +504,7 @@ end)
 
 -- 1.50
 get("/recordFile", function(params)
-	recordFile = env:getHeader("file")
+	local recordFile = params.request.file
 	if recordFile then
 		file = io.open(recordFile)
 		if not file then
