@@ -427,7 +427,7 @@ post('/:realm', function(params)
 					content = Content
 				})
 
-				Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。您也可以随时补充新的信息，如联系电话/邮件/联系地址等。"
+				Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。您也可以随时补充新的信息，如联系电话/邮件/地址等，也可上传语音/视频/图片。"
 			else
 				local comment = {}
 				comment.content = Content
@@ -436,7 +436,7 @@ post('/:realm', function(params)
 
 				xdb.create_return_object('ticket_comments', comment)
 
-				Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。您也可以随时补充新的信息，如联系电话/邮件/联系地址等。"
+				Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。您也可以随时补充新的信息，如联系电话/邮件/地址等，也可上传语音/视频/图片。"
 			end
 		end
 	elseif MsgType == "image" then -- image
