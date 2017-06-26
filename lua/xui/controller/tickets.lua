@@ -162,6 +162,47 @@ get('/:id', function(params)
 	end
 end)
 
+get('/:id/comments/media_files', function(params)
+	n, mfiles = xdb.find_by_cond("ticket_comment_media",
+		[[comment_id IN (SELECT id
+			FROM ticket_comments
+			WHERE ticket_id = ]] .. xdb.escape(params.id) ..
+		")",
+		"comment_id"
+	)
+
+	if n > 0 then
+		return mfiles
+	else
+		return "[]"
+	end
+end)
+
+get('/:id/comments/media_files_object', function(params)
+	n, mfiles = xdb.find_by_cond("ticket_comment_media",
+		[[comment_id IN (SELECT id
+			FROM ticket_comments
+			WHERE ticket_id = ]] .. xdb.escape(params.id) ..
+		")",
+		"comment_id"
+	)
+
+	if n > 0 then
+		obj = {}
+		for i, v in pairs(mfiles) do
+			local comment_id = v.comment_id
+			if not obj[comment_id] then
+				obj[comment_id] = {}
+			end
+			v.comment_id = nil
+			table.insert(obj[comment_id], v)
+		end
+		return obj
+	else
+		return "{}"
+	end
+end)
+
 get('/:id/comments', function(params)
 	n, comments = xdb.find_by_cond("ticket_comments", {ticket_id = params.id}, "created_epoch DESC")
 	local comments_res = {}
