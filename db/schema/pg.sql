@@ -28,9 +28,9 @@ CREATE TABLE routes (
 	body TEXT,
 	auto_record INTEGER DEFAULT 0,
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp,
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE INDEX routes_deleted_epoch ON routes(deleted_epoch);
@@ -53,9 +53,9 @@ CREATE TABLE users (
 	auto_record INTEGER DEFAULT 0,
 	disabled INTEGER DEFAULT 0,
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE UNIQUE INDEX users_extn ON users(domain, extn);
@@ -71,9 +71,9 @@ CREATE TABLE blocks (
 	lua TEXT,
 	ivr_menu_id VARCHAR,  -- link to a IVR block
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE INDEX blocks_deleted_epoch ON blocks(deleted_epoch);
@@ -85,9 +85,9 @@ CREATE TABLE dicts (
 	v VARCHAR, -- value
 	d VARCHAR, -- description
 	o INTEGER, -- order
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE INDEX dicts_realm ON dicts(realm);
@@ -101,9 +101,9 @@ CREATE TABLE groups (
 	level integer DEFAULT 0,
 	description VARCHAR,
 	group_id INTEGER,        -- nested groups
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE INDEX groups_deleted_epoch ON groups(deleted_epoch);
@@ -112,9 +112,9 @@ CREATE TABLE user_groups (
 	id SERIAL PRIMARY KEY,
 	user_id SERIAL NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 	group_id SERIAL NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE UNIQUE INDEX user_group_u_g_id ON user_groups(user_id, group_id);
@@ -123,9 +123,9 @@ CREATE TABLE extn_groups (
 	id SERIAL PRIMARY KEY,
 	user_id SERIAL NOT NULL,
 	group_id SERIAL NOT NULL,
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE INDEX extn_group_e_g_id ON extn_groups(user_id, group_id);
@@ -139,9 +139,9 @@ CREATE TABLE gateways (
 	register VARCHAR NOT NULL DEFAULT 'true',
 	profile_id INTEGER,
 	description VARCHAR,
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE INDEX gateways_name ON gateways(name);
@@ -154,9 +154,9 @@ CREATE TABLE params (
 	v VARCHAR,
 	ref_id INTEGER, -- e.g. sip_profiles.id or gateway.id
 	disabled INTEGER DEFAULT 0,
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE INDEX params_realm ON params(realm);
@@ -168,9 +168,9 @@ CREATE TABLE sip_profiles (
 	name VARCHAR NOT NULL,
 	description VARCHAR,
 	disabled INTEGER DEFAULT 0,
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE UNIQUE INDEX sip_profiles_name ON sip_profiles(name);
@@ -200,9 +200,9 @@ CREATE TABLE media_files (
 	channel_uuid VARCHAR,
 	processing_flag INTEGER DEFAULT 0, -- 0 - unprocessed, 1 - processed, 2 - whatever
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE INDEX media_files_created_epoch ON media_files(created_epoch);
@@ -219,9 +219,9 @@ CREATE TABLE conference_rooms (
 	profile_id INTEGER,
 	moderator VARCHAR,
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE TABLE conference_members (
@@ -231,9 +231,9 @@ CREATE TABLE conference_members (
 	description VARCHAR,
 	num VARCHAR,  -- conference number
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE TABLE devices (
@@ -243,9 +243,9 @@ CREATE TABLE devices (
 	vendor VARCHAR,
 	mac VARCHAR,
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE TABLE user_devices (
@@ -253,9 +253,9 @@ CREATE TABLE user_devices (
 	user_id SERIAL NOT NULL,
 	mac_id VARCHAR NOT NULL,
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE TABLE fifo_cdrs (
@@ -267,9 +267,9 @@ CREATE TABLE fifo_cdrs (
 	bridged_number VARCHAR,     -- bridged_number
 	media_file_id INTEGER,
 
-	start_epoch timestamp DEFAULT NOW(),
-	bridge_epoch timestamp,
-	end_epoch timestamp
+	start_epoch TIMESTAMP(0) DEFAULT NOW(),
+	bridge_epoch TIMESTAMP(0),
+	end_epoch TIMESTAMP(0)
 );
 
 CREATE INDEX fifo_cdrs_start_epoch ON fifo_cdrs(start_epoch);
@@ -289,9 +289,9 @@ CREATE TABLE fifos (
 	auto_record INTEGER DEFAULT 0,
 	record_template VARCHAR,
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE INDEX fifo_name ON fifos(name);
@@ -309,9 +309,9 @@ CREATE TABLE fifo_members (
 	extn VARCHAR,
 	dial_string VARCHAR,
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE INDEX fifo_member_fifo_name ON fifo_members(fifo_name);
@@ -332,9 +332,9 @@ CREATE TABLE mcasts (
 	-- auto_start_time INTEGER DEFAULT (STRFTIME('%H:%M', 'now', 'localtime')),
 	-- auto_stop_time INTEGER DEFAULT (STRFTIME('%H:%M', 'now', 'localtime')),
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE UNIQUE INDEX mcasts_name ON mcasts(name);
@@ -346,9 +346,9 @@ CREATE TABLE mfile_mcasts (
 	id SERIAL PRIMARY KEY,
 	mfile_id SERIAL NOT NULL REFERENCES media_files(id) ON DELETE CASCADE,
 	mcast_id SERIAL NOT NULL REFERENCES mcasts(id) ON DELETE CASCADE,
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE UNIQUE INDEX mfile_mcast_m_m_id ON mfile_mcasts(mfile_id, mcast_id);
@@ -359,19 +359,19 @@ CREATE TABLE permissions (
 	method VARCHAR,
 	param VARCHAR,
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
-CREATE TABLE group_permissions(
+CREATE TABLE group_permissions (
 	id SERIAL PRIMARY KEY,
 	group_id INTEGER,
 	permission_id INTEGER,
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 
@@ -381,9 +381,9 @@ CREATE TABLE conference_profiles (
 	description VARCHAR,
 	disabled INTEGER DEFAULT 0,
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE UNIQUE INDEX conference_profiles_name ON conference_profiles(name);
@@ -413,9 +413,9 @@ CREATE TABLE ivr_menus (
 	pin_file VARCHAR,
 	bad_pin_file VARCHAR,
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE UNIQUE INDEX ivr_menu_name ON ivr_menus(name);
@@ -425,9 +425,9 @@ CREATE TABLE acls (
 	name VARCHAR NOT NULL,
 	status VARCHAR NOT NULL,
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE UNIQUE INDEX acls_name ON acls(name);
@@ -438,9 +438,9 @@ CREATE TABLE acl_nodes (
 	v VARCHAR,
 	acl_id INTEGER,
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE TABLE ivr_actions (
@@ -450,9 +450,9 @@ CREATE TABLE ivr_actions (
 	action VARCHAR,
 	args VARCHAR,
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE TABLE tickets (
@@ -471,10 +471,10 @@ CREATE TABLE tickets (
 	wechat_openid VARCHAR,
 	emergency VARCHAR,
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp,
-	completed_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0),
+	completed_epoch TIMESTAMP(0)
 );
 
 CREATE OR REPLACE FUNCTION auto_update_ticket_serial() RETURNS TRIGGER AS
@@ -501,9 +501,9 @@ CREATE TABLE ticket_comments (
 	subject VARCHAR,
 	content VARCHAR,
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE TABLE ticket_comment_media (
@@ -543,9 +543,9 @@ CREATE TABLE wechat_users (
 	session_key VARCHAR,  -- weapp session key
 	session_3rd VARCHAR,  -- 3rd_session
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 CREATE INDEX wechat_users_user_id ON wechat_users(user_id);
@@ -559,9 +559,9 @@ CREATE TABLE wechat_upload (
 	type INTEGER,
 	user_id INTEGER,
 
-	created_epoch timestamp DEFAULT now(),
-	updated_epoch timestamp DEFAULT now(),
-	deleted_epoch timestamp
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
 );
 
 -- cdrs could be auto generated when load mod_cdr_sqlite, but, we want to create it with more fields
@@ -570,9 +570,9 @@ CREATE TABLE cdrs (
 	caller_id_number VARCHAR,
 	destination_number VARCHAR,
 	context VARCHAR,
-	start_stamp timestamp,
-	answer_stamp timestamp,
-	end_stamp timestamp,
+	start_stamp TIMESTAMP(0),
+	answer_stamp TIMESTAMP(0),
+	end_stamp TIMESTAMP(0),
 	duration INTEGER,
 	billsec INTEGER,
 	hangup_cause VARCHAR,
@@ -587,5 +587,50 @@ ALTER TABLE cdrs ADD network_port VARCHAR;
 
 CREATE INDEX cdrs_uuid ON cdrs(uuid);
 CREATE INDEX start_stamp ON cdrs(start_stamp);
+
+
+-- triggers
+
+CREATE OR REPLACE FUNCTION auto_update_updated_epoch() RETURNS TRIGGER AS
+$$
+DECLARE
+BEGIN
+	NEW.updated_epoch = now();
+	RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER t_auto_update_epoch_on_routes BEFORE UPDATE ON routes FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_users BEFORE UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_blocks BEFORE UPDATE ON blocks FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_dicts BEFORE UPDATE ON dicts FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_groups BEFORE UPDATE ON groups FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_user_groups BEFORE UPDATE ON user_groups FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_extn_groups BEFORE UPDATE ON extn_groups FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_gateways BEFORE UPDATE ON gateways FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_params BEFORE UPDATE ON params FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_sip_profiles BEFORE UPDATE ON sip_profiles FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_media_files BEFORE UPDATE ON media_files FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_conference_rooms BEFORE UPDATE ON conference_rooms FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_conference_members BEFORE UPDATE ON conference_members FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_devices BEFORE UPDATE ON devices FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_user_devices BEFORE UPDATE ON user_devices FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_fifos BEFORE UPDATE ON fifos FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_fifo_members BEFORE UPDATE ON fifo_members FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_mcasts BEFORE UPDATE ON mcasts FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_mfile_mcasts BEFORE UPDATE ON mfile_mcasts FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_permissions BEFORE UPDATE ON permissions FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_group_permissions BEFORE UPDATE ON group_permissions FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_conference_profiles BEFORE UPDATE ON conference_profiles FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_ivr_menus BEFORE UPDATE ON ivr_menus FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_acls BEFORE UPDATE ON acls FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_acl_nodes BEFORE UPDATE ON acl_nodes FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_ivr_actions BEFORE UPDATE ON ivr_actions FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_tickets BEFORE UPDATE ON tickets FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_ticket_comments BEFORE UPDATE ON ticket_comments FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_ticket_comment_media BEFORE UPDATE ON ticket_comment_media FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_wechat_users BEFORE UPDATE ON wechat_users FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
+CREATE TRIGGER t_auto_update_epoch_on_wechat_upload BEFORE UPDATE ON wechat_upload FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_epoch();
 
 -- END

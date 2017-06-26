@@ -458,7 +458,7 @@ BEGIN
 	UPDATE permissions set updated_epoch = DATETIME('now', 'localtime') WHERE id = NEW.id;
 END;
 
-CREATE TABLE group_permissions(
+CREATE TABLE group_permissions (
 	id INTEGER PRIMARY KEY,
 	group_id INTEGER,
 	permission_id INTEGER,
