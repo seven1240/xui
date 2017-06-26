@@ -37,6 +37,7 @@ import { RIEToggle, RIEInput, RIETextArea, RIENumber, RIETags, RIESelect } from 
 import SettingBaiduTTS from './system/baidu_tts';
 import SettingEventSocket from './system/event_socket';
 import SettingDevice from './system/device';
+import ChangeIpPage from './page_change_ip';
 
 class SystemPage extends React.Component {
 	constructor(props) {
@@ -72,6 +73,9 @@ class SystemPage extends React.Component {
 				<li><a href="/api/freeswitch/dir/sounds" target="_blank"><T.span text="Sounds"/></a></li>
 				<li><a href="/api/freeswitch/dir/storage" target="_blank"><T.span text="Storage"/></a></li>
 			</ul>
+
+			<hr/>
+			<ChangeIpPage/>
 		</div>
 	}
 }

@@ -33,7 +33,7 @@
 import React from 'react';
 import T from 'i18n-react';
 import verto from './verto/verto';
-import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
+import { Button, Form, FormGroup, FormControl, ControlLabel, Col, Row } from 'react-bootstrap';
 import { EditControl, xFetchJSON } from './libs/xtools';
 
 class ChangeIpPage extends React.Component {
@@ -70,36 +70,47 @@ class ChangeIpPage extends React.Component {
 
 	render () {
 		return <div>
-			<h1><T.span text="Change IP"/></h1>
+			<h2><T.span text="Change IP"/></h2>
 			<hr />
-			<Form horizontal id="ChangeIpForm">
+			<Form id="ChangeIpForm">
 				<FormGroup controlId="formDescription">
-					<Col sm={2}></Col>
-					<Col sm={10}><FormControl.Static>修改IP会使系统重启，2分钟内请勿有任何操作</FormControl.Static></Col>
+					<Row>
+						<Col sm={10}>
+							<FormControl.Static>修改IP会使系统重启，2分钟内请勿有任何操作</FormControl.Static>
+						</Col>
+					</Row>
 				</FormGroup>
 				<FormGroup controlId="formAddress">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Address" className="mandatory"/></Col>
-					<Col sm={8}><FormControl type="input" name="address" /></Col>
+					<Row>
+						<Col componentClass={ControlLabel} sm={2}><T.span text="Address" className="mandatory"/></Col>
+						<Col sm={3}><FormControl type="input" name="address" /></Col>
+					</Row>
 				</FormGroup>
 
 				<FormGroup controlId="formNetmask">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Netmask" className="mandatory"/></Col>
-					<Col sm={8}><FormControl type="input" name="netmask" /></Col>
+					<Row>
+						<Col componentClass={ControlLabel} sm={2}><T.span text="Netmask" className="mandatory"/></Col>
+						<Col sm={3}><FormControl type="input" name="netmask" /></Col>
+					</Row>
 				</FormGroup>
 
 				<FormGroup controlId="formGateway">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Gateway" className="mandatory"/></Col>
-					<Col sm={8}><FormControl type="input" name="gateway" /></Col>
+					<Row>
+						<Col componentClass={ControlLabel} sm={2}><T.span text="Gateway" className="mandatory"/></Col>
+						<Col sm={3}><FormControl type="input" name="gateway" /></Col>
+					</Row>
 				</FormGroup>
 
 				<FormGroup>
-					<Col smOffset={2} sm={8}>
-						<Button type="button" bsStyle="primary" onClick={this.handleSubmit}>
-							<i className="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;
-							<T.span text="Save" />
-						</Button>
-						&nbsp;&nbsp;<T.span className="danger" text={this.state.errmsg}/>
-					</Col>
+					<Row>
+						<Col sm={8}>
+							<Button type="button" bsStyle="primary" onClick={this.handleSubmit}>
+								<i className="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;
+								<T.span text="Save" />
+							</Button>
+							&nbsp;&nbsp;<T.span className="danger" text={this.state.errmsg}/>
+						</Col>
+					</Row>
 				</FormGroup>
 			</Form>
 		</div>
