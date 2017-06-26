@@ -39,20 +39,56 @@ xdb.bind(xtra.dbh)
 require 'm_user'
 
 get('/', function(params)
-	if m_user.has_permission() then
-		n, users = xdb.find_all("users")
-	else
-		n, users = xdb.find_by_cond("users", {id = xtra.session.user_id})
+	last = tonumber(env:getHeader('last'))
+	pageNum = tonumber(env:getHeader('pageNum'))	
+	rowPerPage = tonumber(env:getHeader('rowPerPage'))
+
+	local users = {}
+	local rowCount = 0
+
+	users.pageCount = 0
+	users.rowCount = 0
+	users.curPage = 0
+	users.data = {}
+
+	pageNum = tonumber(pageNum)
+	rowPerPage = tonumber(rowPerPage)
+
+	if not pageNum or pageNum < 0 then
+		pageNum = 1
 	end
 
-	if n > 0 then
-		for k,v in ipairs(users) do
-			users[k].password = nil
-		end
-		return users
-	else
-		return "[]"
+	if not rowPerPage then
+		rowPerPage = 20
 	end
+
+	local cb = function(row)
+		rowCount = tonumber(row.count)
+	end
+	xdb.find_by_sql("SELECT count(1) as count FROM users", cb)
+	if rowCount > 0 then
+		local offset = 0
+		local pageCount = 0
+
+		pageCount = math.ceil(rowCount / rowPerPage);
+
+		if pageNum == 0 then
+			-- It means the last page
+			pageNum = pageCount
+		end
+
+		offset = (pageNum - 1) * rowPerPage
+
+		local found, usersData = xdb.find_by_cond("users", nil, 'id', nil, rowPerPage, offset)
+		if (found) then
+			users.rowCount = rowCount
+			users.data = usersData
+			users.curPage = pageNum
+			users.pageCount = pageCount
+		end
+	end
+
+	return users
 end)
 
 get('/wechat', function(params)

@@ -32,7 +32,7 @@
 
 import React from 'react';
 import T from 'i18n-react';
-import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Col } from 'react-bootstrap';
+import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Col, Pagination } from 'react-bootstrap';
 import { Link } from 'react-router';
 import { EditControl, xFetchJSON } from './libs/xtools'
 
@@ -501,11 +501,20 @@ class UserPage extends React.Component {
 class UsersPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { formShow: false, rows: [], danger: false, formShow1: false};
+		this.state = {
+			formShow: false,
+			rows: [],
+			danger: false,
+			formShow1: false,
+			curPage: 1,
+			rowCount: 0,
+			pageCount: 0
+		};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleControlClick = this.handleControlClick.bind(this);
 		this.handleDelete = this.handleDelete.bind(this);
+		this.handlePageTurn = this.handlePageTurn.bind(this);
 	}
 
 	handleControlClick(e) {
@@ -555,9 +564,14 @@ class UsersPage extends React.Component {
 	}
 
 	componentDidMount() {
-		xFetchJSON("/api/users").then((data) => {
-			// console.log("users", data)
-			this.setState({rows: data});
+		xFetchJSON("/api/users").then((users) => {
+			console.log("users", users)
+			this.setState({
+				rows: users.data,
+				pageCount: users.pageCount, 
+				rowCount: users.rowCount,
+				curPage: users.curPage
+			});
 		}).catch((msg) => {
 			console.log("get users ERR", msg);
 			notify(<T.span text={{key: "Internal Error", msg: msg}}/>, 'error');
@@ -570,6 +584,20 @@ class UsersPage extends React.Component {
 	handleUserAdded(users) {
 		var rows = users.concat(this.state.rows);
 		this.setState({rows: rows, formShow: false, formShow1: false});
+	}
+
+	handlePageTurn (pageNum) {
+		var qs = "last=" + this.days;
+		qs = qs + "&pageNum=" + pageNum;
+
+		xFetchJSON("/api/users?" + qs).then((users) => {
+			this.setState({
+				rows: users.data,
+				pageCount: users.pageCount, 
+				rowCount: users.rowCount,
+				curPage: users.curPage
+			});
+		});
 	}
 
 	render() {
@@ -594,6 +622,28 @@ class UsersPage extends React.Component {
 					<td><T.a style={hand} onClick={_this.handleDelete} data-id={row.id} text="Delete" className={danger}/></td>
 			</tr>;
 		})
+
+		var pagination = function() {
+			var maxButtons = 7;
+			if (_this.state.pageCount == 0) return <div/>
+
+			if (maxButtons > _this.state.pageCount) maxButtons = _this.state.pageCount;
+
+			return (
+				<nav className="pull-right">
+					<Pagination
+						prev={T.translate("Prev Page")}
+						next={T.translate("Next Page")}
+						first={T.translate("First Page")}
+						last={T.translate("Last Page")}
+						ellipsis={false}
+						items={_this.state.pageCount}
+						maxButtons={maxButtons}
+						activePage={_this.state.curPage}
+						onSelect={_this.handlePageTurn} />
+				</nav>
+			);
+		}();
 
 		return <div>
 			<ButtonToolbar className="pull-right">
@@ -635,6 +685,11 @@ class UsersPage extends React.Component {
 					<th><T.span style={hand} text="Delete" className={danger} onClick={toggleDanger} title={T.translate("Click me to toggle fast delete mode")}/></th>
 				</tr>
 				{rows}
+				<tr>
+					<td colSpan="12">
+						{pagination}
+					</td>
+				</tr>
 				</tbody>
 				</table>
 			</div>
