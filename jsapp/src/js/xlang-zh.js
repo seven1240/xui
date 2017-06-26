@@ -138,6 +138,7 @@ LANGUAGES["zh"] = {
 	"Add Member": "添加与会者",
 	"Batch": "批量",
 	"Members": "与会者",
+	"Set As Moderator": "设为管理员",
 
 	"Display as Table": "以表格形式显示",
 	"Display as List": "以列表形式显示",

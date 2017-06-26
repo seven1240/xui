@@ -66,8 +66,6 @@ get('/:id/members', function(params)
 end)
 
 post('/', function(params)
-	print(serialize(params))
-
 	ret = xdb.create_return_id('conference_rooms', params.request)
 
 	if ret then
@@ -91,6 +89,9 @@ post('/:id/members', function(params)
 end)
 
 put('/:id', function(params)
+	print(serialize(params))
+	params.request.id = params.id
+
 	ret = xdb.update("conference_rooms", params.request)
 	if ret then
 		return 200, "{}"

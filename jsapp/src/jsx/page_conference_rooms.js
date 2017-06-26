@@ -239,6 +239,25 @@ class RoomMembers extends React.Component {
 		this.setState({members: members, memberFormShow: false});
 	}
 
+	handleSetAsModerator(e, num) {
+		e.preventDefault();
+
+		const _this = this;
+		const data = {
+			moderator: num
+		}
+
+		xFetchJSON("/api/conference_rooms/" + this.props.room_id, {
+			method: "PUT",
+			body: JSON.stringify(data)
+		}).then((ret) => {
+			_this.props.handleModeratorSet(num);
+			notify(<T.span text={{key:"Saved at", time: Date()}}/>);
+		}).catch((err) => {
+			notify(<T.span text="Error Set Moderator"/>, 'error');
+		})
+	}
+
 	handleDelete(e) {
 		e.preventDefault();
 
@@ -309,6 +328,7 @@ class RoomMembers extends React.Component {
 				<tr>
 					<th><T.span text="Name" data="k"/></th>
 					<th><T.span text="Number"/></th>
+					<th><T.span text="Description"/></th>
 					<th style={{textAlign: "right"}}>
 						<T.span style={{cursor: "pointer"}} text="Delete" className={danger} onClick={toggleDanger} title={T.translate("Click me to toggle fast delete mode")}/>
 					</th>
@@ -318,7 +338,9 @@ class RoomMembers extends React.Component {
 						return <tr key={m.id}>
 							<td>{m.name}</td>
 							<td>{m.num}</td>
+							<td>{m.description}</td>
 							<td style={{textAlign: "right"}}>
+								<T.a onClick={(e) => _this.handleSetAsModerator(e, m.num)} text="Set As Moderator" href="#"/> |&nbsp;
 								<T.a onClick={_this.handleDelete.bind(_this)} data-id={m.id} text="Delete" className={danger} href="#"/>
 							</td>
 						</tr>
@@ -501,20 +523,27 @@ class ConferenceRoom extends React.Component {
 		return true;
 	}
 
+	handleModeratorSet(num) {
+		this.state.room.moderator = num;
+		this.setState({room: this.state.room});
+	}
+
 	componentDidMount() {
 		const _this = this;
 
 		xFetchJSON("/api/conference_rooms/" + this.props.params.id).then((data) => {
 			_this.setState({room: data});
 		}).catch((msg) => {
-			console.log("get gw ERR");
+			console.log("get room ERR");
 		});
+
 
 		xFetchJSON("/api/conference_room_profiles/" + this.props.params.id).then((data) => {
 			_this.setState({profiles: data});
 		}).catch((msg) => {
-			console.log("get re ERR");
+			console.log("get room profile ERR");
 		});
+
 	}
 
 	render() {
@@ -600,7 +629,7 @@ class ConferenceRoom extends React.Component {
 
 			</Form>
 
-			{room.id ? <RoomMembers room_id={this.state.room.id} /> : null}
+			{room.id ? <RoomMembers room_id={this.state.room.id} handleModeratorSet={this.handleModeratorSet.bind(this)}/> : null}
 		</div>
 	}
 }

@@ -230,6 +230,12 @@ xdb.find_by_sql(sql, function(row)
 			if room then
 				if cidNumber == room.moderator then
 					flags = "+flags{join-vid-floor|moderator}"
+
+					table.insert(actions_table, {app = "set", data = "video_initial_watching_canvas=1"})
+					table.insert(actions_table, {app = "set", data = "video_initial_canvas=2"})
+				elseif room.moderator then -- when moderator is set then it's a special conference
+					table.insert(actions_table, {app = "set", data = "video_initial_watching_canvas=2"})
+					table.insert(actions_table, {app = "set", data = "video_initial_canvas=1"})
 				end
 
 				if room.profile_id then
