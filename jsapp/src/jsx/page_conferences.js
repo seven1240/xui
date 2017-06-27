@@ -657,7 +657,27 @@ class ConferencePage extends React.Component {
 
 					rows.push(r);
 				});
-			} else { // try to hide static members?
+			} else { // member is on another domain but we still want to check if it matches a static member
+				let found = false;
+				let tmp_obj = {}
+
+				boot_rows.forEach((brow) => {
+					tmp_obj[brow.cidNumber] = true;
+				});
+
+				const drows = this.state.domain_rows[domain].filter((drow) => {
+					console.log("+++++row", drow.cidNumber);
+					if (drow.memberID < 0 && tmp_obj[drow.cidNumber]) {
+						found = true;
+						return false;
+					}
+
+					return true;
+				});
+
+				if (found) {
+					this.state.domain_rows[domain] = drows;
+				}
 			}
 
 			boot_rows.forEach(function(member) {
