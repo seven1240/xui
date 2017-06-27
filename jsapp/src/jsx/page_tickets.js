@@ -766,7 +766,7 @@ class TicketsPage extends React.Component {
 
 	handleSelect(selectedKey) {
 		let _this = this;
-		let types = _this.state.types.map((type) => { return type.v; });
+		let types = _this.state.types.map((type) => { return type.k; });
 		if (selectedKey == 0) {
 			xFetchJSON("/api/tickets").then((data) => {
 				this.setState({rows: data, activeKey: selectedKey, display: 'inline'});
