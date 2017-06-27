@@ -30,8 +30,8 @@
  */
 ]]
 
-xtra.ignore_login('/')
-xtra.ignore_login('/start')
+xtra.ignore_login('/createCTI')
+xtra.ignore_login('/startService')
 
 xtra.start_session()
 xtra.require_login()
@@ -81,7 +81,17 @@ end)
 
 -- 1.3
 put('/startService', function(params)
-	return 200, {code = 200, text = "OK"}
+	login = 'cti'
+	pass = params.request.password
+
+	local user = xdb.find_one("users", {extn = login, password = pass})
+
+	if user then
+		xtra.save_session("user_id", user.id)
+		return 200, {code = 200, session_id = xtra.session_uuid}
+	else
+		return 403
+	end
 end)
 
 -- 1.4
