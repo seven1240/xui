@@ -279,7 +279,7 @@ put('/muteOff', function(params)
 end)
 
 -- 1.26
-get('/CallData', function(params)
+get('/callData', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
 	callData = api:execute("uuid_dump", uuid .. "  json")
@@ -287,7 +287,7 @@ get('/CallData', function(params)
 end)
 
 -- 1.27
-put('/CallData', function(params)
+put('/callData', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
 	local key = params.request.key
