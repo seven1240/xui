@@ -93,7 +93,7 @@ put('/:id', function(params)
 	params.request.id = params.id
 
 	ret = xdb.update("conference_rooms", params.request)
-	if ret then
+	if ret == 1 then
 		return 200, "{}"
 	else
 		return 500

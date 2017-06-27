@@ -512,6 +512,7 @@ class ConferenceRoom extends React.Component {
 			notify(<T.span text={{key:"Saved at", time: Date()}}/>);
 		}).catch((msg) => {
 			console.error("room", msg);
+			notify(msg, "error");
 		});
 	}
 	

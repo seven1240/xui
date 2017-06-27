@@ -213,7 +213,7 @@ CREATE TABLE conference_rooms (
 	name VARCHAR,
 	description VARCHAR,
 	nbr VARCHAR,  -- conference number
-	capacity integer,
+	capacity INTEGER DEFAULT 0,
 	realm VARCHAR,
 	pin VARCHAR,
 	profile_id INTEGER,
