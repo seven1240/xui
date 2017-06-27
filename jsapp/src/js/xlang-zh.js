@@ -315,6 +315,10 @@ LANGUAGES["zh"] = {
 	"GATEWAY_DOWN": "网关故障",
 	"MANDATORY_IE_MISSING": "SIP消息不全",
 	"SYSTEM_SHUTDOWN": "系统关机",
+	"INCOMPATIBLE_DESTINATION": "目的地不兼容",
+	"EXCHANGE_ROUTING_ERROR": "交换路由错误",
+	"MANAGER_REQUEST": "强制挂机",
+	"DESTINATION_OUT_OF_ORDER": "目的地异常",
 
 	"Import New Users": "导入新用户",
 
