@@ -60,7 +60,7 @@ function getState(state)
 end
 
 -- 1.1
-post('/', function(params)
+post('/createCTI', function(params)
 	login = 'cti'
 	pass = params.request.password
 
@@ -75,32 +75,32 @@ post('/', function(params)
 end)
 
 -- 1.2
-get('/', function(params)
+get('/isServiceRunning', function(params)
 	return 200, {code = 200, running = true}
 end)
 
 -- 1.3
-put('/start', function(params)
+put('/startService', function(params)
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.4
-put('/stop', function(params)
+put('/stopService', function(params)
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.5
-put('/restart', function(params)
+put('/restartService', function(params)
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.6
-get('/version', function(params)
+get('/serviceVersion', function(params)
 	return {code = 200, version = '1.0.1'}
 end)
 
 -- 1.7
-get('/agentState/:agent_id', function(params)
+get('/agentState', function(params)
 	-- local api = freeswitch.API()
 	-- json = {command = "callcenter_config", data = {arguments = "agent list"}}
 	-- args = utils.json_encode(json)
@@ -114,19 +114,20 @@ get('/agentState/:agent_id', function(params)
 	-- 	return 500
 	-- end
 	local api = freeswitch.API()
-	status = api:execute("callcenter_config", "agent get status " .. params.agent_id)
+	local agent_id = params.request.agent_id
+	status = api:execute("callcenter_config", "agent get status " .. agent_id)
 	return {status = getStatus(status)}
 end)
 
 -- 1.8
-get('/calls', function(params)
+get('/activeCallInfo', function(params)
 	local api = freeswitch.API()
 	ret = api:execute("show", "calls as json")
 	return ret
 end)
 
 -- 1.9
-get('/heldCalls', function(params)
+get('/heldCallInfo', function(params)
 	 local api = freeswitch.API()
 	json = {command = "callcenter_config", data = {arguments = "queue list members",  queue_name = "support1@cti"}}
 	args = utils.json_encode(json)
@@ -504,7 +505,7 @@ end)
 
 -- 1.50
 get("/recordFile", function(params)
-	local recordFile = params.request.file
+	local recordFile = env:getHeader("file")
 	if recordFile then
 		file = io.open(recordFile)
 		if not file then
