@@ -1067,7 +1067,7 @@ class ConferencePage extends React.Component {
 					<br/>
 					<Checkbox onChange={this.handleAutoSwitchClick.bind(this)} defaultChecked={this.state.autoSwitch}>
 						<T.span text="Auto Switch"/>
-						<input onChange={this.handleSwitchIntervalChange.bind(this)} defaultValue={global_loop_interval / 1000} size={2}/>
+						<input onChange={this.handleSwitchIntervalChange.bind(this)} defaultValue={global_loop_interval / 1000} size={3}/>
 						&nbsp;<T.span text="Second"/>
 					</Checkbox>
 
