@@ -259,7 +259,7 @@ class ConferencePage extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			name: this.props.room.name, domain_rows: {}, static_rows: [], la: null,
+			name: this.props.room.name + '@' + domain, domain_rows: {}, static_rows: [], la: null,
 			last_outcall_member_id: 0, outcall_rows: [],
 			outcallNumber: '', outcallNumberShow: false,
 			displayStyle: 'table', toolbarText: false,
@@ -291,9 +291,9 @@ class ConferencePage extends React.Component {
 		console.log("clicked data", data);
 
 		if (data == "lock") {
-			verto.fsAPI("conference", this.props.name + " lock");
+			verto.fsAPI("conference", this.state.name + " lock");
 		} else if (data == "unlock") {
-			verto.fsAPI("conference", this.props.name + " unlock");
+			verto.fsAPI("conference", this.state.name + " unlock");
 		} else if (data == "select") {
 			var _this = this;
 			if (this.state.total > 0) {
@@ -396,7 +396,7 @@ class ConferencePage extends React.Component {
 
 	componentDidMount () {
 		const _this = this;
-		console.log("conference name:", this.props.name);
+		console.log("conference name:", this.state.name);
 		window.addEventListener("verto-login", this.handleVertoLogin);
 
 		let prefOnline = localStorage.getItem("xui.conference.prefOnline");
@@ -459,19 +459,19 @@ class ConferencePage extends React.Component {
 			const use_livearray = false;
 
 			if (use_livearray) {
-				_this.la = new VertoLiveArray(verto, _this.getChannelName("liveArray"), _this.props.name, {
+				_this.la = new VertoLiveArray(verto, _this.getChannelName("liveArray"), _this.state.name, {
 					onChange: _this.handleConferenceEvent
 				});
 
 				const laData = {
 					canvasCount: 1,
 					chatChannel: _this.getChannelName("chat"),
-					chatID: "conf+" + _this.props.name + '@' + domain,
+					chatID: "conf+" + _this.state.name,
 					conferenceMemberID: 0,
 					infoChannel: _this.getChannelName("info"),
 					modChannel: _this.getChannelName("mod"),
 					laChannel: _this.getChannelName("liveArray"),
-					laName: _this.props.name + '@' + domain,
+					laName: _this.state.name,
 					role: "moderator" // participant
 				}
 
@@ -502,7 +502,7 @@ class ConferencePage extends React.Component {
 					liveArray: {
 						command: "bootstrap",
 						context: laChannelName,
-						name: _this.props.name,
+						name: _this.state.name,
 						obj: {}
 					}
 				});
@@ -608,7 +608,7 @@ class ConferencePage extends React.Component {
 	handleVertoLogin (e) {
 		// console.log("eeee", e.detail);
 		// if (this.la) this.la.destroy;
-		// this.la = new VertoLiveArray(verto, this.getChannelName("liveArray"), this.props.name, {});
+		// this.la = new VertoLiveArray(verto, this.getChannelName("liveArray"), this.state.name, {});
 		// this.la.onChange = this.handleConferenceEvent;
 	}
 
@@ -1111,7 +1111,7 @@ class ConferencePage extends React.Component {
 			<h1><T.span text={{ key: "Conference"}} /></h1>
 
 			<ButtonToolbar>
-				<T.span text="Conference Name"/>: {this.props.name} |&nbsp;
+				<T.span text="Conference Name"/>: {this.props.room.name} |&nbsp;
 				<T.span text="Total"/>: {effective_rows}/{this.state.total}
 			</ButtonToolbar>
 
