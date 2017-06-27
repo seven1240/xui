@@ -259,7 +259,7 @@ class ConferencePage extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			name: this.props.name, domain_rows: {}, static_rows: [], la: null,
+			name: this.props.room.name, domain_rows: {}, static_rows: [], la: null,
 			last_outcall_member_id: 0, outcall_rows: [],
 			outcallNumber: '', outcallNumberShow: false,
 			displayStyle: 'table', toolbarText: false,
@@ -280,7 +280,7 @@ class ConferencePage extends React.Component {
 
 	getChannelName(what, dm) { // liveArray chat mod
 		if (!dm) dm = domain;
-		return "conference-" + what + "." + this.props.room_nbr + '-' + dm + "@" + dm;
+		return "conference-" + what + "." + this.props.room.nbr + '-' + dm + "@" + dm;
 	}
 
 	handleOutcallNumberChange(e) {
@@ -364,7 +364,7 @@ class ConferencePage extends React.Component {
 			const member = this.activeMembers[memberID];
 			if (member && member.active && memberID > 0) {
 				const dm = member.verto ? member.verto.domain : domain;
-				var args = this.props.room_nbr + '-' + dm + " " + data + " " + memberID;
+				var args = this.props.room.nbr + '-' + dm + " " + data + " " + memberID;
 				// console.log("args", args);
 				const vt = member.verto ? member.verto : verto;
 				vt.fsAPI("conference", args);
@@ -429,7 +429,7 @@ class ConferencePage extends React.Component {
 			console.error("err", err);
 		});
 
-		xFetchJSON("/api/conference_rooms/" + this.props.room_id + "/members").then((members) => {
+		xFetchJSON("/api/conference_rooms/" + this.props.room.id + "/members").then((members) => {
 			_this.state.static_rows = members.map(function(m) {
 				const audio = {
 					talking: false,
@@ -548,7 +548,7 @@ class ConferencePage extends React.Component {
 							liveArray: {
 								command: "bootstrap",
 								context: laChannelName,
-								name: _this.props.room_nbr + '-' + v.domain,
+								name: _this.props.room.nbr + '-' + v.domain,
 								obj: {}
 							}
 						});
@@ -666,7 +666,7 @@ class ConferencePage extends React.Component {
 				});
 
 				const drows = this.state.domain_rows[domain].filter((drow) => {
-					console.log("+++++row", drow.cidNumber);
+					// console.log("+++++row", drow.cidNumber);
 					if (drow.memberID < 0 && tmp_obj[drow.cidNumber]) {
 						found = true;
 						return false;
@@ -1011,7 +1011,7 @@ class ConferencePage extends React.Component {
 
 		const members = rows.map(function(member) {
 			if (member && member.hidden) return null;
-			member.room_nbr = _this.props.room_nbr;
+			member.room_nbr = _this.props.room.nbr;
 			const dm = member.verto ? member.verto.domain : domain;
 			member.conference_name = member.room_nbr + '-' + dm;
 			return <Member member={member} key={member.uuid} onMemberClick={_this.handleMemberClick} displayStyle={_this.state.displayStyle}/>

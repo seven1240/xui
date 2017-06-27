@@ -170,7 +170,7 @@ class Conferences extends React.Component {
 
 		let panes = this.state.rows.map(function(room) {
 			let name = room.nbr + "-" + domain;
-			return <Tab.Pane eventKey={room.id} key={room.id} unmountOnExit><ConferencePage room = {room} name={name} room_id={room.id} room_nbr={room.nbr}/></Tab.Pane>;
+			return <Tab.Pane eventKey={room.id} key={room.id} unmountOnExit><ConferencePage room = {room}/></Tab.Pane>;
 		});
 
 		return <Tab.Container id="conference-tabs" defaultActiveKey={defaultActiveKey}>
