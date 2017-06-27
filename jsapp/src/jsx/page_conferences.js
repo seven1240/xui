@@ -263,7 +263,8 @@ class ConferencePage extends React.Component {
 			last_outcall_member_id: 0, outcall_rows: [],
 			outcallNumber: '', outcallNumberShow: false,
 			displayStyle: 'table', toolbarText: false,
-			showSettings: false, autoSort: true, autoSwitch: false
+			showSettings: false, autoSort: true, autoSwitch: false,
+			prefOnline: false, prefUnmuted: false
 		};
 
 		this.la = null;
@@ -398,6 +399,12 @@ class ConferencePage extends React.Component {
 		console.log("conference name:", this.props.name);
 		window.addEventListener("verto-login", this.handleVertoLogin);
 
+		let prefOnline = localStorage.getItem("xui.conference.prefOnline");
+		prefOnline = prefOnline == "true" ? true : false;
+
+		let prefUnmuted = localStorage.getItem("xui.conference.prefUnmuted");
+		prefUnmuted = prefUnmuted == "true" ? true : false;
+
 		let autoSort = localStorage.getItem("xui.conference.autoSort");
 		autoSort = autoSort == "false" ? false : true;
 
@@ -412,7 +419,7 @@ class ConferencePage extends React.Component {
 		}
 
 		const displayStyle = localStorage.getItem("xui.conference.displayStyle") || "table";
-		this.setState({displayStyle, autoSort, autoSwitch});
+		this.setState({displayStyle, prefOnline, prefUnmuted, autoSort, autoSwitch});
 
 		this.state.domain_rows[domain] = []; // init our domain;
 
@@ -831,6 +838,16 @@ class ConferencePage extends React.Component {
 		}
 	}
 
+	handlePrefOnlineClick(e) {
+		this.setState({prefOnline: e.target.checked});
+		localStorage.setItem('xui.conference.prefOnline', e.target.checked);
+	}
+
+	handlePrefUnmutedClick(e) {
+		this.setState({prefUnmuted: e.target.checked});
+		localStorage.setItem('xui.conference.prefUnmuted', e.target.checked);
+	}
+
 	handleAutoSortClick(e) {
 		this.setState({autoSort: e.target.checked});
 		localStorage.setItem('xui.conference.autoSort', e.target.checked);
@@ -943,6 +960,25 @@ class ConferencePage extends React.Component {
 		});
 
 		const sort_member = function(a, b) {
+			if (_this.state.prefUnmuted) {
+				const a_unmuted = a.memberID > 0 && a.cidNumber.indexOf('.') < 0 && a.status && a.status.audio.muted == false;
+				const b_unmuted = b.memberID > 0 && a.cidNumber.indexOf('.') < 0 && b.status && b.status.audio.muted == false;
+
+				if (a_unmuted && !b_unmuted) {
+					return -1;
+				} else if (!a_unmuted && b_unmuted) {
+					return 1;
+				}
+			}
+
+			if (_this.state.prefOnline) {
+				if (a.memberID < 0 && b.memberID > 0 && b.cidNumber.indexOf('.') < 0) {
+					return 1;
+				} else if (a.memberID > 0 && b.memberID < 0 && a.cidNumber.indexOf('.') < 0) {
+					return -1;
+				}
+			}
+
 			return a.cidNumber < b.cidNumber ? -1 : (a.cidNumber > b.cidNumber ? 1 : 0);
 		}
 
@@ -1074,6 +1110,15 @@ class ConferencePage extends React.Component {
 					<Checkbox onChange={this.handleAutoSortClick.bind(this)} defaultChecked={this.state.autoSort}>
 						<T.span text="Auto Sort"/>
 					</Checkbox>
+
+					<Checkbox onChange={this.handlePrefUnmutedClick.bind(this)} defaultChecked={this.state.prefUnmuted}>
+						<T.span text="Sort Unmuted Prefered"/>
+					</Checkbox>
+
+					<Checkbox onChange={this.handlePrefOnlineClick.bind(this)} defaultChecked={this.state.prefOnline}>
+						<T.span text="Sort Online Prefered"/>
+					</Checkbox>
+
 				</div>
 			}
 
