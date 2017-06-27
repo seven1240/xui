@@ -520,7 +520,7 @@ class ConferencePage extends React.Component {
 						verto_loginState = true;
 
 						if (!success) {
-							console.error("cluster veroto login err");
+							console.error("cluster verto login err");
 							return;
 						}
 
@@ -643,6 +643,7 @@ class ConferencePage extends React.Component {
 
 					rows.push(r);
 				});
+			} else { // try to hide static members?
 			}
 
 			boot_rows.forEach(function(member) {
