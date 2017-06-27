@@ -44,7 +44,7 @@ let global_conference_links = {};
 let global_conference_links_local = {};
 let global_conference_profile = {name: 'default'};
 let global_switch_index = -1; // in auto switch mode
-const global_loop_interval = 10000;
+let global_loop_interval = 10000;
 
 // translate conference member
 function translateMember(member) {
@@ -403,6 +403,13 @@ class ConferencePage extends React.Component {
 
 		let autoSwitch = localStorage.getItem("xui.conference.autoSwitch");
 		autoSwitch = autoSwitch == "true" ? true : false;
+
+		let loopInterval = localStorage.getItem("xui.conference.switchLoopInterval");
+		const interval = parseInt(loopInterval);
+
+		if (interval >= 10000 && interval <= 3600000) {
+			global_loop_interval = interval;
+		}
 
 		const displayStyle = localStorage.getItem("xui.conference.displayStyle") || "table";
 		this.setState({displayStyle, autoSort, autoSwitch});
@@ -910,6 +917,17 @@ class ConferencePage extends React.Component {
 		}
 	}
 
+	handleSwitchIntervalChange(e) {
+		console.log('interval', e.target.value);
+		const interval = parseInt(e.target.value);
+
+		if (interval >= 10 && interval <= 3600 ) {
+			global_loop_interval = interval * 1000;
+		}
+
+		localStorage.setItem("xui.conference.switchLoopInterval", global_loop_interval);
+	}
+
 	render () {
 		const _this = this;
 		let effective_rows = 0;
@@ -1049,6 +1067,8 @@ class ConferencePage extends React.Component {
 					<br/>
 					<Checkbox onChange={this.handleAutoSwitchClick.bind(this)} defaultChecked={this.state.autoSwitch}>
 						<T.span text="Auto Switch"/>
+						<input onChange={this.handleSwitchIntervalChange.bind(this)} defaultValue={global_loop_interval / 1000} size={2}/>
+						&nbsp;<T.span text="Second"/>
 					</Checkbox>
 
 					<Checkbox onChange={this.handleAutoSortClick.bind(this)} defaultChecked={this.state.autoSort}>

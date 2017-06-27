@@ -8,6 +8,9 @@ LANGUAGES["zh"] = {
 	"Toggle Select": "反选",
 	"Make Call": "呼叫",
 	"Hangup Call": "挂断",
+	"Hour": "时",
+	"Minute": "分",
+	"Second": "秒",
 
 	Online: "在线",
 	Offline: "离线",
