@@ -211,19 +211,21 @@ end)
 -- 1.18
 put('/callInner', function(params)
 	local api = freeswitch.API()
+	local context = 'cti'
 	local agent_id = params.request.agent_id
 	local calledAgent = params.request.calledAgent
-	api:execute("bgapi", "originate user/" .. agent_id .. " "  .. calledAgent .. " XML default")
+	api:execute("bgapi", "originate user/" .. agent_id .. " "  .. calledAgent .. " XML " .. context)
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.19
 put('/callOut', function(params)
 	local api = freeswitch.API()
+	local context = 'cti'
 	local agent_id = params.request.agent_id
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
-	api:execute("bgapi", "originate user/" .. agent_id .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML default'")
+	api:execute("bgapi", "originate user/" .. agent_id .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "'")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -299,9 +301,10 @@ end)
 -- 1.28
 put('/transferIVR', function(params)
 	local api = freeswitch.API()
+	local context = 'cti'
 	local uuid = params.request.uuid
 	local accessCode = params.request.accessCode
-	api:execute("uuid_transfer", uuid .. " " .. accessCode .. " XML default")
+	api:execute("uuid_transfer", uuid .. " " .. accessCode .. " XML " .. context)
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -318,19 +321,21 @@ end)
 -- need use transfer_after_bridge in dialplan
 put('/consultIVR', function(params)
 	local api = freeswitch.API()
+	local context = 'cti'
 	local uuid = params.request.uuid
 	local accessCode = params.request.accessCode
-	api:execute("uuid_transfer", uuid .. " " .. accessCode .. " XML default")
+	api:execute("uuid_transfer", uuid .. " " .. accessCode .. " XML " .. context)
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.31
 put('/transferOut', function(params)
 	local api = freeswitch.API()
+	local context = 'cti'
 	local uuid = params.request.uuid
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
-	api:execute("uuid_transfer", uuid .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML default'")
+	api:execute("uuid_transfer", uuid .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "'")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -346,10 +351,11 @@ end)
 -- 1.33
 put('/consultOut', function(params)
 	local api = freeswitch.API()
+	local context = 'cti'
 	local uuid = params.request.uuid
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
-	api:execute("uuid_transfer", uuid .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML default'")
+	api:execute("uuid_transfer", uuid .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "'")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -365,9 +371,10 @@ end)
 -- 1.35
 put('/consultTransfer', function(params)
 	local api = freeswitch.API()
+	local context = 'cti'
 	local uuid = params.request.uuid
 	local agent_id = params.request.agent_id
-	api:execute("uuid_transfer", uuid .. " bind_meta_app:'1 b s execute_extension::xui_attended_xfer XML default',bridge:user/" .. agent_id .. " inline")
+	api:execute("uuid_transfer", uuid .. " bind_meta_app:'1 b s execute_extension::xui_attended_xfer XML " .. context .. "',bridge:user/" .. agent_id .. " inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
