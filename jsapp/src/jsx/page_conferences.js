@@ -968,6 +968,10 @@ class ConferencePage extends React.Component {
 	render () {
 		const _this = this;
 		let effective_rows = 0;
+		let total_rows = 0;
+
+		const STYLES=["success", "info", "warning", "danger", "success", "info", "warning", "danger", "success", "info", "warning", "danger"];
+		let i = 0;
 
 		let rows = this.state.outcall_rows;
 
@@ -977,6 +981,7 @@ class ConferencePage extends React.Component {
 
 		rows.forEach((row) => {
 			if (row.memberID > 0) effective_rows++;
+			if (!row.hidden) total_rows++;
 		});
 
 		const sort_member = function(a, b) {
@@ -1006,7 +1011,8 @@ class ConferencePage extends React.Component {
 			rows = rows.sort(sort_member);
 		}
 
-		this.state.total = rows.length;
+		this.state.total = total_rows;
+		this.state.all = rows.length;
 		this.state.rows = rows;
 
 		const members = rows.map(function(member) {
@@ -1112,7 +1118,23 @@ class ConferencePage extends React.Component {
 
 			<ButtonToolbar>
 				<T.span text="Conference Name"/>: {this.props.room.name} |&nbsp;
-				<T.span text="Total"/>: {effective_rows}/{this.state.total}
+				<T.span text="Total"/>: {effective_rows}/{this.state.total}/{this.state.all}
+				&nbsp; | &nbsp;
+
+				{
+					Object.keys(this.state.domain_rows).map((dm) => {
+						return <span>{dm}: {this.state.domain_rows[dm].length} | &nbsp;</span>
+					})
+				}
+
+				<ProgressBar>
+				{
+					Object.keys(this.state.domain_rows).map((dm) => {
+						return <ProgressBar bsStyle={STYLES[i++]} now={this.state.domain_rows[dm].length / this.state.total * 100} label = {dm}/>
+					})
+				}
+				</ProgressBar>
+
 			</ButtonToolbar>
 
 			{
