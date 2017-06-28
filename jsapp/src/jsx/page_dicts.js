@@ -415,7 +415,7 @@ class DictsPage extends React.Component {
 						<RIEInput value={_this.state.highlight ? (row.v ? row.v : T.translate("Click to Change")) : row.v} 
 						change={_this.handleChange}
 						propName={id}
-						className={_this.state.highlight ? "editable" : ""}
+						className={_this.state.highlight ? "editable long-input" : "long-input"}
 						validate={_this.isStringAcceptable}
 						classLoading="loading"
 						classInvalid="invalid"/>

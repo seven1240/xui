@@ -327,3 +327,7 @@ span.log0 {color: black;}
 	font-weight:bold;
 	border-radius:10px;
 }
+
+.long-input {
+	width: 100%;
+}

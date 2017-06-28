@@ -160,7 +160,7 @@ class TrafficDictPage extends React.Component {
 					<td>{param.k}</td>
 					<td><RIEInput value={param.v} change={_this.handleChange}
 						propName={param.id}
-						className={_this.state.highlight ? "editable" : ""}
+						className={_this.state.highlight ? "editable long-input" : "long-input"}
 						validate={_this.isStringAcceptable}
 						classLoading="loading"
 						classInvalid="invalid"/>

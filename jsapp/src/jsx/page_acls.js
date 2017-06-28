@@ -369,14 +369,14 @@ class ACLPage extends React.Component {
 				return <tr key={node.id} className={disabled_class}>
 					<td><RIEInput value={_this.state.highlight ? (node.k ? node.k : T.translate("Click to Change")) : node.k} change={_this.handleChangeValueK}
 						propName={node.id}
-						className={_this.state.highlight ? "editable" : ""}
+						className={_this.state.highlight ? "editable long-input" : "long-input"}
 						validate={_this.isStringAcceptable}
 						classLoading="loading"
 						classInvalid="invalid"/>
 					</td>
 					<td><RIEInput value={_this.state.highlight ? (node.v ? node.v : T.translate("Click to Change")) : node.v} change={_this.handleChange}
 						propName={node.id}
-						className={_this.state.highlight ? "editable" : ""}
+						className={_this.state.highlight ? "editable long-input" : "long-input"}
 						validate={_this.isStringAcceptable}
 						classLoading="loading"
 						classInvalid="invalid"/>

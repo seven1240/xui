@@ -526,7 +526,7 @@ class GatewayPage extends React.Component {
 					</td>
 					<td><RIEInput value={_this.state.highlight ? (param.v ? param.v : T.translate("Click to Change")) : param.v} change={_this.handleChange}
 						propName={param.id}
-						className={_this.state.highlight ? "editable" : ""}
+						className={_this.state.highlight ? "editable long-input" : "long-input"}
 						validate={_this.isStringAcceptable}
 						classLoading="loading"
 						classInvalid="invalid"/>

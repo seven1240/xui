@@ -90,7 +90,7 @@ class SettingBaiduTTS extends React.Component {
 				<Col style={hand} >
 					<RIEInput value={row.v} change={_this.handleChange.bind(_this)}
 						propName={row.id}
-						className={_this.state.highlight ? "editable" : "editable2"}
+						className={_this.state.highlight ? "editable long-input" : "editable2 long-input"}
 						validate={_this.isStringAcceptable}
 						classLoading="loading"
 						classInvalid="invalid"/>
