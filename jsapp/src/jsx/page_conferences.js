@@ -774,7 +774,7 @@ class ConferencePage extends React.Component {
 			const rows = this.state.domain_rows[vt.domain].map(function(row) {
 				if (row.uuid == a.key ) {
 					var member = translateMember([a.key, a.data]);
-					member.active = _this.activeMembers[member.memberID];
+					member.active = _this.activeMembers[member.memberID] ? _this.activeMembers[member.memberID].active : false;
 					member.fakeMemberID = row.fakeMemberID;
 					member.verto = vt;
 					return member;
