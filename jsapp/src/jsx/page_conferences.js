@@ -32,7 +32,7 @@
 
 import React from 'react';
 import T from 'i18n-react';
-import { ButtonToolbar, ButtonGroup, Button, ProgressBar, Thumbnail, Checkbox } from 'react-bootstrap';
+import { ButtonToolbar, ButtonGroup, Button, ProgressBar, Thumbnail, Checkbox, DropdownButton, MenuItem } from 'react-bootstrap';
 import verto from './verto/verto';
 import { Verto } from './verto/verto';
 import { VertoLiveArray } from './verto/verto-livearray';
@@ -254,7 +254,12 @@ class Member extends React.Component {
 						<i className={hold_class} style={{color: hold_color, display: "none"}} aria-hidden="true"></i>&nbsp;
 						<a className="conf-control fa fa-phone" style={{color: "green"}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, "call")}></a>&nbsp;
 						{
-							member.room.canvas_count < 1 ? null : "① ②"
+							member.room.canvas_count < 1 ? null : (
+								!(member.status.video && typeof(member.status.video.canvasID) != "undefined") ? null : (
+									(member.status.video.canvasID == 1 ? "②" : "①") +
+									(member.status.video.watchingCanvasID == 1 ? " ②" : " ①")
+								)
+							)
 						}
 					</div>
 				</div>
@@ -270,6 +275,7 @@ class ConferencePage extends React.Component {
 			name: this.props.room.name + '@' + domain, domain_rows: {}, static_rows: [], la: null,
 			last_outcall_member_id: 0, outcall_rows: [],
 			outcallNumber: '', outcallNumberShow: false,
+			layouts: [],
 			displayStyle: 'table', toolbarText: false,
 			showSettings: false, autoSort: true, autoSwitch: false,
 			prefOnline: false, prefUnmuted: false
@@ -382,7 +388,7 @@ class ConferencePage extends React.Component {
 	}
 
 	handleMemberClick(member_id, isActive, member) {
-		console.log('isActive', isActive)
+		console.log('member isActive', isActive + " " + member_id);
 		member.active = isActive;
 		this.activeMembers[member_id] = member;
 	}
@@ -439,6 +445,10 @@ class ConferencePage extends React.Component {
 			global_conference_profile = data;
 		}).catch((err) => {
 			console.error("err", err);
+		});
+
+		xFetchJSON("/api/dicts?realm=LAYOUT").then((data) => {
+			_this.setState({layouts: data});
 		});
 
 		xFetchJSON("/api/conference_rooms/" + this.props.room.id + "/members").then((members) => {
@@ -577,9 +587,12 @@ class ConferencePage extends React.Component {
 
 				}
 
-				xFetchJSON("/api/dicts?realm=CONF_NODE").then((data) => {
+				xFetchJSON("/api/dicts?realm=xCONF_NODE").then((data) => {
 					this.vertos = [];
-					this.isCluster = true;
+
+					if (data.length) {
+						this.isCluster = true;
+					}
 
 					data.forEach(function(dict) {
 						const v = new Verto();
@@ -978,6 +991,66 @@ class ConferencePage extends React.Component {
 		localStorage.setItem("xui.conference.switchLoopInterval", global_loop_interval);
 	}
 
+	handleSeletExtControl(k, e) {
+		console.log("clicked", k);
+		let action = null;
+		let target = null;
+
+		switch(k) {
+			case "res":
+				action = "vid-res-id";
+				target = "aa";
+				break;
+			case "L1":
+				action = "vid-layout 1-1-1 1";
+				break;
+			case "L2":
+				action = "vid-layout 1-1-1 2";
+				break;
+			case "c1":
+				action = "vid-canvas";
+				target = "1";
+				break;
+			case "c2":
+				action = "vid-canvas";
+				target = "2";
+				break;
+			case "w1":
+				action = "vid-watching-canvas";
+				target = "1";
+				break;
+			case "w2":
+				action = "vid-watching-canvas";
+				target = "2";
+				break;
+			default: break;
+		}
+
+		if (!action) return;
+
+		for(var memberID in this.activeMembers) {
+			const member = this.activeMembers[memberID];
+			if (member && member.active && memberID > 0) {
+				const dm = member.verto ? member.verto.domain : domain;
+				let args = this.props.room.nbr + '-' + dm + " " + action;
+
+				if (target) {
+					 args += " " + memberID + " " + target;
+				}
+
+				console.log("control args", args);
+				const vt = member.verto ? member.verto : verto;
+				vt.fsAPI("conference", args);
+				// this.cman.modCommand(data, memberID);
+			}
+		}
+	}
+
+	handleCanvasLayout(canvas, layout) {
+		console.log("conference", this.props.room.nbr + '-' + domain + ' vid-layout ' + layout + ' ' + canvas);
+		verto.fsAPI("conference", this.props.room.nbr + '-' + domain + ' vid-layout ' + layout + ' ' + canvas);
+	}
+
 	render () {
 		const _this = this;
 		let effective_rows = 0;
@@ -1058,8 +1131,45 @@ class ConferencePage extends React.Component {
 
 		const toolbarTextStyle = this.state.toolbarText ? null : {display: 'none'};
 
+		const confCanvas1 = <i className="fa fa-photo" aria-hidden="true"> ①</i>
+		const confCanvas2 = <i className="fa fa-photo" aria-hidden="true"> ②</i>
+		const extendedConferenceControls = <i className="fa fa-gears" aria-hidden="true"></i>
+
 		return <div>
 			<ButtonToolbar className="pull-right">
+
+			{
+				!this.props.room.isMuxing ? null :
+
+				<ButtonGroup>
+					<DropdownButton title={confCanvas1}>
+					{
+						this.state.layouts.map((layout) => {
+							return <MenuItem key={layout.k} eventKey={layout.k} onSelect={(k) => this.handleCanvasLayout('1', k)}>{layout.k}</MenuItem>
+						})
+					}
+					</DropdownButton>
+
+					<DropdownButton title={confCanvas2}>
+					{
+						this.state.layouts.map((layout) => {
+							return <MenuItem key={layout.k} eventKey={layout.k} onSelect={(k) => this.handleCanvasLayout('2', k)}>{layout.k}</MenuItem>
+						})
+					}
+					</DropdownButton>
+
+					<DropdownButton title={extendedConferenceControls}>
+						<MenuItem eventKey="L1" onSelect={this.handleSeletExtControl.bind(this)}>Set layout canvas #1</MenuItem>
+						<MenuItem eventKey="L2" onSelect={this.handleSeletExtControl.bind(this)}>Set layout canvas #2</MenuItem>
+						<MenuItem eventKey="res" onSelect={this.handleSeletExtControl.bind(this)}>Set Reservation</MenuItem>
+
+						<MenuItem eventKey="c1" onSelect={this.handleSeletExtControl.bind(this)}>Move to canvas #1</MenuItem>
+						<MenuItem eventKey="c2" onSelect={this.handleSeletExtControl.bind(this)}>Move to canvas #2</MenuItem>
+						<MenuItem eventKey="w1" onSelect={this.handleSeletExtControl.bind(this)}>Watch canvas #1</MenuItem>
+						<MenuItem eventKey="w2" onSelect={this.handleSeletExtControl.bind(this)}>Watch canvas #2</MenuItem>
+					</DropdownButton>
+				</ButtonGroup>
+			}
 
 			<ButtonGroup style={ this.state.outcallNumberShow ? null : {display: 'none'} }>
 				<input value={this.state.outcallNumber} onChange={this.handleOutcallNumberChange} size={10}
