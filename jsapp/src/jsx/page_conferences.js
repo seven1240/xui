@@ -514,7 +514,7 @@ class ConferencePage extends React.Component {
 					liveArray: {
 						command: "bootstrap",
 						context: laChannelName,
-						name: _this.state.name,
+						name: _this.props.room.nbr + '-' + domain,
 						obj: {}
 					}
 				});
@@ -1145,7 +1145,7 @@ class ConferencePage extends React.Component {
 				{
 					!this.isCluster ? null : <ProgressBar> {
 						Object.keys(this.state.domain_rows).map((dm) => {
-							return <ProgressBar bsStyle={STYLES[i++]} now={this.state.domain_rows[dm].length / this.state.total * 100} label = {dm}/>
+							return <ProgressBar key={i} bsStyle={STYLES[i++]} now={this.state.domain_rows[dm].length / this.state.total * 100} label = {dm}/>
 						})
 					} </ProgressBar>
 				}
