@@ -182,7 +182,7 @@ class Member extends React.Component {
 
 		const floor_color   = this.state.calling ? '#DDDD00' : (which_floor.floor ? "red"   : "#777") ;
 		const video_color  = member.status.video && !member.status.video.muted ? "green" : "#ccc";
-		const muted_color   = member.status.audio.muted   ? "#ccc"   : "green";
+		const muted_color   = member.status.audio.muted   ? "#ccc"   : (member.status.audio.talking ? "green" : "#333");
 		const talking_color = member.status.audio.talking ? "green"  : "#777" ;
 		const deaf_color    = member.status.audio.deaf    ? "#ccc"   : "green";
 		const hold_color    = member.status.audio.onHold  ? "blue"   : "#ccc" ;
@@ -231,7 +231,9 @@ class Member extends React.Component {
 				memberIDStyle.color = 'blue';
 			}
 
-			return  <div  className={className} onClick={(e) => _this.handleClick(e, member.memberID)} style={{width: "185px", height: "90px", marginTop:"30px", marginRight:"20px", border:"1px solid #c0c0c0", display:"inline-block"}}>
+			const block_width = member.room.canvas_count > 1 ? "200px" : "188px";
+
+			return  <div  className={className} onClick={(e) => _this.handleClick(e, member.memberID)} style={{width: block_width, height: "90px", marginTop:"30px", marginRight:"20px", border:"1px solid #c0c0c0", display:"inline-block"}}>
 				<div style={{float:"left"}}>
 					<div className={imgClass}></div>
 					<div style={memberIDStyle}>{member.memberID}</div>
@@ -242,12 +244,18 @@ class Member extends React.Component {
 					<div className="conf-member-cidnumber">{member.verto ? member.verto.domain : domain}</div>
 					<div style={{marginTop: "3px"}}>
 						<a className="conf-control fa fa-star" style={{color: floor_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, "floor")}></a>&nbsp;
-						<i className={member.status.audio.talking ? "fa fa-volume-up": "fa fa-volume-down"} style={{color: talking_color}} aria-hidden="true"></i>&nbsp;
+						{
+							member.room.canvas_count > 1 ? null :
+							<i className={member.status.audio.talking ? "fa fa-volume-up": "fa fa-volume-down"} style={{color: talking_color}} aria-hidden="true">&nbsp;</i>
+						}
 						<a className={deaf_class} style={{color: deaf_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, member.status.audio.deaf ? "undeaf" : "deaf")}></a>&nbsp;
 						<a className={muted_class} style={{color: muted_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, member.status.audio.muted ? "unmute" : "mute")}></a>&nbsp;
 						<a className={video_class} style={{color: video_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, member.status.video && !member.status.video.muted ? "vmute" : "unvmute")}></a>&nbsp;
 						<i className={hold_class} style={{color: hold_color, display: "none"}} aria-hidden="true"></i>&nbsp;
-						<a className="conf-control fa fa-phone" style={{color: "green"}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, "call")}></a>
+						<a className="conf-control fa fa-phone" style={{color: "green"}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, "call")}></a>&nbsp;
+						{
+							member.room.canvas_count < 1 ? null : "① ②"
+						}
 					</div>
 				</div>
 			</div>
@@ -398,6 +406,10 @@ class ConferencePage extends React.Component {
 		const _this = this;
 		console.log("conference name:", this.state.name);
 		window.addEventListener("verto-login", this.handleVertoLogin);
+
+		// temporarily use capacity as canvas count
+		this.props.room.canvas_count = this.props.room.capacity;
+		this.props.room.isMuxing = this.props.room.canvas_count > 0 ? true : false;
 
 		let prefOnline = localStorage.getItem("xui.conference.prefOnline");
 		prefOnline = prefOnline == "true" ? true : false;
@@ -1020,6 +1032,7 @@ class ConferencePage extends React.Component {
 			member.room_nbr = _this.props.room.nbr;
 			const dm = member.verto ? member.verto.domain : domain;
 			member.conference_name = member.room_nbr + '-' + dm;
+			member.room = _this.props.room;
 			return <Member member={member} key={member.uuid} onMemberClick={_this.handleMemberClick} displayStyle={_this.state.displayStyle}/>
 		});
 
