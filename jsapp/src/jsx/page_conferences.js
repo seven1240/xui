@@ -579,6 +579,7 @@ class ConferencePage extends React.Component {
 
 				xFetchJSON("/api/dicts?realm=CONF_NODE").then((data) => {
 					this.vertos = [];
+					this.isCluster = true;
 
 					data.forEach(function(dict) {
 						const v = new Verto();
@@ -1135,18 +1136,19 @@ class ConferencePage extends React.Component {
 				&nbsp; | &nbsp;
 
 				{
+					!this.isCluster ? null :
 					Object.keys(this.state.domain_rows).map((dm) => {
 						return <span>{dm}: {this.state.domain_rows[dm].length} | &nbsp;</span>
 					})
 				}
 
-				<ProgressBar>
 				{
-					Object.keys(this.state.domain_rows).map((dm) => {
-						return <ProgressBar bsStyle={STYLES[i++]} now={this.state.domain_rows[dm].length / this.state.total * 100} label = {dm}/>
-					})
+					!this.isCluster ? null : <ProgressBar> {
+						Object.keys(this.state.domain_rows).map((dm) => {
+							return <ProgressBar bsStyle={STYLES[i++]} now={this.state.domain_rows[dm].length / this.state.total * 100} label = {dm}/>
+						})
+					} </ProgressBar>
 				}
-				</ProgressBar>
 
 			</ButtonToolbar>
 
