@@ -421,6 +421,9 @@ class TicketPage extends React.Component {
 		})
 
 		const ticket = this.state.ticket;
+		if (ticket.appraise || this.state.appraise) {
+			this.state.content = true;
+		}
 		let types = {};
 		this.state.types.forEach((type) => {
 			types[type.k] = type.v;
@@ -649,19 +652,24 @@ class TicketPage extends React.Component {
 			{satisfied}
 			<hr />
 			<Form horizontal id="FormAppraise">
-				<FormGroup>
-					<Col componentClass={ControlLabel} sm={2}><T.span text="评价" /></Col>
-					<Col sm={6}>
-						{
-							this.state.content
-							? <EditControl componentClass="textarea" name="appraise" defaultValue={this.state.appraise}/>
-							: <FormControl componentClass="textarea" name="appraise" placeholder="评价内容" />
-						}
-					</Col>
-					<Col sm={1}>
-						<Button onClick={this.handleAppraiseSubmit}><T.span onClick={this.handleAppraiseSubmit} text="Submit"/></Button>
-					</Col>
-				</FormGroup>
+				{
+					this.state.content ?
+					<FormGroup>
+						<Col componentClass={ControlLabel} sm={2}><T.span text="评价" /></Col>
+						<Col sm={6}>
+							<EditControl componentClass="textarea" name="appraise" defaultValue={this.state.appraise ? this.state.appraise : this.state.ticket.appraise}/>						
+						</Col>
+					</FormGroup> :
+					<FormGroup>
+						<Col componentClass={ControlLabel} sm={2}><T.span text="评价" /></Col>
+						<Col sm={6}>
+							<FormControl componentClass="textarea" name="appraise" placeholder="评价内容" />
+						</Col>
+						<Col sm={1}>
+							<Button onClick={this.handleAppraiseSubmit}><T.span onClick={this.handleAppraiseSubmit} text="Submit"/></Button>
+						</Col>
+					</FormGroup>
+				}
 			</Form>
 			<hr/>
 			{ticket_comments}
