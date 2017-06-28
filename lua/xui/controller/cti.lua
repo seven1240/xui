@@ -138,8 +138,9 @@ end)
 
 -- 1.9
 get('/heldCallInfo', function(params)
-	 local api = freeswitch.API()
-	json = {command = "callcenter_config", data = {arguments = "queue list members",  queue_name = "support1@cti"}}
+	local api = freeswitch.API()
+	local queue_name = params.request.queue_name
+	json = {command = "callcenter_config", data = {arguments = "queue list members",  queue_name = queue_name}}
 	args = utils.json_encode(json)
 	ret = api:execute("json", args)
 	json = utils.json_decode(ret)
@@ -152,9 +153,10 @@ get('/heldCallInfo', function(params)
 end)
 
 -- 1.10
-get('/isProcessing/:agent_id', function(params)
+get('/isProcessing', function(params)
 	local api = freeswitch.API()
-	state = api:execute("callcenter_config", "agent get state " .. params.agent_id)
+	local agent_id = params.request.agent_id
+	state = api:execute("callcenter_config", "agent get state " .. agent_id)
 	return {state = getState(state)}
 end)
 
@@ -164,7 +166,7 @@ post('/setConfig', function(params)
 end)
 
 -- 1.12
-post('/agentLogin', function(params)
+put('/agentLogin', function(params)
 	local api = freeswitch.API()
 	local queue_name = params.request.queue_name
 	local agent_id = params.request.agent_id
@@ -202,7 +204,7 @@ put('/setNotReady', function(params)
 end)
 
 -- 1.16
-put('/agentRest/:agent_id', function(params)
+put('/agentRest', function(params)
 	local api = freeswitch.API()
 	local agent_id = params.request.agent_id
 	api:execute("callcenter_config", "agent set status " .. agent_id .. " On Break")
@@ -521,7 +523,7 @@ put('/playLocalFiles', function(params)
 end)
 
 -- 1.50
-get("/recordFile", function(params)
+get("/downloadRecordFile", function(params)
 	local recordFile = env:getHeader("file")
 	if recordFile then
 		file = io.open(recordFile)
