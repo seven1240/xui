@@ -207,7 +207,7 @@ class Member extends React.Component {
 								return false;
 							}
 						}}></a> |&nbsp;
-						<i className="fa fa-volume-up" style={{color: talking_color}} aria-hidden="true"></i> |&nbsp;
+						<i className={member.status.audio.talking ? "fa fa-volume-up" : "fa fa-volume-down"} style={{color: talking_color}} aria-hidden="true"></i> |&nbsp;
 						<a className={deaf_class} style={{color: deaf_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, member.status.audio.deaf ? "undeaf" : "deaf")}></a> |&nbsp;
 						<a className={muted_class} style={{color: muted_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, member.status.audio.muted ? "unmute" : "mute")}></a> |&nbsp;
 						<a className={video_class} style={{color: video_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, member.status.video && !member.status.video.muted ? "vmute" : "unvmute")}></a> |&nbsp;
@@ -242,7 +242,7 @@ class Member extends React.Component {
 					<div className="conf-member-cidnumber">{member.verto ? member.verto.domain : domain}</div>
 					<div style={{marginTop: "3px"}}>
 						<a className="conf-control fa fa-star" style={{color: floor_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, "floor")}></a>&nbsp;
-						<i className="fa fa-volume-up" style={{color: talking_color}} aria-hidden="true"></i>&nbsp;
+						<i className={member.status.audio.talking ? "fa fa-volume-up": "fa fa-volume-down"} style={{color: talking_color}} aria-hidden="true"></i>&nbsp;
 						<a className={deaf_class} style={{color: deaf_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, member.status.audio.deaf ? "undeaf" : "deaf")}></a>&nbsp;
 						<a className={muted_class} style={{color: muted_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, member.status.audio.muted ? "unmute" : "mute")}></a>&nbsp;
 						<a className={video_class} style={{color: video_color}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, member.status.video && !member.status.video.muted ? "vmute" : "unvmute")}></a>&nbsp;
