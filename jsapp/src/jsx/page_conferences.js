@@ -365,7 +365,7 @@ class ConferencePage extends React.Component {
 		} else if (data == "toolbarText") {
 			this.setState({toolbarText: !this.state.toolbarText});
 			return;
-		} else if (data == "table" || data == "list") {
+		} else if (data == "table" || data == "block") {
 			this.setState({displayStyle: data});
 			localStorage.setItem("xui.conference.displayStyle", data);
 			return;
@@ -1125,7 +1125,9 @@ class ConferencePage extends React.Component {
 				{members}
 				</tbody>
 			</table>
-		} else if (this.state.displayStyle == 'list') {
+		} else if (this.state.displayStyle == 'block') {
+			member_list = <div>{members}</div>
+		} else {
 			member_list = <div>{members}</div>
 		}
 
@@ -1221,8 +1223,8 @@ class ConferencePage extends React.Component {
 				<Button onClick={() => _this.handleControlClick("table")} title={T.translate("Display as Table")}>
 					<i className="fa fa-table" aria-hidden="true"></i>
 				</Button>
-				<Button onClick={() => _this.handleControlClick("list")} title={T.translate("Display as List")}>
-					<i className="fa fa-list" aria-hidden="true" data="list"></i>
+				<Button onClick={() => _this.handleControlClick("block")} title={T.translate("Display as List")}>
+					<i className="fa fa-list" aria-hidden="true" data="block"></i>
 				</Button>
 				<Button onClick={() => _this.handleControlClick("toolbarText")} title={T.translate("Toggle Toolbar Text")}>
 					<i className="fa fa-text-width" aria-hidden="true"></i>
