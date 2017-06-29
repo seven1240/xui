@@ -38,7 +38,7 @@ import { Row, Col, Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Router, Route, IndexRoute, Link, hashHistory, Redirect } from 'react-router'
 import Languages from "../languages";
-import MainMenu from '../main-menu';
+import MainMenu from './main-menu';
 import FSShow from "../fs_show";
 import { CDRsPage, CDRPage } from "../page_cdrs";
 import { FifoCDRsPage, FifoCDRPage } from "../page_fifo_cdrs";
@@ -72,23 +72,29 @@ import Footer from '../footer';
 import Terminal from '../terminal';
 import verto from '../verto/verto';
 import PasswordPage from '../page_password';
+import { xFetchJSON } from '../libs/xtools';
 
 const lang_map = detect_language();
 if (lang_map) T.setTexts(lang_map);
 
-const MENUS = [
-	// {id: "MM_CONFERENCES", description: <T.span text={{ key: "Conference"}} />, data: '/conferences'},
-	{id: "MM_MONITOR", description: "Monitor", data: '/monitor'},
-	{id: "MM_BCAST", description: "Broadcast", data: '/settings/mcasts'},
-	{id: "MM_CDRS", description: "CDR", data: '/cdrs'},
-	{id: "MM_ABOUT", description: "About", data: '/about'}
-];
-
-const RMENUS = [
-	{id: "MM_SETTINGS", description: "Settings", data: "/settings/users"}
-];
-
 class App extends React.Component{
+	constructor(props) {
+		super(props);
+
+		this.state = {menus:[], rmenus: []};
+	}
+
+	componentDidMount() {
+		const _this = this;
+		xFetchJSON("/api/menus?realm=MENUS").then((data) => {
+			_this.setState({menus: data});
+		});
+
+		xFetchJSON("/api/menus?realm=RMENUS").then((data) => {
+			_this.setState({rmenus: data});
+		});
+	}
+
 	render() {
 		let main = <div></div>;
 
@@ -109,7 +115,7 @@ class App extends React.Component{
 		}
 
 		return <div id = 'main_area'>
-			<MainMenu menus = {MENUS} rmenus = {RMENUS}/>
+			<MainMenu menus = {this.state.menus} rmenus = {this.state.rmenus}/>
 			{ main }
 			<Footer/>
 		</div>
@@ -133,8 +139,8 @@ class Home extends React.Component{
 
 		return <Router history={hashHistory}>
 			<Route path="/" component={App}>
-				<IndexRoute components={{sidebar: DashBoard, main: OverViewPage}} />
-				<Route path="overview" components={{sidebar: DashBoard, main: OverViewPage}} onlyActiveOnIndex/>
+				<IndexRoute components={MonitorPage} />
+				<Route path="overview" components={{sidebar: DashBoard, main: OverViewPage}} />
 				<Route path="calls" components = {{sidebar: DashBoard, main: CallsPage}}/>
 				<Route path="channels" components = {{sidebar: DashBoard, main: ChannelsPage}}/>
 				<Route path="registrations" components = {{sidebar: DashBoard, main: RegistrationsPage}}/>
@@ -162,50 +168,60 @@ class Home extends React.Component{
 				<Route path="conferences" component={Conferences} />
 
 				<Route path="settings">
-				    <IndexRoute components={{sidebar: Settings, main: UsersPage}}/>
+					<IndexRoute components={{sidebar: Settings, main: SystemPage}}/>
 					<Route path="users">
-						<IndexRoute components={{sidebar: Settings, main: UsersPage}}/>
-						<Route path="password" components={{sidebar: Settings, main: PasswordPage}}/>
-						<Route path=":id" components={{sidebar: Settings, main: UserPage}}/>
+						<IndexRoute components={UsersPage}/>
+						<Route path="password" components={PasswordPage}/>
+						<Route path=":id" components={UserPage}/>
 					</Route>
+
 					<Route path="groups">
-						<IndexRoute components={{sidebar: Settings, main: GroupsPage}}/>
-						<Route path=":id" components={{sidebar: Settings, main: GroupPage}}/>
+						<IndexRoute components={GroupsPage}/>
+						<Route path=":id" components={GroupPage}/>
 					</Route>
+
 					<Route path="gateways">
 						<IndexRoute components={{sidebar: Settings, main: GatewaysPage}}/>
 						<Route path=":id" components={{sidebar: Settings, main: GatewayPage}}/>
 					</Route>
+
 					<Route path="dicts">
 						<IndexRoute components={{sidebar: Settings, main: DictsPage}}/>
 						<Route path=":id" components={{sidebar: Settings, main: DictPage}}/>
 					</Route>
+
 					<Route path="module">
 						<IndexRoute components={{sidebar: Settings, main: ModulePage}}/>
 					</Route>
+
 					<Route path="conference_profiles">
 						<IndexRoute components={{sidebar: Settings, main: ConferenceProfilesPage}}/>
 						<Route path=":id" components={{sidebar: Settings, main: ConferenceProfilePage}}/>
 					</Route>
+
 					<Route path="conference_rooms">
 						<IndexRoute components={{sidebar: Settings, main: ConferenceRooms}}/>
 						<Route path=":id" components={{sidebar: Settings, main: ConferenceRoom}}/>
 					</Route>
+
 					<Route path="sip_profiles">
 						<IndexRoute components={{sidebar: Settings, main: SIPProfilesPage}}/>
 						<Route path=":id" components={{sidebar: Settings, main: SIPProfilePage}}/>
 					</Route>
+
 					<Route path="routes">
 						<IndexRoute components={{sidebar: Settings, main: RoutesPage}}/>
 						<Route path=":id" components={{sidebar: Settings, main: RoutePage}}/>
 					</Route>
+
 					<Route path="blocks">
 						<IndexRoute components={{sidebar: Settings, main: BlocksPage}}/>
 						<Route path=":id" components={{sidebar: Settings, main: BlockPage}}/>
 					</Route>
+
 					<Route path="media_files">
-						<IndexRoute components={{sidebar: Settings, main: MediaFilesPage}}/>
-						<Route path=":id" components={{sidebar: Settings, main: MediaFilePage}}/>
+						<IndexRoute components={MediaFilesPage}/>
+						<Route path=":id" components={MediaFilePage}/>
 					</Route>
 
 					<Route path="fifos">
@@ -215,9 +231,10 @@ class Home extends React.Component{
 					</Route>
 
 					<Route path="mcasts">
-						<IndexRoute components={{sidebar: Settings, main: McastsPage}} onEnter={ensureVisible}/>
-						<Route path=":id" components={{sidebar: Settings, main: McastPage}}/>
+						<IndexRoute components={McastsPage} onEnter={ensureVisible}/>
+						<Route path=":id" components={McastPage}/>
 					</Route>
+
 					<Route path="system" components={{sidebar: Settings, main: SystemPage}} onEnter={ensureVisible}/>
 					<Route path="term" components={{sidebar: Settings, main: Terminal}}/>
 				</Route>

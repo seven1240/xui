@@ -39,17 +39,6 @@ class Settings extends React.Component {
 
 	render() {
 		return <Nav bsStyle="pills" stacked>
-			<LinkContainer to="/settings/users" key="M_OVERVIEW">
-				<NavItem eventKey="M_USER">
-					<i className="fa fa-user" aria-hidden="true"></i>&nbsp;
-					<T.span text="Users"/>
-				</NavItem>
-			</LinkContainer>
-			<LinkContainer to="/settings/groups" key="M_GROUPS">
-				<NavItem eventKey="M_GROUP">
-					<i className="fa fa-group" aria-hidden="true"></i>&nbsp;
-					<T.span text="Groups"/></NavItem>
-			</LinkContainer>
 			<LinkContainer to="/settings/gateways" key="M_GATEWAYS">
 				<NavItem eventKey="M_GATEWAYS">
 					<i className="fa fa-road" aria-hidden="true"></i>&nbsp;
@@ -69,24 +58,10 @@ class Settings extends React.Component {
 				</NavItem>
 			</LinkContainer>
 
-			<LinkContainer to="/settings/media_files" key="M_MEDIA_FILES">
-				<NavItem eventKey="M_MEDIA_FILES">
-					<i className="fa fa-file-sound-o" aria-hidden="true"></i>&nbsp;
-					<T.span text="Media Files"/>
-				</NavItem>
-			</LinkContainer>
-
 			<LinkContainer to="/settings/module" key="M_MODULE">
 				<NavItem eventKey="M_MODULE">
 					<i className="fa fa-cube" aria-hidden="true"></i>&nbsp;
 					<T.span text="Modules"/>
-				</NavItem>
-			</LinkContainer>
-
-			<LinkContainer to="/settings/mcasts" key="M_Multicasts">
-				<NavItem eventKey="M_Multicasts">
-					<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
-					<T.span text="Multicasts"/>
 				</NavItem>
 			</LinkContainer>
 
