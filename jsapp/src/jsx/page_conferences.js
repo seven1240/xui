@@ -1144,7 +1144,7 @@ class ConferencePage extends React.Component {
 				!this.props.room.isMuxing ? null :
 
 				<ButtonGroup>
-					<DropdownButton title={confCanvas1}>
+					<DropdownButton title={confCanvas1} id="canvas1">
 					{
 						this.state.layouts.map((layout) => {
 							return <MenuItem key={layout.k} eventKey={layout.k} onSelect={(k) => this.handleCanvasLayout('1', k)}>{layout.k}</MenuItem>
@@ -1152,7 +1152,7 @@ class ConferencePage extends React.Component {
 					}
 					</DropdownButton>
 
-					<DropdownButton title={confCanvas2}>
+					<DropdownButton title={confCanvas2} id="canvas2">
 					{
 						this.state.layouts.map((layout) => {
 							return <MenuItem key={layout.k} eventKey={layout.k} onSelect={(k) => this.handleCanvasLayout('2', k)}>{layout.k}</MenuItem>
@@ -1160,7 +1160,7 @@ class ConferencePage extends React.Component {
 					}
 					</DropdownButton>
 
-					<DropdownButton title={extendedConferenceControls}>
+					<DropdownButton title={extendedConferenceControls}  id="extControls">
 						<MenuItem eventKey="L1" onSelect={this.handleSeletExtControl.bind(this)}>Set layout canvas #1</MenuItem>
 						<MenuItem eventKey="L2" onSelect={this.handleSeletExtControl.bind(this)}>Set layout canvas #2</MenuItem>
 						<MenuItem eventKey="res" onSelect={this.handleSeletExtControl.bind(this)}>Set Reservation</MenuItem>
