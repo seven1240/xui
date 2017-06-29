@@ -587,7 +587,7 @@ class ConferencePage extends React.Component {
 
 				}
 
-				xFetchJSON("/api/dicts?realm=xCONF_NODE").then((data) => {
+				xFetchJSON("/api/dicts?realm=CONF_NODE").then((data) => {
 					this.vertos = [];
 
 					if (data.length) {
