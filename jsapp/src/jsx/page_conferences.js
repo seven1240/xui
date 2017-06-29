@@ -432,7 +432,7 @@ class ConferencePage extends React.Component {
 		let loopInterval = localStorage.getItem("xui.conference.switchLoopInterval");
 		const interval = parseInt(loopInterval);
 
-		if (interval >= 10000 && interval <= 3600000) {
+		if (interval >= 5000 && interval <= 3600000) {
 			global_loop_interval = interval;
 		}
 
@@ -984,7 +984,7 @@ class ConferencePage extends React.Component {
 		console.log('interval', e.target.value);
 		const interval = parseInt(e.target.value);
 
-		if (interval >= 10 && interval <= 3600 ) {
+		if (interval >= 5 && interval <= 3600 ) {
 			global_loop_interval = interval * 1000;
 		}
 
