@@ -414,8 +414,7 @@ class ConferencePage extends React.Component {
 		window.addEventListener("verto-login", this.handleVertoLogin);
 
 		// temporarily use capacity as canvas count
-		this.props.room.canvas_count = this.props.room.capacity;
-		this.props.room.isMuxing = this.props.room.canvas_count > 0 ? true : false;
+		this.props.room.isMuxing = this.props.room.video_mode == "mux" ? true : false;
 
 		let prefOnline = localStorage.getItem("xui.conference.prefOnline");
 		prefOnline = prefOnline == "true" ? true : false;

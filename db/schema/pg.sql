@@ -218,6 +218,8 @@ CREATE TABLE conference_rooms (
 	pin VARCHAR,
 	profile_id INTEGER,
 	moderator VARCHAR,
+	canvas_count INTEGER,
+	video_mode VARCHAR,
 
 	created_epoch TIMESTAMP(0) DEFAULT now(),
 	updated_epoch TIMESTAMP(0) DEFAULT now(),

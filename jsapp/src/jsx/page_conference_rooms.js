@@ -584,51 +584,48 @@ class ConferenceRoom extends React.Component {
 
 			<Form horizontal id='editRoomForm'>
 				<input type="hidden" name="id" defaultValue={room.id}/>
-				<FormGroup controlId="formName">
+				<FormGroup controlId="formName" className="xrowb">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Name" className="mandatory"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="name" defaultValue={room.name}/></Col>
+					<Col sm={4}><EditControl edit={this.state.edit} name="name" defaultValue={room.name}/></Col>
+					<Col componentClass={ControlLabel} sm={2} htmlFor="formDescription"><T.span text="Description" /></Col>
+					<Col sm={4}><EditControl edit={this.state.edit} id="formDescription" name="description" defaultValue={room.description}/></Col>
 				</FormGroup>
 
-				<FormGroup controlId="formDescription">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Description" /></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="description" defaultValue={room.description}/></Col>
-				</FormGroup>
-
-				<FormGroup controlId="formNumber">
+				<FormGroup controlId="formNumber" className="xrowb">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Number" className="mandatory"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="nbr" defaultValue={room.nbr}/></Col>
+					<Col sm={4}><EditControl edit={this.state.edit} name="nbr" defaultValue={room.nbr}/></Col>
+					<Col componentClass={ControlLabel} sm={2} htmlFor="formPIN"><T.span text="PIN"/></Col>
+					<Col sm={4}><EditControl edit={this.state.edit} id="formPIN" name="pin" defaultValue={room.pin}/></Col>
 				</FormGroup>
 
-				<FormGroup controlId="formPIN">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="PIN"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="pin" defaultValue={room.pin}/></Col>
-				</FormGroup>
-
-				<FormGroup controlId="formCapacity">
+				<FormGroup controlId="formCapacity" className="xrowb">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Capacity"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="capacity" defaultValue={room.capacity}/></Col>
+					<Col sm={4}><EditControl edit={this.state.edit} name="capacity" defaultValue={room.capacity}/></Col>
+					<Col componentClass={ControlLabel} sm={2} htmlFor="formMOD"><T.span text="Moderator" /></Col>
+					<Col sm={4}><EditControl edit={this.state.edit} id="formMOD" name="moderator" defaultValue={room.moderator}/></Col>
 				</FormGroup>
 
-				<FormGroup controlId="formModerator">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Moderator" /></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="moderator" defaultValue={room.moderator}/></Col>
+				<FormGroup controlId="formCanvasCount" className="xrowb">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Canvas Count"/></Col>
+					<Col sm={4}><EditControl edit={this.state.edit} name="canvas_count" defaultValue={room.canvas_count}/></Col>
+					<Col componentClass={ControlLabel} sm={2} htmlFor="formVideoMode"><T.span text="Video Mode" /></Col>
+					<Col sm={4}><EditControl edit={this.state.edit} id="formVideoMode" name="video_mode" defaultValue={room.video_mode}/></Col>
 				</FormGroup>
 
-				<FormGroup controlId="formRealm">
+				<FormGroup controlId="formRealm" className="xrowb">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Realm" /></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="realm" defaultValue={room.realm}/></Col>
-				</FormGroup>
-
-				<FormGroup>
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Profile"/></Col>
-					<Col sm={10}>
-						<EditControl edit={this.state.edit} componentClass="select" name="profile_id"
+					<Col sm={4}><EditControl edit={this.state.edit} name="realm" defaultValue={room.realm}/></Col>
+					<Col componentClass={ControlLabel} sm={2} htmlFor="formConfProfile"><T.span text="Conference Profile"/></Col>
+					<Col sm={4}>
+						<EditControl edit={this.state.edit} componentClass="select" id="formConfProfile" name="profile_id"
 							text={current_profile} defaultValue={room.profile_id}
 							options={profile_options}></EditControl>
 					</Col>
 				</FormGroup>
 
 			</Form>
+
+			<br/>
 
 			{room.id ? <RoomMembers room_id={this.state.room.id} handleModeratorSet={this.handleModeratorSet.bind(this)}/> : null}
 		</div>

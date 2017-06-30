@@ -133,6 +133,8 @@ LANGUAGES["zh"] = {
 	Capacity: "容量",
 	PIN: "密码",
 	Moderator: "管理员",
+	"Canvas Count": "画布个数",
+	"Video Mode": "视频模式",
 	Total: "总数",
 	"Conference Settings": "会议设置",
 	"Sort Online Prefered": "排序在线用户优先",

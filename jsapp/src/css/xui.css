@@ -331,3 +331,7 @@ span.log0 {color: black;}
 .long-input {
 	width: 100%;
 }
+
+.xrowb {
+	border-bottom: 1px solid #eee;
+}
