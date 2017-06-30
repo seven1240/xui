@@ -267,6 +267,30 @@ class CDRsPage extends React.Component {
 		});
 	}
 
+	handleSortClick(field) {
+		
+		var rows = this.state.rows;
+
+		var n = 1;
+
+		if (this.state.order == 'ASC') {
+			this.state.order = 'DSC';
+			n = -1;
+		} else {
+			this.state.order = 'ASC';
+		}
+		
+		rows.sort((a,b) => {
+			if (field == "duration" || field == "billsec") {
+				return parseInt(a[field]) - parseInt(b[field]) > 0 ? -1 * n : 1 * n
+			}else {
+				return a[field] < b[field] ? -1 * n : 1 * n
+			}
+		});
+
+		this.setState({rows: rows});
+	}
+
 	render () {
 		var _this = this;
 		let isShow;
@@ -374,18 +398,18 @@ class CDRsPage extends React.Component {
 				<table className="table">
 				<tbody>
 				<tr>
-					<th><T.span text="CID Name"/></th>
-					<th><T.span text="CID Number"/></th>
-					<th><T.span text="Dest Number"/></th>
-					<th><T.span text="Context"/></th>
+					<th><T.span text="CID Name" onClick={() => this.handleSortClick('caller_id_name')}/></th>
+					<th><T.span text="CID Number" onClick={() => this.handleSortClick('caller_id_number')}/></th>
+					<th><T.span text="Dest Number" onClick={() => this.handleSortClick('destination_number')}/></th>
+					<th><T.span text="Context" onClick={() => this.handleSortClick('context')}/></th>
 					<th><T.span text="Network Addr"/></th>
-					<th><T.span text="Start"/></th>
-					<th><T.span text="Answer"/></th>
-					<th><T.span text="End"/></th>
-					<th><T.span text="Duration"/></th>
-					<th><T.span text="Bill Sec"/></th>
-					<th><T.span text="Cause"/></th>
-					<th><T.span text="Account Code"/></th>
+					<th><T.span text="Start" onClick={() => this.handleSortClick('start_stamp')}/></th>
+					<th><T.span text="Answer" onClick={() => this.handleSortClick('answer_stamp')}/></th>
+					<th><T.span text="End" onClick={() => this.handleSortClick('end_stamp')}/></th>
+					<th><T.span text="Duration" onClick={() => this.handleSortClick('duration')}/></th>
+					<th><T.span text="Bill Sec" onClick={() => this.handleSortClick('billsec')}/></th>
+					<th><T.span text="Cause" onClick={() => this.handleSortClick('hangup_cause')}/></th>
+					<th><T.span text="Account Code" onClick={() => this.handleSortClick('account_code')}/></th>
 					<th><T.span text="Disposition"/></th>
 					<th><T.span text="Detail"/></th>
 				</tr>
