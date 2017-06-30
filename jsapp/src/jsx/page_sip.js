@@ -201,7 +201,7 @@ class SIPProfilePage extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {profile: {}, edit: false, params:[], order: 'ASC', running: false, danger: false, formShow: false, profileDetails: []};
+		this.state = {profile: {}, edit: false, params:[], order: 'ASC', running: false, danger: false, formShow: false, profileDetails: [], detailsFormShow: false, detailsText: "Show Details"};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -325,6 +325,13 @@ class SIPProfilePage extends React.Component {
 
 	isStringAcceptable() {
 		return true;
+	}
+
+	handleDetailsShow() {
+		this.setState({
+			detailsFormShow: !this.state.detailsFormShow,
+			detailsText: this.state.detailsText === "Show Details" ? "Hide Details" : "Show Details"
+		});
 	}
 
 	componentDidMount() {
@@ -506,6 +513,7 @@ class SIPProfilePage extends React.Component {
 			return <li key={p.k}>{p.k}: {p.v}</li>;
 		})
 		profiles = <ul>{profile_params}</ul>;
+
 		if (this.state.params && Array.isArray(this.state.params)) {
 			// console.log(this.state.profile.params)
 			params = this.state.params.map(function(param) {
@@ -547,6 +555,9 @@ class SIPProfilePage extends React.Component {
 				<div style={running_state}></div>
 			</ButtonGroup>
 			<ButtonGroup>
+				<Button onClick={_this.handleDetailsShow.bind(_this)}><i className="fa fa-list-ul" aria-hidden="true"></i>&nbsp;<T.span text={this.state.detailsText}/></Button>
+			</ButtonGroup>
+			<ButtonGroup>
 				<Button onClick={_this.handleStart.bind(_this)}><i className="fa fa-circle" aria-hidden="true"></i>&nbsp;<T.span text="Start"/></Button>
 				<Button onClick={_this.handleStop.bind(_this)}><i className="fa fa-circle-o" aria-hidden="true"></i>&nbsp;<T.span text="Stop"/></Button>
 				<Button onClick={_this.handleRestart.bind(_this)}><i className="fa fa-circle-o-notch" aria-hidden="true"></i>&nbsp;<T.span text="Restart"/></Button>
@@ -582,12 +593,15 @@ class SIPProfilePage extends React.Component {
 					<Col sm={10}>{save_btn}</Col>
 				</FormGroup>				
 			</Form>
-			<Form horizontal id="DetailsForm">
-				<FormGroup controlId="formDetails">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Details"/></Col>
-					<Col sm={10}><EditControl name="details" defaultValue={profiles}/></Col>
-				</FormGroup>
-			</Form>
+			{ this.state.detailsFormShow ? 
+				<Form horizontal id="DetailsForm">
+					<FormGroup controlId="formDetails">
+						<Col componentClass={ControlLabel} sm={2}><T.span text="Details"/></Col>
+						<Col sm={10}><FormControl.Static>{profiles}</FormControl.Static></Col>
+					</FormGroup>
+				</Form> :
+				<div />
+			}
 			<ButtonToolbar className="pull-right">
 			<ButtonGroup>
 				<Button onClick={this.toggleHighlight}><i className="fa fa-edit" aria-hidden="true"></i>&nbsp;<T.span text="Edit"/></Button>
