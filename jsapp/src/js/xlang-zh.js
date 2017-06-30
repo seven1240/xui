@@ -527,6 +527,9 @@ LANGUAGES["zh"] = {
 	Deadline: "处理期限",
 	"Satisfied Amount": "满意数",
 	"Satisfied Percentage": "满意率",
+	"Show Details": "显示详细信息",
+	"Hide Details": "隐藏详细信息",
+	INVALID_GATEWAY: "无效网关",
 
 	Copyright: "版权所有 2016-" + new Date().getFullYear() + " 烟台小樱桃网络科技有限公司 保留所有权利",
 	the_last_line_______: "Don't put anything beyond this line"
