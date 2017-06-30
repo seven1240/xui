@@ -224,7 +224,7 @@ class Member extends React.Component {
 					<td>{member.email}</td>
 			</tr>;
 		} else if (this.props.displayStyle == 'list') {
-			const imgClass = (member.verto && member.verto.domain == domain) && which_floor.floor ? "conf-avatar conf-avatar-1" : ((parseInt(member.memberID) < 0) ? "conf-avatar conf-avatar-3" : "conf-avatar conf-avatar-2");
+			const imgClass = (member.cidNumber.indexOf('.') < 0) && which_floor.floor ? "conf-avatar conf-avatar-1" : ((parseInt(member.memberID) < 0) ? "conf-avatar conf-avatar-3" : "conf-avatar conf-avatar-2");
 			let memberIDStyle = {textAlign: "center"};
 
 			if (member.cidNumber.indexOf('.') > 0) {
