@@ -1222,7 +1222,7 @@ class ConferencePage extends React.Component {
 				<Button onClick={() => _this.handleControlClick("table")} title={T.translate("Display as Table")}>
 					<i className="fa fa-table" aria-hidden="true"></i>
 				</Button>
-				<Button onClick={() => _this.handleControlClick("block")} title={T.translate("Display as List")}>
+				<Button onClick={() => _this.handleControlClick("block")} title={T.translate("Display as Block")}>
 					<i className="fa fa-list" aria-hidden="true" data="block"></i>
 				</Button>
 				<Button onClick={() => _this.handleControlClick("toolbarText")} title={T.translate("Toggle Toolbar Text")}>
