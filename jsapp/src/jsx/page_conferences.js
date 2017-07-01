@@ -1046,7 +1046,9 @@ class ConferencePage extends React.Component {
 		}
 	}
 
-	handleCanvasLayout(canvas, layout) {
+	handleCanvasLayout(arg) {
+		const canvas = arg[0];
+		const layout = arg[1];
 		console.log("conference", this.props.room.nbr + '-' + domain + ' vid-layout ' + layout + ' ' + canvas);
 		verto.fsAPI("conference", this.props.room.nbr + '-' + domain + ' vid-layout ' + layout + ' ' + canvas);
 	}
@@ -1138,16 +1140,18 @@ class ConferencePage extends React.Component {
 		let canvases = [];
 		const circle_numbers = "⓪①②③④⑤⑥⑦⑧⑨";
 
-		for(var c = 1; c <= this.props.room.canvas_count; c++) {
-			const title = <i className="fa fa-photo" aria-hidden="true"> {circle_numbers[c]}</i>
+		for (var c = 1; c <= this.props.room.canvas_count; c++) {
+			const title = <i className="fa fa-photo" aria-hidden="true"> {this.props.room.canvas_count <= 1 ? '' : circle_numbers[c]}</i>
 
-			canvases.push(<DropdownButton title={title} id={"canvas" + c} key={c}>
+			const dropdown = <DropdownButton title={title} id={"canvas" + c} key={c}>
 			{
 				this.state.layouts.map((layout) => {
-					return <MenuItem key={layout.k} eventKey={layout.k} onSelect={(k) => this.handleCanvasLayout(c, k)}>{layout.k}</MenuItem>
+					return <MenuItem key={layout.k} eventKey={[c, layout.k]} onSelect={this.handleCanvasLayout.bind(this)}>{layout.k}</MenuItem>
 				})
 			}
-			</DropdownButton>)
+			</DropdownButton>
+
+			canvases.push(dropdown);
 		}
 
 		return <div>
