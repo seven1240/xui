@@ -116,7 +116,7 @@ class Member extends React.Component {
 				return;
 			}
 
-			xFetchJSON("/api/conferences/" + member.conference_name, {
+			xFetchJSON("/api/conferences/" + member.room.nbr + '-' + domain, {
 				method: "POST",
 				body: JSON.stringify({
 					from: member.cidNumber,
@@ -272,7 +272,7 @@ class ConferencePage extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			name: this.props.room.name + '@' + domain, domain_rows: {}, static_rows: [], la: null,
+			name: this.props.room.nbr + '-' + domain, domain_rows: {}, static_rows: [], la: null,
 			last_outcall_member_id: 0, outcall_rows: [],
 			outcallNumber: '', outcallNumberShow: false,
 			layouts: [],
@@ -356,7 +356,10 @@ class ConferencePage extends React.Component {
 				method: "POST",
 				body: JSON.stringify({
 					from: member.cidNumber,
-					to: member.cidNumber
+					to: member.cidNumber,
+					cidName: this.state.name,
+					profile: global_conference_profile.name,
+					ignoreDisplayUpdates: "true"
 				})
 			}).catch((msg) => {
 				console.error("err call", msg);

@@ -145,7 +145,7 @@ post("/:name", function(params)
 			ret = execute("bgapi", "originate " .. dialstr .. ' ' .. req.transfer)
 		else
 			profile = req.profile or 'default'
-			ret = execute("bgapi", "originate " .. dialstr .. " &conference(" .. params.name .. '@' .. profile .. ")")
+			ret = execute("bgapi", "originate " .. dialstr .. " conference:" .. params.name .. '@' .. profile .. " inline")
 		end
 	elseif(req and req.participants) then
 		for i, v in ipairs(req.participants) do
