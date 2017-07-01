@@ -66,7 +66,9 @@ class EditControl extends FormControl {
 		}
 
 		if (this.props.componentClass == "textarea") {
-			return <pre>{props.defaultValue}</pre>
+			if (props.defaultValue) return <pre>{props.defaultValue}</pre>
+
+			return <span></span>;
 		}
 
 		if (this.props.type == "password") {

@@ -41,6 +41,12 @@ get('/', function(params)
 	n, rooms = xdb.find_all("conference_rooms")
 
 	if (n > 0) then
+		for i,v in pairs(rooms) do
+			if v.cluster then -- turn JSON string to a JSON Object
+				rooms[i].cluster = utils.json_decode(v.cluster)
+			end
+		end
+
 		return rooms
 	else
 		return "[]"
@@ -50,6 +56,9 @@ end)
 get('/:id', function(params)
 	room = xdb.find("conference_rooms", params.id)
 	if room then
+		if room.cluster then -- turn JSON string to a JSON Object
+			room.cluster = utils.json_decode(room.cluster)
+		end
 		return room
 	else
 		return 404
@@ -57,7 +66,7 @@ get('/:id', function(params)
 end)
 
 get('/:id/members', function(params)
-	n, members = xdb.find_by_cond("conference_members", {room_id = params.id })
+	n, members = xdb.find_by_cond("conference_members", {room_id = params.id }, 'num')
 	if n > 0 then
 		return members
 	else
@@ -92,7 +101,23 @@ put('/:id', function(params)
 	print(serialize(params))
 	params.request.id = params.id
 
+	local cluster = params.request.cluster
+
+	if cluster then
+		params.request.cluster = utils.json_encode(cluster);
+	end
+
 	ret = xdb.update("conference_rooms", params.request)
+	if ret == 1 then
+		return 200, "{}"
+	else
+		return 500
+	end
+end)
+
+put('/:id/members/:member_id', function(params)
+	ret = xdb.update_by_cond("conference_members", {id = params.member_id, room_id = params.id}, params.request)
+
 	if ret == 1 then
 		return 200, "{}"
 	else

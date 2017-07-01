@@ -79,6 +79,16 @@ function build_actions(t)
 	end
 end
 
+function extract_ip(host)
+	local c = string.find(host, ":")
+
+	if (c) then
+		return host:sub(1, r - 1)
+	end
+
+	return host
+end
+
 xdb.find_by_sql(sql, function(row)
 	found = true
 
@@ -143,35 +153,87 @@ xdb.find_by_sql(sql, function(row)
 		table.insert(actions_table, {app = "lua", data = block_prefix .. row.dest_uuid .. ".lua"})
 	elseif (row.dest_type == 'FS_DEST_CONFERENCE') then
 		local cidNumber = params:getHeader('Hunt-Caller-ID-Number')
+		local local_ipv4 = params:getHeader('FreeSWITCH-IPv4')
 		local room = xdb.find("conference_rooms", row.dest_uuid)
 		local flags = ""
+		local forbidden = false
+		local check = nil
+		local matched = false
 
-		if cidNumber == room.moderator then
-			flags = "+flags{join-vid-floor|moderator}"
-
-			table.insert(actions_table, {app = "set", data = "video_initial_watching_canvas=1"})
-			table.insert(actions_table, {app = "set", data = "video_initial_canvas=2"})
-		elseif room.moderator then -- when moderator is set then it's a special conference
-			table.insert(actions_table, {app = "set", data = "video_initial_watching_canvas=2"})
-			table.insert(actions_table, {app = "set", data = "video_initial_canvas=1"})
-		end
-
-		local profile_name = "default"
-
-		if room.profile_id then
-			profile = xdb.find("conference_profiles", room.profile_id)
-			if profile then
-				profile_name = profile.name
+		if room.call_perm == "CONF_CP_CHECK_CID" then
+			check = xdb.find_one("conference_members", {room_id = room.id, num = cidNumber})
+			if not check then
+				utils.xlog(__FILE__() .. ':' .. __LINE__(), "WARNING", cidNumber .. "Forbidden")
+				forbidden = true
+			end
+		elseif room.call_perm == "CONF_CP_AUTH_USER" then
+			local userName = params:getHeader('Hunt-Username')
+			if userName ~= cidNumber then
+				utils.xlog(__FILE__() .. ':' .. __LINE__(), "WARNING", cidNumber .. "Forbidden")
+				forbidden = true
+			else
+				check = xdb.find_one("conference_members", {room_id = room.id, num = cidNumber})
+				if not check then
+					utils.xlog(__FILE__() .. ':' .. __LINE__(), "WARNING", cidNumber .. " Forbidden")
+					forbidden = true
+				end
 			end
 		end
 
-		if room then
-			conf_name = room.nbr
-		else
-			conf_name = row.body
+		if forbidden then
+			table.insert(actions_table, {app = "hangup", data = "CALL_REJECTED"})
+			matched = true
 		end
 
-		table.insert(actions_table, {app = "conference", data = conf_name .. "-$${domain}@" .. profile_name .. flags})
+		if (not matched) and room.cluster then
+			nodes = utils.json_decode(room.cluster)
+			if do_debug then
+				-- utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", utils.serialize(nodes))
+				-- utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", utils.serialize(check))
+
+				if check and check.route then
+					if extract_ip(check.route) ~= local_ipv4 then
+						table.insert(actions_table, {app = "set", data = "bypass_media=true"})
+						table.insert(actions_table, {app = "bridge", data = "sofia/public/" .. room.nbr .. '@' .. check.route})
+						matched = true
+						utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", "Route matched " .. cidNumber .. " " .. check.route)
+					end
+				end
+			end
+		end
+
+		if not matched then
+			if cidNumber == room.moderator then
+				flags = "+flags{join-vid-floor|moderator}"
+			end
+
+			if room.canvas_count > "1" then
+				if cidNumber == room.moderator then
+					table.insert(actions_table, {app = "set", data = "video_initial_watching_canvas=1"})
+					table.insert(actions_table, {app = "set", data = "video_initial_canvas=2"})
+				elseif room.moderator then -- when moderator is set then it's a special conference
+					table.insert(actions_table, {app = "set", data = "video_initial_watching_canvas=2"})
+					table.insert(actions_table, {app = "set", data = "video_initial_canvas=1"})
+				end
+			end
+
+			local profile_name = "default"
+
+			if room.profile_id then
+				profile = xdb.find("conference_profiles", room.profile_id)
+				if profile then
+					profile_name = profile.name
+				end
+			end
+
+			if room then
+				conf_name = room.nbr
+			else
+				conf_name = row.body
+			end
+
+			table.insert(actions_table, {app = "conference", data = conf_name .. "-$${domain}@" .. profile_name .. flags})
+		end
 	elseif (row.dest_type == 'FS_DEST_CONFERENCE_CLUSTER') then
 		lines1 = csplit(row.body, "\n")
 		local ip = nil

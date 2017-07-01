@@ -273,6 +273,7 @@ CREATE TABLE conference_rooms (
 	moderator VARCHAR,
 	canvas_count INTEGER,
 	video_mode VARCHAR,
+	cluster TEXT,
 
 	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
 	updated_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
@@ -289,7 +290,8 @@ CREATE TABLE conference_members (
 	room_id INTEGER NOT NULL,
 	name VARCHAR,
 	description VARCHAR,
-	num VARCHAR,  -- conference number
+	num VARCHAR,
+	route VARCHAR,
 
 	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
 	updated_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),

@@ -122,4 +122,12 @@ INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'About', '/about');
 INSERT INTO dicts (realm, k, v) VALUES ('RMENUS', 'Settings', '/settings');
 -- INSERT INTO dicts (realm, k, v) VALUES ('Profiles', 'Settings', '/profiles');
 
+INSERT INTO dicts (realm, k, v) VALUES ('CONF_VIDEO_MODE', 'CONF_VIDEO_MODE_PASSTHROUGH', 'passthrough');
+INSERT INTO dicts (realm, k, v) VALUES ('CONF_VIDEO_MODE', 'CONF_VIDEO_MODE_TRANSCODE', 'transcode');
+INSERT INTO dicts (realm, k, v) VALUES ('CONF_VIDEO_MODE', 'CONF_VIDEO_MODE_MUX', 'mux');
+
+INSERT INTO dicts (realm, k, v) VALUES ('CONF_CALL_PERM', 'CONF_CP_NO_CHECK', 'CONF_CP_NO_CHECK');
+INSERT INTO dicts (realm, k, v) VALUES ('CONF_CALL_PERM', 'CONF_CP_CHECK_CID', 'CONF_CP_CHECK_CID');
+INSERT INTO dicts (realm, k, v) VALUES ('CONF_CALL_PERM', 'CONF_CP_AUTH_USER', 'CONF_CP_AUTH_USER');
+
 -- END

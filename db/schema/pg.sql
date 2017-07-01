@@ -220,6 +220,7 @@ CREATE TABLE conference_rooms (
 	moderator VARCHAR,
 	canvas_count INTEGER,
 	video_mode VARCHAR,
+	cluster JSONB,
 
 	created_epoch TIMESTAMP(0) DEFAULT now(),
 	updated_epoch TIMESTAMP(0) DEFAULT now(),
@@ -232,6 +233,7 @@ CREATE TABLE conference_members (
 	name VARCHAR,
 	description VARCHAR,
 	num VARCHAR,  -- conference number
+	route VARCHAR,
 
 	created_epoch TIMESTAMP(0) DEFAULT now(),
 	updated_epoch TIMESTAMP(0) DEFAULT now(),

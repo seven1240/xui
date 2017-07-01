@@ -223,7 +223,7 @@ class Member extends React.Component {
 					</td>
 					<td>{member.email}</td>
 			</tr>;
-		} else if (this.props.displayStyle == 'list') {
+		} else if (this.props.displayStyle == 'block') {
 			const imgClass = (member.cidNumber.indexOf('.') < 0) && which_floor.floor ? "conf-avatar conf-avatar-1" : ((parseInt(member.memberID) < 0) ? "conf-avatar conf-avatar-3" : "conf-avatar conf-avatar-2");
 			let memberIDStyle = {textAlign: "center"};
 
@@ -254,7 +254,7 @@ class Member extends React.Component {
 						<i className={hold_class} style={{color: hold_color, display: "none"}} aria-hidden="true"></i>&nbsp;
 						<a className="conf-control fa fa-phone" style={{color: "green"}} aria-hidden="true" onClick={(e) => _this.handleControlClick(e, "call")}></a>&nbsp;
 						{
-							member.room.canvas_count < 1 ? null : (
+							member.room.canvas_count < 2 ? null : (
 								!(member.status.video && typeof(member.status.video.canvasID) != "undefined") ? null : (
 									(member.status.video.canvasID == 1 ? "②" : "①") +
 									(member.status.video.watchingCanvasID == 1 ? " ②" : " ①")
@@ -414,7 +414,7 @@ class ConferencePage extends React.Component {
 		window.addEventListener("verto-login", this.handleVertoLogin);
 
 		// temporarily use capacity as canvas count
-		this.props.room.isMuxing = this.props.room.video_mode == "mux" ? true : false;
+		this.props.room.isMuxing = this.props.room.video_mode == "CONF_VIDEO_MODE_MUX" ? true : false;
 
 		let prefOnline = localStorage.getItem("xui.conference.prefOnline");
 		prefOnline = prefOnline == "true" ? true : false;
@@ -586,17 +586,18 @@ class ConferencePage extends React.Component {
 
 				}
 
-				xFetchJSON("/api/dicts?realm=CONF_NODE").then((data) => {
-					this.vertos = [];
+				if (_this.props.room.cluster) {
+					_this.isCluster = true;
+					_this.vertos = [];
 
-					if (data.length) {
-						this.isCluster = true;
+					const extract_ip = function(host) {
+						return host.split(':').shift()
 					}
 
-					data.forEach(function(dict) {
+					_this.props.room.cluster.forEach(function(node) {
 						const v = new Verto();
-						v.domain = dict.k;
-						_this.state.domain_rows[dict.k] = [];
+						v.domain = extract_ip(node.host);
+						_this.state.domain_rows[v.domain] = [];
 						v.connect(verto_params(v.domain), verto_callbacks);
 						_this.vertos.push(v);
 
@@ -624,7 +625,7 @@ class ConferencePage extends React.Component {
 							active: false
 						});
 					});
-				})
+				}
 
 			}
 		});
@@ -1132,9 +1133,22 @@ class ConferencePage extends React.Component {
 
 		const toolbarTextStyle = this.state.toolbarText ? null : {display: 'none'};
 
-		const confCanvas1 = <i className="fa fa-photo" aria-hidden="true"> ①</i>
-		const confCanvas2 = <i className="fa fa-photo" aria-hidden="true"> ②</i>
 		const extendedConferenceControls = <i className="fa fa-gears" aria-hidden="true"></i>
+
+		let canvases = [];
+		const circle_numbers = "⓪①②③④⑤⑥⑦⑧⑨";
+
+		for(var c = 1; c <= this.props.room.canvas_count; c++) {
+			const title = <i className="fa fa-photo" aria-hidden="true"> {circle_numbers[c]}</i>
+
+			canvases.push(<DropdownButton title={title} id={"canvas" + c} key={c}>
+			{
+				this.state.layouts.map((layout) => {
+					return <MenuItem key={layout.k} eventKey={layout.k} onSelect={(k) => this.handleCanvasLayout(c, k)}>{layout.k}</MenuItem>
+				})
+			}
+			</DropdownButton>)
+		}
 
 		return <div>
 			<ButtonToolbar className="pull-right">
@@ -1143,21 +1157,7 @@ class ConferencePage extends React.Component {
 				!this.props.room.isMuxing ? null :
 
 				<ButtonGroup>
-					<DropdownButton title={confCanvas1} id="canvas1">
-					{
-						this.state.layouts.map((layout) => {
-							return <MenuItem key={layout.k} eventKey={layout.k} onSelect={(k) => this.handleCanvasLayout('1', k)}>{layout.k}</MenuItem>
-						})
-					}
-					</DropdownButton>
-
-					<DropdownButton title={confCanvas2} id="canvas2">
-					{
-						this.state.layouts.map((layout) => {
-							return <MenuItem key={layout.k} eventKey={layout.k} onSelect={(k) => this.handleCanvasLayout('2', k)}>{layout.k}</MenuItem>
-						})
-					}
-					</DropdownButton>
+					{ canvases }
 
 					<DropdownButton title={extendedConferenceControls}  id="extControls">
 						<MenuItem eventKey="L1" onSelect={this.handleSeletExtControl.bind(this)}>Set layout canvas #1</MenuItem>
@@ -1244,21 +1244,20 @@ class ConferencePage extends React.Component {
 			<ButtonToolbar>
 				<T.span text="Conference Name"/>: {this.props.room.name} |&nbsp;
 				<T.span text="Total"/>: {effective_rows}/{this.state.total}/{this.state.all}
-				&nbsp; | &nbsp;
 
 				{
 					!this.isCluster ? null :
 					Object.keys(this.state.domain_rows).map((dm) => {
-						return <span>{dm}: {this.state.domain_rows[dm].length} | &nbsp;</span>
+						return <span key={dm}> | {dm}: {this.state.domain_rows[dm].length}</span>
 					})
 				}
 
 				{
-					!this.isCluster ? null : <ProgressBar> {
+					!this.isCluster ? null : <ProgressBar>{
 						Object.keys(this.state.domain_rows).map((dm) => {
 							return <ProgressBar key={i} bsStyle={STYLES[i++]} now={this.state.domain_rows[dm].length / this.state.total * 100} label = {dm}/>
 						})
-					} </ProgressBar>
+					}</ProgressBar>
 				}
 
 			</ButtonToolbar>

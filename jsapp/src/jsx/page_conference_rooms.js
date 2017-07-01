@@ -86,6 +86,7 @@ class NewMember extends React.Component {
 			</Modal.Header>
 			<Modal.Body>
 			<Form horizontal id="newMember">
+				<input type="hidden" name="route" value=''/>
 				<FormGroup controlId="formName">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Name" className="mandatory"/></Col>
 					<Col sm={10}><FormControl type="input" name="name" placeholder="Seven Du" /></Col>
@@ -230,7 +231,7 @@ class RoomMembers extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {members: [], memberFormShow: false, danger: false,
-			batchAddmemberShow: false, groups: []}
+			highlight: false, batchAddmemberShow: false, groups: []}
 	}
 
 	handleMemberAdded(member) {
@@ -247,7 +248,7 @@ class RoomMembers extends React.Component {
 			moderator: num
 		}
 
-		xFetchJSON("/api/conference_rooms/" + this.props.room_id, {
+		xFetchJSON("/api/conference_rooms/" + this.props.room.id, {
 			method: "PUT",
 			body: JSON.stringify(data)
 		}).then((ret) => {
@@ -271,7 +272,7 @@ class RoomMembers extends React.Component {
 			if (!c) return;
 		}
 
-		xFetchJSON("/api/conference_rooms/" + this.props.room_id + "/members/" + id, {
+		xFetchJSON("/api/conference_rooms/" + this.props.room.id + "/members/" + id, {
 			method: "DELETE"
 		}).then((obj) => {
 			console.log("deleted")
@@ -286,11 +287,84 @@ class RoomMembers extends React.Component {
 		});
 	}
 
+	autoCalcRoute() {
+		console.log(this.props.room);
+
+		const nodes = this.props.room.cluster;
+		let total_weight = 0;
+		let total_members = this.state.members.length;
+
+		if (!nodes) reuturn;
+
+		nodes.forEach((node) => {
+			total_weight += parseInt(node.weight);
+		});
+
+		let x = total_members / total_weight;
+
+		let i = 0;
+		let count = 0;
+
+		console.log("x", x);
+
+		const members = this.state.members.map((m) => {
+			m.route = nodes[i].host;
+			m.unsaved = true;
+
+			if (++count >= nodes[i].weight * x && i < nodes.length - 1) {
+				i++;
+				count = 0;
+			}
+			return m;
+		});
+
+		this.setState({members: members});
+	}
+
+	handleSaveRoute() {
+		const _this = this;
+
+		this.state.members.forEach((member) => {
+			if (!member.route) return;
+
+			xFetchJSON("/api/conference_rooms/" + this.props.room.id + "/members/" + member.id, {
+				method: 'PUT',
+				body: JSON.stringify({route: member.route})
+			}).then((ret) => {
+				const members = this.state.members.map((m) => {
+					m.unsaved = false;
+					return m;
+				});
+
+				this.setState({members: members});
+				notify(<T.span text={{key:"Saved at", time: Date()}}/>);
+			}).catch((err) => {
+				console.error("Save route ERR");
+			});
+		});
+	}
+
 	componentDidMount() {
 		const _this = this;
 
-		xFetchJSON("/api/conference_rooms/" + _this.props.room_id + "/members").then((data) => {
+		xFetchJSON("/api/conference_rooms/" + _this.props.room.id + "/members").then((data) => {
 			_this.setState({members: data});
+		});
+	}
+
+	handleChange(id, obj) {
+		const _this = this;
+
+		xFetchJSON("/api/conference_rooms/" + _this.props.room.id + "/members/" + id, {
+			method: 'PUT',
+			body: JSON.stringify(obj)
+		}).then((data) => {
+			const members = this.state.members.map((m) => {
+				if (m.id == id) m = Object.assign(m, obj);
+
+				return m;
+			})
+			_this.setState({members: members});
 		});
 	}
 
@@ -302,6 +376,26 @@ class RoomMembers extends React.Component {
 
 		return <div>
 			<ButtonToolbar className="pull-right">
+
+			<ButtonGroup>
+				<Button onClick={() => _this.setState({highlight: !this.state.highlight})}>
+					<i className="fa fa-edit" aria-hidden="true"></i>&nbsp;
+					<T.span text="Edit"/>
+				</Button>
+			</ButtonGroup>
+
+			<ButtonGroup>
+				<Button onClick={this.autoCalcRoute.bind(this)}>
+					<i className="fa fa-calculator" aria-hidden="true"></i>&nbsp;
+					<T.span text="Auto Calc Route" />
+				</Button>
+
+				<Button onClick={this.handleSaveRoute.bind(this)}>
+					<i className="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;
+					<T.span text="Save Route" />
+				</Button>
+			</ButtonGroup>
+
 			<ButtonGroup>
 				<Button onClick={() => this.setState({ memberFormShow: true })}>
 					<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
@@ -320,7 +414,7 @@ class RoomMembers extends React.Component {
 
 			{
 				!this.state.batchAddmemberShow ? null :
-				<GroupBox room_id={this.props.room_id} onNewMemberAdded={this.handleMemberAdded.bind(this)}/>
+				<GroupBox room_id={this.props.room.id} onNewMemberAdded={this.handleMemberAdded.bind(this)}/>
 			}
 
 			<table className="table">
@@ -329,6 +423,7 @@ class RoomMembers extends React.Component {
 					<th><T.span text="Name" data="k"/></th>
 					<th><T.span text="Number"/></th>
 					<th><T.span text="Description"/></th>
+					<th><T.span text="Route"/></th>
 					<th style={{textAlign: "right"}}>
 						<T.span style={{cursor: "pointer"}} text="Delete" className={danger} onClick={toggleDanger} title={T.translate("Click me to toggle fast delete mode")}/>
 					</th>
@@ -336,9 +431,34 @@ class RoomMembers extends React.Component {
 				{
 					this.state.members.map(function (m){
 						return <tr key={m.id}>
-							<td>{m.name}</td>
-							<td>{m.num}</td>
-							<td>{m.description}</td>
+							<td><RIEInput value={_this.state.highlight ? (m.name ? m.name : T.translate("Click to Change")) : m.name} change={(obj) => _this.handleChange(m.id, obj)}
+								propName="name"
+								className={_this.state.highlight ? "editable" : ""}
+								validate={_this.isStringAcceptable}
+								classLoading="loading"
+								classInvalid="invalid"/>
+							</td>
+							<td><RIEInput value={m.num} change={(obj) => _this.handleChange(m.id, obj)}
+								propName="num"
+								className={_this.state.highlight ? "editable" : ""}
+								validate={_this.isStringAcceptable}
+								classLoading="loading"
+								classInvalid="invalid"/>
+							</td>
+							<td><RIEInput value={_this.state.highlight ? (m.description ? m.description : T.translate("Click to Change")) : m.description} change={(obj) => _this.handleChange(m.id, obj)}
+								propName="description"
+								className={_this.state.highlight ? "editable" : ""}
+								validate={_this.isStringAcceptable}
+								classLoading="loading"
+								classInvalid="invalid"/>
+							</td>
+							<td style={m.unsaved ? {color: "red"} : {}}><RIEInput value={_this.state.highlight ? (m.route ? m.route : T.translate("Click to Change")) : m.route} change={(obj) => _this.handleChange(m.id, obj)}
+								propName="route"
+								className={_this.state.highlight ? "editable" : ""}
+								validate={_this.isStringAcceptable}
+								classLoading="loading"
+								classInvalid="invalid"/>
+							</td>
 							<td style={{textAlign: "right"}}>
 								<T.a onClick={(e) => _this.handleSetAsModerator(e, m.num)} text="Set As Moderator" href="#"/> |&nbsp;
 								<T.a onClick={_this.handleDelete.bind(_this)} data-id={m.id} text="Delete" className={danger} href="#"/>
@@ -349,7 +469,7 @@ class RoomMembers extends React.Component {
 				</tbody>
 			</table>
 
-			<NewMember room_id = {this.props.room_id}
+			<NewMember room_id = {this.props.room.id}
 				show={this.state.memberFormShow} onHide={memberFormClose}
 				onNewMemberAdded={this.handleMemberAdded.bind(this)}/>
 		</div>
@@ -470,10 +590,10 @@ class ConferenceRoom extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {room: {}, params:[], profiles:[], edit: false};
+		this.state = {room: {}, params:[], profiles:[], video_modes:[], call_perms:[], edit: false};
 		this.handleSort = this.handleSort.bind(this);
 	}
-	
+
 	handleSort(e){
 		var params = this.state.params;
 
@@ -504,6 +624,40 @@ class ConferenceRoom extends React.Component {
 			notify(<T.span text="Mandatory fields left blank"/>, 'error');
 			return;
 		}
+
+		if (room.cluster) {
+			let cluster = [];
+			let line = 1;
+			let errors = "";
+			const rows = room.cluster.split(/\r?\n/).map((row) => {
+				let item = row.split(' ');
+
+				if (!item[0]) return null;
+
+				if (!item[0].match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:?(\d{2,5})?$/)) {
+					errors += "error line: " + line + "\n";
+				}
+
+				if (!item[1]) item[1] = "1";
+
+				cluster.push({host: item[0], weight: item[1]});
+				line++;
+			});
+
+			console.log(cluster);
+
+			if (errors) {
+				alert(errors);
+				return;
+			}
+
+			if (cluster.length) {
+				room.cluster = cluster;
+			} else {
+				delete room.cluster;
+			}
+		}
+
 		xFetchJSON("/api/conference_rooms/" + room.id, {
 			method: "PUT",
 			body: JSON.stringify(room)
@@ -545,20 +699,44 @@ class ConferenceRoom extends React.Component {
 			console.log("get room profile ERR");
 		});
 
+		xFetchJSON("/api/dicts?realm=CONF_VIDEO_MODE").then((data) => {
+			_this.setState({video_modes: data});
+		});
+
+		xFetchJSON("/api/dicts?realm=CONF_CALL_PERM").then((data) => {
+			_this.setState({call_perms: data});
+		});
 	}
 
 	render() {
 		const room = this.state.room;
 		let save_btn = null;
 		let err_msg = null;
-		var _this = this;
-		var current_profile = null;
+		let _this = this;
+		let current_profile = null;
+		let current_video_mode = null;
+		let current_call_perm = null;
+		let cluster = '';
 
-		var profile_options = this.state.profiles.map(function(row) {
+		const profile_options = this.state.profiles.map(function(row) {
 			if (row.id == room.profile_id) {
 				current_profile = '[' + row.name + '] ' + row.description;
 			}
 			return [row.id, row.name];
+		});
+
+		const video_mode_options = this.state.video_modes.map(function(row) {
+			if (row.k == room.video_mode) {
+				current_video_mode = T.translate(row.k);
+			}
+			return [row.k, T.translate(row.k)];
+		});
+
+		const call_perm_options = this.state.call_perms.map(function(row) {
+			if (row.k == room.call_perm) {
+				current_call_perm = T.translate(row.k);
+			}
+			return [row.k, T.translate(row.k)];
 		});
 
 		if (this.state.edit) {
@@ -566,6 +744,12 @@ class ConferenceRoom extends React.Component {
 				<i className="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;
 				<T.span text="Save"/>
 			</Button>
+		}
+
+		if (room.cluster) {
+			room.cluster.forEach((c) => {
+				cluster += c.host + ' ' + c.weight + '\n';
+			});
 		}
 
 		return <div>
@@ -584,38 +768,43 @@ class ConferenceRoom extends React.Component {
 
 			<Form horizontal id='editRoomForm'>
 				<input type="hidden" name="id" defaultValue={room.id}/>
-				<FormGroup controlId="formName" className="xrowb">
+				<FormGroup className="xrowb">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Name" className="mandatory"/></Col>
 					<Col sm={4}><EditControl edit={this.state.edit} name="name" defaultValue={room.name}/></Col>
-					<Col componentClass={ControlLabel} sm={2} htmlFor="formDescription"><T.span text="Description" /></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Description" /></Col>
 					<Col sm={4}><EditControl edit={this.state.edit} id="formDescription" name="description" defaultValue={room.description}/></Col>
 				</FormGroup>
 
-				<FormGroup controlId="formNumber" className="xrowb">
+				<FormGroup className="xrowb">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Number" className="mandatory"/></Col>
 					<Col sm={4}><EditControl edit={this.state.edit} name="nbr" defaultValue={room.nbr}/></Col>
-					<Col componentClass={ControlLabel} sm={2} htmlFor="formPIN"><T.span text="PIN"/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="PIN"/></Col>
 					<Col sm={4}><EditControl edit={this.state.edit} id="formPIN" name="pin" defaultValue={room.pin}/></Col>
 				</FormGroup>
 
-				<FormGroup controlId="formCapacity" className="xrowb">
+				<FormGroup className="xrowb">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Capacity"/></Col>
 					<Col sm={4}><EditControl edit={this.state.edit} name="capacity" defaultValue={room.capacity}/></Col>
-					<Col componentClass={ControlLabel} sm={2} htmlFor="formMOD"><T.span text="Moderator" /></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Moderator" /></Col>
 					<Col sm={4}><EditControl edit={this.state.edit} id="formMOD" name="moderator" defaultValue={room.moderator}/></Col>
 				</FormGroup>
 
-				<FormGroup controlId="formCanvasCount" className="xrowb">
+				<FormGroup className="xrowb">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Canvas Count"/></Col>
 					<Col sm={4}><EditControl edit={this.state.edit} name="canvas_count" defaultValue={room.canvas_count}/></Col>
-					<Col componentClass={ControlLabel} sm={2} htmlFor="formVideoMode"><T.span text="Video Mode" /></Col>
-					<Col sm={4}><EditControl edit={this.state.edit} id="formVideoMode" name="video_mode" defaultValue={room.video_mode}/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Video Mode" /></Col>
+					<Col sm={4}>
+						<EditControl edit={this.state.edit} componentClass="select" id="formVideoMode" name="video_mode"
+							text={current_video_mode} defaultValue={room.video_mode}
+							options={video_mode_options}>
+						</EditControl>
+					</Col>
 				</FormGroup>
 
-				<FormGroup controlId="formRealm" className="xrowb">
+				<FormGroup className="xrowb">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Realm" /></Col>
 					<Col sm={4}><EditControl edit={this.state.edit} name="realm" defaultValue={room.realm}/></Col>
-					<Col componentClass={ControlLabel} sm={2} htmlFor="formConfProfile"><T.span text="Conference Profile"/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Profile"/></Col>
 					<Col sm={4}>
 						<EditControl edit={this.state.edit} componentClass="select" id="formConfProfile" name="profile_id"
 							text={current_profile} defaultValue={room.profile_id}
@@ -623,11 +812,22 @@ class ConferenceRoom extends React.Component {
 					</Col>
 				</FormGroup>
 
+				<FormGroup>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Call Permission" /></Col>
+					<Col sm={4}>
+						<EditControl edit={this.state.edit} componentClass="select" id="formCallPerm" name="call_perm"
+							text={current_call_perm} defaultValue={room.call_perm}
+							options={call_perm_options}>
+						</EditControl>
+					</Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Cluster" /></Col>
+					<Col sm={4}><EditControl edit={this.state.edit} componentClass="textarea" name="cluster" defaultValue={cluster}/></Col>
+				</FormGroup>
 			</Form>
 
 			<br/>
 
-			{room.id ? <RoomMembers room_id={this.state.room.id} handleModeratorSet={this.handleModeratorSet.bind(this)}/> : null}
+			{room.id ? <RoomMembers room={this.state.room} handleModeratorSet={this.handleModeratorSet.bind(this)}/> : null}
 		</div>
 	}
 }
