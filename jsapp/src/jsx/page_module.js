@@ -278,8 +278,8 @@ class ModulePage extends React.Component {
 			<table className="table">
 				<tbody>
 				<tr>
-					<th onClick={() => this.handleSort("k")}><T.span text="Name" /></th>
-					<th onClick={() => this.handleSort("disabled")}><T.span text="Enabled" /></th>
+					<th onClick={() => this.handleSort("k")} className="cursor-hand"><T.span text="Name" /></th>
+					<th onClick={() => this.handleSort("disabled")} className="cursor-hand"><T.span text="Enabled" /></th>
 					<th><T.span text="Control"/></th>
 				</tr>
 				{rows}
