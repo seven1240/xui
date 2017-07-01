@@ -307,9 +307,9 @@ class ConferenceProfilePage extends React.Component {
 			<table className="table">
 				<tbody>
 				<tr>
-					<th onClick={this.handleSort.bind(this)} data="d"><T.span text="Name" data="k"/></th>
+					<th onClick={this.handleSort.bind(this)} data="d" className="cursor-hand"><T.span text="Name" data="k"/></th>
 					<th><T.span text="Value"/></th>
-					<th onClick={this.handleSort.bind(this)} data='disabled'><T.span text="Enabled" data="disabled"/></th>
+					<th onClick={this.handleSort.bind(this)} data='disabled' className="cursor-hand"><T.span text="Enabled" data="disabled"/></th>
 				</tr>
 				{params}
 				</tbody>
