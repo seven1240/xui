@@ -39,6 +39,34 @@ import { Grid, Tab, Row, Col, Nav, NavItem, NavDropdown} from 'react-bootstrap';
 import { EditControl, xFetchJSON } from './libs/xtools';
 import parseXML from './libs/xml_parser';
 
+class NavItemTab extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+
+	render() {
+		const props = Object.assign({}, this.props);
+		const groupID = props.groupID;
+		const group_users = props.group_users;
+		delete props.groupID;
+		delete props.group_users;
+		let className = '';
+		let users = group_users[groupID].users;
+		let groupName = group_users[groupID].groupName;
+
+		for (let i = 0; i < users.length; i++) {
+			if (users[i].registerState == "unregistered") {
+				className = "danger fa fa-exclamation-triangle"
+				break;
+			}
+		}
+
+		return (
+			<NavItem eventKey={groupID} key={groupID}><T.span className={className} text={groupName}/></NavItem>
+		)
+	}
+}
+
 
 class TabContent extends React.Component {
 	constructor(props) {
@@ -477,7 +505,6 @@ class MonitorPage extends React.Component {
 				}
 			}
 
-			navItems.push(<NavItem eventKey={group_users[defaultActiveKey].groupID} key={group_users[defaultActiveKey].groupID}><T.span text={group_users[defaultActiveKey].groupName}/></NavItem>);
 			for (let id in group_users) {
 				let tabPanes = [];
 				if (id == defaultActiveKey) {
@@ -485,11 +512,11 @@ class MonitorPage extends React.Component {
 						return <TabContent user={u} currentLoginUser={currentLoginUser} handleCall={_this.handleCall} handleToggleSelect={_this.handleToggleSelect}/>
 					})
 					tabPanesMounted[id] = true;
+					navItems.unshift(<NavItemTab groupID={id} group_users={group_users}/>);
 				} else {
-					navItems.push(<NavItem eventKey={group_users[id].groupID} key={group_users[id].groupID}>{group_users[id].groupName}</NavItem>);
 					tabPanesMounted[id] = false;
+					navItems.push(<NavItemTab groupID={id} group_users={group_users}/>);
 				}
-
 				tabContentObj[id] = <Tab.Pane eventKey={id}>{tabPanes}</Tab.Pane>;
 			}
 
