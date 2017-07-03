@@ -48,6 +48,7 @@ require 'm_dict'
 require 'utils'
 require 'm_ticket'
 require 'm_user'
+require 'xtra_config'
 xdb.bind(xtra.dbh)
 
 get('/', function(params)
@@ -86,6 +87,31 @@ get('/', function(params)
 		return tickets
 	else
 		return "[]"
+	end
+end)
+
+get('/url', function(params)
+	return '{"url":"' .. config.url .. '"}'
+end)
+
+get('/download', function(params)
+	n, tickets = xdb.find_all("tickets")
+	content_type("application/vnd.ms-excel;charset=utf-8")
+	header("Content-Disposition", 'attachment; filename="download_tickets_filename.csv"')
+	xtra.write(string.char(0xef, 0xBB, 0xbf))
+	xtra.write('工单ID,' .. '序列号,' .. '主叫号码,' .. '类型,' .. '主题,' .. '内容,' .. '状态,' .. '指派人\n')
+	for i, v in pairs(tickets) do
+		local type = xdb.find_one('dicts', {realm = 'TICKET_TYPE', k = v.type})
+		v.type = type.v
+		local status = xdb.find_one('dicts', {realm = 'TICKET_STATE', k = v.status})
+		v.status = status.v
+		local user = xdb.find_one('users', {id = v.user_id})
+		v.user_id = user.name
+
+		v.content = string.gsub(v.content, '\n', '。')
+
+		xtra.write(v.id .. "," .. v.serial_number .. "," .. v.cid_number .. "," .. v.type .. "," ..
+		v.subject .. "," .. v.content .. "," .. v.status .. "," .. v.user_id .. "," .. v.current_user_id .. "\n")
 	end
 end)
 
