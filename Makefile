@@ -9,6 +9,9 @@ githash:
 watch:
 	cd jsapp && make watch
 
+wewatch:
+	cd jsapp && make wewatch
+
 livereload:
 	cd jsapp && make livereload
 
