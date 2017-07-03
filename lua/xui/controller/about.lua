@@ -1,3 +1,4 @@
+--[[
 /*
  * HTML5 GUI Framework for FreeSWITCH - XUI
  * Copyright (C) 2015-2017, Seven Du <dujinfang@x-y-t.cn>
@@ -27,37 +28,17 @@
  *
  *
  */
+]]
 
-'use strict';
+content_type("application/json")
+require 'xdb'
+xdb.bind(xtra.dbh)
 
-import React from 'react';
-import T from 'i18n-react';
-import { xFetchJSON } from './libs/xtools'
-
-class AboutPage extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = { version: null };
-	}
-
-	componentDidMount() {
-		var _this = this;
-		xFetchJSON('api/about/version').then((data) => {
-			console.log("dt", data)
-			_this.setState({ version: data.version });
-		}).catch((msg) => {
-			console.log("get version ERR");
-		});
-	}
-	render() {
-		return <div>
-			<h1><T.span text="About XUI" /></h1>
-			<p><T.span text="XUI is a FreeSWITCH UI framework and implementation" /></p>
-			<p><T.span text="Version" />:{this.state.version}</p>
-			<p><T.span text="Author" />: Seven Du</p>
-			<p><T.span text="More info" />: <a href="https://github.com/seven1240/xui" target="_blank">XUI on Github</a></p>
-		</div>;
-	}
-};
-
-export default AboutPage;
+get('/version', function(params)
+	version = xdb.find_one('dicts', {realm = 'XUI', k = 'VER'})
+	if version	then
+		return '{ "version": "' .. version.v .. '" }'
+	else
+		return 404
+	end
+end)
