@@ -104,7 +104,7 @@ class App extends React.Component{
 		let main = <div></div>;
 
 		if (this.props.children) { //compoment
-			main = this.props.children;
+			main = <div id='main'>{this.props.children}</div>
 			console.log("props1", this.props);
 		} else { //components
 			console.log("props2", this.props);
