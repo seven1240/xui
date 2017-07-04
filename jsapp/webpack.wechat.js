@@ -21,7 +21,7 @@ var config = {
         path: '../www/assets',
         // filename: 'js/jsx/[name].[chunkhash:8].js',
         // filename: 'js/jsx/[name].[githash].js',
-        filename: 'js/jsx/[name].[0947345e].js',
+        filename: 'js/jsx/[name].0947345e.js',
         publicPath: '/assets'
     },
 

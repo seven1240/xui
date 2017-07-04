@@ -10,11 +10,15 @@ var loc = {};
 class Home extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {ticket: {}, user_options: null, ass_template: null, call:"回拨", ticket_comments: [], wechat_users: props.users, deal_user: null};
+		this.state = {lines: []};
 	}
 
 	componentDidMount() {
 		var _this = this;
+
+		xFetchJSON('/api/bus/lines').then((data) => {
+			this.setState({lines: data});
+		});
 	}
 
 	handleClick() {
@@ -31,14 +35,18 @@ class Home extends React.Component {
 
 	render() {
 		const _this = this;
-		const ticket = this.state.ticket;
-		if (!ticket.id) {
-			return <div><br/><br/><br/><br/><br/><br/>
-				<div onClick={this.handleClick.bind(this)}>
-					<center>查询</center>
-				</div>
+		return <div>
+			{
+				this.state.lines.map((line) => {
+					return <li>{line.line_code}: {line.line_type_name}</li>
+				})
+			}
+
+			<br/><br/><br/><br/><br/><br/>
+			<div onClick={this.handleClick.bind(this)}>
+				<center>打开地图</center>
 			</div>
-		}
+		</div>
 	}
 }
 
