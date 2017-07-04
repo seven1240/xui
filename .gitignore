@@ -6,6 +6,7 @@ jsapp/src/js/jsx/*.js
 jsapp/src/index.js
 jsapp/src/jsx/index.js
 www/index.html
+www/bus.html
 www/assets/js/react*.bundle.js
 www/assets/js/jsx/*
 www/assets/css/xui.css

@@ -2,10 +2,10 @@
 
 import React from 'react'
 import ReactDOM from 'react-dom';
-import T from 'i18n-react';
 import { xFetchJSON } from '../jsx/libs/xtools';
 
 var is_wx_ready = false;
+var loc = {};
 
 class Home extends React.Component {
 	constructor(props) {
@@ -17,74 +17,39 @@ class Home extends React.Component {
 		var _this = this;
 	}
 
+	handleClick() {
+		wx.openLocation({
+			latitude: loc.latitude, // 纬度，浮点数，范围为90 ~ -90
+			longitude: loc.longitude, // 经度，浮点数，范围为180 ~ -180。
+			name: 'Here', // 位置名
+			address: 'Address', // 地址详情说明
+			scale: 1, // 地图缩放级别,整形值,范围从1~28。默认为最大
+			infoUrl: '' // 在查看位置界面底部显示的超链接,可点击跳转
+		});
+
+	}
+
 	render() {
 		const _this = this;
 		const ticket = this.state.ticket;
 		if (!ticket.id) {
 			return <div><br/><br/><br/><br/><br/><br/>
-				<center>查询</center>
+				<div onClick={this.handleClick.bind(this)}>
+					<center>查询</center>
+				</div>
 			</div>
 		}
-
-		return <div>
-			<div className="weui-cells__title">
-				<h1 style={{ textAlign:"center",color:"black" }}>{ticket.subject}</h1>
-			{/* <p>
-				{ticket.content}
-			</p> */}
-			</div>
-			<div className="weui-form-preview__bd">
-				<div className="weui-form-preview__item">
-					<span style={{color:"black"}} className="weui-form-preview__label">{ticket.serial_number}</span>
-					<span className="weui-form-preview__value">{ticket.created_epoch}</span>
-				</div>
-			</div>
-		</div>
 	}
 }
 
-class Settings extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {user_state: null};
-	}
-
-	componentDidMount() {
-		xFetchJSON('/api/fifos/members/check').then((data) => {
-			this.setState({user_state: data.user_state})
-		});
-	}
-
-	render() {
-		var _this = this;
-
-		return <div className="weui-cells weui-cells_form">
-					<div className="weui-form-preview__ft">
-					</div>
-					<div className="weui-form-preview__bd">
-						<div className="weui-form-preview__item">
-							<span style={{color:"black"}} className="weui-form-preview__label">值班</span>
-							<span className="weui-form-preview__value">
-								{work_radio}
-							</span>
-						</div>
-					</div>
-					<div className="weui-form-preview__ft">
-					</div>
-					<br/>
-					<br/>
-				</div>
-	}
-}
-
-class Lines extends React.Component {
+class Stations extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {};
 	}
 
 	render() {
-		return <div>线路</div>
+		return <div>站点查询</div>
 	}
 }
 
@@ -102,11 +67,24 @@ class Change extends React.Component {
 class App extends React.Component{
 	handleClick(menu) {
 		switch(menu) {
-			case "realtime": ReactDOM.render(<Home/>, document.getElementById('main')); break;
-			case "lines": ReactDOM.render(<Lines/>, document.getElementById('main')); break;
+			case "lines": ReactDOM.render(<Home/>, document.getElementById('main')); break;
+			case "stations": ReactDOM.render(<Stations/>, document.getElementById('main')); break;
 			case "change": ReactDOM.render(<Change/>, document.getElementById('main')); break;
 			default: ReactDOM.render(<Home/>, document.getElementById('main'));
 		}
+	}
+
+	componentDidMount() {
+		const _this = this;
+
+		wx.openLocation({
+			latitude: 0, // 纬度，浮点数，范围为90 ~ -90
+			longitude: 0, // 经度，浮点数，范围为180 ~ -180。
+			name: '', // 位置名
+			address: '', // 地址详情说明
+			scale: 1, // 地图缩放级别,整形值,范围从1~28。默认为最大
+			infoUrl: '' // 在查看位置界面底部显示的超链接,可点击跳转
+		});
 	}
 
 	render() {
@@ -114,17 +92,17 @@ class App extends React.Component{
 		return <div>
 			<div style={{width:"100%",height:"50px"}}></div>
 				<div className="weui-tabbar" style={{position: "fixed"}}>
-					<a className="weui-tabbar__item" onClick={() => _this.handleClick("realtime")}>
-						<div className="weui-tabbar__icon">
-							<img src="/assets/wechat_img/icon_nav_button.png" alt=""/>
-						</div>
-						<p className="weui-tabbar__label">实时查询</p>
-					</a>
 					<a className="weui-tabbar__item" onClick={() => _this.handleClick("lines")}>
 						<div className="weui-tabbar__icon">
 							<img src="/assets/wechat_img/icon_nav_article.png" alt=""/>
 						</div>
 						<p className="weui-tabbar__label">线路查询</p>
+					</a>
+					<a className="weui-tabbar__item" onClick={() => _this.handleClick("stations")}>
+						<div className="weui-tabbar__icon">
+							<img src="/assets/wechat_img/icon_nav_button.png" alt=""/>
+						</div>
+						<p className="weui-tabbar__label">站点查询</p>
 					</a>
 					<a className="weui-tabbar__item">
 						<div className="weui-tabbar__icon" onClick={() => _this.handleClick("change")}>
@@ -148,6 +126,20 @@ wx.ready(function () {
 	};
 
 	wx.onMenuShareAppMessage(shareData);
+
+	wx.getLocation({
+		type:'wgs84',//默认为wgs84的gps坐标，
+		//如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+		success:function(res){
+			var latitude=res.latitude;
+			var longitude=res.longitude;
+			var speed=res.speed;
+			var accuracy=res.accuracy;
+			console.log('经度：'+latitude+'，纬度：'+longitude);
+
+			loc = res;
+		}
+	});
 });
 
 xFetchJSON('/api/wechat/xyt/jsapi_ticket?url=' + escape(location.href.split('#')[0])).then((data) => {

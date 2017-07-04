@@ -12,6 +12,9 @@ watch:
 wewatch:
 	cd jsapp && make wewatch
 
+webuild:
+	cd jsapp && make webuild
+
 livereload:
 	cd jsapp && make livereload
 
