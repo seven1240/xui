@@ -35,9 +35,10 @@ require 'xdb'
 xdb.bind(xtra.dbh)
 
 get('/version', function(params)
-	version = xdb.find_one('dicts', {realm = 'XUI', k = 'VER'})
-	if version	then
-		return '{ "version": "' .. version.v .. '" }'
+	xui_version = xdb.find_one('dicts', {realm = 'XUI', k = 'VER'})
+	db_version = xdb.find_one('dicts', {realm = 'XUI', k = 'DBVER'})
+	if xui_version and db_version then
+		return '{"xui_version": "' .. xui_version.v .. '", "db_version": "' .. db_version.v .. '"}'
 	else
 		return 404
 	end
