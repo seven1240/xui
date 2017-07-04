@@ -273,6 +273,7 @@ CREATE TABLE conference_rooms (
 	moderator VARCHAR,
 	canvas_count INTEGER,
 	video_mode VARCHAR,
+	call_perm VARCHAR,
 	cluster TEXT,
 
 	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
