@@ -50,6 +50,12 @@ get('/interchange', function(params)
 	start = '市政'
 	stop = '公安局'
 
+-- start       |
+-----o---------x--------------  line1
+--			   |         stop
+--             |--------o-----  line2
+
+
 	line1 = xdb.find_one("station", {stat_name = start})
 	line2 = xdb.find_one("station", {stat_name = stop})
 
@@ -66,7 +72,60 @@ get('/interchange', function(params)
 
 	n, res = xdb.find_by_sql(sql)
 
-	return res
+	if n > 0 then
+		return res
+	else
+		-- not found, keep going, find a 3rd line that has interchange stations
+
+-- start       |
+-----o---------x--------------  line1
+--			   |         stop
+---------------x--------o-----  line2
+--             |
+--             \--------------  line3
+
+		line1 = {line_code = '1'}
+		line2 = {line_code = '2'}
+
+		range = " ('" .. line1.line_code .. "', '" .. line2.line_code .. "') "
+
+		sql = [[SELECT DISTINCT line_code
+			FROM station
+			WHERE line_code NOT IN ]] .. range .. [[
+			AND stat_name IN (SELECT stat_name FROM station WHERE line_code IN ]] .. range .. ")"
+
+		freeswitch.consoleLog("info", sql)
+
+		n, line = xdb.find_by_sql(sql)
+
+		freeswitch.consoleLog("info", utils.serialize(line))
+
+		if n > 0 then
+			line = line[1]
+		end
+
+		if line then -- found a 3rd line
+			sql1 = [[SELECT DISTINCT stat_name
+				FROM station
+				WHERE line_code = ]] .. line1.line_code .. [[
+				AND stat_name IN (SELECT stat_name FROM station WHERE line_code = ]] .. line.line_code .. ')'
+
+			sql2 = [[SELECT DISTINCT stat_name
+				FROM station
+				WHERE line_code = ]] .. line2.line_code .. [[
+				AND stat_name IN (SELECT stat_name FROM station WHERE line_code = ]] .. line.line_code .. ')'
+
+
+			n1, res1 = xdb.find_by_sql(sql1)
+			n2, res2 = xdb.find_by_sql(sql2)
+
+			if n1 > 0 and n2 > 0 then
+				return {0, res1, res2}
+			end
+		else
+			return "[]"
+		end
+	end
 end)
 
 get('/test', function(params)
