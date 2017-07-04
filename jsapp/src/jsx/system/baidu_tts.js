@@ -41,6 +41,7 @@ class SettingBaiduTTS extends React.Component {
 		super(props);
 
 		this.state = {editable: false, rows:[]}
+		this.fetchParams = this.fetchParams.bind(this);
 	}
 
 	fetchACCKEY() {
@@ -65,15 +66,9 @@ class SettingBaiduTTS extends React.Component {
 		});
 	}
 
-	handleChange(obj) {
+	fetchParams() {
 		const _this = this;
-		const id = Object.keys(obj)[0];
 
-		console.log("change", obj);
-	}
-
-	componentDidMount() {
-		const _this = this;
 		xFetchJSON("/api/dicts?realm=BAIDU").then((rows) => {
 			_this.setState({rows: rows});
 		}).catch((msg) => {
@@ -81,14 +76,38 @@ class SettingBaiduTTS extends React.Component {
 		});
 	}
 
+	handleChange(obj) {
+		const _this = this;
+		const id = Object.keys(obj)[0];
+		const val = obj[id];
+
+		xFetchJSON("/api/dicts/" + id, {
+			method: "PUT",
+			body: JSON.stringify({v: val, id: id})
+		}).then((data) => {
+			console.log("success", data);
+			this.fetchParams();
+		}).catch((msg) => {
+			console.error("error", msg);
+		});
+	}
+
+	componentDidMount() {
+		this.fetchParams();
+	}
+
 	render() {
 		let hand = { cursor : "pointer" };
 		const _this = this;
 		const rows = this.state.rows.map((row) => {
+			let val = "UNDEF";
+
+			if (row.v) val = row.v;
+
 			return <Row key={row.k}>
 				<Col sm={2}><T.span text={row.k}/></Col>
-				<Col style={hand} >
-					<RIEInput value={row.v} change={_this.handleChange.bind(_this)}
+				<Col sm={8} style={hand} >
+					<RIEInput value={val} change={_this.handleChange.bind(_this)}
 						propName={row.id}
 						className={_this.state.highlight ? "editable long-input" : "editable2 long-input"}
 						validate={_this.isStringAcceptable}
