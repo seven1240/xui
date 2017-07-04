@@ -31,6 +31,7 @@
 ]]
 
 xtra.start_session()
+content_type("application/json;charset=UTF-8")
 
 require 'xdb'
 xdb.bind(xtra.dbh)
@@ -43,4 +44,36 @@ get('/lines', function(params)
 	else
 		return "[]"
 	end
+end)
+
+get('/interchange', function(params)
+	start = '市政'
+	stop = '公安局'
+
+	line1 = xdb.find_one("station", {stat_name = start})
+	line2 = xdb.find_one("station", {stat_name = stop})
+
+	sql = [[SELECT DISTINCT a.stat_name,
+		a.line_code AS line1,
+		b.line_code AS line2,
+		abs(a.station_order - ]] .. line1.station_order .. [[) AS aoff,
+		abs(b.station_order - ]] .. line2.station_order .. [[) AS boff
+		FROM station a, station b
+		WHERE a.line_code = ]] .. line1.line_code .. [[
+			AND b.line_code = ]] .. line2.line_code .. [[
+			AND a.stat_name = b.stat_name
+		ORDER BY aoff]]
+
+	n, res = xdb.find_by_sql(sql)
+
+	return res
+end)
+
+get('/test', function(params)
+
+	sql = "select distinct a.station_order, a.stat_name from station a, station b where a.line_code = 6 and b.line_code = 9 and a.stat_name = b.stat_name order by a.station_order"
+
+	n, res = xdb.find_by_sql(sql)
+
+	return res
 end)

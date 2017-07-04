@@ -64,11 +64,46 @@ class Stations extends React.Component {
 class Change extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {};
+		this.state = {candidates: []};
+	}
+
+	handleSearchInterchange(e) {
+		e.preventDefault();
+
+		const _this = this;
+		xFetchJSON('/api/bus/interchange').then((data) => {
+			console.log(data);
+			_this.setState({candidates: data});
+		});
 	}
 
 	render() {
-		return <div>换乘查询</div>
+		return <div class="page">
+			<h1>换乘查询</h1>
+
+			起点：<input value="市政"/>
+			<br/>
+			终点：<input value="文化区"/>
+			<br/>
+
+			<a href="#" className="weui-btn weui-btn_primary" onClick={this.handleSearchInterchange.bind(this)}>查询</a>
+
+			<hr/>
+
+			<div class="page__bd">
+			<ul> {
+				this.state.candidates.map((candidate) => {
+					return <li>{candidate.line1}路 -&nbsp;
+						[{candidate.aoff}站] -&nbsp;
+						{candidate.stat_name} -&nbsp;
+						[{candidate.boff}站] -&nbsp;
+						{candidate.line2}路
+					</li>
+				})
+			} </ul>
+			</div>
+
+		</div>
 	}
 }
 
