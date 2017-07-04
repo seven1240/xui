@@ -102,9 +102,9 @@ INSERT INTO dicts (realm, k, v) VALUES ('MCAST_SAMPLE_RATE', '48000', '48000');
 INSERT INTO dicts (realm, k, v) VALUES ('FIFO', 'delete-all-outbound-member-on-startup', 'false');
 INSERT INTO dicts (realm, k, v) VALUES ('FIFO', 'outbound-strategy', 'ringall');
 
-INSERT INTO dicts (realm, k, v) VALUES ('TICKET_STATE', 'TICKET_ST_NEW', 'TICKET_ST_NEW');
-INSERT INTO dicts (realm, k, v) VALUES ('TICKET_STATE', 'TICKET_ST_PROCESSING', 'TICKET_ST_PROCESSING');
-INSERT INTO dicts (realm, k, v) VALUES ('TICKET_STATE', 'TICKET_ST_DONE', 'TICKET_ST_DONE');
+INSERT INTO dicts (realm, k, v) VALUES ('TICKET_STATE', 'TICKET_ST_NEW', '未处理');
+INSERT INTO dicts (realm, k, v) VALUES ('TICKET_STATE', 'TICKET_ST_PROCESSING', '处理中');
+INSERT INTO dicts (realm, k, v) VALUES ('TICKET_STATE', 'TICKET_ST_DONE', '已完成');
 
 INSERT INTO dicts (realm, k, v) VALUES ('TICKET_ACTION', 'TICKET_ACTION_CREATE', 'TICKET_ACTION_CREATE');
 INSERT INTO dicts (realm, k, v) VALUES ('TICKET_ACTION', 'TICKET_ACTION_COMMENT', 'TICKET_ACTION_COMMENT');

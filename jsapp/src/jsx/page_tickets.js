@@ -687,6 +687,7 @@ class TicketsPage extends React.Component {
 		this.handleMore = this.handleMore.bind(this);
 		this.handleSearch = this.handleSearch.bind(this);
 		this.handleSelect = this.handleSelect.bind(this);
+		this.handleDownload = this.handleDownload.bind(this);
 	}
 
 	handleMore (e) {
@@ -786,6 +787,21 @@ class TicketsPage extends React.Component {
 		}
 	}
 
+	handleDownload() {
+		var url = '';
+		xFetchJSON('/api/tickets/url').then((data) => {
+			console.log(data)
+			url = data.url;
+			var uri = url + "/api/tickets/download";
+			var downloadLink = document.createElement("a");
+			downloadLink.href = uri;
+			downloadLink.download = "tickets_download" + ".csv";
+			document.body.appendChild(downloadLink);
+			downloadLink.click();
+			document.body.removeChild(downloadLink);
+		});
+	}
+
 	render () {
 		var _this = this;
 		let hand = { cursor: "pointer"};
@@ -846,6 +862,10 @@ class TicketsPage extends React.Component {
 		return <div>
 			<ButtonToolbar className="pull-right">
 				<br/>
+				<Button onClick={this.handleDownload}>
+					<i className="fa fa-download" aria-hidden="true"></i>&nbsp;
+					<T.span text="Download" />
+				</Button>&nbsp;
 				<div style={{display: _this.state.display}}>
 					<T.span text="Last"/> &nbsp;
 					<T.a onClick={this.handleQuery} text={{key:"days", day: 7}} data="7" href="#"/>&nbsp;|&nbsp;
