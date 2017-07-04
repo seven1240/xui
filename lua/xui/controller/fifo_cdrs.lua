@@ -43,7 +43,7 @@ get('/', function(params)
 	startDate = env:getHeader('startDate')
 	last = env:getHeader('last')
 	pageNum = tonumber(env:getHeader('pageNum'))
-	rowPerPage = tonumber(env:getHeader('rowPerPage'))
+	fifocdrsRowsPerPage = tonumber(env:getHeader('fifocdrsRowsPerPage'))
 
 	local fifocdrs = {}
 	local rowCount = 0
@@ -54,14 +54,14 @@ get('/', function(params)
 	fifocdrs.data = {}
 
 	pageNum = tonumber(pageNum)
-	rowPerPage = tonumber(rowPerPage)
+	fifocdrsRowsPerPage = tonumber(fifocdrsRowsPerPage)
 
 	if not pageNum or pageNum < 0 then
 		pageNum = 1
 	end
 
-	if not rowPerPage then
-		rowPerPage = 20
+	if not fifocdrsRowsPerPage then
+		fifocdrsRowsPerPage = 1000
 	end
 
 	if missed == "1" then
@@ -73,6 +73,7 @@ get('/', function(params)
 			local sdate = os.time() - last * 24 * 60 * 60
 			startDate = os.date('%Y-%m-%d', sdate)
 			cond = " start_epoch > '" .. startDate .. "'"
+			print(cond)
 		else
 			local endDate = env:getHeader('endDate')
 			local ani = env:getHeader('ani')
@@ -98,16 +99,16 @@ get('/', function(params)
 		local offset = 0
 		local pageCount = 0
 
-		pageCount = math.ceil(rowCount / rowPerPage);
+		pageCount = math.ceil(rowCount / fifocdrsRowsPerPage);
 
 		if pageNum == 0 then
 			-- It means the last page
 			pageNum = pageCount
 		end
 
-		offset = (pageNum - 1) * rowPerPage
+		offset = (pageNum - 1) * fifocdrsRowsPerPage
 
-		local found, fifocdrsData = xdb.find_by_cond("fifo_cdrs", cond, "start_epoch DESC", nil, rowPerPage, offset)
+		local found, fifocdrsData = xdb.find_by_cond("fifo_cdrs", cond, "start_epoch DESC", nil, fifocdrsRowsPerPage, offset)
 
 		if (found > 0) then
 			fifocdrs.rowCount = rowCount

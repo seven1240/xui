@@ -143,7 +143,8 @@ class FifoCDRsPage extends React.Component {
 			loaded: false,
 			curPage: 1,
 			rowCount: 0,
-			pageCount: 0
+			pageCount: 0,
+			showSettings: false
 
 		};
 		this.handleMore = this.handleMore.bind(this);
@@ -153,22 +154,25 @@ class FifoCDRsPage extends React.Component {
 		this.handlePageTurn = this.handlePageTurn.bind(this);
 	}
 
-	handleControlClick (e) {
+	handleControlClick(e) {
 		console.log("clicked", e.target);
+		this.setState({ showSettings: !this.state.showSettings });
 	}
 
-	handleMore (e) {
+	handleMore(e) {
 		e.preventDefault();
 		this.setState({hiddendiv: this.state.hiddendiv == 'none' ? 'block' : 'none'});
 	}
 
-	handleSearch (e) {
+	handleSearch(e) {
+		const fifocdrsRowsPerPage = localStorage.getItem('fifocdrsRowsPerPage') || 1000;
 		const _this = this;
 		const qs = "startDate=" + this.startDate.value +
 			"&endDate=" + this.endDate.value +
 			"&ani=" + this.ani.value +
 			"&dest_number=" + this.dest_number.value +
-			"&bridged_number=" + this.bridged_number.value;
+			"&bridged_number=" + this.bridged_number.value +
+			"&fifocdrsRowsPerPage=" + fifocdrsRowsPerPage;
 
 		xFetchJSON("/api/fifo_cdrs?" + qs).then((fifocdrs) => {
 			_this.setState({
@@ -180,7 +184,8 @@ class FifoCDRsPage extends React.Component {
 		});
 	}
 
-	componentDidMount () {
+	componentDidMount() {
+		const fifocdrsRowsPerPage = localStorage.getItem('fifocdrsRowsPerPage') || 1000;
 		const _this = this;
 
 		xFetchJSON("/api/fifo_cdrs").then((fifocdrs) => {
@@ -194,14 +199,15 @@ class FifoCDRsPage extends React.Component {
 		});
 	}
 
-	handleQuery (e) {
+	handleQuery(e) {
+		const fifocdrsRowsPerPage = localStorage.getItem('fifocdrsRowsPerPage') || 1000;
 		var _this = this;
 		var data = parseInt(e.target.getAttribute("data"));
 		this.days = data;
 
 		e.preventDefault();
 
-		xFetchJSON("/api/fifo_cdrs?last=" + data).then((fifocdrs) => {
+		xFetchJSON("/api/fifo_cdrs?last=" + data + "&fifocdrsRowsPerPage=" + fifocdrsRowsPerPage).then((fifocdrs) => {
 			_this.setState({
 				rows: fifocdrs.data,
 				pageCount: fifocdrs.pageCount, 
@@ -211,12 +217,20 @@ class FifoCDRsPage extends React.Component {
 		});
 	}
 
-	handleFindMissed (e) {
+	handleRowsChange(e) {
+		console.log('rows per page', e.target.value);
+		const fifocdrsRowsPerPage = parseInt(e.target.value);
+
+		localStorage.setItem("fifocdrsRowsPerPage", fifocdrsRowsPerPage);
+	}
+
+	handleFindMissed(e) {
+		const fifocdrsRowsPerPage = localStorage.getItem('fifocdrsRowsPerPage') || 1000;
 		var _this = this;
 
 		e.preventDefault();
 
-		xFetchJSON("/api/fifo_cdrs?missed=" + 1).then((fifocdrs) => {
+		xFetchJSON("/api/fifo_cdrs?missed=" + 1 + "&fifocdrsRowsPerPage=" + fifocdrsRowsPerPage).then((fifocdrs) => {
 			_this.setState({
 				rows: fifocdrs.data,
 				pageCount: fifocdrs.pageCount, 
@@ -245,7 +259,8 @@ class FifoCDRsPage extends React.Component {
 		this.setState({rows: rows});
 	}
 
-	handlePageTurn (pageNum) {
+	handlePageTurn(pageNum) {
+		const fifocdrsRowsPerPage = localStorage.getItem('fifocdrsRowsPerPage') || 1000;
 		var qs = "";
 
 		if (this.state.hiddendiv == "block") {
@@ -258,7 +273,7 @@ class FifoCDRsPage extends React.Component {
 			qs = "last=" + this.days;
 		}
 
-		qs = qs + "&pageNum=" + pageNum;
+		qs = qs + "&pageNum=" + pageNum + "&fifocdrsRowsPerPage=" + fifocdrsRowsPerPage;
 
 		xFetchJSON("/api/fifo_cdrs?" + qs).then((fifocdrs) => {
 			this.setState({
@@ -270,7 +285,7 @@ class FifoCDRsPage extends React.Component {
 		});
 	}
 
-	render () {
+	render() {
 		var _this = this;
 		let isShow;
 		var rows = _this.state.rows.map(function(row) {
@@ -342,6 +357,13 @@ class FifoCDRsPage extends React.Component {
 
 		return <div>
 			<ButtonToolbar className="pull-right">
+				<ButtonGroup>
+					<Button onClick={() => _this.handleControlClick("settings")} title={T.translate("Settings")}>
+						<i className="fa fa-gear" aria-hidden="true"></i>
+					</Button>
+				</ButtonGroup>
+			</ButtonToolbar>
+			<ButtonToolbar className="pull-right">
 				<T.a onClick={this.handleFindMissed} text="Missed" style={{color: 'red'}} href="#"/> &nbsp;
 				<T.span text="Last"/> &nbsp;
 				<T.a onClick={this.handleQuery} text={{key:"days", day: 7}} data="7" href="#"/>&nbsp;|&nbsp;
@@ -350,7 +372,18 @@ class FifoCDRsPage extends React.Component {
 				<T.a onClick={this.handleQuery} text={{key:"days", day: 60}} data="60" href="#"/>&nbsp;|&nbsp;
 				<T.a onClick={this.handleQuery} text={{key:"days", day: 90}} data="90" href="#"/>&nbsp;|&nbsp;
 				<T.a onClick={this.handleMore} text="More" data="more" href="#"/>...
-			</ButtonToolbar>			
+			</ButtonToolbar>
+
+			{
+				!this.state.showSettings ? null :
+				<div style={{position: "absolute", top: "120px", right: "10px", width: "180px", border: "2px solid grey", padding: "10px", zIndex: 999, backgroundColor: "#EEE", textAlign: "right"}}>
+					<T.span text="Paginate Settings"/>
+					<br/>
+					<T.span text="Per Page"/>
+					&nbsp;<input  onChange={this.handleRowsChange.bind(this)} defaultValue={1000} size={3}/>&nbsp;
+					<T.span text="Row"/>
+				</div>
+			}
 
 			<h1><T.span text="FIFO CDRs"/></h1>
 			<div>

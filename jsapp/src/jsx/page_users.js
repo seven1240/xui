@@ -508,7 +508,8 @@ class UsersPage extends React.Component {
 			formShow1: false,
 			curPage: 1,
 			rowCount: 0,
-			pageCount: 0
+			pageCount: 0,
+			showSettings: false
 		};
 
 		// This binding is necessary to make `this` work in the callback
@@ -518,14 +519,19 @@ class UsersPage extends React.Component {
 	}
 
 	handleControlClick(e) {
-		var data = e.target.getAttribute("data");
-		console.log("data", data);
-
-		if (data == "new") {
-			this.setState({ formShow: true});
-		} else if (data == "import") {
-			this.setState({ formShow1: true});
-		};
+		switch (e) {
+			case "new":
+				this.setState({ formShow: true});
+				break;
+			case "import":
+				this.setState({ formShow1: true});
+				break;
+			case "settings":
+				this.setState({ showSettings: !this.state.showSettings });
+				break;
+			default:
+				break;
+		}
 	}
 
 	handleDelete(e) {
@@ -564,7 +570,8 @@ class UsersPage extends React.Component {
 	}
 
 	componentDidMount() {
-		xFetchJSON("/api/users").then((users) => {
+		const usersRowsPerPage = localStorage.getItem('usersRowsPerPage') || 200;
+		xFetchJSON("/api/users?usersRowsPerPage=" + usersRowsPerPage).then((users) => {
 			console.log("users", users)
 			this.setState({
 				rows: users.data,
@@ -587,8 +594,9 @@ class UsersPage extends React.Component {
 	}
 
 	handlePageTurn (pageNum) {
+		const usersRowsPerPage = localStorage.getItem('usersRowsPerPage') || 200;
 		var qs = "last=" + this.days;
-		qs = qs + "&pageNum=" + pageNum;
+		qs = qs + "&pageNum=" + pageNum + "&usersRowsPerPage=" + usersRowsPerPage;
 
 		xFetchJSON("/api/users?" + qs).then((users) => {
 			this.setState({
@@ -598,6 +606,13 @@ class UsersPage extends React.Component {
 				curPage: users.curPage
 			});
 		});
+	}
+
+	handleRowsChange(e) {
+		console.log('rows per page', e.target.value);
+		const usersRowsPerPage = parseInt(e.target.value);
+
+		localStorage.setItem("usersRowsPerPage", usersRowsPerPage);
 	}
 
 	render() {
@@ -655,19 +670,35 @@ class UsersPage extends React.Component {
 				</ButtonGroup>
 
 				<ButtonGroup>
-				<Button onClick={this.handleControlClick} data="new">
-					<i className="fa fa-plus" aria-hidden="true" onClick={this.handleControlClick} data="new"></i>&nbsp;
-					<T.span onClick={this.handleControlClick} data="new" text="New" />
+				<Button onClick={() => _this.handleControlClick("new")}>
+					<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
+					<T.span text="New" />
 				</Button>
 				</ButtonGroup>
 
 				<ButtonGroup>
-				<Button onClick={this.handleControlClick} data="import">
-					<i className="fa fa-plus" aria-hidden="true" onClick={this.handleControlClick} data="import"></i>&nbsp;
-					<T.span onClick={this.handleControlClick} data="import" text="Import" />
+				<Button onClick={() => _this.handleControlClick("import")}>
+					<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
+					<T.span text="Import" />
 				</Button>
 				</ButtonGroup>
+				<ButtonGroup>
+					<Button onClick={() => _this.handleControlClick("settings")} title={T.translate("Settings")}>
+						<i className="fa fa-gear" aria-hidden="true"></i>
+					</Button>
+				</ButtonGroup>
 			</ButtonToolbar>
+
+			{
+				!this.state.showSettings ? null :
+				<div style={{position: "absolute", top: "60px", right: "10px", width: "180px", border: "2px solid grey", padding: "10px", zIndex: 999, backgroundColor: "#EEE", textAlign: "right"}}>
+					<T.span text="Paginate Settings"/>
+					<br/>
+					<T.span text="Per Page"/>
+					&nbsp;<input  onChange={this.handleRowsChange.bind(this)} defaultValue={1000} size={3}/>&nbsp;
+					<T.span text="Row"/>
+				</div>
+			}
 
 			<h1><T.span text="Users"/></h1>
 			<div>

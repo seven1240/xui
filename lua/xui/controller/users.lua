@@ -41,7 +41,7 @@ require 'm_user'
 get('/', function(params)
 	last = tonumber(env:getHeader('last'))
 	pageNum = tonumber(env:getHeader('pageNum'))	
-	rowPerPage = tonumber(env:getHeader('rowPerPage'))
+	usersRowsPerPage = tonumber(env:getHeader('usersRowsPerPage'))
 
 	local users = {}
 	local rowCount = 0
@@ -52,14 +52,14 @@ get('/', function(params)
 	users.data = {}
 
 	pageNum = tonumber(pageNum)
-	rowPerPage = tonumber(rowPerPage)
+	usersRowsPerPage = tonumber(usersRowsPerPage)
 
 	if not pageNum or pageNum < 0 then
 		pageNum = 1
 	end
 
-	if not rowPerPage then
-		rowPerPage = 20
+	if not usersRowsPerPage then
+		usersRowsPerPage = 200
 	end
 
 	local cb = function(row)
@@ -70,16 +70,16 @@ get('/', function(params)
 		local offset = 0
 		local pageCount = 0
 
-		pageCount = math.ceil(rowCount / rowPerPage);
+		pageCount = math.ceil(rowCount / usersRowsPerPage);
 
 		if pageNum == 0 then
 			-- It means the last page
 			pageNum = pageCount
 		end
 
-		offset = (pageNum - 1) * rowPerPage
+		offset = (pageNum - 1) * usersRowsPerPage
 
-		local found, usersData = xdb.find_by_cond("users", nil, 'id', nil, rowPerPage, offset)
+		local found, usersData = xdb.find_by_cond("users", nil, 'id', nil, usersRowsPerPage, offset)
 		if (found) then
 			users.rowCount = rowCount
 			users.data = usersData
