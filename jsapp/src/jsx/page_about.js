@@ -37,14 +37,14 @@ import { xFetchJSON } from './libs/xtools'
 class AboutPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { version: null };
+		this.state = { xui_version: null, db_version: null };
 	}
 
 	componentDidMount() {
 		var _this = this;
-		xFetchJSON('api/about/version').then((data) => {
+		xFetchJSON('/api/about/version').then((data) => {
 			console.log("dt", data)
-			_this.setState({ version: data.version });
+			_this.setState({ xui_version: data.xui_version, db_version: data.db_version });
 		}).catch((msg) => {
 			console.log("get version ERR");
 		});
@@ -53,7 +53,8 @@ class AboutPage extends React.Component {
 		return <div>
 			<h1><T.span text="About XUI" /></h1>
 			<p><T.span text="XUI is a FreeSWITCH UI framework and implementation" /></p>
-			<p><T.span text="Version" />:{this.state.version}</p>
+			<p><T.span text="XUI Version" />:{this.state.xui_version}</p>
+			<p><T.span text="DB Version" />:{this.state.db_version}</p>
 			<p><T.span text="Author" />: Seven Du</p>
 			<p><T.span text="More info" />: <a href="https://github.com/seven1240/xui" target="_blank">XUI on Github</a></p>
 		</div>;
