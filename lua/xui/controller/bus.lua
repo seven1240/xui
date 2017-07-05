@@ -46,31 +46,43 @@ get('/lines', function(params)
 	end
 end)
 
-get('/interchange', function(params)
-	start = '市政'
-	stop = '公安局'
+get('/interchange/:start/:stop', function(params)
+	start = url_decode(params.start)
+	stop = url_decode(params.stop)
+
+
+
+-- start
+-----o------------------o-----  line1
+--			            stop
+
+	sql = [[select 1 as lines, a.line_code as line1, a.line_code as all_lines, abs(a.station_order - b.station_order) as offs, abs(a.station_order - b.station_order) as off1 from
+		(select line_code,station_order from station where stat_name=']] .. start ..[[' and up_down_name='上行' ) as a,
+		(select line_code, station_order from station where stat_name=']] .. stop ..[[' and up_down_name='上行') as b
+		where a.line_code=b.line_code]]
+	n, res = xdb.find_by_sql(sql)
+
+	-- utils.print_r(res)
+
+	if n > 0 then
+		return res
+	end
 
 -- start       |
 -----o---------x--------------  line1
 --			   |         stop
 --             |--------o-----  line2
 
-
-	line1 = xdb.find_one("station", {stat_name = start})
-	line2 = xdb.find_one("station", {stat_name = stop})
-
-	sql = [[SELECT DISTINCT a.stat_name,
-		a.line_code AS line1,
-		b.line_code AS line2,
-		abs(a.station_order - ]] .. line1.station_order .. [[) AS aoff,
-		abs(b.station_order - ]] .. line2.station_order .. [[) AS boff
-		FROM station a, station b
-		WHERE a.line_code = ]] .. line1.line_code .. [[
-			AND b.line_code = ]] .. line2.line_code .. [[
-			AND a.stat_name = b.stat_name
-		ORDER BY aoff]]
+	sql = [[select 2 as lines, * from
+		(select a.line_code as line1, b.line_code as line2, a.stat_name as stat_name1, a.number as off1, b.number as off2,(a.number+b.number) as offs, (a.line_code||'-'||b.line_code) as all_lines from
+		(select a1.line_code as line_code, a1.stat_name as stat_name, abs(a1.station_order - a2.station_order) as number from (select line_code, stat_name, station_order from station where up_down_name='上行')as a1 inner join (select line_code, station_order from station where stat_name=']] .. start .. [[' and up_down_name='上行') as a2 on a1.line_code=a2.line_code) as a
+		inner join
+		(select a1.line_code as line_code, a1.stat_name as stat_name, abs(a1.station_order - a2.station_order) as number from (select line_code, stat_name, station_order from station where up_down_name='上行')as a1 inner join (select line_code, station_order from station where stat_name=']] .. stop .. [[' and up_down_name='上行') as a2 on a1.line_code=a2.line_code) as b
+		on a.stat_name=b.stat_name and a.line_code!=b.line_code) as c
+		order by c.all_lines,c.offs]]
 
 	n, res = xdb.find_by_sql(sql)
+	-- utils.print_r(res)
 
 	if n > 0 then
 		return res
@@ -83,45 +95,27 @@ get('/interchange', function(params)
 ---------------x--------o-----  line2
 --             |
 --             \--------------  line3
+		sql = [[select 3 as lines, a.line_code as line1, b.line_code as line2, d.line_code as line3, a.number as off1, abs(b.station_order - c.station_order) as off2, d.number as off3, b.stat_name as stat_name1, c.stat_name as stat_name2, (a.number + abs(b.station_order - c.station_order) + d.number) as offs, (a.line_code||'-'||b.line_code||'-'||d.line_code) as all_lines from
+			(select a1.line_code as line_code, a1.stat_name as stat_name, abs(a1.station_order - a2.station_order) as number from (select line_code, stat_name, station_order from station where up_down_name='上行')as a1 inner join (select line_code, station_order from station where stat_name=']] .. start .. [[' and up_down_name='上行') as a2 on a1.line_code=a2.line_code
+			) as a
+			inner join
+			(
+				select line_code, stat_name, station_order from station where up_down_name='上行'
+			) as b on a.stat_name=b.stat_name and a.line_code!=b.line_code
+			inner join
+			(
+				select line_code, stat_name, station_order from station where up_down_name='上行'
+			) as c on b.line_code=c.line_code
+			inner join
+			(
+			select d1.line_code as line_code, d1.stat_name as stat_name, abs(d1.station_order - d2.station_order) as number from (select line_code, stat_name, station_order from station where up_down_name='上行')as d1 inner join (select line_code, station_order from station where stat_name=']] .. stop .. [[' and up_down_name='上行') as d2 on d1.line_code=d2.line_code
+			) as d on c.stat_name=d.stat_name and c.line_code!=d.line_code]]
 
-		line1 = {line_code = '1'}
-		line2 = {line_code = '2'}
-
-		range = " ('" .. line1.line_code .. "', '" .. line2.line_code .. "') "
-
-		sql = [[SELECT DISTINCT line_code
-			FROM station
-			WHERE line_code NOT IN ]] .. range .. [[
-			AND stat_name IN (SELECT stat_name FROM station WHERE line_code IN ]] .. range .. ")"
-
-		freeswitch.consoleLog("info", sql)
-
-		n, line = xdb.find_by_sql(sql)
-
-		freeswitch.consoleLog("info", utils.serialize(line))
+		n, res = xdb.find_by_sql(sql)
+		-- utils.print_r(res)
 
 		if n > 0 then
-			line = line[1]
-		end
-
-		if line then -- found a 3rd line
-			sql1 = [[SELECT DISTINCT stat_name
-				FROM station
-				WHERE line_code = ]] .. line1.line_code .. [[
-				AND stat_name IN (SELECT stat_name FROM station WHERE line_code = ]] .. line.line_code .. ')'
-
-			sql2 = [[SELECT DISTINCT stat_name
-				FROM station
-				WHERE line_code = ]] .. line2.line_code .. [[
-				AND stat_name IN (SELECT stat_name FROM station WHERE line_code = ]] .. line.line_code .. ')'
-
-
-			n1, res1 = xdb.find_by_sql(sql1)
-			n2, res2 = xdb.find_by_sql(sql2)
-
-			if n1 > 0 and n2 > 0 then
-				return {0, res1, res2}
-			end
+			return res
 		else
 			return "[]"
 		end
