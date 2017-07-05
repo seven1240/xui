@@ -237,7 +237,7 @@ put('/callOut', function(params)
 	local agent_id = params.request.agent_id
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
-	api:execute("bgapi", "originate user/" .. agent_id .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "'")
+	api:execute("bgapi", "originate user/" .. agent_id .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
