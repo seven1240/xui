@@ -492,10 +492,6 @@ class MonitorPage extends React.Component {
 				users.push(user);
 			})
 
-			this.setState({group_users: group_users});
-			this.setState({users: users});
-			this.setState({currentLoginUser: currentLoginUser});
-
 			if (group_users["ungrouped"]) {
 				defaultActiveKey = group_users["ungrouped"].groupID;
 			} else {
@@ -520,10 +516,16 @@ class MonitorPage extends React.Component {
 				tabContentObj[id] = <Tab.Pane eventKey={id}>{tabPanes}</Tab.Pane>;
 			}
 
-			this.setState({navItems: navItems});
-			this.setState({tabContentObj: tabContentObj});
-			this.setState({tabPanesMounted: tabPanesMounted});
-			this.setState({activeKey: defaultActiveKey});
+			this.setState({
+				group_users: group_users,
+				users: users,
+				currentLoginUser: currentLoginUser,
+				navItems: navItems,
+				tabContentObj: tabContentObj,
+				tabPanesMounted: tabPanesMounted,
+				activeKey: defaultActiveKey
+			});
+
 			this.syncUserRegisterStatus();
 			this.syncUserCallState();
 
@@ -587,6 +589,38 @@ class MonitorPage extends React.Component {
 			}
 		}
 
+		let navItems = [];
+		let group_users = this.state.group_users;
+
+		for (let id in group_users) {
+			let gusers = group_users[id].users;
+			let gname = group_users[id].groupName;
+			let className = "";
+			let title = "";
+
+			for (let i = 0; i < gusers.length; i++) {
+				if (gusers[i].registerState == "unregistered") {
+					className = "danger fa fa-exclamation-triangle";
+					title = T.translate("Some User Offline");
+					break;
+				}
+			}
+
+			if (id == group_users["ungrouped"].groupID) {
+				navItems.unshift(
+					<NavItem eventKey={id} key={id}>
+						<T.span className={className} text={gname} title={title}/>
+					</NavItem>
+				);
+			} else {
+				navItems.push(
+					<NavItem eventKey={id} key={id}>
+						<T.span className={className} text={gname} title={title}/>
+					</NavItem>
+				);
+			}
+		}
+
 		let tabContentObj = this.state.tabContentObj;
 		let tabContent = [];
 		for (let id in tabContentObj) {
@@ -611,7 +645,7 @@ class MonitorPage extends React.Component {
 				<Col sm={11}>
 					<Tab.Container id="group_tabs" onSelect={this.handleTabSelect} activeKey={this.state.activeKey}>
 						<Row className="clearfix">
-							<Col sm={12}><Nav bsStyle="tabs">{this.state.navItems}</Nav><br/></Col>
+							<Col sm={12}><Nav bsStyle="tabs">{navItems}</Nav><br/></Col>
 							<Col sm={12}><Tab.Content animation>{tabContent}</Tab.Content></Col>
 						</Row>
 					</Tab.Container>

@@ -26,6 +26,7 @@ LANGUAGES["zh"] = {
 	Conferences: "会议",
 	Monitor: "监控",
 	"Monitor Center": "监控中心",
+	"Some User Offline": "部分用户离线",
 	CDRs: "话单",
 	CDR: "话单",
 	About: "关于",
