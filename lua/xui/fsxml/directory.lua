@@ -62,12 +62,15 @@ end
 local user = params:getHeader("user")
 local domain = params:getHeader("domain")
 local purpose = params:getHeader("purpose")
+local action = params:getHeader("action")
 local vars = ""
 local pars = ""
 local found = false
 local user_id = nil
 
-if purpose then freeswitch.consoleLog("INFO", "purpose:" .. purpose) end
+if do_debug and purpose then
+	utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", "purpose:" .. purpose .. "\n")
+end
 
 if purpose == "network-list" then
 	XML_STRING = [[<domain name="]] .. domain .. [[">]]
@@ -82,6 +85,10 @@ end
 
 if user then
 	xdb.find_by_cond("users", {extn = user, disabled = 0}, nil, function(row)
+		if action == "jsonrpc-authenticate" and user.weblogin_disabled then
+			return
+		end
+
 		found = true
 		user_id = row.id
 
