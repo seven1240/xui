@@ -44,7 +44,7 @@ get('/', function(params)
 	startDate = env:getHeader('startDate')
 	last = tonumber(env:getHeader('last'))
 	pageNum = tonumber(env:getHeader('pageNum'))
-	rowPerPage = tonumber(env:getHeader('rowPerPage'))
+	cdrsRowsPerPage = tonumber(env:getHeader('cdrsRowsPerPage'))
 
 	local cdrs = {}
 	local rowCount = 0
@@ -55,14 +55,14 @@ get('/', function(params)
 	cdrs.data = {}
 
 	pageNum = tonumber(pageNum)
-	rowPerPage = tonumber(rowPerPage)
+	cdrsRowsPerPage = tonumber(cdrsRowsPerPage)
 
 	if not pageNum or pageNum < 0 then
 		pageNum = 1
 	end
 
-	if not rowPerPage then
-		rowPerPage = 1000
+	if not cdrsRowsPerPage then
+		cdrsRowsPerPage = 1000
 	end
 
 	if not startDate then
@@ -94,16 +94,16 @@ get('/', function(params)
 		local offset = 0
 		local pageCount = 0
 
-		pageCount = math.ceil(rowCount / rowPerPage);
+		pageCount = math.ceil(rowCount / cdrsRowsPerPage);
 
 		if pageNum == 0 then
 			-- It means the last page
 			pageNum = pageCount
 		end
 
-		offset = (pageNum - 1) * rowPerPage
+		offset = (pageNum - 1) * cdrsRowsPerPage
 
-		local found, cdrsData = xdb.find_by_cond("cdrs", cond, "start_stamp DESC", nil, rowPerPage, offset)
+		local found, cdrsData = xdb.find_by_cond("cdrs", cond, "start_stamp DESC", nil, cdrsRowsPerPage, offset)
 
 		if (found > 0) then
 			cdrs.rowCount = rowCount

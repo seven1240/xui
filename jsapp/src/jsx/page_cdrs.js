@@ -158,11 +158,6 @@ class CDRPage extends React.Component {
 class CDRsPage extends React.Component {
 	constructor(props) {
 		super(props);
-		var theRows = localStorage.getItem("theRows");
-		if (theRows == null) {
-			var r = 10000;
-			localStorage.setItem("theRows", r);
-		}
 		this.state = {
 			rows: [],
 			loaded: false,
@@ -171,7 +166,8 @@ class CDRsPage extends React.Component {
 			rowCount: 0,
 			pageCount: 0,
 			formShow: false,
-			uuid: ""
+			uuid: "",
+			showSettings: false
 		};
 
 		this.handleQuery = this.handleQuery.bind(this);
@@ -185,6 +181,7 @@ class CDRsPage extends React.Component {
 
 	handleControlClick (e) {
 		console.log("clicked", e.target);
+		this.setState({ showSettings: !this.state.showSettings });
 	}
 
 	handleMore (e) {
@@ -193,10 +190,12 @@ class CDRsPage extends React.Component {
 	}
 
 	handleSearch (e) {
+		const cdrsRowsPerPage = localStorage.getItem('cdrsRowsPerPage') || 1000;
 		const qs = "startDate=" + this.startDate.value +
 			"&endDate=" + this.endDate.value +
 			"&cidNumber=" + this.cidNumber.value +
-			"&destNumber=" + this.destNumber.value;
+			"&destNumber=" + this.destNumber.value +
+			"&cdrsRowsPerPage=" + cdrsRowsPerPage;
 		console.log(qs);
 
 		xFetchJSON("/api/cdrs?" + qs).then((cdrs) => {
@@ -210,6 +209,7 @@ class CDRsPage extends React.Component {
 	}
 
 	handlePageTurn (pageNum) {
+		const cdrsRowsPerPage = localStorage.getItem('cdrsRowsPerPage') || 1000;
 		var qs = "";
 
 		if (this.state.hiddendiv == "block") {
@@ -221,7 +221,7 @@ class CDRsPage extends React.Component {
 			qs = "last=" + this.days;
 		}
 
-		qs = qs + "&pageNum=" + pageNum;
+		qs = qs + "&pageNum=" + pageNum + "&cdrsRowsPerPage=" + cdrsRowsPerPage;
 
 		xFetchJSON("/api/cdrs?" + qs).then((cdrs) => {
 			this.setState({
@@ -240,7 +240,8 @@ class CDRsPage extends React.Component {
 	}
 
 	componentDidMount () {
-		xFetchJSON("/api/cdrs").then((cdrs) => {
+		const cdrsRowsPerPage = localStorage.getItem('cdrsRowsPerPage') || 1000;
+		xFetchJSON("/api/cdrs?cdrsRowsPerPage=" + cdrsRowsPerPage).then((cdrs) => {
 			this.setState({
 				rows: cdrs.data,
 				pageCount: cdrs.pageCount, 
@@ -252,12 +253,13 @@ class CDRsPage extends React.Component {
 	}
 
 	handleQuery (e) {
+		const cdrsRowsPerPage = localStorage.getItem('cdrsRowsPerPage') || 1000;
 		var data = parseInt(e.target.getAttribute("data"));
 
 		this.days = data;
 		e.preventDefault();
 
-		xFetchJSON("/api/cdrs?last=" + data).then((cdrs) => {
+		xFetchJSON("/api/cdrs?last=" + data + "&cdrsRowsPerPage=" + cdrsRowsPerPage).then((cdrs) => {
 			this.setState({
 				rows: cdrs.data,
 				pageCount: cdrs.pageCount, 
@@ -289,6 +291,13 @@ class CDRsPage extends React.Component {
 		});
 
 		this.setState({rows: rows});
+	}
+
+	handleRowsChange(e) {
+		console.log('rows per page', e.target.value);
+		const cdrsRowsPerPage = parseInt(e.target.value);
+
+		localStorage.setItem("cdrsRowsPerPage", cdrsRowsPerPage);
 	}
 
 	render () {
@@ -371,6 +380,13 @@ class CDRsPage extends React.Component {
 
 		return <div>
 			<ButtonToolbar className="pull-right">
+				<ButtonGroup>
+					<Button onClick={() => _this.handleControlClick("settings")} title={T.translate("Settings")}>
+						<i className="fa fa-gear" aria-hidden="true"></i>
+					</Button>
+				</ButtonGroup>
+			</ButtonToolbar>
+			<ButtonToolbar className="pull-right">
 				<T.span text="Last"/> &nbsp;
 				<T.a onClick={this.handleQuery} text={{key:"days", day: 7}} data="7" href="#"/>&nbsp;|&nbsp;
 				<T.a onClick={this.handleQuery} text={{key:"days", day: 15}} data="15" href="#"/>&nbsp;|&nbsp;
@@ -384,6 +400,17 @@ class CDRsPage extends React.Component {
 					<T.span text="Current Page/Total Page"/>: {this.state.curPage}/{this.state.pageCount}
 				</div>
 			</ButtonToolbar>
+
+			{
+				!this.state.showSettings ? null :
+				<div style={{position: "absolute", top: "120px", right: "10px", width: "180px", border: "2px solid grey", padding: "10px", zIndex: 999, backgroundColor: "#EEE", textAlign: "right"}}>
+					<T.span text="Paginate Settings"/>
+					<br/>
+					<T.span text="Per Page"/>
+					&nbsp;<input  onChange={this.handleRowsChange.bind(this)} defaultValue={1000} size={3}/>&nbsp;
+					<T.span text="Row"/>
+				</div>
+			}
 
 			<h1><T.span text="CDRs"/></h1>
 			<div>
