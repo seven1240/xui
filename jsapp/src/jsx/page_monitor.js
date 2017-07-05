@@ -51,18 +51,20 @@ class NavItemTab extends React.Component {
 		delete props.groupID;
 		delete props.group_users;
 		let className = '';
+		let title = '';
 		let users = group_users[groupID].users;
 		let groupName = group_users[groupID].groupName;
 
 		for (let i = 0; i < users.length; i++) {
 			if (users[i].registerState == "unregistered") {
-				className = "danger fa fa-exclamation-triangle"
+				className = "danger fa fa-exclamation-triangle";
+				title = T.translate("Some User Offline");
 				break;
 			}
 		}
 
 		return (
-			<NavItem eventKey={groupID} key={groupID}><T.span className={className} text={groupName}/></NavItem>
+			<NavItem eventKey={groupID} key={groupID}><T.span className={className} text={groupName}  title={title}/></NavItem>
 		)
 	}
 }
@@ -149,7 +151,7 @@ class MonitorPage extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {errmsg:'', group_users:{}, users:[], currentLoginUser:{}, activeKey: "0", navItems:[], tabContentObj:{}, tabPanesMounted: {}, curCall: null};
+		this.state = {errmsg:'', group_users:{}, users:[], currentLoginUser:{}, activeKey: "0", defaultActiveKey:"0", tabContentObj:{}, tabPanesMounted: {}, curCall: null};
 		this.handleCall = this.handleCall.bind(this);
 		this.handleCallButton = this.handleCallButton.bind(this);
 		this.handleAnswer = this.handleAnswer.bind(this);
@@ -454,11 +456,11 @@ class MonitorPage extends React.Component {
 		let group_users = {};
 		let users = [];
 		let currentLoginUser = {};
-		let navItems = [];
 		let tabContentObj = {};
 		let tabPanesMounted = {};
 		let count = 0;
 		let defaultActiveKey;
+		let tabPanes = [];
 		let _this = this;
 
 		xFetchJSON("/api/groups/group_users").then((data) => {
@@ -475,6 +477,8 @@ class MonitorPage extends React.Component {
 					} else if (d.userName == xuiUsername) {
 						currentLoginUser = user;
 					}
+					tabPanesMounted[d.groupID] = false;
+					tabContentObj[d.groupID] = [];
 				} else {
 					user = {groupID:d.groupID, userExten:d.userExten, userID:d.userID, userName:d.userName, userDomain:d.userDomain};
 					if (d.userName != xuiUsername && d.userExten != "admin") {
@@ -501,29 +505,21 @@ class MonitorPage extends React.Component {
 				}
 			}
 
-			for (let id in group_users) {
-				let tabPanes = [];
-				if (id == defaultActiveKey) {
-					tabPanes = group_users[defaultActiveKey].users.map(function(u) {
-						return <TabContent user={u} currentLoginUser={currentLoginUser} handleCall={_this.handleCall} handleToggleSelect={_this.handleToggleSelect}/>
-					})
-					tabPanesMounted[id] = true;
-					navItems.unshift(<NavItemTab groupID={id} group_users={group_users}/>);
-				} else {
-					tabPanesMounted[id] = false;
-					navItems.push(<NavItemTab groupID={id} group_users={group_users}/>);
-				}
-				tabContentObj[id] = <Tab.Pane eventKey={id}>{tabPanes}</Tab.Pane>;
-			}
+			tabPanes = group_users[defaultActiveKey].users.map(function(u) {
+				return <TabContent user={u} currentLoginUser={currentLoginUser} handleCall={_this.handleCall} handleToggleSelect={_this.handleToggleSelect}/>
+			});
+
+			tabPanesMounted[defaultActiveKey] = true;
+			tabContentObj[defaultActiveKey] = <Tab.Pane eventKey={defaultActiveKey}>{tabPanes}</Tab.Pane>;
 
 			this.setState({
 				group_users: group_users,
 				users: users,
 				currentLoginUser: currentLoginUser,
-				navItems: navItems,
 				tabContentObj: tabContentObj,
 				tabPanesMounted: tabPanesMounted,
-				activeKey: defaultActiveKey
+				activeKey: defaultActiveKey,
+				defaultActiveKey: defaultActiveKey
 			});
 
 			this.syncUserRegisterStatus();
@@ -562,6 +558,11 @@ class MonitorPage extends React.Component {
 		let currentLoginUser = this.state.currentLoginUser;
 		let users = this.state.users;
 		let activeKey = this.state.activeKey;
+		let navItems = [];
+		let defaultActiveKey = this.state.defaultActiveKey;
+		let group_users = this.state.group_users;
+		let tabContentObj = this.state.tabContentObj;
+		let tabContent = [];
 
 		if (currentLoginUser.channelCallState == "ringing" && currentLoginUser.callDirection == "outbound") {
 			answerButtonDisabled = false;
@@ -589,8 +590,6 @@ class MonitorPage extends React.Component {
 			}
 		}
 
-		let navItems = [];
-		let group_users = this.state.group_users;
 
 		for (let id in group_users) {
 			let gusers = group_users[id].users;
@@ -606,7 +605,7 @@ class MonitorPage extends React.Component {
 				}
 			}
 
-			if (id == group_users["ungrouped"].groupID) {
+			if (id == defaultActiveKey) {
 				navItems.unshift(
 					<NavItem eventKey={id} key={id}>
 						<T.span className={className} text={gname} title={title}/>
@@ -621,8 +620,6 @@ class MonitorPage extends React.Component {
 			}
 		}
 
-		let tabContentObj = this.state.tabContentObj;
-		let tabContent = [];
 		for (let id in tabContentObj) {
 			tabContent.push(tabContentObj[id]);
 		}
