@@ -25,14 +25,16 @@
  * Contributor(s):
  *
  * Seven Du <dujinfang@x-y-t.cn>
+ * Mariah Yang <yangxiaojin@x-y-t.cn>
  *
  *
  */
 ]]
 
-xtra.ignore_login('/createCTI')
-xtra.ignore_login('/startService')
+-- xtra.ignore_login('/createCTI')
+-- xtra.ignore_login('/startService')
 
+xtra.ignore_login('/agentLogin')
 xtra.start_session()
 xtra.require_login()
 
@@ -60,54 +62,54 @@ function getState(state)
 end
 
 -- 1.1
-post('/createCTI', function(params)
-	login = 'cti'
-	pass = params.request.password
+-- post('/createCTI', function(params)
+-- 	login = 'cti'
+-- 	pass = params.request.password
 
-	local user = xdb.find_one("users", {extn = login, password = pass})
+-- 	local user = xdb.find_one("users", {extn = login, password = pass})
 
-	if user then
-		xtra.save_session("user_id", user.id)
-		return 200, {code = 200, session_id = xtra.session_uuid}
-	else
-		return 403
-	end
-end)
+-- 	if user then
+-- 		xtra.save_session("user_id", user.id)
+-- 		return 200, {code = 200, session_id = xtra.session_uuid}
+-- 	else
+-- 		return 403
+-- 	end
+-- end)
 
 -- 1.2
-get('/isServiceRunning', function(params)
-	return 200, {code = 200, running = true}
-end)
+-- get('/isServiceRunning', function(params)
+-- 	return 200, {code = 200, running = true}
+-- end)
 
 -- 1.3
-put('/startService', function(params)
-	login = 'cti'
-	pass = params.request.password
+-- put('/startService', function(params)
+-- 	login = 'cti'
+-- 	pass = params.request.password
 
-	local user = xdb.find_one("users", {extn = login, password = pass})
+-- 	local user = xdb.find_one("users", {extn = login, password = pass})
 
-	if user then
-		xtra.save_session("user_id", user.id)
-		return 200, {code = 200, session_id = xtra.session_uuid}
-	else
-		return 403
-	end
-end)
+-- 	if user then
+-- 		xtra.save_session("user_id", user.id)
+-- 		return 200, {code = 200, session_id = xtra.session_uuid}
+-- 	else
+-- 		return 403
+-- 	end
+-- end)
 
--- 1.4
-put('/stopService', function(params)
-	return 200, {code = 200, text = "OK"}
-end)
+-- -- 1.4
+-- put('/stopService', function(params)
+-- 	return 200, {code = 200, text = "OK"}
+-- end)
 
--- 1.5
-put('/restartService', function(params)
-	return 200, {code = 200, text = "OK"}
-end)
+-- -- 1.5
+-- put('/restartService', function(params)
+-- 	return 200, {code = 200, text = "OK"}
+-- end)
 
 -- 1.6
-get('/serviceVersion', function(params)
-	return {code = 200, version = '1.0.1'}
-end)
+-- get('/serviceVersion', function(params)
+-- 	return {code = 200, version = '1.0.1'}
+-- end)
 
 -- 1.7
 get('/agentState', function(params)
@@ -166,13 +168,22 @@ post('/setConfig', function(params)
 end)
 
 -- 1.12
-put('/agentLogin', function(params)
+post('/agentLogin', function(params)
+	local login = 'cti'
 	local api = freeswitch.API()
 	local queue_name = params.request.queue_name
 	local agent_id = params.request.agent_id
-	api:execute("callcenter_config", "agent set status " .. agent_id .. " idle")
-	api:execute("callcenter_config", "tier add " .. queue_name .. " " .. agent_id)
-	return 200, {code = 200, text = "OK"}
+	local pass = params.request.password
+	local user = xdb.find_one("users", {extn = login, password = pass})
+
+	if user then
+		xtra.save_session("user_id", user.id)
+		api:execute("callcenter_config", "agent set status " .. agent_id .. " idle")
+		api:execute("callcenter_config", "tier add " .. queue_name .. " " .. agent_id)
+		return 200, {code = 200, session_id = xtra.session_uuid}
+	else
+		return 403
+	end
 end)
 
 -- 1.13
