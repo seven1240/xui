@@ -788,18 +788,13 @@ class TicketsPage extends React.Component {
 	}
 
 	handleDownload() {
-		var url = '';
-		xFetchJSON('/api/tickets/url').then((data) => {
-			console.log(data)
-			url = data.url;
-			var uri = url + "/api/tickets/download";
-			var downloadLink = document.createElement("a");
-			downloadLink.href = uri;
-			downloadLink.download = "tickets_download" + ".csv";
-			document.body.appendChild(downloadLink);
-			downloadLink.click();
-			document.body.removeChild(downloadLink);
-		});
+		var uri = "/api/tickets/download";
+		var downloadLink = document.createElement("a");
+		downloadLink.href = uri;
+		downloadLink.download = "tickets_download" + ".csv";
+		document.body.appendChild(downloadLink);
+		downloadLink.click();
+		document.body.removeChild(downloadLink);
 	}
 
 	render () {
@@ -862,10 +857,6 @@ class TicketsPage extends React.Component {
 		return <div>
 			<ButtonToolbar className="pull-right">
 				<br/>
-				<Button onClick={this.handleDownload}>
-					<i className="fa fa-download" aria-hidden="true"></i>&nbsp;
-					<T.span text="Download" />
-				</Button>&nbsp;
 				<div style={{display: _this.state.display}}>
 					<T.span text="Last"/> &nbsp;
 					<T.a onClick={this.handleQuery} text={{key:"days", day: 7}} data="7" href="#"/>&nbsp;|&nbsp;
@@ -875,6 +866,11 @@ class TicketsPage extends React.Component {
 					<T.a onClick={this.handleQuery} text={{key:"days", day: 90}} data="90" href="#"/>&nbsp;|&nbsp;
 					<T.a onClick={this.handleMore} text="More" data="more" href="#"/>...
 				</div>
+				&nbsp;
+				<Button onClick={this.handleDownload}>
+					<i className="fa fa-download" aria-hidden="true"></i>&nbsp;
+					<T.span text="Download" />
+				</Button>&nbsp;
 				<Button onClick={this.handleControlClick} data="new">
 					<i className="fa fa-plus" aria-hidden="true" onClick={this.handleControlClick} data="new"></i>&nbsp;
 					<T.span onClick={this.handleControlClick} data="new" text="New" />

@@ -33,4 +33,3 @@ config.wechat_base_url = "http://example.com"
 config.wechat_realm = "xyt"
 -- config.wechat = {}
 -- config.wechat.xyt = {APPID = 'wx', APPSEC = ''}
-config.url = "https://192.168.32.132:8082"
