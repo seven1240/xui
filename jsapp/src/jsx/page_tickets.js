@@ -584,7 +584,7 @@ class TicketPage extends React.Component {
 			</ButtonGroup>
 			</ButtonToolbar>
 
-			<h1><T.span text="工单"/> <small>{ticket.subject}&lt;{ticket.serial_number}&gt;</small></h1>
+			<h1><T.span text="工单"/> <small>{ticket.serial_number}</small></h1>
 			<hr/>
 			<Form horizontal id="ticketForm">
 				<input type="hidden" name="id" defaultValue={ticket.id}/>
