@@ -222,7 +222,8 @@ get('/:id/comments/media_files', function(params)
 	local media_files = {} 
 	for i, v in pairs(mfiles) do
 		file = xdb.find_one("media_files", {id = v.media_file_id})
-		v.src = file.abs_path
+		v.src = file.rel_path
+		v.thumb = file.thumb_path
 		table.insert(media_files, v)
 	end
 
@@ -261,17 +262,8 @@ end)
 
 get('/:id/comments', function(params)
 	n, comments = xdb.find_by_cond("ticket_comments", {ticket_id = params.id}, "created_epoch DESC")
-	local comments_res = {}
-	for i, v in pairs(comments) do
-		local n, users = xdb.find_by_cond("wechat_users", {user_id = v.user_id})
-		local user = users[1]
-		local n, imgs = xdb.find_by_cond("wechat_upload", {comment_id = v.id, type = 1})
-		v.imgs = imgs
-		-- v.avatar_url = user.headimgurl
-		table.insert(comments_res,v)
-	end
 	if (n > 0) then
-		return comments_res
+		return comments
 	else
 		return "[]"
 	end

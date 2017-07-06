@@ -63,20 +63,57 @@ post('/:realm/:id/comments', function(params)
 	local upload = {}
 	upload.user_id = xtra.session.user_id
 	upload.comment_id = params.id
+
 	serverIds = params.request.serverIds
-	upload.type = 1
+
 	wechat = m_dict.get_obj('WECHAT/' .. params.realm)
 	xwechat.get_token(params.realm, wechat.APPID, wechat.APPSEC)
+
 	for i,v in pairs(serverIds) do
 		url = xwechat.download_image_url(params.realm, v)
-		upload.img_url = v
-		local ret = xdb.create_return_id('wechat_upload',upload)
-		if ret then
-			wget = "wget -O /usr/local/freeswitch/xui/www/assets/img/wechat/big/" .. v .. ".jpg '" .. url .. "'"
-			os.execute(wget)
-			convert = "convert -resize 64x64! /usr/local/freeswitch/xui/www/assets/img/wechat/big/" .. v .. ".jpg /usr/local/freeswitch/xui/www/assets/img/wechat/small/" .. v .. ".jpg"
-			freeswitch.consoleLog("ERR",convert)
-			os.execute(convert)
+		prefix = "wechat-js-upload-"
+		rel_path = prefix .. os.date('%Y%m%d%H%M%S-') .. v .. ".jpg"
+		thumb_rel_path = "thumb-" .. rel_path
+		local_path = config.upload_path .. "/" .. rel_path
+		thumb_path = config.upload_path .. "/" .. thumb_rel_path
+
+		wget = "wget -O " .. local_path .. " '" .. url .. "'"
+		os.execute(wget)
+
+		convert = "convert -resize 64x64! " .. local_path .. " " .. thumb_path
+		-- freeswitch.consoleLog("ERR",convert)
+		os.execute(convert)
+
+		local f = io.open(local_path, "rb")
+
+		if f then
+			local size = assert(f:seek("end"))
+
+			local rec = {}
+
+			rec.name = v
+			rec.mime = "image/jpeg"
+			rec.ext = "jpg"
+
+			rec.abs_path = local_path
+			rec.file_size = "" .. size
+			rec.type = "WECHAT"
+			rec.description = "WECHAT"
+			rec.dir_path = config.upload_path
+			-- rec.channel_uuid = uuid
+			rec.original_file_name = rec.name
+			rec.rel_path = rel_path
+			rec.thumb_path = thumb_rel_path
+
+			media_file_id = xdb.create_return_id('media_files', rec)
+
+			if media_file_id then
+				local link = {}
+				link.comment_id = params.id
+				link.media_file_id = media_file_id
+
+				xdb.create('ticket_comment_media', link)
+			end
 		end
 	end
 	return {}
