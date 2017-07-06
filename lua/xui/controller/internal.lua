@@ -34,19 +34,67 @@ require 'xdb'
 require 'utils'
 require 'xtra_config'
 xdb.bind(xtra.dbh)
+get('/amr', function(params)
+	xtra.response("ok")
+	
+	limit = params.limit or 2
 
+	xdb.find_by_cond("media_files", {mime = 'application/octet-stream', processing_flag = 0}, "id", function(row)
+		
+		name = row.name
+		mp3name = amrname:gsub(".amr$", ".mp3")
+		amr = row.abs_path
+		wav = amr:gsub(".amr$", ".wav")
+		mp3 = amr:gsub(".amr$", ".mp3")
 
-post('/test', function(params)
+		freeswitch.consoleLog('err', 'converting' .. amr .. ' to ' .. wav .. '\n')
+
+		local changewav = "amrnb-dec " .. amr .. " " .. wav
+	
+		freeswitch.consoleLog('err', 'converting' .. wav .. ' to ' .. mp3 .. '\n')
+
+		local changemp3 = "lame --quiet " .. wav .. " " .. mp3
+		
+		api = freeswitch.API()
+		retwav = api:execute('system', changewav)
+		ret = api:execute('system', changemp3)
+
+		if ret and retwav then
+			freeswitch.consoleLog('INFO', 'convertion done: ' .. mp3 .. '\n')
+			xdb.update("media_files", {id = row.id, processing_flag = '1'})
+			row.id = nil
+			row.name = mp3name
+			row.abs_path = mp3
+			row.created_at = nil
+			row.updated_at = nil
+			row.mime = 'audio/mp3'
+			row.ext = 'mp3'
+			-- row.size =
+			xdb.create("media_files", row)
+		else
+			freeswitch.consoleLog('ERR', 'convertion Error ' .. mp3 .. '\n')
+		end
+
+	end, limit)
+
+	-- nothing to do
+	return nil	 	
+end)
+
+get('/test', function(params)
 	-- send response to finish the request at the client side and keep doing heavy jobs
 	xtra.response("OK")
 
 	limit = params.limit or 2
 
-	xdb.find_by_cond("media_files", {mime = 'audio/wave', processing_flag = 0}, "id", function(row)
+	xdb.find_by_cond("media_files", {mime = 'audio/wav', processing_flag = 0}, "id", function(row)
 		freeswitch.consoleLog('ERR', row.id .. '\n')
-
+		
+		name = row.name
+		mp3name = name:gsub(".wav$", ".mp3")
 		wav = row.abs_path
 		mp3 = wav:gsub(".wav$", ".mp3")
+		freeswitch.consoleLog("err", mp3)
 
 		freeswitch.consoleLog('ERR', 'converting ' .. wav .. ' to ' .. mp3 .. '\n')
 
@@ -63,6 +111,8 @@ post('/test', function(params)
 			freeswitch.consoleLog('INFO', 'convertion done: ' .. mp3 .. '\n')
 			xdb.update("media_files", {id = row.id, processing_flag = '1'})
 			row.id = nil
+			row.name = mp3name
+			row.abs_path = mp3
 			row.created_at = nil
 			row.updated_at = nil
 			row.mime = 'audio/mp3'
