@@ -219,8 +219,16 @@ get('/:id/comments/media_files', function(params)
 		"comment_id"
 	)
 
-	if n > 0 then
-		return mfiles
+	local media_files = {} 
+	for i, v in pairs(mfiles) do
+		file = xdb.find_one("media_files", {id = v.media_file_id})
+		v.src = file.abs_path
+		table.insert(media_files, v)
+	end
+
+
+	if media_files then
+		return media_files
 	else
 		return "[]"
 	end
