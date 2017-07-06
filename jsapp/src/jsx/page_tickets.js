@@ -35,6 +35,7 @@ import T from 'i18n-react';
 import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col, Radio, Nav, NavItem } from 'react-bootstrap';
 import { Link } from 'react-router';
 import { EditControl, xFetchJSON } from './libs/xtools';
+import _ from 'lodash';
 
 class NewTicket extends React.Component {
 	constructor(props) {
@@ -163,7 +164,7 @@ class TicketPage extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {ticket: {}, users: [], user_options: null, ticket_comments: [], deal_user: null, edit: false, types: [], call: "回拨", content: false, appraise: '', record_src: ''};
+		this.state = {ticket: {}, users: [], user_options: null, ticket_comments: [], deal_user: null, edit: false, types: [], call: "回拨", content: false, appraise: '', record_src: '', media_files: []};
 
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleCommit = this.handleCommit.bind(this);
@@ -389,6 +390,11 @@ class TicketPage extends React.Component {
 		xFetchJSON("/api/dicts?realm=TICKET_TYPE").then((data) => {
 			_this.setState({types: data});
 		});
+
+		xFetchJSON("/api/tickets/" + _this.props.params.id + "/comments/media_files").then((media_files) => {
+			console.log("media_files", media_files);
+			_this.setState({media_files: media_files});
+		})
 	}
 
 	callBack(e) {
@@ -399,6 +405,9 @@ class TicketPage extends React.Component {
 	}
 
 	render() {
+		const idArray = this.state.media_files.map((m) => {
+			return m.comment_id;
+		})
 		let _this = this;
 		let savebtn = "";
 		if (this.state.edit) {
@@ -411,11 +420,23 @@ class TicketPage extends React.Component {
 			} else {
 				var src = "/assets/img/default_avatar.png";
 			}
+			var vasrc = '';
+
+			_this.state.media_files.map((m) => {
+				if(m.comment_id == row.id){
+					vasrc = m.src;
+				}
+			})
+			
+			var va = vasrc.slice(-3) == 'mp4' ? <video src={vasrc} controls="controls"></video> : <audio src={vasrc} controls="controls"></audio>;
+		    var content =  _.indexOf(idArray, row.id) ? va : <p>{row.content}</p>;
+
+		    var content =  _.indexOf(idArray, row.id) ? va : <p>{row.content}</p>;
 			let style = {width: '40px'};
 			return <Row key={row.id}>
 				<Col componentClass={ControlLabel} sm={1} smOffset={2}><img src={src} style={style}/></Col>
 				<Col sm={6}> <strong>{row.user_name}</strong>&nbsp;<small>{row.created_epoch}</small>
-					<br/><br/><p>{row.content}</p>
+					<br/><br/>{content}
 				</Col>
 			</Row>
 		})
