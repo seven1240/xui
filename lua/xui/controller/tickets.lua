@@ -78,8 +78,9 @@ get('/', function(params)
 	if m_user.has_permission() then
 		n, tickets = xdb.find_by_cond("tickets", cond, "id desc")
 	else
-		local condo = "user_id = " .. xtra.session.user_id .. " or current_user_id = " .. xtra.session.user_id
-		cond = cond .. " AND " .. condo
+		cond = cond .. " AND ((privacy = 'TICKET_PRIV_PUBLIC') OR id IN (" ..
+			'SELECT ref_id FROM subscriptions ' ..
+			"WHERE realm = 'TICKET' AND user_id = " .. xtra.session.user_id .. ')) '
 		n, tickets = xdb.find_by_cond("tickets", cond, "id desc")
 	end
 

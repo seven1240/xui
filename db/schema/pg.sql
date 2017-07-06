@@ -487,7 +487,7 @@ $$
 BEGIN
 	UPDATE tickets SET serial_number = to_char(NEW.created_epoch, 'YYYYMMDD') || lpad(NEW.id::varchar, 8, '0')
 		WHERE id = NEW.id;
-	RETURN NEW;
+	RETURN NULL;
 END;
 $$
 LANGUAGE plpgsql;
@@ -593,6 +593,18 @@ ALTER TABLE cdrs ADD network_port VARCHAR;
 CREATE INDEX cdrs_uuid ON cdrs(uuid);
 CREATE INDEX start_stamp ON cdrs(start_stamp);
 
+CREATE TABLE subscriptions (
+	-- id SERIAL PRIMARY KEY,-- we cannot use this here as we want to auto insert with a trigger and it messes up lastval() we depending on that ...
+	realm VARCHAR NOT NULL,  -- what to sub
+	ref_id VARCHAR NOT NULL, -- which to sub
+	user_id INTEGER NOT NULL,
+
+	created_epoch TIMESTAMP(0) DEFAULT now(),
+	updated_epoch TIMESTAMP(0) DEFAULT now(),
+	deleted_epoch TIMESTAMP(0)
+);
+
+CREATE UNIQUE INDEX subscriptions_realm_ref_id_user_id ON subscriptions (realm, ref_id, user_id);
 
 -- triggers
 

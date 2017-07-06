@@ -593,6 +593,7 @@ CREATE TABLE tickets (
 	current_user_id INTEGER,    -- the user processing this ticket
 	wechat_openid VARCHAR,
 	emergency VARCHAR,
+	privacy VARCHAR DEFAULT 'TICKET_PRIV_PUBLIC',
 
 	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
 	updated_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
@@ -725,5 +726,38 @@ ALTER TABLE cdrs ADD network_port VARCHAR;
 
 CREATE INDEX cdrs_uuid ON cdrs(uuid);
 CREATE INDEX start_stamp ON cdrs(start_stamp);
+
+CREATE TABLE subscriptions (
+	realm VARCHAR NOT NULL,  -- what to sub
+	ref_id VARCHAR NOT NULL, -- which to sub
+	user_id INTEGER NOT NULL,
+
+	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
+	updated_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
+	deleted_epoch INTEGER
+);
+
+CREATE UNIQUE INDEX subscriptions_realm_ref_id_user_id ON subscriptions (realm, ref_id, user_id);
+
+CREATE TRIGGER t_auto_sub_ticket AFTER INSERT ON tickets
+BEGIN
+	INSERT OR IGNORE INTO subscriptions (realm, ref_id, user_id)
+		SELECT 'TICKET', NEW.id, NEW.user_id WHERE NEW.user_id IS NOT NULL;
+
+	INSERT OR IGNORE INTO subscriptions (realm, ref_id, user_id)
+		SELECT 'TICKET', NEW.id, NEW.current_user_id WHERE NEW.current_user_id IS NOT NULL AND NEW.user_id <> NEW.current_user_id;
+END;
+
+CREATE TRIGGER t_auto_sub_ticket1 AFTER UPDATE ON tickets
+BEGIN
+	INSERT OR IGNORE INTO subscriptions (realm, ref_id, user_id)
+		SELECT 'TICKET', NEW.id, NEW.current_user_id WHERE NEW.current_user_id IS NOT NULL AND NEW.user_id <> NEW.current_user_id;
+END;
+
+CREATE TRIGGER t_auto_sub_ticket2 AFTER INSERT ON ticket_comments
+BEGIN
+	INSERT OR IGNORE INTO subscriptions (realm, ref_id, user_id)
+		SELECT 'TICKET', NEW.ticket_id, NEW.user_id WHERE NEW.user_id IS NOT NULL;
+END;
 
 -- END

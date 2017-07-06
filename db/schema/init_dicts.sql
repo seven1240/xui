@@ -111,6 +111,9 @@ INSERT INTO dicts (realm, k, v) VALUES ('TICKET_ACTION', 'TICKET_ACTION_COMMENT'
 INSERT INTO dicts (realm, k, v) VALUES ('TICKET_ACTION', 'TICKET_ACTION_CLOSE', 'TICKET_ACTION_CLOSE');
 INSERT INTO dicts (realm, k, v) VALUES ('TICKET_ACTION', 'TICKET_ACTION_CHAT', 'TICKET_ACTION_CHAT');
 
+INSERT INTO dicts (realm, k) VALUES('TICKET_PRIVACY','TICKET_PRIV_PUBLIC');
+INSERT INTO dicts (realm, k) VALUES('TICKET_PRIVACY','TICKET_PRIV_PRIVATE');
+
 INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Monitor', '/monitor');
 INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Conference', '/conferences');
 INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Tickets', '/tickets');
