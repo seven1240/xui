@@ -71,34 +71,49 @@ class Change extends React.Component {
 		e.preventDefault();
 
 		const _this = this;
-		xFetchJSON('/api/bus/interchange').then((data) => {
+		xFetchJSON('/api/bus/interchange?start=市政&stop=公安局').then((data) => {
 			console.log(data);
 			_this.setState({candidates: data});
 		});
 	}
 
 	render() {
-		return <div class="page">
-			<h1>换乘查询</h1>
+		return <div className="page" style={{padding:"0 15px"}}>
+			<h1 className="page__title" style={{textAlign:"center",margin:"10px 0"}}>换乘查询</h1>
 
-			起点：<input value="市政"/>
+			<div className="weui-cell">
+                <div className="weui-cell__hd"><label className="weui-label">起点：</label></div>
+                <div className="weui-cell__bd">
+                    <input className="weui-input" placeholder="输入出发地"/>
+                </div>
+            </div>
+
+            <div className="weui-cell">
+                <div className="weui-cell__hd"><label className="weui-label">终点：</label></div>
+                <div className="weui-cell__bd">
+                    <input className="weui-input" placeholder="输入目的地"/>
+                </div>
+            </div>
+
+            <hr/>
+
+			<a href="#" className="weui-btn weui-btn_primary" style={{marginTop:"10px"}} onClick={this.handleSearchInterchange.bind(this)}>查询</a>
 			<br/>
-			终点：<input value="文化区"/>
-			<br/>
-
-			<a href="#" className="weui-btn weui-btn_primary" onClick={this.handleSearchInterchange.bind(this)}>查询</a>
-
-			<hr/>
 
 			<div class="page__bd">
 			<ul> {
 				this.state.candidates.map((candidate) => {
-					return <li>{candidate.line1}路 -&nbsp;
-						[{candidate.aoff}站] -&nbsp;
-						{candidate.stat_name} -&nbsp;
-						[{candidate.boff}站] -&nbsp;
-						{candidate.line2}路
-					</li>
+					return <div className="weui-cell weui-cell_access">
+				<div className="weui-cell__bd">
+					<li style={{listStyle:"none"}}>
+					{candidate.line1}路 -&nbsp;
+							[{candidate.off1}站] -&nbsp;
+							{candidate.stat_name1} -&nbsp;
+							[{candidate.off1}站] -&nbsp;
+							{candidate.line2}路</li>
+				</div>
+				<div className="weui-cell__ft"></div>
+				</div>
 				})
 			} </ul>
 			</div>
