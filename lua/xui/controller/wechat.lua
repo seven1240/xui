@@ -439,7 +439,7 @@ post('/:realm', function(params)
 				Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。您也可以随时补充新的信息，如联系电话/邮件/地址等，也可上传语音/视频/图片。"
 			end
 		end
-	elseif MsgType == "image" then -- image
+	elseif MsgType == "xsssssimage" then -- image
 		PicUrl = xml:val("PicUrl")
 
 		local comment = {}
@@ -470,7 +470,7 @@ post('/:realm', function(params)
 		else
 			Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。您也可以随时补充新的信息，如联系电话/邮件/联系地址等。"
 		end
-	elseif MsgType == "voice" or MsgType == "video" then
+	elseif MsgType == "image" or MsgType == "voice" or MsgType == "video" then
 		MediaId = xml:val("MediaId")
 
 		local comment = {}
@@ -500,7 +500,10 @@ post('/:realm', function(params)
 			ext = "amr"
 			prefix = "wechat-voice-"
 
-			if MsgType == "video" then
+			if MsgType == "image" then
+				prefix = "wechat-image-"
+				ext = "jpg"
+			elseif MsgType == "video" then
 				prefix = "wechat-video-"
 				ext = "mp4"
 			end
@@ -520,7 +523,10 @@ post('/:realm', function(params)
 				rec.mime = "audio/amr"
 				rec.ext = "amr"
 
-				if MsgType == "video" then
+				if MsgType == "image" then
+					rec.mime = "image/jpeg"
+					rec.ext = "jpg"
+				elseif MsgType == "video" then
 					rec.mime = "video/mp4"
 					rec.ext = "mp4"
 				end
