@@ -223,7 +223,7 @@ class Member extends React.Component {
 					</td>
 					<td>{member.email}</td>
 			</tr>;
-		} else if (this.props.displayStyle == 'block') {
+		} else {// if (this.props.displayStyle == 'block') { // block or list
 			const imgClass = (member.cidNumber.indexOf('.') < 0) && which_floor.floor ? "conf-avatar conf-avatar-1" : ((parseInt(member.memberID) < 0) ? "conf-avatar conf-avatar-3" : "conf-avatar conf-avatar-2");
 			let memberIDStyle = {textAlign: "center"};
 
