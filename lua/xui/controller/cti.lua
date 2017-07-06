@@ -193,13 +193,15 @@ put('/agentLogin', function(params)
 	local api = freeswitch.API()
 	local queue_name = params.request.queue_name
 	local agent_id = params.request.agent_id
-	local pass = params.request.password
 
 	if queue_name == '' or queue_name == nil then
 		queue_name = "support@cti"
 	end
 
+	api:execute("callcenter_config", "agent add " .. agent_id .. " callback")
+	api:execute("callcenter_config", "agent set contact " .. agent_id .. " user/" .. agent_id)
 	api:execute("callcenter_config", "agent set status " .. agent_id .. " Available")
+	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
 	api:execute("callcenter_config", "tier add " .. queue_name .. " " .. agent_id)
 	return 200, {code = 200, text = "OK"}
 end)
@@ -214,7 +216,9 @@ delete('/agentLogout', function(params)
 		queue_name = "support@cti"
 	end
 	api:execute("callcenter_config", "agent set status " .. agent_id .. " Logged Out")
+	-- api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
 	api:execute("callcenter_config", "tier del " .. queue_name .. " " .. agent_id)
+	api:execute("callcenter_config", "agent del " .. agent_id)
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -311,8 +315,8 @@ end)
 put('/muteOn', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
-	api:execute("uuid_audio", uuid .. " start read mute 0")
-	api:execute("uuid_audio", uuid .. " start write mute 0")
+	api:execute("uuid_audio", uuid .. " start read mute -4")
+	api:execute("uuid_audio", uuid .. " start write mute -4")
 	return 200, {code = 200, text = "OK"}
 end)
 
