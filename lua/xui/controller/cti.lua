@@ -34,7 +34,7 @@
 -- xtra.ignore_login('/createCTI')
 -- xtra.ignore_login('/startService')
 
-xtra.ignore_login('/agentLogin')
+xtra.ignore_login('/login')
 xtra.start_session()
 xtra.require_login()
 
@@ -111,6 +111,27 @@ end
 -- 	return {code = 200, version = '1.0.1'}
 -- end)
 
+
+post('/login', function(params)
+	login = 'cti'
+	pass = params.request.password
+
+	local user = xdb.find_one("users", {extn = login, password = pass})
+
+	if user then
+		xtra.save_session("user_id", user.id)
+		return 200, {code = 200, session_id = xtra.session_uuid}
+	else
+		return 403
+	end
+end)
+
+delete('/logout', function(params)
+	xtra.save_session("user_id")
+	return 200, {code = 200, text = "OK"}
+end)
+
+
 -- 1.7
 get('/agentState', function(params)
 	-- local api = freeswitch.API()
@@ -168,22 +189,19 @@ post('/setConfig', function(params)
 end)
 
 -- 1.12
-post('/agentLogin', function(params)
-	local login = 'cti'
+put('/agentLogin', function(params)
 	local api = freeswitch.API()
 	local queue_name = params.request.queue_name
 	local agent_id = params.request.agent_id
 	local pass = params.request.password
-	local user = xdb.find_one("users", {extn = login, password = pass})
 
-	if user then
-		xtra.save_session("user_id", user.id)
-		api:execute("callcenter_config", "agent set status " .. agent_id .. " idle")
-		api:execute("callcenter_config", "tier add " .. queue_name .. " " .. agent_id)
-		return 200, {code = 200, session_id = xtra.session_uuid}
-	else
-		return 403
+	if queue_name == '' or queue_name == nil then
+		queue_name = "support@cti"
 	end
+
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " Available")
+	api:execute("callcenter_config", "tier add " .. queue_name .. " " .. agent_id)
+	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.13
@@ -191,6 +209,10 @@ delete('/agentLogout', function(params)
 	local api = freeswitch.API()
 	local queue_name = params.request.queue_name
 	local agent_id = params.request.agent_id
+
+	if queue_name == '' or queue_name == nil then
+		queue_name = "support@cti"
+	end
 	api:execute("callcenter_config", "agent set status " .. agent_id .. " Logged Out")
 	api:execute("callcenter_config", "tier del " .. queue_name .. " " .. agent_id)
 	return 200, {code = 200, text = "OK"}
@@ -335,8 +357,8 @@ end)
 put('/transferQueue', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
-	local acdSkillID = params.request.acdSkillID
-	api:execute("uuid_transfer", uuid .. " callcenter:" .. acdSkillID .. " inline")
+	local queue_name = params.request.queue_name
+	api:execute("uuid_transfer", uuid .. " callcenter:" .. queue_name .. " inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -445,8 +467,8 @@ end)
 -- 1.40
 get('/queueWaitNum', function(params)
 	local api = freeswitch.API()
-	local acdSkillID = params.request.acdSkillID
-	queueWaitNum = api:execute("callcenter_config", "queue count members " .. acdSkillID)
+	local queue_name = params.request.queue_name
+	queueWaitNum = api:execute("callcenter_config", "queue count members " .. queue_name)
 	return {queueWaitNum = queueWaitNum}
 end)
 
@@ -574,4 +596,5 @@ get("/downloadRecordFile", function(params)
 	else
 		return 404
 	end
+	return 200, {code = 200, text = "OK"}
 end)
