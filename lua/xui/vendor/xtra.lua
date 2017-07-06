@@ -370,7 +370,10 @@ function response_start(code, phrase)
 	stream:write("Connection: close\r\n")
 	stream:write("Date: " .. env:getHeader("Event-Date-GMT") .. "\r\n")
 	stream:write("Server: FreeSWITCH\r\n")
-	stream:write("Access-Control-Allow-Origin: *\r\n")
+	if config.cross_domain then
+		stream:write("Access-Control-Allow-Origin: " .. config.cross_domain .. "\r\n")
+		stream:write("Access-Control-Allow-Credentials: true\r\n")
+	end
 
 	if next(xtra.cookies) ~= nil then
 		local c = "Set-Cookie: "
