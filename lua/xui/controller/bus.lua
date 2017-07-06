@@ -46,11 +46,9 @@ get('/lines', function(params)
 	end
 end)
 
-get('/interchange/:start/:stop', function(params)
-	start = url_decode(params.start)
-	stop = url_decode(params.stop)
-
-
+get('/interchange', function(params)
+	start = url_decode(env:getHeader('start'))
+	stop = url_decode(env:getHeader('stop'))
 
 -- start
 -----o------------------o-----  line1
