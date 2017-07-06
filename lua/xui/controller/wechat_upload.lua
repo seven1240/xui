@@ -107,11 +107,14 @@ post('/:realm/:id/comments', function(params)
 
 			media_file_id = xdb.create_return_id('media_files', rec)
 
+			-- freeswitch.consoleLog('info', media_file_id)
+
 			if media_file_id then
 				local link = {}
 				link.comment_id = params.id
 				link.media_file_id = media_file_id
 
+				-- freeswitch.consoleLog('info', utils.serialize(link))
 				xdb.create('ticket_comment_media', link)
 			end
 		end

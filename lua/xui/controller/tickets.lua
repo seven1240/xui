@@ -221,9 +221,12 @@ get('/:id/comments/media_files', function(params)
 
 	local media_files = {} 
 	for i, v in pairs(mfiles) do
-		file = xdb.find_one("media_files", {id = v.media_file_id})
+		local file = xdb.find_one("media_files", {id = v.media_file_id})
+
+		v.id = file.id
 		v.src = file.rel_path
 		v.thumb = file.thumb_path
+		v.mime = file.mime
 		table.insert(media_files, v)
 	end
 

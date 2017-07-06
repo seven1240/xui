@@ -59,9 +59,32 @@ class Home extends React.Component {
 		}).catch((e) => {
 			console.error("get ticket", e);
 		});
+
 		xFetchJSON('/api/tickets/' + current_ticket_id + '/comments').then((data) => {
 			console.log('comments', data);
 			_this.setState({ticket_comments: data});
+
+			if (data.length > 0) {
+				// check if we have media files
+				xFetchJSON('/api/tickets/' + current_ticket_id + '/comments/media_files').then((media) => {
+					console.log('media', media);
+
+					const comments = _this.state.ticket_comments.map((comment) => {
+						media.forEach((m) => {
+							if (comment.id == m.comment_id) {
+								if (!comment.mfiles) comment.mfiles = [];
+								comment.mfiles.push(m);
+							}
+						});
+
+						return comment;
+					});
+
+					console.log('comments', comments);
+					_this.setState({ticket_comments: comments});
+				});
+			}
+
 		});
 	}
 
@@ -88,17 +111,19 @@ class Home extends React.Component {
 		});
 	}
 
-	previewImageShow(e) {
-		var showImgs = [];
-		xFetchJSON('/api/wechat_upload/' + e).then((data) => {
-			var showImg = data.base_url + "/assets/img/wechat/big/" + e + ".jpg";
-			data.img_urls.map((img) =>  {
-				showImgs.push(data.base_url + "/assets/img/wechat/big/" + img.img_url + ".jpg")
-			})
-			wx.previewImage({
-				current: showImg,
-				urls: showImgs
-			});
+	previewImageShow(path) {
+		path = location.protocol + '//' + location.host + path;
+
+		let showImgs = [path];
+
+		console.log({
+			current: path,
+			urls: showImgs
+		});
+
+		wx.previewImage({
+			current: path,
+			urls: showImgs
 		});
 	}
 
@@ -132,13 +157,28 @@ class Home extends React.Component {
 				<center>当前没有待处理工单</center>
 			</div>
 		}
+
 		const comments = this.state.ticket_comments.map((comment) => {
-			const wechat_img = comment.imgs.map((w_img) => {
-				var small_img = "/assets/img/wechat/small/" + w_img.img_url + ".jpg"
-				return <span>
-						<img style={{width:"30px",height:"30px"}} onClick={ () => _this.previewImageShow(w_img.img_url)} src={small_img}/>&nbsp;
+			const wechat_img = !comment.mfiles ? null : comment.mfiles.map((mfile) => {
+
+				const thumb = '/upload/' + (mfile.thumb ? mfile.thumb : mfile.src);
+				const path = '/upload/' + mfile.src;
+
+				if (!mfile.mime) return null;
+
+				console.log(mfile);
+
+				if (mfile.mime.indexOf('image') == 0) {
+					return <span>
+						<img style={{width:"60px", height:"60px"}} onClick={ () => _this.previewImageShow(path)} src={thumb}/>&nbsp;
 					</span>
-			})
+				} else if (mfile.mime.indexOf('audio') == 0) {
+					return <audio src={path}/>
+				} else if (mfile.mime.indexOf('video') == 0) {
+					return <video src={path}/>
+				}
+			});
+
 			return <a className="weui-media-box weui-media-box_appmsg" key={comment.id}>
 					<div className="weui-media-box__hd">
 						<img className="weui-media-box__thumb" src={comment.avatar_url} alt=""/>
@@ -147,7 +187,7 @@ class Home extends React.Component {
 						<div className="weui-form-preview__item">
 							<div className="weui-form-preview__bd">
 								<div className="weui-form-preview__item">
-									<label className="weui-form-preview__label" style={{color:"black",fontSize:"15px"}}>{comment.user_name}</label>
+									<label className="weui-form-preview__label" style={{color:"black",fontSize:"15px"}}>{comment.user_name.substr(0, 10)}</label>
 									<span className="weui-form-preview__value">{comment.created_epoch}</span>
 								</div>
 								<div className="weui-form-preview__item">
@@ -654,7 +694,7 @@ class Tickets extends React.Component {
 
 	componentDidMount() {
 		var _this = this;
-		window.addEventListener('scroll', _this.ticketList.bind(_this))
+		// window.addEventListener('scroll', _this.ticketList.bind(_this))
 		var page = _this.state.page
 		xFetchJSON("/api/wechat/xyt/all/" + page).then((data) => {
 			_this.setState({tickets: data});
