@@ -340,9 +340,20 @@ end)
 put('/:id/assign/:dest_id',function(params)
 	local pid = params.id
 	local dest_id = params.dest_id
-	ret = xdb.update_by_cond("tickets", { id = pid }, { current_user_id = dest_id })
+	ticket = xdb.find_one("tickets", { id = pid })
+
+	data = {
+		current_user_id = dest_id,
+		id = params.id
+	}
+
+	if not ticket.user_id then
+		data.user_id = xtra.session.user_id
+	end
+
+	ret = xdb.update("tickets", data)
+
 	if ret == 1 then
-		ticket = xdb.find_one("tickets", { id = pid })
 		dest_user = xdb.find("users", dest_id)
 		if dest_user then
 			ticket.current_user_name = dest_user.name
