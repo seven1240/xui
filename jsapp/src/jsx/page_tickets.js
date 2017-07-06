@@ -424,14 +424,19 @@ class TicketPage extends React.Component {
 
 			_this.state.media_files.map((m) => {
 				if(m.comment_id == row.id){
-					vasrc = m.src;
+					vasrc = "/upload/" + m.src;
 				}
 			})
-			
-			var va = vasrc.slice(-3) == 'mp4' ? <video src={vasrc} controls="controls"></video> : <audio src={vasrc} controls="controls"></audio>;
-		    var content =  _.indexOf(idArray, row.id) ? va : <p>{row.content}</p>;
-
-		    var content =  _.indexOf(idArray, row.id) ? va : <p>{row.content}</p>;
+			console.log('ddddddddddddddddddd', vasrc)
+			var va;
+			if ( vasrc.slice(-3) == 'mp4' ) {
+				va = <video src={vasrc} controls="controls"></video>;
+			}else if ( vasrc.slice(-3) == 'mp3' ) {
+				va = <audio src={vasrc} controls="controls"></audio>;
+			}else if ( vasrc.slice(-3) == 'png' || vasrc.slice(-3) == 'jpg' ) {
+				va = <img src={vasrc} />
+			}
+		    var content =  _.indexOf(idArray, row.id) != -1 ? va : <p>{row.content}</p>;
 			let style = {width: '40px'};
 			return <Row key={row.id}>
 				<Col componentClass={ControlLabel} sm={1} smOffset={2}><img src={src} style={style}/></Col>
