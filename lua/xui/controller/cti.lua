@@ -334,7 +334,7 @@ get('/callData', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
 	callData = api:execute("uuid_dump", uuid .. "  json")
-	return 200, {code = 200, text = "OK"}
+	return callData
 end)
 
 -- 1.27
