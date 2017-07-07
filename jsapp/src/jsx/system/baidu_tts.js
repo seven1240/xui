@@ -97,21 +97,8 @@ class SettingBaiduTTS extends React.Component {
 		this.updateParams({id: id, v: val});
 	}
 
-	handleAccessTokenUpdate(v, e) {
-		var rows = this.state.rows;
-		var val = e.data.access_token;
-
-		for (var i = 0; i < rows.length; i ++) {
-			if (rows[i].k == "ACCTOKEN") {
-				this.updateParams({id: rows[i].id, v: val});
-				break;
-			}
-		}
-	}
-
 	componentDidMount() {
 		this.fetchParams();
-		verto.subscribe("FSevent.custom::tts_baidu::token_update", {handler: this.handleAccessTokenUpdate.bind(this)});
 	}
 
 	render() {
