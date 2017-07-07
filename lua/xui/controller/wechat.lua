@@ -356,6 +356,9 @@ post('/:realm', function(params)
 		if Event == "CLICK" and EventKey == "我要举报" then
 			step = 1
 		end
+		if Event == "CLICK" and EventKey == "监督电话" then
+			step = 4
+		end
 	elseif MsgType == "text" then
 		Content = xml:val("Content")
 		if (Content == "我要举报" or Content == "举报") then
@@ -439,6 +442,8 @@ post('/:realm', function(params)
 				Reply = "已收到您的举报信息，序列号为：" .. ticket.serial_number .. "。我们会妥善处理并尽快与您联系，谢谢。您也可以随时补充新的信息，如联系电话/邮件/地址等，也可上传语音/视频/图片。"
 			end
 		end
+	elseif step == 4 then
+		Reply = '0535-8078910'
 	elseif MsgType == "xsssssimage" then -- image
 		PicUrl = xml:val("PicUrl")
 
