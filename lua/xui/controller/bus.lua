@@ -63,8 +63,8 @@ get('/station', function(params)
 end)
 
 get('/interchange', function(params)
-	start = url_decode(env:getHeader('start'))
-	stop = url_decode(env:getHeader('stop'))
+	start = env:getHeader('start')
+	stop = env:getHeader('stop')
 
 -- start
 -----o------------------o-----  line1

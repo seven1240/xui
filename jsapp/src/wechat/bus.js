@@ -3,10 +3,67 @@
 import React from 'react'
 import ReactDOM from 'react-dom';
 import { xFetchJSON } from '../jsx/libs/xtools';
-import SelectSearch from 'react-select-search';
 
 var is_wx_ready = false;
 var loc = {};
+
+class SelectSearch extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {options: [], name: ''};
+	}
+
+	componentDidMount() {
+	}
+
+	autoComplete(e) {
+		console.log(e.target.value);
+
+		const options = this.props.options.filter((o) => {
+			return o.name.indexOf(e.target.value) >= 0;
+		});
+
+		this.setState({name: e.target.value, options : options});
+
+		if (this.props.onChange) {
+			this.props.onChange({value: e.target.value});
+		}
+	}
+
+	handleClick(name) {
+		this.setState({name: name, options: []});
+
+		if (this.props.onChange) {
+			this.props.onChange({value: name});
+		}
+	}
+
+	hideComplete() {
+		this.setState({options: []});
+	}
+
+	render () {
+		const _this = this;
+
+		return <div>
+			<input className = "weui_input" value={this.state.name} placeholder={this.props.placeholder}
+				onChange={this.autoComplete.bind(this)}
+				onBlur={this.hideComplete.bind(this)} />
+
+			{
+				this.state.options.length == 0 ? null :
+				<div style={{position: "absolute", zIndex: 1000, backgroundColor: "#FFF", border: "1px solid #DDD"}}>
+				{
+					this.state.options.map((o) => {
+						return <div onClick={() => _this.handleClick(o.name)}>{o.name}</div>
+					})
+				}
+				</div>
+			}
+		</div>
+	}
+
+}
 
 class Home extends React.Component {
 	constructor(props) {
@@ -79,20 +136,18 @@ class Change extends React.Component {
 	}
 
 	onChange1(e) {
-		console.log(e.value)
 		this.setState({station1: e.value})
 	}
 
 	onChange2(e) {
-		console.log(e.value)
 		this.setState({station2: e.value})
 	}
 
 	handleSearchInterchange(e) {
 		e.preventDefault();
-
 		const _this = this;
-		xFetchJSON('/api/bus/interchange?start=' + _this.state.station1 + '&stop=' + _this.state.station2).then((data) => {
+
+		xFetchJSON('/api/bus/interchange?start=' + this.state.station1 + '&stop=' + this.state.station2).then((data) => {
 			console.log(data);
 			_this.setState({candidates: data});
 		});
