@@ -427,14 +427,13 @@ class TicketPage extends React.Component {
 					vasrc = "/upload/" + m.src;
 				}
 			})
-			console.log('ddddddddddddddddddd', vasrc)
 			var va;
 			if ( vasrc.slice(-3) == 'mp4' ) {
-				va = <video src={vasrc} controls="controls"></video>;
-			}else if ( vasrc.slice(-3) == 'mp3' ) {
-				va = <audio src={vasrc} controls="controls"></audio>;
+				va = <video src={vasrc} controls="controls" style={{maxWidth: "80%", maxHeight: "200px"}}/>;
+			}else if ( vasrc.slice(-3) == 'amr' ) {
+				va = <audio src={vasrc.slice(0, -3) + 'mp3'} controls="controls"></audio>;
 			}else if ( vasrc.slice(-3) == 'png' || vasrc.slice(-3) == 'jpg' ) {
-				va = <img src={vasrc} />
+				va = <img src={vasrc} style={{maxWidth: "80%", maxHeight: "200px"}}/>
 			}
 		    var content =  _.indexOf(idArray, row.id) != -1 ? va : <p>{row.content}</p>;
 			let style = {width: '40px'};
