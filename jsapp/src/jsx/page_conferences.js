@@ -232,6 +232,7 @@ class Member extends React.Component {
 			}
 
 			const block_width = member.room.canvas_count > 1 ? "200px" : "188px";
+			const circle_numbers = "⓪①②③④⑤⑥⑦⑧⑨";
 
 			return  <div  className={className} onClick={(e) => _this.handleClick(e, member.memberID)} style={{width: block_width, height: "90px", marginTop:"30px", marginRight:"20px", border:"1px solid #c0c0c0", display:"inline-block"}}>
 				<div style={{float:"left"}}>
@@ -256,8 +257,8 @@ class Member extends React.Component {
 						{
 							member.room.canvas_count < 2 ? null : (
 								!(member.status.video && typeof(member.status.video.canvasID) != "undefined") ? null : (
-									(member.status.video.canvasID == 1 ? "②" : "①") +
-									(member.status.video.watchingCanvasID == 1 ? " ②" : " ①")
+									(member.status.video.canvasID >= 0 ? circle_numbers[1 + member.status.video.canvasID] : '') +
+									(member.status.video.watchingCanvasID >= 0 ? (" " + circle_numbers[1 + member.status.video.watchingCanvasID]) : '')
 								)
 							)
 						}
@@ -1003,35 +1004,8 @@ class ConferencePage extends React.Component {
 		let action = null;
 		let target = null;
 
-		switch(k) {
-			case "res":
-				action = "vid-res-id";
-				target = "aa";
-				break;
-			case "L1":
-				action = "vid-layout 1-1-1 1";
-				break;
-			case "L2":
-				action = "vid-layout 1-1-1 2";
-				break;
-			case "c1":
-				action = "vid-canvas";
-				target = "1";
-				break;
-			case "c2":
-				action = "vid-canvas";
-				target = "2";
-				break;
-			case "w1":
-				action = "vid-watching-canvas";
-				target = "1";
-				break;
-			case "w2":
-				action = "vid-watching-canvas";
-				target = "2";
-				break;
-			default: break;
-		}
+		action = k.action;
+		target = k.target;
 
 		if (!action) return;
 
@@ -1145,6 +1119,8 @@ class ConferencePage extends React.Component {
 		const extendedConferenceControls = <i className="fa fa-gears" aria-hidden="true"></i>
 
 		let canvases = [];
+		let canvas_move_to = [];
+		let canvas_watching = [];
 		const circle_numbers = "⓪①②③④⑤⑥⑦⑧⑨";
 
 		for (var c = 1; c <= this.props.room.canvas_count; c++) {
@@ -1159,7 +1135,13 @@ class ConferencePage extends React.Component {
 			</DropdownButton>
 
 			canvases.push(dropdown);
+
+
+			canvas_move_to.push(<MenuItem key = {"c" + c} eventKey={{action: 'vid-canvas', target: c}} onSelect={this.handleSeletExtControl.bind(this)}>Move to canvas &nbsp;{circle_numbers[c]}</MenuItem>);
+			canvas_watching.push(<MenuItem key = {"w" + c} eventKey={{action: 'vid-watching-canvas', target: c}} onSelect={this.handleSeletExtControl.bind(this)}>Watching canvas &nbsp;{circle_numbers[c]}</MenuItem>);
 		}
+
+		canvas_watching.push(<MenuItem key = {"w" + this.props.room.canvas_count + 1} eventKey={{action: 'vid-watching-canvas', target: parseInt(this.props.room.canvas_count) + 1}} onSelect={this.handleSeletExtControl.bind(this)}>Watching canvas &nbsp;{circle_numbers[parseInt(this.props.room.canvas_count) + 1]}</MenuItem>);
 
 		return <div>
 			<ButtonToolbar className="pull-right">
@@ -1171,14 +1153,8 @@ class ConferencePage extends React.Component {
 					{ canvases }
 
 					<DropdownButton title={extendedConferenceControls}  id="extControls">
-						<MenuItem eventKey="L1" onSelect={this.handleSeletExtControl.bind(this)}>Set layout canvas #1</MenuItem>
-						<MenuItem eventKey="L2" onSelect={this.handleSeletExtControl.bind(this)}>Set layout canvas #2</MenuItem>
-						<MenuItem eventKey="res" onSelect={this.handleSeletExtControl.bind(this)}>Set Reservation</MenuItem>
-
-						<MenuItem eventKey="c1" onSelect={this.handleSeletExtControl.bind(this)}>Move to canvas #1</MenuItem>
-						<MenuItem eventKey="c2" onSelect={this.handleSeletExtControl.bind(this)}>Move to canvas #2</MenuItem>
-						<MenuItem eventKey="w1" onSelect={this.handleSeletExtControl.bind(this)}>Watch canvas #1</MenuItem>
-						<MenuItem eventKey="w2" onSelect={this.handleSeletExtControl.bind(this)}>Watch canvas #2</MenuItem>
+						{ canvas_move_to }
+						{ canvas_watching }
 					</DropdownButton>
 				</ButtonGroup>
 			}
