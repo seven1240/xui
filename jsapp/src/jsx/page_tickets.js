@@ -36,6 +36,7 @@ import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl
 import { Link } from 'react-router';
 import { EditControl, xFetchJSON } from './libs/xtools';
 import _ from 'lodash';
+import Dropzone from 'react-dropzone';
 
 class NewTicket extends React.Component {
 	constructor(props) {
@@ -175,6 +176,12 @@ class TicketPage extends React.Component {
 		this.handleSatisfiedSubmit = this.handleSatisfiedSubmit.bind(this);
 		this.handleAppraiseSubmit = this.handleAppraiseSubmit.bind(this);
 		this.handleDownload = this.handleDownload.bind(this);
+		this.onDrop = this.onDrop.bind(this);
+		this.handleCommitUpload = this.handleCommitUpload.bind(this);
+	}
+
+	handleCommitUpload() {
+		this.dropzone.open();
 	}
 
 	exportCsv(obj) {
@@ -404,6 +411,60 @@ class TicketPage extends React.Component {
 		});
 	}
 
+	onDrop(acceptedFiles, rejectedFiles) {
+		const _this = this;
+
+		console.log('Accepted files: ', acceptedFiles);
+		console.log('Rejected files: ', rejectedFiles);
+
+		if (this.state.readonly) return;
+
+		const formdataSupported = !!window.FormData;
+
+		let data = new FormData()
+
+		for (var i = 0; i < acceptedFiles.length; i++) {
+			data.append('file', acceptedFiles[i])
+		}
+
+		let xhr = new XMLHttpRequest();
+		const progressSupported = "upload" in xhr;
+
+		xhr.onload = function(e) {
+			_this.setState({progress: 100});
+			_this.setState({progress: -1});
+		};
+
+		if (progressSupported) {
+			xhr.upload.onprogress = function (e) {
+				// console.log("event", e);
+				if (event.lengthComputable) {
+					let progress = (event.loaded / event.total * 100 | 0);
+					// console.log("complete", progress);
+					_this.setState({progress: progress});
+				}
+			}
+		} else {
+			console.log("XHR upload progress is not supported in your browswer!");
+		}
+
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState == 4) {
+				if (xhr.status == 200) {
+					// console.log('response=',xhr.responseText);
+					let mfiles = JSON.parse(xhr.responseText);
+					console.log(mfiles);
+					_this.setState({rows: mfiles.concat(_this.state.rows)});
+				} else {
+					// console.error("upload err");
+				}
+			}
+		}
+
+		xhr.open('POST', '/api/tickets/' + _this.props.params.id + '/comment_upload');
+		xhr.send(data);
+	}
+
 	render() {
 		const idArray = this.state.media_files.map((m) => {
 			return m.comment_id;
@@ -486,6 +547,7 @@ class TicketPage extends React.Component {
 
 		save_btn = <Button onClick={this.handleSubmit}><T.span text="指派"/></Button>
 		commit_btn = <Button onClick={this.handleCommit}><T.span text="评论"/></Button>
+		const upload_btn = <Button onClick={this.handleCommitUpload}><T.span text="Upload" /></Button>
 
 		const options = <FormGroup>
 			<Col componentClass={ControlLabel} sm={2}><T.span text="处理人" /></Col>
@@ -591,7 +653,7 @@ class TicketPage extends React.Component {
 								</Form>;
 								break;
 		}
-		return <div>
+		return <Dropzone ref={(node) => { this.dropzone = node; }} onDrop={this.onDrop} className="dropzone" activeClassName="dropzone_active" disableClick={true}><div>
 			<ButtonToolbar className="pull-right">
 			<ButtonGroup>
 				<Link to={`/tickets`} className="btn btn-default">
@@ -670,7 +732,8 @@ class TicketPage extends React.Component {
 				</FormGroup>
 				<FormGroup>
 					<Col componentClass={ControlLabel} sm={2}></Col>
-					<Col sm={10}>{commit_btn}</Col>
+					<Col sm={2}>{commit_btn}</Col>
+					<Col sm={2}>{upload_btn}</Col>
 				</FormGroup>
 			</Form>
 			<hr />
@@ -698,7 +761,7 @@ class TicketPage extends React.Component {
 			</Form>
 			<hr/>
 			{ticket_comments}
-		</div>
+		</div></Dropzone>
 	}
 }
 

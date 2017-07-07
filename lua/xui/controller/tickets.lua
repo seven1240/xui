@@ -50,6 +50,7 @@ require 'm_ticket'
 require 'm_user'
 require 'xtra_config'
 xdb.bind(xtra.dbh)
+require 'multipart_parser'
 
 get('/', function(params)
 	startDate = env:getHeader('startDate')
@@ -286,6 +287,162 @@ post('/comments', function(params)
 
 	local ret = xdb.create_return_object('ticket_comments',comment)
 	return ret
+end)
+
+post('/:id/comment_upload', function(params)
+	local api = freeswitch.API()
+	local ctype = utils.url_decode(env:getHeader("Content-Type"))
+	local content_length = tonumber(env:getHeader("Content-Length"))
+
+	print("ctype: "..ctype.." content_length: "..content_length.."\n");
+
+	local max_body_size = 100 * 1024 * 1024
+
+	if content_length == 0 or content_length > max_body_size then
+		print("Max body size " .. max_body_size)
+		return 413, {error = "Max body size " .. max_body_size}
+	end
+
+	local multipart = string.find(ctype, "multipart")
+	local size = tonumber(content_length)
+	local filename
+	local file
+	local received = 0
+	local files = {}
+	local boundary
+	local parser
+	local uploaded_files = {}
+	local found = 0
+	local times = 10
+	local url
+	local media_file
+
+	expect = env:getHeader("expect")
+
+	if expect and expect:match("100%-continue") then
+		print("run");
+		stream:write("HTTP/1.1 100 Continue\r\n")
+	end
+
+	boundary=string.gsub(ctype, "^.*boundary=([^;]+).*$", "%1")
+	print("boundary: " .. boundary)
+
+	if (not multipart) then
+		filename = utils.tmpname('upload-')
+		file = assert(io.open(filename, "w"))
+	end
+
+	while received < size do
+		local x = stream_read()
+		local len = x:len()
+		received = received + len
+
+		print("received= " .. len .. " total= " .. received .. " size= " .. size)
+		
+		if not parser then parser = multipart_parser(boundary) end
+
+		if multipart then
+			ret = parser:parse(x)
+		else
+			file:write(x)
+		end
+
+		if (len == 0) then
+			times = times + 1
+			os.execute("sleep " .. 1)
+		else
+			times = 0
+		end
+
+		if ((len == 0 and times > 10) or received == size) then -- read eof
+			print("EOF")
+
+			if parser and parser.parts then
+				xdb.bind(xtra.dbh)
+				utils.print_r(parser.parts)
+				for k, v in pairs(parser.parts) do
+					local record = {}
+					record.name = v.filename
+					record.ext = v.ext
+					record.original_file_name = v.filename
+					record.mime = v.content_type
+					record.type = 'UPLOAD'
+					record.description = 'UPLOAD'
+					record.abs_path = v.abs_filename
+					record.dir_path = config.upload_path
+					record.rel_path = string.sub(record.abs_path, string.len(record.dir_path) + 2)
+					record.file_size = "" .. v.file_size .. ""
+
+					media_file = xdb.create_return_object('media_files', record)
+
+					if media_file then
+						table.insert(uploaded_files, media_file)
+					end
+				end
+			end
+
+			if (not multipart) then
+				local record = {}
+				record.mime = ctype
+				record.description = boundary
+				record.abs_path = filename
+				url = filename
+				record.dir_path = config.upload_path
+				record.rel_path = string.sub(record.abs_path, string.len(record.dir_path) + 2)
+				record.file_size = "" .. size .. ""
+				record.channel_uuid = env:getHeader("Core-UUID")
+				record.created_epoch = "" .. os.time() .. ""
+				record.updated_epoch = record.created_epoch
+
+				table.insert(files, record)
+
+				media_file = xdb.create_return_object('media_files', record)
+
+				if media_file then
+					table.insert(uploaded_files, media_file)
+				end
+			end
+
+			break
+		end
+	end
+
+	if file then file:close() end
+
+	local user = xdb.find("users", xtra.session.user_id)
+	local weuser = xdb.find_one("wechat_users", {
+		user_id = xtra.session.user_id
+	})
+
+	local comment = {}
+	comment.ticket_id = params.id
+	comment.user_id = xtra.session.user_id
+	comment.user_name = user.name
+
+	if weuser then
+		comment.avatar_url = weuser.headimgurl
+	end
+
+	ret = xdb.create_return_object("ticket_comments", comment)
+
+	ticket = xdb.find("tickets", params.id)
+
+	xdb.update_by_cond("tickets",
+		"id = " .. ticket.id .. " AND status = 'TICKET_ST_NEW'",
+		{status = 'TICKET_ST_PROCESSING'})
+
+	
+	local link = {}
+	link.comment_id = ret.id
+	link.media_file_id = media_file.id
+
+	xdb.create('ticket_comment_media', link)
+
+	if found then
+		return uploaded_files
+	else
+		return "[]"
+	end
 end)
 
 put('/:id/satisfied', function(params)
