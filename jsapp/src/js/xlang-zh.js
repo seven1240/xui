@@ -335,6 +335,7 @@ LANGUAGES["zh"] = {
 	"EXCHANGE_ROUTING_ERROR": "交换路由错误",
 	"MANAGER_REQUEST": "强制挂机",
 	"DESTINATION_OUT_OF_ORDER": "目的地异常",
+	"SERVICE_NOT_IMPLEMENTED": "服务未实现",
 
 	"Import New Users": "导入新用户",
 
