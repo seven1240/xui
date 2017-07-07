@@ -749,6 +749,7 @@ class TicketsPage extends React.Component {
 	componentDidMount () {
 		var _this = this;
 		xFetchJSON("/api/tickets").then((data) => {
+			console.log('data', data)
 			this.setState({rows: data, loaded: true});
 		});
 
@@ -788,7 +789,8 @@ class TicketsPage extends React.Component {
 			"&endDate=" + this.endDate.value +
 			"&id=" + this.id.value +
 			"&cid_number=" + this.cid_number.value +
-			"&status=" + this.status.value;
+			"&status=" + this.status.value +
+			"&serial_number=" + this.serial_number.value;
 		console.log(qs);
 
 		xFetchJSON("/api/tickets?" + qs).then((tickets) => {
@@ -838,6 +840,7 @@ class TicketsPage extends React.Component {
 			}
 			return <tr key={row.id}>
 				<td>{row.id}</td>
+				<td>{row.serial_number}</td>
 				<td>{row.cid_number}</td>
 				<td>{row.subject}</td>
 				<td>{row.created_epoch}</td>
@@ -918,6 +921,7 @@ class TicketsPage extends React.Component {
 				<input type="date" defaultValue={sevenDaysBeforeToday} ref={(input) => { _this.startDate = input; }}/> -&nbsp;
 				<input type="date" defaultValue={today} ref={(input) => { _this.endDate = input; }}/> &nbsp;
 				<T.span text="ID"/><input ref={(input) => { _this.id = input; }}/> &nbsp;
+				<T.span text="Serial Number"/><input ref={(input) => { _this.serial_number = input; }}/> &nbsp;
 				<T.span text="CID Number"/><input ref={(input) => { _this.cid_number = input; }}/> &nbsp;
 				<T.span text="Status"/>
 				<select ref={(input) => { _this.status = input; }}>
@@ -932,6 +936,7 @@ class TicketsPage extends React.Component {
 				<tbody>
 					<tr>
 						<th><T.span text="ID"/></th>
+						<th><T.span text="Serial Number"/></th>
 						<th><T.span text="CID Number"/></th>
 						<th><T.span text="Subject"/></th>
 						<th><T.span text="Created At"/></th>

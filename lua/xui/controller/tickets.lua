@@ -65,14 +65,16 @@ get('/', function(params)
 	else
 		local endDate = env:getHeader('endDate')
 		local id = env:getHeader('id')
-		local cid_number = env:getHeader('cid_number')		
+		local cid_number = env:getHeader('cid_number')
+		local serial_number = env:getHeader('serial_number')
 
 		endDate = utils.date_diff(endDate, 1)
 
 		cond = xdb.date_cond("created_epoch", startDate, endDate) ..
 					xdb.if_cond("id", id) ..
 					xdb.if_cond("cid_number", cid_number) ..
-					xdb.if_cond("status", status)
+					xdb.if_cond("status", status) ..
+					xdb.if_cond("serial_number", serial_number)
 	end
 
 	if m_user.has_permission() then
