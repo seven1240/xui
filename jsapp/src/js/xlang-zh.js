@@ -134,7 +134,10 @@ LANGUAGES["zh"] = {
 	Capacity: "容量",
 	PIN: "密码",
 	Moderator: "管理员",
+	"Canvas" : "画布",
 	"Canvas Count": "画布个数",
+	"Canvas Controls":"画布控制",
+
 	"Video Mode": "视频模式",
 	CONF_VIDEO_MODE_PASSTHROUGH: "透传",
 	CONF_VIDEO_MODE_TRANSCODE: "转码",
@@ -162,7 +165,7 @@ LANGUAGES["zh"] = {
 	"Members": "与会者",
 	"Set As Moderator": "设为管理员",
 
-	"Display as Table": "以表格形式显示",
+	"Display as Block": "以表格形式显示",
 	"Display as List": "以列表形式显示",
 	"Toggle Toolbar Text": "切换按钮图标文字提示",
 

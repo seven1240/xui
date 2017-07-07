@@ -1116,7 +1116,9 @@ class ConferencePage extends React.Component {
 
 		const toolbarTextStyle = this.state.toolbarText ? null : {display: 'none'};
 
-		const extendedConferenceControls = <i className="fa fa-gears" aria-hidden="true"></i>
+		const extendedConferenceControls = <i className="fa fa-gears" aria-hidden="true">
+			<T.span text= "Canvas Controls" style={toolbarTextStyle}/>
+		</i>
 
 		let canvases = [];
 		let canvas_move_to = [];
@@ -1124,7 +1126,9 @@ class ConferencePage extends React.Component {
 		const circle_numbers = "⓪①②③④⑤⑥⑦⑧⑨";
 
 		for (var c = 1; c <= this.props.room.canvas_count; c++) {
-			const title = <i className="fa fa-photo" aria-hidden="true"> {this.props.room.canvas_count <= 1 ? '' : circle_numbers[c]}</i>
+			const title = <i className="fa fa-photo" aria-hidden="true">
+				<T.span text= "Canvas" style={toolbarTextStyle}/>
+				{this.props.room.canvas_count <= 1 ? '' : circle_numbers[c]}</i>
 
 			const dropdown = <DropdownButton title={title} id={"canvas" + c} key={c}>
 			{
@@ -1135,8 +1139,6 @@ class ConferencePage extends React.Component {
 			</DropdownButton>
 
 			canvases.push(dropdown);
-
-
 			canvas_move_to.push(<MenuItem key = {"c" + c} eventKey={{action: 'vid-canvas', target: c}} onSelect={this.handleSeletExtControl.bind(this)}>Move to canvas &nbsp;{circle_numbers[c]}</MenuItem>);
 			canvas_watching.push(<MenuItem key = {"w" + c} eventKey={{action: 'vid-watching-canvas', target: c}} onSelect={this.handleSeletExtControl.bind(this)}>Watching canvas &nbsp;{circle_numbers[c]}</MenuItem>);
 		}
@@ -1206,11 +1208,11 @@ class ConferencePage extends React.Component {
 			</ButtonGroup>
 
 			<ButtonGroup>
-				<Button onClick={() => _this.handleControlClick("table")} title={T.translate("Display as Table")}>
-					<i className="fa fa-table" aria-hidden="true"></i>
+				<Button onClick={() => _this.handleControlClick("table")} title={T.translate("Display as List")}>
+					<i className="fa fa-list" aria-hidden="true"></i>
 				</Button>
 				<Button onClick={() => _this.handleControlClick("block")} title={T.translate("Display as Block")}>
-					<i className="fa fa-list" aria-hidden="true" data="block"></i>
+					<i className="fa fa-table" aria-hidden="true" data="block"></i>
 				</Button>
 				<Button onClick={() => _this.handleControlClick("toolbarText")} title={T.translate("Toggle Toolbar Text")}>
 					<i className="fa fa-text-width" aria-hidden="true"></i>
