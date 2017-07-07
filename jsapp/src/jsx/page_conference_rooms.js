@@ -821,7 +821,7 @@ class ConferenceRoom extends React.Component {
 						</EditControl>
 					</Col>
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Cluster" /></Col>
-					<Col sm={4}><EditControl edit={this.state.edit} componentClass="textarea" name="cluster" defaultValue={cluster}/></Col>
+					<Col sm={4}><EditControl edit={this.state.edit} componentClass="textarea" name="cluster" defaultValue={cluster} placeholder="ip:port weight"/></Col>
 				</FormGroup>
 			</Form>
 
