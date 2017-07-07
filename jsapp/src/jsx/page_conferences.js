@@ -598,8 +598,12 @@ class ConferencePage extends React.Component {
 					}
 
 					_this.props.room.cluster.forEach(function(node) {
+						const tmp_ip = extract_ip(node.host);
+
+						if (tmp_ip == domain) return;
+
 						const v = new Verto();
-						v.domain = extract_ip(node.host);
+						v.domain = tmp_ip;
 						_this.state.domain_rows[v.domain] = [];
 						v.connect(verto_params(v.domain), verto_callbacks);
 						_this.vertos.push(v);
