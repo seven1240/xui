@@ -46,6 +46,22 @@ get('/lines', function(params)
 	end
 end)
 
+get('/station', function(params)
+	station = env:getHeader('station')
+	sql = ''
+
+	if station then
+		sql = [[select distinct stat_name as name, distinct stat_name as value from station where stat_name like '%]] .. url_decode(station) .. [[%'
+		]]
+	else
+		sql = [[select distinct stat_name as name, stat_name as value from station where stat_name != '']]
+	end
+
+	n, res = xdb.find_by_sql(sql)
+	utils.print_r(res)
+	return res
+end)
+
 get('/interchange', function(params)
 	start = url_decode(env:getHeader('start'))
 	stop = url_decode(env:getHeader('stop'))

@@ -47,7 +47,9 @@
     "webpack-md5-hash": "0.0.5",
     "whatwg-fetch": "^2.0.3"
   },
-  "dependencies": {},
+  "dependencies": {
+    "react-select-search": "^0.5.5"
+  },
   "scripts": {
     "build:js": "cat src/js/*.js > ../www/assets/js/xui.js",
     "lint": "jshint **.js",

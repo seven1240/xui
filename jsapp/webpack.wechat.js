@@ -10,7 +10,7 @@ var config = {
         "bus": "./src/wechat/bus.js"
     },
 
-    resolve: {
+    noresolve: {
         alias: {
             'react': 'react-lite',
             'react-dom': 'react-lite'

@@ -3,6 +3,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom';
 import { xFetchJSON } from '../jsx/libs/xtools';
+import SelectSearch from 'react-select-search';
 
 var is_wx_ready = false;
 var loc = {};
@@ -64,58 +65,93 @@ class Stations extends React.Component {
 class Change extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {candidates: []};
+		this.state = {candidates: [], stations: [{name: 'Swedish', value: 'sv'},
+			{name: 'English', value: 'en'}], station1: null, station2: null};
+
+		this.onChange1 = this.onChange1.bind(this);
+		this.onChange2 = this.onChange2.bind(this);
+
+		const _this = this;
+		xFetchJSON('/api/bus/station').then((data) => {
+			console.log(data);
+			_this.setState({stations: data});
+		});
+	}
+
+	onChange1(e) {
+		console.log(e.value)
+		this.setState({station1: e.value})
+	}
+
+	onChange2(e) {
+		console.log(e.value)
+		this.setState({station2: e.value})
 	}
 
 	handleSearchInterchange(e) {
 		e.preventDefault();
 
 		const _this = this;
-		xFetchJSON('/api/bus/interchange?start=市政&stop=公安局').then((data) => {
+		xFetchJSON('/api/bus/interchange?start=' + _this.state.station1 + '&stop=' + _this.state.station2).then((data) => {
 			console.log(data);
 			_this.setState({candidates: data});
 		});
 	}
 
 	render() {
+		var content;
+		if (this.state.candidates.length !== 1) {
+			content = <ul> {
+				this.state.candidates.map((candidate) => {
+					return <div className="weui-cell weui-cell_access">
+							<div className="weui-cell__bd">
+							<li style={{listStyle:"none",fontSize:"14px"}}>
+							{candidate.line1}路 -&nbsp;
+							[{candidate.off1}站] -&nbsp;
+							{candidate.stat_name1} -&nbsp;
+							{candidate.line2}路 -&nbsp;
+							[{candidate.off1}站]</li>
+						</div>
+						<div className="weui-cell__ft"></div>
+				</div>
+				})
+			} </ul>
+		}else {
+			content = <ul><div className="weui-cell weui-cell_access">
+							<div className="weui-cell__bd">
+							<li style={{listStyle:"none",fontSize:"14px"}}>
+							{this.state.candidates[0].line1}路 -&nbsp;
+							[{this.state.candidates[0].off1}站]</li>
+						</div>
+						<div className="weui-cell__ft"></div>
+				</div>
+			</ul>
+		};
+
 		return <div className="page" style={{padding:"0 15px"}}>
 			<h1 className="page__title" style={{textAlign:"center",margin:"10px 0"}}>换乘查询</h1>
 
 			<div className="weui-cell">
-                <div className="weui-cell__hd"><label className="weui-label">起点：</label></div>
-                <div className="weui-cell__bd">
-                    <input className="weui-input" placeholder="输入出发地"/>
-                </div>
-            </div>
+				<div className="weui-cell__hd"><label className="weui-label">起点：</label></div>
+				<div className="weui-cell__bd">
+					<SelectSearch options={this.state.stations} placeholder="请输入出发地" onChange={this.onChange1}/>
+				</div>
+			</div>
 
-            <div className="weui-cell">
-                <div className="weui-cell__hd"><label className="weui-label">终点：</label></div>
-                <div className="weui-cell__bd">
-                    <input className="weui-input" placeholder="输入目的地"/>
-                </div>
-            </div>
+			<div className="weui-cell">
+				<div className="weui-cell__hd"><label className="weui-label">终点：</label></div>
+				<div className="weui-cell__bd">
+					<SelectSearch options={this.state.stations} placeholder="请输入目的地" onChange={this.onChange2}/>
+				</div>
+			</div>
 
-            <hr/>
+			<hr/>
 
 			<a href="#" className="weui-btn weui-btn_primary" style={{marginTop:"10px"}} onClick={this.handleSearchInterchange.bind(this)}>查询</a>
 			<br/>
 
 			<div class="page__bd">
-			<ul> {
-				this.state.candidates.map((candidate) => {
-					return <div className="weui-cell weui-cell_access">
-				<div className="weui-cell__bd">
-					<li style={{listStyle:"none"}}>
-					{candidate.line1}路 -&nbsp;
-							[{candidate.off1}站] -&nbsp;
-							{candidate.stat_name1} -&nbsp;
-							[{candidate.off1}站] -&nbsp;
-							{candidate.line2}路</li>
-				</div>
-				<div className="weui-cell__ft"></div>
-				</div>
-				})
-			} </ul>
+			{content}
 			</div>
 
 		</div>
