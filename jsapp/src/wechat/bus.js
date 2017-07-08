@@ -50,6 +50,8 @@ class SelectSearch extends React.Component {
 	}
 
 	handleClick(name) {
+		console.log('clicked name', name);
+
 		this.setState({name: name, options: []});
 
 		if (this.props.onChange) {
@@ -58,7 +60,7 @@ class SelectSearch extends React.Component {
 	}
 
 	hideComplete() {
-		this.setState({options: []});
+		// this.setState({options: []});
 	}
 
 	render () {
@@ -74,7 +76,10 @@ class SelectSearch extends React.Component {
 				<div style={{position: "absolute", zIndex: 1000, backgroundColor: "#FFF", border: "1px solid #DDD"}}>
 				{
 					this.state.options.map((o) => {
-						return <div onClick={() => _this.handleClick(o.stat_name)}>{o.stat_name}</div>
+						return <li style={{listStyle: 'none', padding: "5px"}}
+							onClick={() => _this.handleClick(o.stat_name)}>
+							{o.stat_name}
+						</li>
 					})
 				}
 				</div>
