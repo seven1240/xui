@@ -7,6 +7,25 @@ import { xFetchJSON } from '../jsx/libs/xtools';
 var is_wx_ready = false;
 var loc = {};
 
+function addMarker(point, index) {
+	var myIcon = new BMap.Icon("/assets/img/maps/point.png", new BMap.Size(16, 16), {
+		offset: new BMap.Size(0, 0)
+	});
+
+	var marker = new BMap.Marker(point, {icon: myIcon});
+	window.map.addOverlay(marker);
+}
+
+function addLabel(point, label) {
+	var myLabel = new BMap.Label(label, {
+		offset: new BMap.Size(0, 0),
+		position:point
+	});
+
+	// myLabel.setTitle("我是文本标注label");
+	window.map.addOverlay(myLabel);
+}
+
 class SelectSearch extends React.Component {
 	constructor(props) {
 		super(props);
@@ -111,7 +130,7 @@ class Home extends React.Component {
 class TransferMap extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {};
+		this.state = {stations: []};
 	}
 
 	loadScript() {
@@ -120,30 +139,84 @@ class TransferMap extends React.Component {
 		document.body.appendChild(script);
 	}
 
+	setupStations() {
+		this.state.stations.forEach((station) => {
+			const point = new BMap.Point(station.baidu_x, station.baidu_y);
+			addMarker(point, 0);
+			addLabel(point, station.stat_name);
+		});
+	}
+
 	initializeBaiduMap() {
-		console.log("initializeBaiduMap");
+		console.log("initializeBaiduMap", this);
 
 		window.map = new BMap.Map("allmap");
 
-		if (!loc.longitude) { // hardcoded for test
+		if (true || !loc.longitude) { // hardcoded for test
 			loc = {longitude: 120.40086416919, latitude: 37.37223326585};
 		}
 
-		if (loc) {
-			map.centerAndZoom(new BMap.Point(loc.longitude, loc.latitude), 11);
+		if (loc.longitude) {
+			window.map.centerAndZoom(new BMap.Point(loc.longitude, loc.latitude), 14);
+		}
+
+		if (this.state.pendingSetupStations) {
+			this.setupStations();
 		}
 	}
 
 	componentDidMount() {
-		window.initializeBaiduMap = this.initializeBaiduMap;
+		const _this = this;
+
+		window.initializeBaiduMap = this.initializeBaiduMap.bind(this);
 		this.loadScript();
+
+/*
+		xFetchJSON('/api/bus/points?lines=' + this.props.candidate.lines +
+			'&all_lines=' + this.props.candidate.lines +
+			'&stat_names=' + this.props.candidate.stat_names, function(stations) {
+
+			console.log('stations', stations);
+			this.setState({stations, stations});
+		});
+*/
+
+		const station_names = this.props.candidate.stat_names.split('-');
+		const lines = this.props.candidate.all_lines.split('-');
+		let i = 0;
+		let j = 0;
+
+		lines.forEach((line) => {
+			const start = station_names[i]
+			const stop = station_names[i+1];
+
+			xFetchJSON('/api/bus/lines/' + line + '/stations?start=' + start + '&stop=' + stop).then((data) => {
+				const _this = this;
+				console.log('stations', data);
+				_this.setState({stations: _this.state.stations.concat(data)});
+
+				j++;
+
+				if (j == lines.length) {
+					if (window.map) {
+						this.setupStations();
+					} else {
+						this.state.pendingSetupStations = true;
+					}
+				}
+			});
+
+			i++;
+		});
 	}
 
 	render() {
 		let height = 580;
-		height = window.innerHeight - 100;
+		height = window.innerHeight - 40;
 
-		return <div>Map {this.props.all_lines}
+		return <div>
+			{this.props.candidate.stat_names}
+			{this.props.candidate.all_lines}
 			<div id = "allmap" style={{width: "100%", height: height}} />
 		</div>
 	}
@@ -194,8 +267,8 @@ class Change extends React.Component {
 		});
 	}
 
-	showOnMap(all_lines) {
-		ReactDOM.render(<TransferMap all_lines={all_lines}/>, document.getElementById('main'));
+	showOnMap(candidate) {
+		ReactDOM.render(<TransferMap candidate={candidate}/>, document.getElementById('main'));
 	}
 
 	render() {
@@ -208,7 +281,8 @@ class Change extends React.Component {
 					return <div className="weui-cell weui-cell_access">
 							<div className="weui-cell__bd">
 							<li style={{listStyle:"none",fontSize:"14px"}}
-								onClick={() => _this.showOnMap(candidate.all_lines)}>
+								onClick={() => _this.showOnMap(candidate)}>
+								[共{candidate.offs}站]&nbsp;
 								{candidate.line1}路
 								[{candidate.off1}站]&nbsp;
 								{candidate.stat_name1}&nbsp;
@@ -224,7 +298,7 @@ class Change extends React.Component {
 			content = <ul><div className="weui-cell weui-cell_access">
 							<div className="weui-cell__bd">
 							<li style={{listStyle:"none",fontSize:"14px"}}
-								onClick={() => _this.showOnMap(candidate.all_lines)}>
+								onClick={() => _this.showOnMap(candidate)}>
 							{this.state.candidates[0].line1}路&nbsp;
 							[{this.state.candidates[0].off1}站]</li>
 						</div>
@@ -338,8 +412,8 @@ wx.ready(function () {
 
 			loc = res;
 
-			if (map) {
-				map.centerAndZoom(new BMap.Point(loc.longitude, loc.latitude), 11);
+			if (window.map) {
+				window.map.centerAndZoom(new BMap.Point(loc.longitude, loc.latitude), 14);
 			}
 		}
 	});
@@ -362,6 +436,5 @@ xFetchJSON('/api/wechat/xyt/jsapi_ticket?url=' + escape(location.href.split('#')
 	});
 });
 
-// ReactDOM.render(<TransferMap all_lines="6-5"/>, document.getElementById('main'));
 ReactDOM.render(<Home/>, document.getElementById('main'));
 ReactDOM.render(<App/>, document.getElementById('body'));

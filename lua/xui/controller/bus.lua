@@ -36,6 +36,7 @@ content_type("application/json;charset=UTF-8")
 require 'xdb'
 xdb.bind(xtra.dbh)
 
+
 get('/lines', function(params)
 	n, lines = xdb.find_all("line", nil, line_code)
 
@@ -45,6 +46,32 @@ get('/lines', function(params)
 		return "[]"
 	end
 end)
+
+get('/lines/:code/stations', function(params)
+	start = env:getHeader("start")
+	stop = env:getHeader("stop")
+
+print(start)
+print(stop)
+
+	station1 = xdb.find_one("station", {line_code = params.code, stat_name = start})
+	station2 = xdb.find_one("station", {line_code = params.code, stat_name = stop})
+
+	if station1.station_order - station2.station_order > 0 then
+		direction = '上行'
+	else
+		direction = '下行'
+	end
+
+	n, stations = xdb.find_by_cond("station", {line_code = params.code, up_down_name = direction} , 'station_order')
+
+	if (n > 0) then
+		return stations
+	else
+		return "[]"
+	end
+end)
+
 
 get('/station', function(params)
 	station = env:getHeader('station')
@@ -63,7 +90,8 @@ end)
 get('/points', function(params)
 	lines = env:getHeader('lines')
 	all_lines = env:getHeader('all_lines')
-	stat_names = url_decode(env:getHeader('stat_names'))
+	stat_names = env:getHeader('stat_names')
+
 	print(lines)
 	print(all_lines)
 	print(stat_names)
