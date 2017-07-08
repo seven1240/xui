@@ -51,15 +51,96 @@ get('/station', function(params)
 	sql = ''
 
 	if station then
-		sql = [[select distinct stat_name as name, distinct stat_name as value from station where stat_name like '%]] .. url_decode(station) .. [[%'
+		sql = [[select distinct stat_name from station where stat_name like '%]] .. url_decode(station) .. [[%'
 		]]
 	else
-		sql = [[select distinct stat_name as name, stat_name as value from station where stat_name != '']]
+		sql = [[select distinct stat_name from station]]
+	end
+	n, res = xdb.find_by_sql(sql)
+	return res
+end)
+
+get('/points', function(params)
+	lines = env:getHeader('lines')
+	all_lines = env:getHeader('all_lines')
+	stat_names = url_decode(env:getHeader('stat_names'))
+	print(lines)
+	print(all_lines)
+	print(stat_names)
+
+	-- if lines == 1 then
+
+	-- elseif lines == 2 then
+
+	-- elseif line == 3 then
+
+	-- end
+
+	l1 = 0
+	l2 = 0
+	l3 = 0
+	n1 = ''
+	n2 = ''
+	n3 = ''
+	n4 = ''
+	sql = ''
+
+	if lines == '1' or lines == 1 then
+		string.gsub(all_lines, '\'(.*)-(.*)\'', function(a)
+			l1=a
+		end)
+		string.gsub(stat_names, '\'(.*)-(.*)-(.*)\'' , function(a, b)
+			n1=a
+			n2=b
+		end)
+
+		sql = [[select baidu_x, baidu_y from points(]] .. l1 .. [[, ']] .. n1 .. [[', ']] .. n2 .. [[')]]
+		print(sql);
+	elseif lines == '2' or lines == 2 then
+		string.gsub(all_lines, '\'(.*)-(.*)\'', function(a, b)
+			l1=a
+			l2=b
+		end)
+		print(l1)
+		print(l2)
+		string.gsub(stat_names, '\'(.*)-(.*)-(.*)\'' , function(a, b, c)
+			n1=a
+			n2=b
+			n3=c
+		end)
+		print(n1)
+		print(n2)
+		print(n3)
+
+		sql = [[select * from (select points(]] .. l1 .. [[, ']] .. n1 .. [[', ']] .. n2 .. [[')) as a]]
+			.. [[ union all ]] ..
+			[[select * from (select points(]] .. l2 .. [[, ']] .. n2 .. [[', ']] .. n3 .. [[')) as b]]
+		print(sql);
+	elseif ines == '3' or lines == 3 then
+		string.gsub(all_lines, '\'(.*)-(.*)-(.*)\'', function(a, b, c)
+			l1=a
+			l2=b
+			l3=c
+		end)
+		print(l1)
+		print(l2)
+		string.gsub(stat_names, '\'(.*)-(.*)-(.*)-(.*)\'' , function(a, b, c, d)
+			n1=a
+			n2=b
+			n3=c
+			n4=d
+		end)
+
+		sql = [[select * from (select points(]] .. l1 .. [[, ']] .. n1 .. [[', ']] .. n2 .. [[')) as a]]
+			.. [[ union all ]] ..
+			[[select * from (select points(]] .. l2 .. [[, ']] .. n2 .. [[', ']] .. n3 .. [[')) as b]]
+			.. [[ union all ]] ..
+			[[select * from (select points(]] .. l3 .. [[, ']] .. n3 .. [[', ']] .. n4 .. [[')) as c]]
+		print(sql);
 	end
 
 	n, res = xdb.find_by_sql(sql)
-	utils.print_r(res)
-	return res
+	return {station=res}
 end)
 
 get('/interchange', function(params)
@@ -70,9 +151,10 @@ get('/interchange', function(params)
 -----o------------------o-----  line1
 --			            stop
 
-	sql = [[select 1 as lines, a.line_code as line1, a.line_code as all_lines, abs(a.station_order - b.station_order) as offs, abs(a.station_order - b.station_order) as off1 from
-		(select line_code,station_order from station where stat_name=']] .. start ..[[' and up_down_name='上行' ) as a,
-		(select line_code, station_order from station where stat_name=']] .. stop ..[[' and up_down_name='上行') as b
+	sql = [[select 1 as lines, a.line_code as line1, a.line_code as all_lines, abs(a.station_order - b.station_order) as offs, abs(a.station_order - b.station_order) as off1
+	, (']] .. start .. [['||'-'||']] .. stop .. [[') as stat_names from
+		(select line_code,station_order from station where stat_name=']] .. start .. [[' and up_down_name='上行' ) as a,
+		(select line_code, station_order from station where stat_name=']] .. stop .. [[' and up_down_name='上行') as b
 		where a.line_code=b.line_code]]
 	n, res = xdb.find_by_sql(sql)
 
@@ -88,7 +170,8 @@ get('/interchange', function(params)
 --             |--------o-----  line2
 
 	sql = [[select 2 as lines, * from
-		(select a.line_code as line1, b.line_code as line2, a.stat_name as stat_name1, a.number as off1, b.number as off2,(a.number+b.number) as offs, (a.line_code||'-'||b.line_code) as all_lines from
+		(select a.line_code as line1, b.line_code as line2, a.stat_name as stat_name1, a.number as off1, b.number as off2,(a.number+b.number) as offs, (a.line_code||'-'||b.line_code) as all_lines
+		, (']] .. start .. [['||'-'||a.stat_name||'-'||']] .. stop .. [[') as stat_names from
 		(select a1.line_code as line_code, a1.stat_name as stat_name, abs(a1.station_order - a2.station_order) as number from (select line_code, stat_name, station_order from station where up_down_name='上行')as a1 inner join (select line_code, station_order from station where stat_name=']] .. start .. [[' and up_down_name='上行') as a2 on a1.line_code=a2.line_code) as a
 		inner join
 		(select a1.line_code as line_code, a1.stat_name as stat_name, abs(a1.station_order - a2.station_order) as number from (select line_code, stat_name, station_order from station where up_down_name='上行')as a1 inner join (select line_code, station_order from station where stat_name=']] .. stop .. [[' and up_down_name='上行') as a2 on a1.line_code=a2.line_code) as b
@@ -109,7 +192,9 @@ get('/interchange', function(params)
 ---------------x--------o-----  line2
 --             |
 --             \--------------  line3
-		sql = [[select 3 as lines, a.line_code as line1, b.line_code as line2, d.line_code as line3, a.number as off1, abs(b.station_order - c.station_order) as off2, d.number as off3, b.stat_name as stat_name1, c.stat_name as stat_name2, (a.number + abs(b.station_order - c.station_order) + d.number) as offs, (a.line_code||'-'||b.line_code||'-'||d.line_code) as all_lines from
+		sql = [[select 3 as lines, a.line_code as line1, b.line_code as line2, d.line_code as line3, a.number as off1
+		, abs(b.station_order - c.station_order) as off2, d.number as off3, b.stat_name as stat_name1, c.stat_name as stat_name2, (a.number + abs(b.station_order - c.station_order) + d.number) as offs, (a.line_code||'-'||b.line_code||'-'||d.line_code) as all_lines
+		, (']] .. start .. [['||'-'||b.stat_name||'-'||c.stat_name||'-'||']] .. stop .. [[') as stat_names from
 			(select a1.line_code as line_code, a1.stat_name as stat_name, abs(a1.station_order - a2.station_order) as number from (select line_code, stat_name, station_order from station where up_down_name='上行')as a1 inner join (select line_code, station_order from station where stat_name=']] .. start .. [[' and up_down_name='上行') as a2 on a1.line_code=a2.line_code
 			) as a
 			inner join
