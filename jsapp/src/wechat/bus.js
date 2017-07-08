@@ -276,11 +276,30 @@ class TransferMap extends React.Component {
 		const _this = this;
 		const lines = Object.keys(this.state.lines);
 
+		let station_names = this.props.candidate.stat_names.split('-');
+		const start_station = station_names.shift()
+		const stop_station = station_names.pop()
+
+		const is_x_station = function(station) {
+			for(var i = 0; i < station_names.length; i++) {
+				if (station_names[i] == station) return true;
+			}
+
+			return false;
+		}
+
 		lines.forEach((line) => {
 			_this.state.lines[line].forEach((station) => {
 				const point = new BMap.Point(station.baidu_x, station.baidu_y);
 				addMarker(point, 0);
-				addLabel(point, station.stat_name);
+
+				if (station.stat_name == start_station) {
+					addLabel(point, station.stat_name);
+				} else if (station.stat_name == stop_station) {
+					addLabel(point, station.stat_name);
+				} else if (is_x_station(station.stat_name)) {
+					addLabel(point, station.stat_name);
+				}
 			});
 
 			const polyLineData = this.state.lines[line].map((station) => {
