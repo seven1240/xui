@@ -38,7 +38,7 @@ xdb.bind(xtra.dbh)
 
 
 get('/lines', function(params)
-	n, lines = xdb.find_all("line", nil, line_code)
+	n, lines = xdb.find_all("line", "line_code")
 
 	if (n > 0) then
 		return lines
@@ -50,17 +50,17 @@ end)
 get('/lines/:code/stations', function(params)
 	start = env:getHeader("start")
 	stop = env:getHeader("stop")
+	direction = env:getHeader("direction") or '下行'
 
-print(start)
-print(stop)
+	if start and stop then
+		station1 = xdb.find_one("station", {line_code = params.code, stat_name = start})
+		station2 = xdb.find_one("station", {line_code = params.code, stat_name = stop})
 
-	station1 = xdb.find_one("station", {line_code = params.code, stat_name = start})
-	station2 = xdb.find_one("station", {line_code = params.code, stat_name = stop})
-
-	if station1.station_order - station2.station_order > 0 then
-		direction = '上行'
-	else
-		direction = '下行'
+		if station1.station_order - station2.station_order > 0 then
+			direction = '上行'
+		else
+			direction = '下行'
+		end
 	end
 
 	n, stations = xdb.find_by_cond("station", {line_code = params.code, up_down_name = direction} , 'station_order')

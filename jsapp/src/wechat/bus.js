@@ -7,6 +7,14 @@ import { xFetchJSON } from '../jsx/libs/xtools';
 var is_wx_ready = false;
 var loc = {};
 
+function pushHistory(title, url) {
+	var state = {
+		title: title,
+		url: url
+	};
+	window.history.pushState(state, title, url);
+}
+
 function addMarker(point, index) {
 	var myIcon = new BMap.Icon("/assets/img/maps/point.png", new BMap.Size(16, 16), {
 		offset: new BMap.Size(0, 0)
@@ -89,45 +97,155 @@ class SelectSearch extends React.Component {
 
 }
 
+class LinePage extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {stations: []};
+	}
+
+	componentDidMount() {
+		const _this = this;
+
+		console.log("LinePage componentDidMount");
+
+		xFetchJSON('/api/bus/lines/' + this.props.line.line_code + '/stations').then((data) => {
+			console.log(data);
+			_this.setState({stations: data});
+		});
+	}
+
+	handleRefresh() {
+		// todo
+	}
+
+	handleToggleDirection() {
+		const _this = this;
+		let direction = this.state.stations.length > 0 ? this.state.stations[0].up_down_name : '下行';
+
+		direction = direction == '上行' ? '下行' : '上行';
+
+		xFetchJSON('/api/bus/lines/' + this.props.line.line_code + '/stations?direction=' + direction).then((data) => {
+			console.log(data);
+			_this.setState({stations: data});
+		});
+	}
+
+	render() {
+		const _this = this;
+		const direction = this.state.stations.length > 0 ? this.state.stations[0].up_down_name : '下行';
+
+		return <div>
+			<div className="weui-cell weui-cell_form">
+				<div className="weui-cell__hd" style={{width: "40px"}}>
+					<label className="weui-label">
+						{this.props.line.line_code}路
+					</label>
+				</div>
+				<div className="weui-cell__bd">
+					{this.props.line.start_station}
+					&nbsp;
+					{
+						direction == '上行' ? <span style={{color: 'red'}}>←</span> :
+							<span style={{color: 'blue'}}>→</span>
+					}
+
+					&nbsp;
+					{this.props.line.stop_station}
+				</div>
+				<div className="weui-cell__ft">
+					<div style={{float: "right"}}>
+						<button className="weui-btn weui-btn_mini weui-btn_default" onClick={this.handleRefresh.bind(this)}>刷新</button>&nbsp;
+						<button className="weui-btn weui-btn_mini weui-btn_default" onClick={this.handleToggleDirection.bind(this)}>换向</button>
+					</div>
+				</div>
+			</div>
+
+		{
+			this.state.stations.map((station) => {
+				return <div className="weui-cell weui-cell_form">
+					<div className="weui-cell__hd" style={{width: "40px"}}>
+						<label className="weui-label">
+							{
+								direction == '上行' ? <span style={{color: 'red'}}>↑</span> :
+									<span style={{color: 'blue'}}>↓</span>
+							}
+
+							&nbsp;
+
+							{ station.station_order }
+						</label>
+					</div>
+					<div className="weui-cell__bd">
+							{station.stat_name}
+					</div>
+					<div className="weui-cell__ft">.</div>
+				</div>
+			})
+		}
+
+		</div>
+	}
+}
+
 class Home extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {lines: []};
+		this.state = {lines: [], line: null};
 	}
 
 	componentDidMount() {
 		var _this = this;
 
 		xFetchJSON('/api/bus/lines').then((data) => {
+			console.log(data);
 			this.setState({lines: data});
 		});
 	}
 
-	handleClick() {
-		wx.openLocation({
-			latitude: loc.latitude, // 纬度，浮点数，范围为90 ~ -90
-			longitude: loc.longitude, // 经度，浮点数，范围为180 ~ -180。
-			name: 'Here', // 位置名
-			address: 'Address', // 地址详情说明
-			scale: 1, // 地图缩放级别,整形值,范围从1~28。默认为最大
-			infoUrl: '' // 在查看位置界面底部显示的超链接,可点击跳转
-		});
+	handleClick(line) {
+		const _this = this;
 
+		this.setState({linePageShow: true, line: line});
+		pushHistory(line.line_code, '#line_code_' + line.line_code);
+
+		const fun = function(e) {
+			console.log(e);
+			_this.setState({linePageShow: false, line: null});
+
+			window.removeEventListener("popstate", fun);
+		};
+
+		window.addEventListener("popstate", fun);
 	}
 
 	render() {
 		const _this = this;
+
+		if (this.state.linePageShow) {
+			return <LinePage line={this.state.line} />
+		}
+
 		return <div>
+		<ul>
 			{
 				this.state.lines.map((line) => {
-					return <li>{line.line_code}: {line.line_type_name}</li>
+					if (line.line_code > 100) return null;
+
+					return <div className="weui-cell weui-cell_access"
+						onClick={() => _this.handleClick(line)}>
+						<div className="weui-cell__hd" style={{width: "40px"}}>
+							<label className="weui-label">{line.line_code}路</label>
+						</div>
+						<div className="weui-cell__bd">
+								{line.start_station}&nbsp;→&nbsp;
+								{line.stop_station}
+						</div>
+						<div className="weui-cell__ft">6:20<br/>18:30</div>
+					</div>
 				})
 			}
 
-			<br/><br/><br/><br/><br/><br/>
-			<div onClick={this.handleClick.bind(this)}>
-				<center>打开地图</center>
-			</div>
+		</ul>
 		</div>
 	}
 }
