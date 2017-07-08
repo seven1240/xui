@@ -161,11 +161,12 @@ class Change extends React.Component {
 					return <div className="weui-cell weui-cell_access">
 							<div className="weui-cell__bd">
 							<li style={{listStyle:"none",fontSize:"14px"}}>
-							{candidate.line1}路 -&nbsp;
-							[{candidate.off1}站] -&nbsp;
-							{candidate.stat_name1} -&nbsp;
-							{candidate.line2}路 -&nbsp;
-							[{candidate.off1}站]</li>
+								{candidate.line1}路
+								[{candidate.off1}站]&nbsp;
+								{candidate.stat_name1}&nbsp;
+								{candidate.line2}路
+								[{candidate.off2}站]&nbsp;
+							</li>
 						</div>
 						<div className="weui-cell__ft"></div>
 				</div>
@@ -175,7 +176,7 @@ class Change extends React.Component {
 			content = <ul><div className="weui-cell weui-cell_access">
 							<div className="weui-cell__bd">
 							<li style={{listStyle:"none",fontSize:"14px"}}>
-							{this.state.candidates[0].line1}路 -&nbsp;
+							{this.state.candidates[0].line1}路&nbsp;
 							[{this.state.candidates[0].off1}站]</li>
 						</div>
 						<div className="weui-cell__ft"></div>
