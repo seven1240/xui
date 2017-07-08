@@ -593,7 +593,7 @@ class UsersPage extends React.Component {
 		this.setState({rows: rows, formShow: false, formShow1: false});
 	}
 
-	handlePageTurn (pageNum) {
+	handlePageTurn(pageNum) {
 		const usersRowsPerPage = localStorage.getItem('usersRowsPerPage') || 200;
 		var qs = "last=" + this.days;
 		qs = qs + "&pageNum=" + pageNum + "&usersRowsPerPage=" + usersRowsPerPage;
@@ -613,6 +613,16 @@ class UsersPage extends React.Component {
 		const usersRowsPerPage = parseInt(e.target.value);
 
 		localStorage.setItem("usersRowsPerPage", usersRowsPerPage);
+	}
+
+	handleDownload() {
+		var uri = "/api/users/download";
+		var downloadLink = document.createElement("a");
+		downloadLink.href = uri;
+		downloadLink.download = "users_download" + ".csv";
+		document.body.appendChild(downloadLink);
+		downloadLink.click();
+		document.body.removeChild(downloadLink);
 	}
 
 	render() {
@@ -681,6 +691,12 @@ class UsersPage extends React.Component {
 					<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
 					<T.span text="Import" />
 				</Button>
+				</ButtonGroup>
+				<ButtonGroup>
+					<Button onClick={this.handleDownload.bind(this)}>
+						<i className="fa fa-download" aria-hidden="true"></i>&nbsp;
+						<T.span text="Download" />
+					</Button>
 				</ButtonGroup>
 				<ButtonGroup>
 					<Button onClick={() => _this.handleControlClick("settings")} title={T.translate("Settings")}>
