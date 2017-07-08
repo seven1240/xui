@@ -108,6 +108,47 @@ class Home extends React.Component {
 	}
 }
 
+class TransferMap extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {};
+	}
+
+	loadScript() {
+		var script = document.createElement("script");
+		script.src = "http://api.map.baidu.com/api?v=2.0&ak=OGvbL6kRPgyBoV8q3bCgxeHfN6DKdOrx&callback=initializeBaiduMap";
+		document.body.appendChild(script);
+	}
+
+	initializeBaiduMap() {
+		console.log("initializeBaiduMap");
+
+		window.map = new BMap.Map("allmap");
+
+		if (!loc.longitude) { // hardcoded for test
+			loc = {longitude: 120.40086416919, latitude: 37.37223326585};
+		}
+
+		if (loc) {
+			map.centerAndZoom(new BMap.Point(loc.longitude, loc.latitude), 11);
+		}
+	}
+
+	componentDidMount() {
+		window.initializeBaiduMap = this.initializeBaiduMap;
+		this.loadScript();
+	}
+
+	render() {
+		let height = 580;
+		height = window.innerHeight - 100;
+
+		return <div>Map {this.props.all_lines}
+			<div id = "allmap" style={{width: "100%", height: height}} />
+		</div>
+	}
+}
+
 class Stations extends React.Component {
 	constructor(props) {
 		super(props);
@@ -153,14 +194,21 @@ class Change extends React.Component {
 		});
 	}
 
+	showOnMap(all_lines) {
+		ReactDOM.render(<TransferMap all_lines={all_lines}/>, document.getElementById('main'));
+	}
+
 	render() {
+		const _this = this;
 		var content;
+
 		if (this.state.candidates.length !== 1) {
 			content = <ul> {
 				this.state.candidates.map((candidate) => {
 					return <div className="weui-cell weui-cell_access">
 							<div className="weui-cell__bd">
-							<li style={{listStyle:"none",fontSize:"14px"}}>
+							<li style={{listStyle:"none",fontSize:"14px"}}
+								onClick={() => _this.showOnMap(candidate.all_lines)}>
 								{candidate.line1}路
 								[{candidate.off1}站]&nbsp;
 								{candidate.stat_name1}&nbsp;
@@ -175,7 +223,8 @@ class Change extends React.Component {
 		}else {
 			content = <ul><div className="weui-cell weui-cell_access">
 							<div className="weui-cell__bd">
-							<li style={{listStyle:"none",fontSize:"14px"}}>
+							<li style={{listStyle:"none",fontSize:"14px"}}
+								onClick={() => _this.showOnMap(candidate.all_lines)}>
 							{this.state.candidates[0].line1}路&nbsp;
 							[{this.state.candidates[0].off1}站]</li>
 						</div>
@@ -288,6 +337,10 @@ wx.ready(function () {
 			console.log('经度：'+latitude+'，纬度：'+longitude);
 
 			loc = res;
+
+			if (map) {
+				map.centerAndZoom(new BMap.Point(loc.longitude, loc.latitude), 11);
+			}
 		}
 	});
 });
@@ -309,5 +362,6 @@ xFetchJSON('/api/wechat/xyt/jsapi_ticket?url=' + escape(location.href.split('#')
 	});
 });
 
+// ReactDOM.render(<TransferMap all_lines="6-5"/>, document.getElementById('main'));
 ReactDOM.render(<Home/>, document.getElementById('main'));
 ReactDOM.render(<App/>, document.getElementById('body'));
