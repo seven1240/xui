@@ -253,7 +253,7 @@ class Home extends React.Component {
 class TransferMap extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {lines: {}};
+		this.state = {lines: {}, stations: []}; // either separate stations, or lines
 	}
 
 	loadScript() {
@@ -263,6 +263,16 @@ class TransferMap extends React.Component {
 	}
 
 	setupStations() {
+		const _this = this;
+
+		this.state.stations.forEach((station) => {
+			const point = new BMap.Point(station.baidu_x, station.baidu_y);
+			addMarker(point, 0);
+			addLabel(point, station.stat_name);
+		});
+	}
+
+	setupLineStations() {
 		const _this = this;
 		const lines = Object.keys(this.state.lines);
 
@@ -298,9 +308,15 @@ class TransferMap extends React.Component {
 			window.map.centerAndZoom(new BMap.Point(loc.longitude, loc.latitude), 14);
 		}
 
-		if (this.state.pendingSetupStations) {
+		if (this.state.pendingSetupLineStations) {
+			this.setupLineStations();
+		} else if (this.state.pendingSetupStations) {
 			this.setupStations();
 		}
+	}
+
+	componentWillUnmount() {
+		window.map = null;
 	}
 
 	componentDidMount() {
@@ -308,6 +324,26 @@ class TransferMap extends React.Component {
 
 		window.initializeBaiduMap = this.initializeBaiduMap.bind(this);
 		this.loadScript();
+
+		if (!this.props.candidate) {
+			// setup stations
+
+			if (true || !loc.longitude) { // hardcoded for test
+				loc = {longitude: 120.40086416919, latitude: 37.37223326585};
+			}
+
+			xFetchJSON('/api/bus/nearby_stations?r=500&longitude=' + loc.longitude + '&latitude=' + loc.latitude).then((data) => {
+				_this.setState({stations: data});
+
+				if (window.map) {
+					this.setupStations();
+				} else {
+					this.state.pendingSetupStations = true;
+				}
+			});
+
+			return;
+		} // else it's a transfer map
 
 /*
 		xFetchJSON('/api/bus/points?lines=' + this.props.candidate.lines +
@@ -340,9 +376,9 @@ class TransferMap extends React.Component {
 
 				if (j == lines.length) {
 					if (window.map) {
-						this.setupStations();
+						this.setupLineStations();
 					} else {
-						this.state.pendingSetupStations = true;
+						this.state.pendingSetupLineStations = true;
 					}
 				}
 			});
@@ -356,8 +392,8 @@ class TransferMap extends React.Component {
 		height = window.innerHeight - 40;
 
 		return <div>
-			{this.props.candidate.stat_names}
-			{this.props.candidate.all_lines}
+			{ this.props.candidate ? this.props.candidate.stat_names : null}
+			{ this.props.candidate ? this.props.candidate.all_lines : null}
 			<div id = "allmap" style={{width: "100%", height: height}} />
 		</div>
 	}
@@ -366,11 +402,26 @@ class TransferMap extends React.Component {
 class Stations extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {};
+		this.state = {stations: []};
+	}
+
+	componentDidMount() {
+		const _this = this;
+		xFetchJSON('/api/bus/station').then((data) => {
+			console.log(data);
+			_this.setState({stations: data});
+		});
+	}
+
+	onChange(e) {
+		this.setState({inputStationName: e.value});
 	}
 
 	render() {
-		return <div>站点查询</div>
+		return <div>站点查询
+			<SelectSearch options={this.state.stations} placeholder="请输入站点名称" onChange={this.onChange.bind(this)}/>
+			<TransferMap />
+		</div>
 	}
 }
 
@@ -382,7 +433,9 @@ class Change extends React.Component {
 
 		this.onChange1 = this.onChange1.bind(this);
 		this.onChange2 = this.onChange2.bind(this);
+	}
 
+	componentDidMount() {
 		const _this = this;
 		xFetchJSON('/api/bus/station').then((data) => {
 			console.log(data);

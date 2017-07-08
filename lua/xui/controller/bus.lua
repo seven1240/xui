@@ -73,6 +73,23 @@ get('/lines/:code/stations', function(params)
 end)
 
 
+get('/nearby_stations', function(params)
+	r = env:getHeader('r') or '500'
+	longitude = env:getHeader('longitude') or '120.395603'
+	latitude = env:getHeader('latitude') or '37.325945'
+
+	sql =  "SELECT * FROM station " ..
+		"WHERE earth_box(ll_to_earth(" .. longitude .. ", " .. latitude .. "), " .. r .. ") @> ll_to_earth(stat_longitude, stat_latitude)"
+
+	n, rows = xdb.find_by_sql(sql)
+
+	if n > 0 then
+		return rows
+	else
+		return '[]'
+	end
+end)
+
 get('/station', function(params)
 	station = env:getHeader('station')
 	sql = ''
@@ -174,6 +191,9 @@ end)
 get('/interchange', function(params)
 	start = env:getHeader('start')
 	stop = env:getHeader('stop')
+
+start = '市政'
+stop = '公安局'
 
 -- start
 -----o------------------o-----  line1
