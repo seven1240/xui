@@ -204,6 +204,9 @@ local function method_handler(method, path, func)
 			-- print(json_text)
 			if string.len(json_text) then
 				params.request = (utils.json_decode(json_text))
+				if method == "put" and path =="/:id" and params.id == nil then
+					params.request.id = params.id
+				end
 			end
 		end
 
