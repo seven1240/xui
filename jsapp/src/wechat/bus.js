@@ -150,6 +150,16 @@ class TransferMap extends React.Component {
 			addMarker(point, 0);
 			addLabel(point, station.stat_name);
 		});
+
+		const polyLineData = this.state.stations.map((station) => {
+			return new BMap.Point(station.baidu_x, station.baidu_y);
+		});
+
+		const polyLine = new BMap.Polyline(polyLineData, {
+			strokeColor: "blue", strokeWeight: 2, strokeOpacity: 0.5
+		});
+
+		window.map.addOverlay(polyLine);
 	}
 
 	initializeBaiduMap() {
