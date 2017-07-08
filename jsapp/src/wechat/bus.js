@@ -135,7 +135,7 @@ class Home extends React.Component {
 class TransferMap extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {stations: []};
+		this.state = {lines: {}};
 	}
 
 	loadScript() {
@@ -145,21 +145,26 @@ class TransferMap extends React.Component {
 	}
 
 	setupStations() {
-		this.state.stations.forEach((station) => {
-			const point = new BMap.Point(station.baidu_x, station.baidu_y);
-			addMarker(point, 0);
-			addLabel(point, station.stat_name);
-		});
+		const _this = this;
+		const lines = Object.keys(this.state.lines);
 
-		const polyLineData = this.state.stations.map((station) => {
-			return new BMap.Point(station.baidu_x, station.baidu_y);
-		});
+		lines.forEach((line) => {
+			_this.state.lines[line].forEach((station) => {
+				const point = new BMap.Point(station.baidu_x, station.baidu_y);
+				addMarker(point, 0);
+				addLabel(point, station.stat_name);
+			});
 
-		const polyLine = new BMap.Polyline(polyLineData, {
-			strokeColor: "blue", strokeWeight: 2, strokeOpacity: 0.5
-		});
+			const polyLineData = this.state.lines[line].map((station) => {
+				return new BMap.Point(station.baidu_x, station.baidu_y);
+			});
 
-		window.map.addOverlay(polyLine);
+			const polyLine = new BMap.Polyline(polyLineData, {
+				strokeColor: _this.state.lines[line].color, strokeWeight: 2, strokeOpacity: 0.5
+			});
+
+			window.map.addOverlay(polyLine);
+		});
 	}
 
 	initializeBaiduMap() {
@@ -204,11 +209,14 @@ class TransferMap extends React.Component {
 		lines.forEach((line) => {
 			const start = station_names[i]
 			const stop = station_names[i+1];
+			const colors = ['red', 'blue', 'green', '#FFFF00'];
 
 			xFetchJSON('/api/bus/lines/' + line + '/stations?start=' + start + '&stop=' + stop).then((data) => {
 				const _this = this;
 				console.log('stations', data);
-				_this.setState({stations: _this.state.stations.concat(data)});
+				data.color = colors[j];
+				_this.state.lines[line] = data;
+				_this.setState({lines: _this.state.lines});
 
 				j++;
 
