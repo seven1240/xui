@@ -122,7 +122,7 @@ post('/login', function(params)
 		xtra.save_session("user_id", user.id)
 		return 200, {code = 200, session_id = xtra.session_uuid}
 	else
-		return 403
+		return 200, {code = 403, message = "password error"}
 	end
 end)
 
