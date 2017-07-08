@@ -818,6 +818,7 @@ class RoutesPage extends React.Component {
 		rows.unshift(route);
 		this.setState({rows: rows, formShow: false});
     }
+
     handleSortClick(field){
 		var rows = this.state.rows;
 
@@ -836,6 +837,15 @@ class RoutesPage extends React.Component {
 
 		this.setState({rows: rows});
     }
+
+	handleDownload() {
+		var uri = "/api/routes/download";
+		var downloadLink = document.createElement("a");
+		downloadLink.href = uri;
+		document.body.appendChild(downloadLink);
+		downloadLink.click();
+		document.body.removeChild(downloadLink);
+	}
 
 	render() {
 	    const formClose = () => this.setState({ formShow: false });
@@ -882,6 +892,10 @@ class RoutesPage extends React.Component {
 				<Button onClick={() => this.handleSysRouterShow("sysRoute")}>
 					<i className="fa fa-expand" aria-hidden="true"></i>&nbsp;
 					<T.span data="sysRoute" text={isSysRouterShowText} />
+				</Button>
+				<Button onClick={this.handleDownload.bind(this)}>
+					<i className="fa fa-download" aria-hidden="true"></i>&nbsp;
+					<T.span text="Download" />
 				</Button>
 			</ButtonToolbar>
 

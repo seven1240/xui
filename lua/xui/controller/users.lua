@@ -124,6 +124,20 @@ get('/bind', function(params)
 	end
 end)
 
+get('/download', function(params)
+	n, users = xdb.find_all("users")
+	content_type("application/vnd.ms-excel;charset=utf-8")
+	header("Content-Disposition", 'attachment; filename="download_users_filename.csv"')
+	xtra.write(string.char(0xef, 0xBB, 0xbf))
+
+	xtra.write('用户ID,' .. '号码,' .. '名称,' .. '呼叫源,' .. '主叫名称,' .. '主叫号码,' .. '电话号码,' .. '主动录音\n')
+	for i, v in pairs(users) do
+		v.auto_record = v.auto_record == '1' and '是' or '否'
+		xtra.write(v.id .. "," .. v.extn .. "," .. v.name .. "," .. v.context .. "," ..
+		v.cid_name .. "," .. v.cid_number .. "," .. v.tel .. "," .. v.auto_record .. "\n")
+	end
+end)
+
 get('/:id', function(params)
 	user = xdb.find("users", params.id)
 	if user then

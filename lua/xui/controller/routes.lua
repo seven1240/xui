@@ -55,6 +55,20 @@ get('/', function(params)
 	end
 end)
 
+get('/download', function(params)
+	n, routes = xdb.find_all("routes")
+	content_type("application/vnd.ms-excel;charset=utf-8")
+	header("Content-Disposition", 'attachment; filename="download_routes.csv"')
+	xtra.write(string.char(0xef, 0xBB, 0xbf))
+
+	xtra.write('路由ID,' .. '名称,' .. '描述,' .. '起始号码,' .. '呼叫源,' .. '目的地类型,' .. '自动录音\n')
+	for i, v in pairs(routes) do
+		v.auto_record = v.auto_record == '1' and '是' or '否'
+		xtra.write(v.id .. "," .. v.name .. "," .. v.description .. "," .. v.prefix .. "," ..
+		v.context .. "," .. v.dest_type .. "," .. v.auto_record .. "\n")
+	end
+end)
+
 get('/:id', function(params)
 	with_params = env:getHeader("with_params")
 	route = xdb.find("routes", params.id)
