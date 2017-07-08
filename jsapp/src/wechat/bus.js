@@ -36,10 +36,10 @@ class SelectSearch extends React.Component {
 	}
 
 	autoComplete(e) {
-		console.log(e.target.value);
+		console.log('autoComplete', e.target.value);
 
 		const options = this.props.options.filter((o) => {
-			return o.name.indexOf(e.target.value) >= 0;
+			return o.stat_name.indexOf(e.target.value) >= 0;
 		});
 
 		this.setState({name: e.target.value, options : options});
@@ -65,7 +65,7 @@ class SelectSearch extends React.Component {
 		const _this = this;
 
 		return <div>
-			<input className = "weui_input" value={this.state.name} placeholder={this.props.placeholder}
+			<input className = "weui-input" value={this.state.name} placeholder={this.props.placeholder}
 				onChange={this.autoComplete.bind(this)}
 				onBlur={this.hideComplete.bind(this)} />
 
@@ -74,7 +74,7 @@ class SelectSearch extends React.Component {
 				<div style={{position: "absolute", zIndex: 1000, backgroundColor: "#FFF", border: "1px solid #DDD"}}>
 				{
 					this.state.options.map((o) => {
-						return <div onClick={() => _this.handleClick(o.name)}>{o.name}</div>
+						return <div onClick={() => _this.handleClick(o.stat_name)}>{o.stat_name}</div>
 					})
 				}
 				</div>
@@ -298,7 +298,7 @@ class Change extends React.Component {
 			content = <ul><div className="weui-cell weui-cell_access">
 							<div className="weui-cell__bd">
 							<li style={{listStyle:"none",fontSize:"14px"}}
-								onClick={() => _this.showOnMap(candidate)}>
+								onClick={() => _this.showOnMap(this.state.candidates[0])}>
 							{this.state.candidates[0].line1}路&nbsp;
 							[{this.state.candidates[0].off1}站]</li>
 						</div>
@@ -313,14 +313,14 @@ class Change extends React.Component {
 			<div className="weui-cell">
 				<div className="weui-cell__hd"><label className="weui-label">起点：</label></div>
 				<div className="weui-cell__bd">
-					<SelectSearch options={this.state.stations} placeholder="请输入出发地" onChange={this.onChange1}/>
+					<SelectSearch options={this.state.stations} placeholder="请输入出发站" onChange={this.onChange1}/>
 				</div>
 			</div>
 
 			<div className="weui-cell">
 				<div className="weui-cell__hd"><label className="weui-label">终点：</label></div>
 				<div className="weui-cell__bd">
-					<SelectSearch options={this.state.stations} placeholder="请输入目的地" onChange={this.onChange2}/>
+					<SelectSearch options={this.state.stations} placeholder="请输入目的站" onChange={this.onChange2}/>
 				</div>
 			</div>
 
