@@ -294,11 +294,11 @@ class TransferMap extends React.Component {
 				addMarker(point, 0);
 
 				if (station.stat_name == start_station) {
-					addLabel(point, station.stat_name);
+					addLabel(point, station.line_code + '路 ' + station.stat_name + ' 上车');
 				} else if (station.stat_name == stop_station) {
-					addLabel(point, station.stat_name);
+					addLabel(point, station.line_code + '路 ' + station.stat_name + ' 下车');
 				} else if (is_x_station(station.stat_name)) {
-					addLabel(point, station.stat_name);
+					addLabel(point, station.stat_name + ' 换乘');
 				}
 			});
 
@@ -410,9 +410,19 @@ class TransferMap extends React.Component {
 		let height = 580;
 		height = window.innerHeight - 40;
 
+		let xfer_info = null;
+
+		if (this.props.candidate) {
+			const candidate = this.props.candidate;
+
+			xfer_info = candidate.stat_names;
+			xfer_info = xfer_info + ' ';
+			xfer_info = xfer_info + candidate.all_lines;
+			xfer_info = xfer_info + ' 共' + candidate.offs + '站';
+		}
+
 		return <div>
-			{ this.props.candidate ? this.props.candidate.stat_names : null}
-			{ this.props.candidate ? this.props.candidate.all_lines : null}
+			<div>{ xfer_info }</div>
 			<div id = "allmap" style={{width: "100%", height: height}} />
 		</div>
 	}
@@ -507,7 +517,7 @@ class Change extends React.Component {
 				</div>
 				})
 			} </ul>
-		}else {
+		} else {
 			content = <ul><div className="weui-cell weui-cell_access">
 							<div className="weui-cell__bd">
 							<li style={{listStyle:"none",fontSize:"14px"}}
