@@ -15,22 +15,34 @@ function pushHistory(title, url) {
 	window.history.pushState(state, title, url);
 }
 
-function addMarker(point, index) {
+function addMarker(point, data, func) {
 	var myIcon = new BMap.Icon("/assets/img/maps/point.png", new BMap.Size(16, 16), {
 		offset: new BMap.Size(0, 0)
 	});
 
 	var marker = new BMap.Marker(point, {icon: myIcon});
+
+	if (func) {
+		marker.addEventListener("click", () => {
+			func(data);
+		});
+	}
+
 	window.map.addOverlay(marker);
 }
 
-function addLabel(point, label) {
+function addLabel(point, label, data, func) {
 	var myLabel = new BMap.Label(label, {
 		offset: new BMap.Size(0, 0),
 		position:point
 	});
 
-	// myLabel.setTitle("我是文本标注label");
+	if (func) {
+		myLabel.addEventListener("click", () => {
+			func(data);
+		});
+	}
+
 	window.map.addOverlay(myLabel);
 }
 
@@ -262,13 +274,17 @@ class TransferMap extends React.Component {
 		document.body.appendChild(script);
 	}
 
+	onMarkerClick(station) {
+		console.log("clicked", station);
+	}
+
 	setupStations() {
 		const _this = this;
 
 		this.state.stations.forEach((station) => {
 			const point = new BMap.Point(station.baidu_x, station.baidu_y);
-			addMarker(point, 0);
-			addLabel(point, station.stat_name);
+			addMarker(point, station, _this.onMarkerClick.bind(_this));
+			addLabel(point, station.stat_name, station, _this.onMarkerClick.bind(_this));
 		});
 	}
 
@@ -291,14 +307,17 @@ class TransferMap extends React.Component {
 		lines.forEach((line) => {
 			_this.state.lines[line].forEach((station) => {
 				const point = new BMap.Point(station.baidu_x, station.baidu_y);
-				addMarker(point, 0);
+				addMarker(point, station, _this.onMarkerClick.bind(_this));
 
 				if (station.stat_name == start_station) {
-					addLabel(point, station.line_code + '路 ' + station.stat_name + ' 上车');
+					const label = station.line_code + '路 ' + station.stat_name + ' 上车';
+					addLabel(point, label, station, _this.onMarkerClick.bind(_this));
 				} else if (station.stat_name == stop_station) {
-					addLabel(point, station.line_code + '路 ' + station.stat_name + ' 下车');
+					const label = station.line_code + '路 ' + station.stat_name + ' 下车';
+					addLabel(point, label, station, _this.onMarkerClick.bind(_this));
 				} else if (is_x_station(station.stat_name)) {
-					addLabel(point, station.stat_name + ' 换乘');
+					const label = station.stat_name + ' 换乘';
+					addLabel(point, label, station, _this.onMarkerClick.bind(_this));
 				}
 			});
 
