@@ -72,6 +72,19 @@ get('/lines/:code/stations', function(params)
 	end
 end)
 
+get('/lines/:code/buses', function(params)
+	sql = "SELECT * FROM traffic " ..
+		"WHERE bus_line_id = " .. xdb.escape(params.code) ..
+		"AND time > now() - interval '3 hours'"
+
+	n, rows = xdb.find_by_sql(sql)
+
+	if n > 0 then
+		return rows
+	else
+		return '[]'
+	end
+end)
 
 get('/nearby_stations', function(params)
 	r = env:getHeader('r') or '500'

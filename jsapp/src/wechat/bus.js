@@ -31,6 +31,16 @@ function addMarker(point, data, func) {
 	window.map.addOverlay(marker);
 }
 
+function addBusMarker(point, png) {
+	var myIcon = new BMap.Icon("/assets/img/maps/" + png, new BMap.Size(46, 44), {
+		offset: new BMap.Size(0, 0)
+	});
+
+	var marker = new BMap.Marker(point, {icon: myIcon});
+
+	window.map.addOverlay(marker);
+}
+
 function addLabel(point, label, data, func) {
 	var myLabel = new BMap.Label(label, {
 		offset: new BMap.Size(0, 0),
@@ -331,6 +341,37 @@ class TransferMap extends React.Component {
 
 			window.map.addOverlay(polyLine);
 		});
+
+
+		const convertCallback = function(data) {
+			console.log('converted gps', data);
+			if (data.status == 0) {
+				data.points.forEach((point) => {
+					addBusMarker(point, 'bus-dark-blue.png');
+				});
+			}
+		}
+
+		const convertor = new BMap.Convertor();
+
+		lines.forEach((line) => {
+			xFetchJSON('/api/bus/lines/' + line + '/buses').then((data) => {
+				// const points = data.map((bus) => {
+				// 	return new BMap.Point(bus.longitude, bus.latitude);
+				// })
+
+				// console.log('points', points);
+				// convertor.translate(points, 1, 5, convertCallback);
+
+				data.forEach((bus) => {
+					console.log('bus', bus);
+
+					const point = new BMap.Point(bus.longitude, bus.latitude);
+					addBusMarker(point, 'bus-blue.png');
+				});
+			});
+		});
+
 	}
 
 	initializeBaiduMap() {
