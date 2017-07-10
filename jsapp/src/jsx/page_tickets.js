@@ -165,7 +165,21 @@ class TicketPage extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {ticket: {}, users: [], user_options: null, ticket_comments: [], deal_user: null, edit: false, types: [], call: "回拨", content: false, appraise: '', record_src: '', media_files: []};
+		this.state = {
+			ticket: {},
+			users: [],
+			user_options: null,
+			ticket_comments: [],
+			deal_user: null,
+			edit: false,
+			types: [],
+			call: "回拨",
+			content: false,
+			appraise: '',
+			record_src: '',
+			media_files: [],
+			comment: ''
+		};
 
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleCommit = this.handleCommit.bind(this);
@@ -316,7 +330,7 @@ class TicketPage extends React.Component {
 
 	handleCommit(e) {
 		var _this = this;
-		var ticket = form2json('#ticketProcessingForm');
+		var ticket = {content: this.state.comment};
 
 		xFetchJSON("/api/tickets/" + this.state.ticket.id + "/comments", {
 			method: "POST",
@@ -324,7 +338,7 @@ class TicketPage extends React.Component {
 		}).then((obj) => {
 			var rows = this.state.ticket_comments;
 			rows.unshift(obj);
-			this.setState({ticket_comments: rows, deal_user: null,hidden_user: null});
+			this.setState({ticket_comments: rows, deal_user: null, hidden_user: null, comment: ''});
 		}).catch((err) => {
 			console.error("ticket", err);
 			notify(err, "error");
@@ -463,6 +477,10 @@ class TicketPage extends React.Component {
 
 		xhr.open('POST', '/api/tickets/' + _this.props.params.id + '/comment_upload');
 		xhr.send(data);
+	}
+
+	HandleChangeComment(event) {
+		this.setState({comment: event.target.value});
 	}
 
 	render() {
@@ -727,7 +745,7 @@ class TicketPage extends React.Component {
 				<FormGroup>
 					<Col componentClass={ControlLabel} sm={2}><T.span text="内容"/></Col>
 					<Col sm={8}>
-						<FormControl componentClass="textarea" name="content" placeholder="内容" />
+						<FormControl componentClass="textarea" name="content" value={this.state.comment} onChange={this.HandleChangeComment.bind(this)} />
 					</Col>
 				</FormGroup>
 				<FormGroup>
