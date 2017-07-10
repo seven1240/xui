@@ -247,7 +247,7 @@ class SIPProfilePage extends React.Component {
 			body: JSON.stringify({k: obj[id]})
 		}).then((obj) => {
 			console.log("success!!!!", obj);
-			const params = _this.state.profile.params.map(function(p) {
+			const params = _this.state.params.map(function(p) {
 				if (p.id == id) {
 					return obj;
 				}
@@ -307,7 +307,7 @@ class SIPProfilePage extends React.Component {
 			body: JSON.stringify({v: obj[id]})
 		}).then((obj) => {
 			console.log("success!!!!", obj);
-			const params = _this.state.profile.params.map(function(p) {
+			const params = _this.state.params.map(function(p) {
 				if (p.id == id) {
 					return obj;
 				}
