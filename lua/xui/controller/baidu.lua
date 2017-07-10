@@ -36,13 +36,13 @@ xtra.require_login()
 content_type("application/json")
 require 'xdb'
 xdb.bind(xtra.dbh)
+api = freeswitch.API()
 
-put("/acckey", function(params)
+function tts_token_request()
 	local ret = api:execute("tts_token", "")
-	local dict = {}
 
 	if ret and string.find(ret, "OK") then
-		dict.v = string.gsub(ret, "+OK ", "")
+		return string.gsub(ret, "+OK ", "")
 	else
 		n, dicts = xdb.find_by_cond("dicts", {realm = 'BAIDU'})
 		local obj = {}
@@ -59,18 +59,21 @@ put("/acckey", function(params)
 
 		print(url)
 
-		local api = freeswitch.API()
 		ret = api:execute("curl", url .. " timeout 3")
 		print(ret)
 
 		local response = utils.json_decode(ret)
 
 		utils.print_r(response)
-
-		dict = {}
-		dict.v = response.access_token
-
+		return response.access_token
 	end
+end
+
+put("/acckey", function(params)
+	local dict = {}
+
+	local access_token = tts_token_request()
+	dict.v = access_token
 
 	print(serialize(dict))
 
@@ -86,33 +89,12 @@ end)
 
 post("/tts", function(params)
 	print(serialize(params))
-	n, dicts = xdb.find_by_cond("dicts", {realm = 'BAIDU'});
-
-	local obj = {}
-
-	if (n > 0) then
-			for key, val in pairs(dicts) do
-					obj[val.k] = val.v
-			end
-	end
-
-	utils.print_r(obj)
-
-	local url = "https://openapi.baidu.com/oauth/2.0/token?grant_type=client_credentials&" ..
-			"&client_id=" .. obj.APPKEY ..
-			"&client_secret=" .. obj.SECKEY
-
-	local api = freeswitch.API()
-	local ret = api:execute("curl", url .. " timeout 3")
-
-	local response = utils.json_decode(ret)
-	local dest = response.access_token
-
+	local access_token = tts_token_request()
 	local url = "http://tsn.baidu.com/text2audio?tex=" .. params.request.input ..
 				"&lan=" .. "zh" ..
 				"&cuid=" .. "78-0C-B8-C7-52-F9" ..
 				"&ctp=" .. "1" ..
-				"&tok=" .. dest
+				"&tok=" .. access_token
 	local filename = utils.tmpname('tts-')
 
 	os.execute("curl -q '" .. url .. "'> "..filename..".mp3")
