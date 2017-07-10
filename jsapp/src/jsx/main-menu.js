@@ -35,10 +35,11 @@ import React from 'react';
 import T from 'i18n-react';
 import ReactDOM from 'react-dom';
 import { Button, Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
-import { Router, Route, Link, browserHistory } from 'react-router'
+import { Router, Route, Link, browserHistory } from 'react-router';
 import { LinkContainer, IndexLinkContainer } from 'react-router-bootstrap';
 import Phone from './phone';
 import { VertoPage } from './verto';
+import { xFetchJSON } from './libs/xtools';
 
 class Notice extends React.Component {
 	constructor(props) {
@@ -80,6 +81,22 @@ class Notice extends React.Component {
 }
 
 class MainMenu extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = { user_id: null };
+	}
+
+	componentDidMount() {
+		var _this = this;
+		var username = localStorage.getItem('xui.username');
+
+		xFetchJSON("/api/users/getID?username=" + username).then((data) => {
+			_this.setState({ user_id: data });
+		}).catch((msg) => {
+			console.log("get userID ERR");
+		});
+	}
+
 	render() {
 		const menus = this.props.menus.map(function(item) {
 			if (item.data == 'DROPDOWN') {
@@ -110,7 +127,7 @@ class MainMenu extends React.Component {
        const navbarInstance = (
 			<Nav pullRight>
 				<NavDropdown id='user_profile' eventKey={3} title={<img src="/assets/img/sit.png" />} noCaret>
-					<IndexLinkContainer to="/settings/users/1">
+					<IndexLinkContainer to={"/settings/users/" + this.state.user_id}>
 						<MenuItem eventKey={3.1}><T.span text="User Settings"/></MenuItem>
 					</IndexLinkContainer>
 					<IndexLinkContainer to="/settings/users/password">
