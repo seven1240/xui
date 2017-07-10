@@ -815,7 +815,7 @@ class GatewaysPage extends React.Component {
 
 		if (!isString(pname) || !pname.length) pname = "public";
 		verto.fsAPI("sofia", "profile " + pname + " startgw " + gname);
-		verto.fsAPI("sofia", "profile " + pname + " rescan");
+		// verto.fsAPI("sofia", "profile " + pname + " rescan");
 	}
 
 	handleStop(e) {
