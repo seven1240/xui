@@ -353,15 +353,17 @@ post('/:realm', function(params)
 		Event = xml:val("Event")
 		EventKey = xml:val("EventKey")
 
-		if Event == "CLICK" and EventKey == "我要举报" then
-			step = 1
+		if Event == "CLICK" then
+			if EventKey == "我要举报" then
+				step = 1
+			elseif (EventKey == "便民电话") or (EventKey == "监督电话") then
+				step = 4
+			end
 		end
 	elseif MsgType == "text" then
 		Content = xml:val("Content")
 		if (Content == "我要举报" or Content == "举报") then
 			step = 1
-		elseif (Content == "监督电话") then
-			step = 4
 		else
 			step = 2
 		end
