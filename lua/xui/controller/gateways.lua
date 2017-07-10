@@ -140,3 +140,50 @@ delete('/:id/param/:param_id', function(params)
 		return 500, "{}"
 	end
 end)
+
+put('/:id/control', function(params)
+	print(utils.serialize(params))
+
+	gateway = xdb.find("gateways", params.id)
+	action = params.request.action
+
+	if gateway then
+		profile = xdb.find("sip_profiles", gateway.profile_id)
+		profile_name = profile.name or 'public'
+
+		api = freeswitch.API()
+		args = "profile " .. profile_name .. ' ' .. action .. ' ' .. gateway.name
+
+		print(args)
+
+		ret = api:execute("sofia", args)
+
+		if ret:match('%+OK') then
+			return {code = 200, text=ret}
+		else
+			return {code = 500, text=ret}
+		end
+	else
+		return 404
+	end
+end)
+
+put('/control/gateways/:name', function(params)
+	print(utils.serialize(params))
+	profile_name = params.request.profile_name
+	action = params.request.action
+
+	api = freeswitch.API()
+	args = "profile " .. profile_name .. ' ' .. action .. ' ' .. params.name
+
+	print(args)
+
+	ret = api:execute("sofia", args)
+
+	if ret:match('%+OK') then
+		return {code = 200, text=ret}
+	else
+		return {code = 500, text=ret}
+	end
+
+end)
