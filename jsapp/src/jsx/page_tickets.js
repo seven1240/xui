@@ -295,7 +295,7 @@ class TicketPage extends React.Component {
 
 	handleSubmit(e) {
 		var _this = this;
-		var ticket = form2json('#ticketAppointForm');
+		var ticket = form2json('#ticketAssignForm');
 		var username;
 		_this.state.users.map((user) => {
 			if (user.id == ticket.current_user_id) {
@@ -306,8 +306,8 @@ class TicketPage extends React.Component {
 			method: "PUT",
 			body: JSON.stringify(ticket)
 		}).then(() => {
-			console.log('appoint successfully');
-			notify(<T.span text={{key:"Appointed to", username: username}}/>);
+			console.log('assign successfully');
+			notify(<T.span text={{key:"Assigned to", username: username}}/>);
 		}).catch((err) => {
 			console.error("ticket", err);
 			notify(err, "error");
@@ -545,8 +545,8 @@ class TicketPage extends React.Component {
 		this.state.deal_user = deal_user;
 		this.state.hidden_user = hidden_user;
 
-		save_btn = <Button onClick={this.handleSubmit}><T.span text="指派"/></Button>
-		commit_btn = <Button onClick={this.handleCommit}><T.span text="评论"/></Button>
+		save_btn = <Button onClick={this.handleSubmit}><T.span text="Assign"/></Button>
+		commit_btn = <Button onClick={this.handleCommit}><T.span text="Comment"/></Button>
 		const upload_btn = <Button onClick={this.handleCommitUpload}><T.span text="Upload" /></Button>
 
 		const options = <FormGroup>
@@ -717,7 +717,7 @@ class TicketPage extends React.Component {
 				</FormGroup>
 			</Form>
 
-			<Form horizontal id="ticketAppointForm">
+			<Form horizontal id="ticketAssignForm">
 					{this.state.hidden_user}
 					{options}
 			</Form>
