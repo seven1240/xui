@@ -69,6 +69,21 @@ get('/:id', function(params)
 	end
 end)
 
+get('/name/:name',function(params)
+	gateway = xdb.find_one("gateways", {name = params.name})
+	if gateway then
+		api = freeswitch.API()
+		args = "xmlstatus gateway"  .. ' ' ..  params.name
+		print(args)
+
+		ret = api:execute("sofia", args)
+		return ret
+	else 
+		return 404
+	 end
+end)
+
+
 put('/:id', function(params)
 	print(serialize(params))
 	ret = xdb.update("gateways", params.request)
@@ -80,20 +95,20 @@ put('/:id', function(params)
 end)
 
 put('/:id/params/:param_id', function(params)
-        print(serialize(params))
-        ret = nil;
+	print(serialize(params))
+	ret = nil;
 
-        if params.request.action and params.request.action == "toggle" then
-                ret = m_gateway.toggle_param(params.id, params.param_id)
-        else
-                ret = m_gateway.update_param(params.id, params.param_id, params.request)
-        end
+	if params.request.action and params.request.action == "toggle" then
+		ret = m_gateway.toggle_param(params.id, params.param_id)
+	else
+		ret = m_gateway.update_param(params.id, params.param_id, params.request)
+	end
 
-        if ret then
-                return ret
-        else
-                return 404
-        end
+	if ret then
+		return ret
+	else
+		return 404
+	end
 end)
 
 post('/', function(params)
@@ -169,21 +184,28 @@ put('/:id/control', function(params)
 end)
 
 put('/control/gateways/:name', function(params)
-	print(utils.serialize(params))
-	profile_name = params.request.profile_name
+	
+	gateway = xdb.find_one("gateways", {name = params.name})
 	action = params.request.action
 
-	api = freeswitch.API()
-	args = "profile " .. profile_name .. ' ' .. action .. ' ' .. params.name
+	if gateway then
+	
+		profile = xdb.find("sip_profiles", gateway.profile_id)
+		profile_name = profile.name or 'public'
+	
+		api = freeswitch.API()
+		args = "profile " .. profile_name .. ' ' .. action .. ' ' .. params.name
 
-	print(args)
+		print(args)
 
-	ret = api:execute("sofia", args)
+		ret = api:execute("sofia", args)
 
-	if ret:match('%+OK') then
-		return {code = 200, text=ret}
+		if ret:match('%+OK') then
+			return {code = 200, text=ret}
+		else
+			return {code = 500, text=ret}
+		end
 	else
-		return {code = 500, text=ret}
+		return 404
 	end
-
 end)
