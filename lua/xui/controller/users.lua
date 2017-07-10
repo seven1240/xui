@@ -101,6 +101,16 @@ get('/wechat', function(params)
 	end
 end)
 
+get('/getID', function(params)
+	local username = env:getHeader('username')
+	user = xdb.find_one("users", {extn = username})
+	if user then
+		return user.id
+	else
+		return 404
+	end
+end)
+
 get('/cur_user/:username', function(params)
 	local username = params.username
 	user = xdb.find_one("users", {extn = username})
