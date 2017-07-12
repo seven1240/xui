@@ -1006,6 +1006,7 @@ class TicketsPage extends React.Component {
 				<T.span text="CID Number"/><input ref={(input) => { _this.cid_number = input; }}/> &nbsp;
 				<T.span text="Status"/>
 				<select ref={(input) => { _this.status = input; }}>
+					<option value ="">{T.translate("ALL")}</option>
 					<option value ="TICKET_ST_NEW">{T.translate("TICKET_ST_NEW")}</option>
 					<option value ="TICKET_ST_PROCESSING">{T.translate("TICKET_ST_PROCESSING")}</option>
 					<option value="TICKET_ST_DONE">{T.translate("TICKET_ST_DONE")}</option>
