@@ -553,6 +553,7 @@ LANGUAGES["zh"] = {
 	"Serial Number": "序列号",
 	"Assign": "指派",
 	"Comment": "评论",
+	ALL: "全部",
 
 
 	Copyright: "版权所有 2016-" + new Date().getFullYear() + " 烟台小樱桃网络科技有限公司 保留所有权利",
