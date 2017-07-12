@@ -106,11 +106,11 @@ get('/download', function(params)
 	xtra.write('工单ID,' .. '序列号,' .. '主叫号码,' .. '类型,' .. '主题,' .. '内容,' .. '状态,' .. '指派人\n')
 	for i, v in pairs(tickets) do
 		local type = xdb.find_one('dicts', {realm = 'TICKET_TYPE', k = v.type})
-		v.type = type.v
+		v.type = (type == nil) and '' or type.v
 		local status = xdb.find_one('dicts', {realm = 'TICKET_STATE', k = v.status})
-		v.status = status.v
+		v.status = (status == nil) and '' or status.v
 		local user = xdb.find_one('users', {id = v.user_id})
-		v.user_id = user.name
+		v.user_id = (user == nil) and '' or user.name
 
 		v.content = string.gsub(v.content, '\n', '。')
 
