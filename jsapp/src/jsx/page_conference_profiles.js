@@ -80,7 +80,13 @@ class NewProfile extends React.Component {
 	render() {
 		console.log(this.props);
 		const props = Object.assign({}, this.props);
+		const profiles = props.profiles;
+		delete props.profiles;
 		delete props.onNewProfileAdded;
+
+		const profiles_options = profiles.map(profile => {
+			return <option value={profile.id} key={profile.id}>Profile[{profile.name}]</option>
+		});
 
 		return <Modal {...props} aria-labelledby="contained-modal-title-lg">
 			<Modal.Header closeButton>
@@ -96,6 +102,16 @@ class NewProfile extends React.Component {
 				<FormGroup controlId="formDescription">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Description" /></Col>
 					<Col sm={10}><FormControl type="input" name="description" placeholder="A Test Profile" /></Col>
+				</FormGroup>
+
+				<FormGroup controlId="formTemplate">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Template"/></Col>
+					<Col sm={10}>
+						<FormControl componentClass="select" name="template">
+							<option value="default">Default</option>
+							{profiles_options}
+						</FormControl>
+					</Col>
 				</FormGroup>
 
 				<FormGroup>
@@ -459,7 +475,7 @@ class ConferenceProfilesPage extends React.Component {
 				</table>
 			</div>
 
-			<NewProfile show={this.state.formShow} onHide={formClose} onNewProfileAdded={this.handleProfileAdded.bind(this)}/>
+			<NewProfile show={this.state.formShow} onHide={formClose} profiles= {row} onNewProfileAdded={this.handleProfileAdded.bind(this)}/>
 		</div>
 	}
 }

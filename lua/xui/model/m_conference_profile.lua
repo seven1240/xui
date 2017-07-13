@@ -43,9 +43,13 @@ function create(kvp)
 	if id then
 		local realm = 'conference'
 		local ref_id = 0
+		if not (template == "default") then
+			realm = 'conference' -- the table name
+			ref_id = template
+		end
 		local sql = "INSERT INTO params (realm, k, v, ref_id, disabled) SELECT 'conference', k, v, " ..
-			id .. ", disabled FROM params WHERE realm = 'conference' and ref_id = 0"
-
+			id .. ", disabled FROM params" ..
+			xdb.cond({realm = realm, ref_id = ref_id})
 		xdb.execute(sql)
 	end
 	return id
@@ -96,7 +100,7 @@ end
 m_conference_profile.delete = function(profile_id)
 	xdb.delete("conference_profiles", profile_id);
 	if (xdb.affected_rows() == 1) then
-		local sql = "DELETE FROM params WHERE " .. xdb.cond({realm = 'conference', ref_id = profile_id})
+		local sql = "DELETE FROM params " .. xdb.cond({realm = 'conference', ref_id = profile_id})
 		xdb.execute(sql)
 	end
 	return xdb.affected_rows()
