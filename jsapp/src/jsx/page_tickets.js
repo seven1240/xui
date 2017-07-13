@@ -32,7 +32,7 @@
 
 import React from 'react';
 import T from 'i18n-react';
-import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col, Radio, Nav, NavItem } from 'react-bootstrap';
+import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col, Radio, Nav, NavItem, DropdownButton, MenuItem } from 'react-bootstrap';
 import { Link } from 'react-router';
 import { EditControl, xFetchJSON } from './libs/xtools';
 import _ from 'lodash';
@@ -41,7 +41,7 @@ import Dropzone from 'react-dropzone';
 class NewTicket extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {errmsg: '', types: [], tel: null};
+		this.state = {errmsg: '', types: [], tel: null, textareaValue: '', subjectValue: ''};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -90,6 +90,20 @@ class NewTicket extends React.Component {
 		});
 	}
 
+	handleSelect(selectedKey) {
+		let templates = [['用户举报', '时间：\n地点：\n事件：'], ['网站留言投诉', '投诉内容：'], ['来人来访', '时间：\n来人：']];
+		this.setState({subjectValue: templates[selectedKey - 1][0]});
+		this.setState({textareaValue: templates[selectedKey - 1][1]});
+	}
+
+	TextareaChange(event) {
+		this.setState({textareaValue: event.target.value});
+	}
+
+	SubjectChange(event) {
+		this.setState({subjectValue: event.target.value});
+	}
+
 	render() {
 		console.log(this.props);
 
@@ -109,7 +123,7 @@ class NewTicket extends React.Component {
 				</FormGroup>
 				<FormGroup controlId="formSubject">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Subject" className="mandatory"/></Col>
-					<Col sm={10}><FormControl type="input" name="subject" placeholder="" /></Col>
+					<Col sm={10}><FormControl type="input" name="subject" placeholder="" value={this.state.subjectValue} onChange={this.SubjectChange.bind(this)} /></Col>
 				</FormGroup>
 				<FormGroup controlId="formType">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Type"/></Col>
@@ -138,7 +152,7 @@ class NewTicket extends React.Component {
 				</FormGroup>
 				<FormGroup controlId="formContent">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Content"/></Col>
-					<Col sm={10}><FormControl componentClass="textarea" rows="5" name="content" placeholder="" /></Col>
+					<Col sm={10}><FormControl componentClass="textarea" rows="5" name="content" placeholder="" value={this.state.textareaValue} onChange={this.TextareaChange.bind(this)}/></Col>
 				</FormGroup>
 				<FormGroup>
 					<Col smOffset={2} sm={2}>
@@ -147,6 +161,13 @@ class NewTicket extends React.Component {
 							<T.span text="Save" />
 						</Button>
 						&nbsp;&nbsp;<T.span className="danger" text={this.state.errmsg}/>
+					</Col>
+					<Col smOffset={5} sm={2}>
+						<DropdownButton bsStyle='primary' title={T.translate("Ticket Templates")} key='1' id='dropdown' onSelect={this.handleSelect.bind(this)}>
+							<MenuItem eventKey="1">模版1</MenuItem>
+							<MenuItem eventKey="2">模版2</MenuItem>
+							<MenuItem eventKey="3">模版3</MenuItem>
+						</DropdownButton>
 					</Col>
 				</FormGroup>
 			</Form>
