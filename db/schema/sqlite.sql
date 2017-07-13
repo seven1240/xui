@@ -43,7 +43,6 @@ CREATE TABLE users (
 	tel VARCHAR,
 	auto_record BOOLEAN NOT NULL DEFAULT 0 CHECK(auto_record IN (0, 1, '0', '1')),
 	disabled BOOLEAN NOT NULL DEFAULT 0 CHECK(disabled IN (0, 1, '0', '1')),
-
 	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
 	updated_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
 	deleted_epoch INTEGER
