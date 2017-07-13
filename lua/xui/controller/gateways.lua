@@ -83,6 +83,37 @@ get('/name/:name',function(params)
 	 end
 end)
 
+get('/verify/:username/:number',function(params)
+	gateway = xdb.find_one("gateways", {username = params.username})        
+	if gateway then
+		api = freeswitch.API()
+		args = "{call_timeout=20}sofia/gateway/" .. params.username .. "/010" .. params.number .. " " .. "&playback(local_stream://moh)" 
+		print(args)
+		ret = api:execute("originate", args)
+		local s = 1
+		local result = 0
+
+		while s < 20 do
+			result = api:execute("hash","select/qyq/" .. params.number)
+				if not (result == "") then
+					break
+				end
+			s = s + 1
+			freeswitch.msleep(1000) 
+		end
+		print(result)
+
+		if result == params.username then
+			return "200"
+		else
+			return "500"
+		end
+       
+	else
+                return "404"
+	end
+end)
+
 
 put('/:id', function(params)
 	print(serialize(params))
@@ -173,13 +204,9 @@ put('/:id/control', function(params)
 
 		ret = api:execute("sofia", args)
 
-		if ret:match('%+OK') then
-			return {code = 200, text=ret}
-		else
-			return {code = 500, text=ret}
-		end
+			return "200"
 	else
-		return 404
+		return "404"
 	end
 end)
 
@@ -200,12 +227,9 @@ put('/control/gateways/:name', function(params)
 
 		ret = api:execute("sofia", args)
 
-		if ret:match('%+OK') then
-			return {code = 200, text=ret}
-		else
-			return {code = 500, text=ret}
-		end
+			return "200"
 	else
-		return 404
+		return "404"
 	end
 end)
+
