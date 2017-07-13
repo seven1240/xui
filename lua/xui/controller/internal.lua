@@ -34,10 +34,11 @@ require 'xdb'
 require 'utils'
 require 'xtra_config'
 xdb.bind(xtra.dbh)
-get('/amr', function(params)
+
+post('/amr', function(params)
 	xtra.response("ok")
-	
-	limit = params.limit or 2
+
+	limit = env:getHeader("limit") or (params.request and params.request.limit) or 2
 
 	xdb.find_by_cond("media_files", {mime = 'application/octet-stream', processing_flag = 0}, "id", function(row)
 		
