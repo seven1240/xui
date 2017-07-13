@@ -1208,7 +1208,7 @@ class ConferencePage extends React.Component {
 			</ButtonGroup>
 
 			<ButtonGroup>
-				<Button onClick={() => _this.handleControlClick("table")} title={T.translate("Display as List")}>
+				<Button onClick={() => _this.handleControlClick("table")} title={T.translate("Display as Table")}>
 					<i className="fa fa-list" aria-hidden="true"></i>
 				</Button>
 				<Button onClick={() => _this.handleControlClick("block")} title={T.translate("Display as Block")}>

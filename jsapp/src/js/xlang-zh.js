@@ -165,8 +165,8 @@ LANGUAGES["zh"] = {
 	"Members": "与会者",
 	"Set As Moderator": "设为管理员",
 
-	"Display as Block": "以表格形式显示",
-	"Display as List": "以列表形式显示",
+	"Display as Table": "以表格形式显示",
+	"Display as Block": "以方块形式显示",
 	"Toggle Toolbar Text": "切换按钮图标文字提示",
 
 	"Create New Conference Profile": "创建新会议模板",
