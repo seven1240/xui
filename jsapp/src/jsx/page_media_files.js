@@ -391,6 +391,9 @@ class MediaFilePage extends React.Component {
 				mcontrol = <img src={src} style={{maxWidth: "80%", maxHeight: "200px"}}/>
 				break;
 			case "audio":
+				if (src.slice(-3) == 'amr') {
+					src = src.replace(/amr/, 'mp3');
+				}
 				mcontrol = <audio src={src} controls="controls"/>
 				position = "toolbar";
 				break;
