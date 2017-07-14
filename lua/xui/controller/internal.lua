@@ -40,10 +40,10 @@ post('/amr', function(params)
 
 	limit = env:getHeader("limit") or (params.request and params.request.limit) or 2
 
-	xdb.find_by_cond("media_files", {mime = 'application/octet-stream', processing_flag = 0}, "id", function(row)
+	xdb.find_by_cond("media_files", {mime = 'audio/amr', processing_flag = 0}, "id", function(row)
 		
 		name = row.name
-		mp3name = amrname:gsub(".amr$", ".mp3")
+		mp3name = name:gsub(".amr$", ".mp3")
 		amr = row.abs_path
 		wav = amr:gsub(".amr$", ".wav")
 		mp3 = amr:gsub(".amr$", ".mp3")
@@ -82,13 +82,13 @@ post('/amr', function(params)
 	return nil	 	
 end)
 
-get('/test', function(params)
+post('/test', function(params)
 	-- send response to finish the request at the client side and keep doing heavy jobs
 	xtra.response("OK")
 
-	limit = params.limit or 2
+	limit = env:getHeader("limit") or (params.request and params.request.limit) or 2
 
-	xdb.find_by_cond("media_files", {mime = 'audio/wav', processing_flag = 0}, "id", function(row)
+	xdb.find_by_cond("media_files", {mime = 'audio/wave', processing_flag = 0}, "id", function(row)
 		freeswitch.consoleLog('ERR', row.id .. '\n')
 		
 		name = row.name
