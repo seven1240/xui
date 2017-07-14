@@ -118,7 +118,7 @@ class TabContent extends React.Component {
 		let userSelectedClass = user.selectedState == "selected" ? "user-selected" : "";
 		let userCallClass = channelCallState!= "idle" ? "td_" + channelCallState : "";
 		let textClass = channelCallState!= "idle" ? "user-text" : "text-default";
-		let divClass = userSelectedClass + " " + userCallClass + " user-item btn btn-default";
+		let divClass = userSelectedClass + " " + " user-item btn btn-default";
 		let userRegStateText = user.registerState == "registered" ? "Online" : "Offline";
 		let userCallStateText = "Idle";
 
@@ -131,16 +131,16 @@ class TabContent extends React.Component {
 		return (
 			<div className={divClass}>
 				<div className="pull-left user-state-area">
-					<div><img src={userImageUrl} onClick={this.handleCall}/></div>
+					<div style={{'margin-top':'10px'}}><img src={userImageUrl} onClick={this.handleCall}/></div>
 					<div>
-						<div className={textClass}><T.span text={userRegStateText}/></div>
-						<div className={textClass}><T.span text={userCallStateText}/></div>
+						<div className={textClass} style={{'font-size':'12px','margin-top':'10px'}}><T.span text={userRegStateText}/></div>
+						<div className={textClass} style={{'font-size':'12px'}}><T.span text={userCallStateText}/></div>
 					</div>
 				</div>
 
 				<div className="pull-right user-info-area" onClick={this.handleToggleSelect}><br/>
-					<div className={textClass}>{user.userName}</div>
-					<div className={textClass}>{user.userExten}</div>
+					<div className={textClass} style={{'text-align':'left'}}>{user.userName}</div>
+					<div className={textClass} style={{'font-size':'12px','margin-top':'5px','text-align':'left'}}>{user.userExten}</div>
 				</div>
 			</div>
 		)
