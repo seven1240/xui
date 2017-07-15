@@ -87,10 +87,11 @@ get('/verify/:username/:number',function(params)
 	gateway = xdb.find_one("gateways", {username = params.username})        
 	if gateway then
 		api = freeswitch.API()
-		args = "{call_timeout=20}sofia/gateway/" .. params.username .. "/010" .. params.number .. " " .. "&playback(local_stream://moh)" 
-		print(args)
+		args = "[leg_timeout=20]sofia/gateway/" .. params.username .. "/010" .. params.number .. " " .. "&playback(silence_stream://20000)"
+
 		ret = api:execute("originate", args)
-		local s = 1
+
+		local s = 0
 		local result = 0
 
 		while s < 20 do
@@ -104,13 +105,13 @@ get('/verify/:username/:number',function(params)
 		print(result)
 
 		if result == params.username then
-			return "200"
+			api:execute("hash", "delete/qyq/" .. params.number)
+			return 200
 		else
-			return "500"
+			return 500
 		end
-       
 	else
-                return "404"
+		return 404
 	end
 end)
 
