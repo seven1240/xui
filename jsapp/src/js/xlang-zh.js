@@ -367,6 +367,7 @@ LANGUAGES["zh"] = {
 	"Extn": "分机号",
 	"Reparse": "重载队列设置",
 	"Auto Record": "自动录音",
+	"Disable Web Login": "禁用Web登录",
 	"OB Per Cycle": "同时外呼数",
 	"OB Per Cycle Min": "最小同时外呼数",
 	"OB Name": "外呼名称",

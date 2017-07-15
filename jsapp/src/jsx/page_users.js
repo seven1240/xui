@@ -267,6 +267,11 @@ class UserPage extends React.Component {
 		if (!user.auto_record) { // missing when unchecked
 			user.auto_record = "0";
 		}
+		
+		if (!user.weblogin_disabled) { // missing when unchecked
+			user.weblogin_disabled = "0";
+		}
+		
 
 		xFetchJSON("/api/users/" + user.id, {
 			method: "PUT",
@@ -472,6 +477,12 @@ class UserPage extends React.Component {
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Record" /></Col>
 					<Col sm={10}><EditControl componentClass="input" type="checkbox" edit={this.state.edit} name="auto_record"
 						defaultChecked={user.auto_record == "1"} defaultValue={1} text={user.auto_record == "1" ? T.translate("Yes") : T.translate("No")}/>
+					</Col>
+				</FormGroup>
+				<FormGroup controlId="formWebLogin">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Disable Web Login" /></Col>
+					<Col sm={10}><EditControl componentClass="input" type="checkbox" edit={this.state.edit} name="weblogin_disabled"
+						defaultChecked={user.weblogin_disabled == "1"} defaultValue={1} text={user.weblogin_disabled == "1" ? T.translate("Yes") : T.translate("No")}/>
 					</Col>
 				</FormGroup>
 
