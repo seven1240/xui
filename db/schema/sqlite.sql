@@ -175,7 +175,7 @@ CREATE TABLE gateways (
 	deleted_epoch INTEGER
 );
 
-CREATE INDEX gateways_name ON gateways(name);
+CREATE UNIQUE INDEX gateways_name ON gateways(name);
 CREATE INDEX gateways_deleted_epoch ON gateways(deleted_epoch);
 
 CREATE TRIGGER tg_gateways AFTER UPDATE ON gateways
