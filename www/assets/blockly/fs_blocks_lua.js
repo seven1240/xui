@@ -218,9 +218,8 @@ Blockly.Lua.fsDBH = function(block) {
   var pass = block.getFieldValue('pass');
 
   var code = 'dbh = freeswitch.Dbh("odbc://' + dsn + ':' + user + ':' + pass + '")\n';
-  return [code, Blockly.Lua.ORDER_NONE];
+  return code;
 };
-
 
 Blockly.Lua.fsDBHQuery = function(block) {
   var value_sql = Blockly.Lua.valueToCode(block, 'sql', Blockly.Lua.ORDER_ATOMIC);
