@@ -18,7 +18,7 @@ CREATE TABLE routes (
 	id SERIAL PRIMARY KEY,
 	name VARCHAR NOT NULL,
 	description VARCHAR,
-	prefix VARCHAR,
+	prefix VARCHAR NOT NULL DEFAULT '',
 	length INTEGER,
 	context VARCHAR,
 	dnc VARCHAR,
