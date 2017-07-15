@@ -42,11 +42,12 @@ function create(kvp)
 	id = xdb.create_return_id("gateways", kvp)
 	freeswitch.consoleLog('err',id)
 	-- print(id)
-	if id then
+	if id and template then
 		local realm = 'gateway'
 		local ref_id = 0
-		if not (template == "default") then
-			realm = 'gateway' -- the table name
+
+		if template and template ~= "default" then
+			realm = 'gateway'
 			ref_id = template
 		end
 
