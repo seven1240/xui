@@ -127,7 +127,7 @@ class NewRoute extends React.Component {
 		var route = form2json('#newRouteForm');
 		console.log("route", route);
 
-		if (!route.name || !route.prefix) {
+		if (!route.name) {
 			_this.setState({ errmsg: "Mandatory fields left blank" });
 			return;
 		}
@@ -175,7 +175,7 @@ class NewRoute extends React.Component {
 				</FormGroup>
 
 				<FormGroup controlId="formPrefix">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Prefix" className="mandatory"/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Prefix"/></Col>
 					<Col sm={10}><FormControl type="input" name="prefix" placeholder="010" /></Col>
 				</FormGroup>
 
@@ -480,7 +480,7 @@ class RoutePage extends React.Component {
 		console.log("submit...");
 		var route = form2json('#editRouteForm');
 
-		if (!route.name || !route.prefix) {
+		if (!route.name) {
 			notify(<T.span text="Mandatory fields left blank"/>, 'error');
 			return;
 		}
@@ -670,7 +670,7 @@ class RoutePage extends React.Component {
 				</FormGroup>
 
 				<FormGroup controlId="formPrefix">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Prefix" className="mandatory"/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Prefix"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} name="prefix" defaultValue={route.prefix}/></Col>
 				</FormGroup>
 
