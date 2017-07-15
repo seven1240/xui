@@ -16,8 +16,8 @@ INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'forward-unso
 INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'rfc2833-pt', '101', 0, 0);
 INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'sip-port', '5060', 0, 0);
 INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'dtmf-duration', '2000', 0, 0);
-INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'inbound-codec-prefs', '$${inbound_codec_prefs},H263,H264', 0, 0);
-INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'outbound-codec-prefs', '$${outbound_codec_prefs},H263,H264', 0, 0);
+INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'inbound-codec-prefs', '$${inbound_codec_prefs},H264', 0, 0);
+INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'outbound-codec-prefs', '$${outbound_codec_prefs},H264', 0, 0);
 INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'rtp-timer-name', 'soft', 0, 0);
 INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'rtp-ip', '$${local_ip_v4}', 0, 0);
 INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'sip-ip', '$${local_ip_v4}', 0, 0);
