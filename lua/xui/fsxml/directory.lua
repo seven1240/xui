@@ -85,7 +85,7 @@ end
 
 if user then
 	xdb.find_by_cond("users", {extn = user, disabled = 0}, nil, function(row)
-		if action == "jsonrpc-authenticate" and user.weblogin_disabled then
+		if action == "jsonrpc-authenticate" and row.weblogin_disabled == '1' then
 			return
 		end
 
