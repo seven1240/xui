@@ -707,6 +707,7 @@ class RoutePage extends React.Component {
 						defaultChecked={route.auto_record == "1"} defaultValue={1} text={route.auto_record == "1" ? T.translate("Yes") : T.translate("No")}/>
 					</Col>
 				</FormGroup>
+
 				<FormGroup controlId="formSave">
 					<Col componentClass={ControlLabel} sm={2}></Col>
 					<Col sm={10}>{save_btn}</Col>
