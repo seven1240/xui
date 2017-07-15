@@ -42,15 +42,10 @@ import parseXML from './libs/xml_parser';
 class NewGateway extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {errmsg: '', selectedValue: '2'};
+		this.state = {errmsg: ''};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
-		this.handleChange = this.handleChange.bind(this);
-	}
-
-	handleChange(event) {
-		this.setState({selectedValue: event.target.value});
 	}
 
 	handleSubmit(e) {
@@ -86,9 +81,16 @@ class NewGateway extends React.Component {
 		delete props.gateways;
 		delete props.sip_profiles;
 		delete props.handleNewGatewayAdded;
+		let defaultProfileID = 2;
 
 		const gateways_options = gateways.map(gw => {
 			return <option value={gw.id} key={gw.id}>Gateway[{gw.name}]</option>
+		});
+
+		sip_profiles.forEach((profile) => {
+			if (profile.name == 'public') { // default to public if exists
+				defaultProfileID = profile.id;
+			}
 		});
 
 		return <Modal {...props} aria-labelledby="contained-modal-title-lg">
@@ -125,9 +127,12 @@ class NewGateway extends React.Component {
 				<FormGroup controlId="formSipProfile">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="SIP Profile"/></Col>
 					<Col sm={10}>
-						<FormControl componentClass="select" name="profile_id" value={this.state.selectedValue} onChange={this.handleChange}>
-							<option value="2">public</option>
-							<option value="1">default</option>
+						<FormControl componentClass="select" name="profile_id" defaultValue={defaultProfileID}>
+							{
+								sip_profiles.map((profile) => {
+									return <option key = {profile.id} value={profile.id}>[{profile.name}] {profile.description}</option>
+								})
+							}
 						</FormControl>
 					</Col>
 				</FormGroup>
@@ -145,7 +150,7 @@ class NewGateway extends React.Component {
 				<FormGroup controlId="formRegister">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Register"/></Col>
 					<Col sm={10}>
-						<Radio name="register" value="yes" inline><T.span text="yes"/></Radio>
+						<Radio name="register" value="yes" inline defaultChecked><T.span text="yes"/></Radio>
 						<Radio name="register" value="no" inline><T.span text="no"/></Radio>
 					</Col>
 				</FormGroup>
