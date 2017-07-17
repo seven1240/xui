@@ -38,8 +38,13 @@ class OverViewPage extends React.Component {
 	// overview is so special because it must wait the websocket connected before it can get any data
 	constructor(props) {
 		super(props);
-		this.state = {msg: "connecting ..."};
+		this.state = {msg: "connecting ...", version: '',
+			sessionMax:'',  upTime:'', idleCPU:'',
+			sessionCount:'', sessionStart:'', sessionPerSecMax:'',
+			maxSessions:'', sessionSinceStart:'', sessionPerSec:'',
+		};
 		this.handleUpdateStatus = this.handleUpdateStatus.bind(this);
+		this.handleFSEvent = this.handleFSEvent.bind(this);
 	}
 
 	handleClick (x) {
@@ -59,6 +64,75 @@ class OverViewPage extends React.Component {
 		verto.fsStatus(function(e) {
 			_this.setState({msg: e.message});
 		})
+
+		verto.subscribe("FSevent.heartbeat", {
+			handler: this.handleFSEvent
+		});
+
+	}
+
+	handleFSEvent (v, e) {
+			
+		const _this = this;
+		console.log("This is for vvvv", v);
+		let data = e.data;
+		// let data2 = JSON.stringfy(data);
+		// console.log("This is for www", data);
+		// console.log("This is for data", typeof data);
+		// document.write(data);
+		for (let key in data) {
+			console.log("aaaaaaaaaaaa", key);
+			console.log("bbbbbbbbbbbb", data[key]);
+			switch (key){
+				case "Session-Peak-Max":
+					_this.setState({sessionMax: data[key]});
+					break;
+				case "Up-Time":
+					_this.setState({upTime: data[key]});
+					break;
+				case "Idle-CPU":
+					_this.setState({idleCPU: data[key]});
+					break;
+				case "Session-Count":
+					_this.setState({sessionCount: data[key]});
+					break;
+				case "Session-Since-Startup":
+					_this.setState({sessionSinceStart: data[key]});
+					break;
+				case "Session-Per-Sec-Max":
+					_this.setState({sessionPerSecMax: data[key]});
+					break;
+				case "Max-Sessions":
+					_this.setState({maxSessions: data[key]});
+					break;
+				case "Session-Per-Sec":
+					_this.setState({sessionPerSec: data[key]});
+					break;		
+				case "FreeSWITCH-Version":
+					_this.setState({version: data[key]});
+					break;
+				case "Session-Peak-FiveMin":
+					_this.setState({version: data[key]});
+					break;		
+				default:
+					break;
+			}
+		}
+		
+		// console.log("This is for data2", data2);
+		// console.log("This is for data3", typeof data2);
+
+		let mess = <div>
+			<T.span text="Session Peak Max"/>:<pre>{this.state.sessionMax}</pre>
+			<T.span text="System Uptime"/>:<pre>{this.state.upTime}</pre>
+			<T.span text="Idle CPU"/>:<pre>{this.state.idleCPU}</pre>
+			<T.span text="Max Sessions"/>:<pre>{this.state.maxSessions}</pre>
+			<T.span text="Session Count"/>:<pre>{this.state.sessionCount}</pre>
+			<T.span text="Session Since Start"/>:<pre>{this.state.sessionSinceStart}</pre>
+			<T.span text="FreeSWITCH Version"/>:<pre>{this.state.version}</pre>
+			<T.span text="Session Per Sec Max"/>:<pre>{this.state.sessionPerSecMax}</pre>
+		</div>;
+		this.setState({msg:mess});
 	}
 
 	handleUpdateStatus (e) {
