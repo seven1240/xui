@@ -167,7 +167,8 @@ class CDRsPage extends React.Component {
 			pageCount: 0,
 			formShow: false,
 			uuid: "",
-			showSettings: false
+			showSettings: false,
+			rowsPerPage: null
 		};
 
 		this.handleQuery = this.handleQuery.bind(this);
@@ -241,6 +242,7 @@ class CDRsPage extends React.Component {
 
 	componentDidMount () {
 		const cdrsRowsPerPage = localStorage.getItem('cdrsRowsPerPage') || 1000;
+		this.setState({ rowsPerPage: cdrsRowsPerPage });
 		xFetchJSON("/api/cdrs?cdrsRowsPerPage=" + cdrsRowsPerPage).then((cdrs) => {
 			this.setState({
 				rows: cdrs.data,
@@ -407,7 +409,7 @@ class CDRsPage extends React.Component {
 					<T.span text="Paginate Settings"/>
 					<br/>
 					<T.span text="Per Page"/>
-					&nbsp;<input  onChange={this.handleRowsChange.bind(this)} defaultValue={1000} size={3}/>&nbsp;
+					&nbsp;<input  onChange={this.handleRowsChange.bind(this)} defaultValue={this.state.rowsPerPage} size={3}/>&nbsp;
 					<T.span text="Row"/>
 				</div>
 			}
