@@ -58,6 +58,16 @@ LANGUAGES["zh"] = {
 	"Are you sure?": "确定要这么做吗？",
 
 	Overview: "状态",
+	"Session Since Start": "运行后的会话总数",
+	"Max Sessions": "可同时并存的最大通话数",
+	"Idle CPU": "达到拒接电话标准的最小空闲CPU值",
+	"System Uptime": "系统开机时间",
+	"Session-Peak-Max": "达到的会话峰值",
+	"Session Count": "当前会话数",
+	"Session Per Sec Max": "每秒创建的最大会话数",
+	"FreeSWITCH Version": "FreeSWITCH 版本号",
+	"Session Peak Max": "目前为止并存的最大会话数",
+
 	Calls: "呼叫",
 	Callgroup: "呼叫组",
 	Channels: "通道",
