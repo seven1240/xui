@@ -144,8 +144,8 @@ class FifoCDRsPage extends React.Component {
 			curPage: 1,
 			rowCount: 0,
 			pageCount: 0,
-			showSettings: false
-
+			showSettings: false,
+			rowsPerPage: null
 		};
 		this.handleMore = this.handleMore.bind(this);
 		this.handleSearch = this.handleSearch.bind(this);
@@ -186,6 +186,7 @@ class FifoCDRsPage extends React.Component {
 
 	componentDidMount() {
 		const fifocdrsRowsPerPage = localStorage.getItem('fifocdrsRowsPerPage') || 1000;
+		this.setState({ rowsPerPage: fifocdrsRowsPerPage });
 		const _this = this;
 
 		xFetchJSON("/api/fifo_cdrs").then((fifocdrs) => {
@@ -380,7 +381,7 @@ class FifoCDRsPage extends React.Component {
 					<T.span text="Paginate Settings"/>
 					<br/>
 					<T.span text="Per Page"/>
-					&nbsp;<input  onChange={this.handleRowsChange.bind(this)} defaultValue={1000} size={3}/>&nbsp;
+					&nbsp;<input  onChange={this.handleRowsChange.bind(this)} defaultValue={this.state.rowsPerPage} size={3}/>&nbsp;
 					<T.span text="Row"/>
 				</div>
 			}

@@ -520,7 +520,8 @@ class UsersPage extends React.Component {
 			curPage: 1,
 			rowCount: 0,
 			pageCount: 0,
-			showSettings: false
+			showSettings: false,
+			rowsPerPage: null
 		};
 
 		// This binding is necessary to make `this` work in the callback
@@ -582,6 +583,7 @@ class UsersPage extends React.Component {
 
 	componentDidMount() {
 		const usersRowsPerPage = localStorage.getItem('usersRowsPerPage') || 200;
+		this.setState({ rowsPerPage: usersRowsPerPage });
 		xFetchJSON("/api/users?usersRowsPerPage=" + usersRowsPerPage).then((users) => {
 			console.log("users", users)
 			this.setState({
@@ -722,7 +724,7 @@ class UsersPage extends React.Component {
 					<T.span text="Paginate Settings"/>
 					<br/>
 					<T.span text="Per Page"/>
-					&nbsp;<input  onChange={this.handleRowsChange.bind(this)} defaultValue={1000} size={3}/>&nbsp;
+					&nbsp;<input  onChange={this.handleRowsChange.bind(this)} defaultValue={this.state.rowsPerPage} size={3}/>&nbsp;
 					<T.span text="Row"/>
 				</div>
 			}
