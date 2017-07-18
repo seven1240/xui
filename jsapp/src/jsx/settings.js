@@ -100,6 +100,12 @@ class Settings extends React.Component {
 					<T.span text="Media Files"/>
 				</NavItem>
 			</LinkContainer>
+			<LinkContainer to="/settings/module_params" key="M_PARAMS">
+				<NavItem eventKey="M_PARAMS">
+					<i className="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;
+					<T.span text="Params"/>
+				</NavItem>
+			</LinkContainer>
 			<LinkContainer to="/settings/dicts" key="M_DICTS">
 				<NavItem eventKey="M_DICTS">
 					<i className="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;
