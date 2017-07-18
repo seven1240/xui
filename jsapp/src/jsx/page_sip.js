@@ -328,6 +328,29 @@ class SIPProfilePage extends React.Component {
 	}
 
 	handleDetailsShow() {
+		var _this = this;
+
+		verto.fsAPI("sofia", "xmlstatus profile " + this.state.profile.name, function(data) {
+			if (!data.message.match('<')) {
+				console.log(data);
+				notify(data.message, 'error');
+				return;
+			}
+
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(data.message, "text/xml");
+			console.log('doc', doc);
+
+			const profile = parseXML(doc);
+
+			const rows = Object.keys(profile).map(function(k, index) {
+				return {k: k, v: profile[k]};
+			});
+
+			_this.setState({profileDetails: rows});
+			console.log('profileDetails', _this.state.profileDetails)
+		});
+
 		this.setState({
 			detailsFormShow: !this.state.detailsFormShow,
 			detailsText: this.state.detailsText === "Show Details" ? "Hide Details" : "Show Details"
