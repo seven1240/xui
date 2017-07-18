@@ -64,10 +64,12 @@ class NewTicket extends React.Component {
 			return;
 		}
 
+		var _window = window;
 		xFetchJSON("/api/tickets", {
 			method:"POST",
 			body: JSON.stringify(ticket)
 		}).then((obj) => {
+			const w= _window.open('/#/tickets/' + obj.id);
 			_this.props.handleNewTicketAdded(obj);
 		}).catch((msg) => {
 			console.error("ticket", msg);
@@ -109,7 +111,7 @@ class NewTicket extends React.Component {
 
 		const props = Object.assign({}, this.props);
 		delete props.handleNewTicketAdded;
-		const emergencys = ['URGENT', 'EMERGENT', 'NORMAL'];
+		const emergencys = ['NORMAL', 'EMERGENT', 'URGENT'];
 
 		return <Modal {...props} aria-labelledby="contained-modal-title-lg">
 			<Modal.Header closeButton>
