@@ -167,12 +167,20 @@ post('/:ref_id/params/', function(params)
 end)
 
 delete('/:id', function(params)
-	ret = m_gateway.delete(params.id)
+	gateway = xdb.find("gateways",params.id)
+	api = freeswitch.API()
+	args = "xmlstatus gateway"  .. " " ..  gateway.name
+	ret = api:execute("sofia", args)
 
-	if ret >= 0 then
-		return 200, "{}"
+	if ret:match("^%Invalid Gateway!") then
+		ret = m_gateway.delete(params.id)
+		if ret >= 0 then
+		return 200, {code = 200, text="OK"}
+		else
+		return 500, {code = 500, text="ERR"}
+		end
 	else
-		return 500, "{}"
+		return 404,{code = 404, text="RUNNING NOT STOP"}
 	end
 end)
 
