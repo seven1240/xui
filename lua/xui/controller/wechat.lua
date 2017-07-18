@@ -373,7 +373,8 @@ post('/:realm', function(params)
 
 	local new_ticket = false
 	local ticket = xdb.find_one("tickets",
-		"wechat_openid = " .. xdb.escape(FromUserName) .. " AND status <> 'TICKET_ST_DONE'",
+		"wechat_openid = " .. xdb.escape(FromUserName) .. " AND status <> 'TICKET_ST_DONE'" ..
+		" AND created_epoch > '" .. os.date('%Y-%m-%d') .. "'",
 		"created_epoch DESC")
 
 	local isValidPhoneNumber = function(str)
