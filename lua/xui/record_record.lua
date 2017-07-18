@@ -30,7 +30,7 @@
  */
 ]]
 
-print(env:serialize())
+-- print(env:serialize())
 
 local auto_record = env:getHeader("auto_record")
 local record_path = env:getHeader("auto_record_path")
