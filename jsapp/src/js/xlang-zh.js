@@ -304,6 +304,7 @@ LANGUAGES["zh"] = {
 	"Drag and drop files here to upload": "将文件拖到此处上传",
 	"Create New Dict": "新建字典",
 	"Dicts": "数据字典",
+	"Params": "模块参数",
 	"Create New Gateway": "新建网关",
 	Control: "控制",
 	Template: "模板",
