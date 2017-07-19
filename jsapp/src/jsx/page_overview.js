@@ -57,12 +57,14 @@ class OverViewPage extends React.Component {
 
 	componentWillUnmount () {
 		window.removeEventListener("update-status", this.handleUpdateStatus);
+		verto.unsubscribe("FSevent.heartbeat");
 	}
 
 	componentDidMount () {
 		var _this = this;
 		verto.fsStatus(function(e) {
-			_this.setState({msg: e.message});
+			let mess = <pre>{e.message}</pre>
+			_this.setState({msg: mess});
 		})
 
 		verto.subscribe("FSevent.heartbeat", {
@@ -74,15 +76,10 @@ class OverViewPage extends React.Component {
 	handleFSEvent (v, e) {
 			
 		const _this = this;
-		console.log("This is for vvvv", v);
 		let data = e.data;
-		// let data2 = JSON.stringfy(data);
-		// console.log("This is for www", data);
-		// console.log("This is for data", typeof data);
-		// document.write(data);
 		for (let key in data) {
-			console.log("aaaaaaaaaaaa", key);
-			console.log("bbbbbbbbbbbb", data[key]);
+			// console.log("key", key);
+			// console.log("data[key]", data[key]);
 			switch (key){
 				case "Session-Peak-Max":
 					_this.setState({sessionMax: data[key]});
@@ -118,9 +115,6 @@ class OverViewPage extends React.Component {
 					break;
 			}
 		}
-		
-		// console.log("This is for data2", data2);
-		// console.log("This is for data3", typeof data2);
 
 		let mess = <div>
 			<T.span text="Session Peak Max"/>:<pre>{this.state.sessionMax}</pre>
@@ -136,12 +130,12 @@ class OverViewPage extends React.Component {
 	}
 
 	handleUpdateStatus (e) {
-		// console.log("eeee", e.detail);
-		this.setState({msg: e.detail.message});
+		let mess = <pre>{e.detail.message}</pre>
+		this.setState({msg: mess});
 	}
 
 	render () {
-		return <div><h1><T.span text={{ key: "Status"}} /></h1><pre>{this.state.msg}</pre></div>;
+		return <div><h1><T.span text={{ key: "Status"}} /></h1>{this.state.msg}</div>;
 	}
 };
 
