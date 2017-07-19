@@ -109,7 +109,7 @@ class OverViewPage extends React.Component {
 					_this.setState({version: data[key]});
 					break;
 				case "Session-Peak-FiveMin":
-					_this.setState({version: data[key]});
+					_this.setState({sessionPerSecMax: data[key]});
 					break;		
 				default:
 					break;
@@ -118,13 +118,14 @@ class OverViewPage extends React.Component {
 
 		let mess = <div>
 			<T.span text="Session Peak Max"/>:<pre>{this.state.sessionMax}</pre>
-			<T.span text="System Uptime"/>:<pre>{this.state.upTime}</pre>
-			<T.span text="Idle CPU"/>:<pre>{this.state.idleCPU}</pre>
+			{/*<T.span text="Idle CPU"/>:<pre>{this.state.idleCPU}</pre>*/}
+			<T.span text="CPU Usage"/>:<pre>{(100-this.state.idleCPU)/100+' %'}</pre>
 			<T.span text="Max Sessions"/>:<pre>{this.state.maxSessions}</pre>
 			<T.span text="Session Count"/>:<pre>{this.state.sessionCount}</pre>
-			<T.span text="Session Since Start"/>:<pre>{this.state.sessionSinceStart}</pre>
-			<T.span text="FreeSWITCH Version"/>:<pre>{this.state.version}</pre>
 			<T.span text="Session Per Sec Max"/>:<pre>{this.state.sessionPerSecMax}</pre>
+			<T.span text="Session Since Start"/>:<pre>{this.state.sessionSinceStart}</pre>
+			<T.span text="System Uptime"/>:<pre>{this.state.upTime}</pre>
+			<T.span text="FreeSWITCH Version"/>:<pre>{this.state.version}</pre>
 		</div>;
 		this.setState({msg:mess});
 	}
