@@ -41,8 +41,6 @@ import { RIEToggle, RIEInput, RIETextArea, RIENumber, RIETags, RIESelect } from 
 import { EditControl, xFetchJSON } from './libs/xtools';
 
 class NewMember extends React.Component {
-	propTypes: {handleNewRoomAdded: React.PropTypes.func}
-
 	constructor(props) {
 		super(props);
 		// This binding is necessary to make `this` work in the callback
@@ -477,8 +475,6 @@ class RoomMembers extends React.Component {
 }
 
 class NewRoom extends React.Component {
-	propTypes: {handleNewRoomAdded: React.PropTypes.func}
-
 	constructor(props) {
 		super(props);
 
@@ -556,7 +552,7 @@ class NewRoom extends React.Component {
 				</FormGroup>
 
 				<FormGroup controlId="formProfile">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Profile"/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Template"/></Col>
 					<Col sm={10}>
 						<FormControl componentClass="select" name="profile_id">
 							<option value="0">{T.translate("Default")}</option>
