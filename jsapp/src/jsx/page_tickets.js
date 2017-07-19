@@ -201,7 +201,8 @@ class TicketPage extends React.Component {
 			appraise: '',
 			record_src: '',
 			media_files: [],
-			comment: ''
+			comment: '',
+			hiddendiv: 'none'
 		};
 
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -506,6 +507,10 @@ class TicketPage extends React.Component {
 		this.setState({comment: event.target.value});
 	}
 
+	handleMore(e) {
+		e.preventDefault();
+		this.setState({hiddendiv: this.state.hiddendiv == 'none' ? 'block' : 'none'});
+	}
 	render() {
 		const idArray = this.state.media_files.map((m) => {
 			return m.comment_id;
@@ -659,13 +664,13 @@ class TicketPage extends React.Component {
 			case '': satisfied = <Form horizontal id="SatisfiedForm">
 									<FormGroup>
 										<Col componentClass={ControlLabel} sm={2}><T.span text="满意度" /></Col>
-										<Col sm={2}>
+										<Col sm={3}>
 											<span>
 												<Radio name="satisfied" value="1" inline defaultChecked><T.span text="Satisfied"/></Radio>
 												<Radio name="satisfied" value="0" inline><T.span text="Unsatisfied"/></Radio>
 											</span>
 										</Col>
-										<Col sm={7}>
+										<Col sm={2}>
 											<Button onClick={this.handleSatisfiedSubmit}><T.span onClick={this.handleSatisfiedSubmit} text="Submit"/></Button>
 										</Col>
 									</FormGroup>
@@ -697,6 +702,9 @@ class TicketPage extends React.Component {
 		return <Dropzone ref={(node) => { this.dropzone = node; }} onDrop={this.onDrop} className="dropzone" activeClassName="dropzone_active" disableClick={true}><div>
 			<ButtonToolbar className="pull-right">
 			<ButtonGroup>
+				<Button onClick={this.handleMore.bind(this)}><i className="fa fa-comments" aria-hidden="true"></i>&nbsp;<T.span text="Ticket Appraise"/></Button>
+			</ButtonGroup>
+			<ButtonGroup>
 				<Link to={`/tickets`} className="btn btn-default">
 						<i className="fa fa-chevron-circle-left" aria-hidden="true"></i>&nbsp;<T.span text="Back"/>
 				</Link>
@@ -714,6 +722,30 @@ class TicketPage extends React.Component {
 
 			<h1><T.span text="工单"/> <small>{ticket.serial_number}</small></h1>
 			<hr/>
+			<div style={{display: this.state.hiddendiv}}>
+				{satisfied}
+				<Form horizontal id="FormAppraise">
+					{
+						this.state.content ?
+						<FormGroup>
+							<Col componentClass={ControlLabel} sm={2}><T.span text="工单评价" /></Col>
+							<Col sm={4}>
+								<EditControl componentClass="textarea" name="appraise" defaultValue={this.state.appraise ? this.state.appraise : this.state.ticket.appraise}/>
+							</Col>
+						</FormGroup> :
+						<FormGroup>
+							<Col componentClass={ControlLabel} sm={2}><T.span text="工单评价" /></Col>
+							<Col sm={3}>
+								<FormControl componentClass="textarea" name="appraise" placeholder="评价内容" />
+							</Col>
+							<Col sm={1}>
+								<Button onClick={this.handleAppraiseSubmit}><T.span onClick={this.handleAppraiseSubmit} text="Submit"/></Button>
+							</Col>
+						</FormGroup>
+					}
+				</Form>
+				<hr/>
+			</div>
 			<Form horizontal id="ticketForm">
 				<input type="hidden" name="id" defaultValue={ticket.id}/>
 				<FormGroup controlId="formCIDNumber">
@@ -778,29 +810,6 @@ class TicketPage extends React.Component {
 				</FormGroup>
 			</Form>
 			<hr />
-			{satisfied}
-			<hr />
-			<Form horizontal id="FormAppraise">
-				{
-					this.state.content ?
-					<FormGroup>
-						<Col componentClass={ControlLabel} sm={2}><T.span text="评价" /></Col>
-						<Col sm={6}>
-							<EditControl componentClass="textarea" name="appraise" defaultValue={this.state.appraise ? this.state.appraise : this.state.ticket.appraise}/>						
-						</Col>
-					</FormGroup> :
-					<FormGroup>
-						<Col componentClass={ControlLabel} sm={2}><T.span text="评价" /></Col>
-						<Col sm={6}>
-							<FormControl componentClass="textarea" name="appraise" placeholder="评价内容" />
-						</Col>
-						<Col sm={1}>
-							<Button onClick={this.handleAppraiseSubmit}><T.span onClick={this.handleAppraiseSubmit} text="Submit"/></Button>
-						</Col>
-					</FormGroup>
-				}
-			</Form>
-			<hr/>
 			{ticket_comments}
 		</div></Dropzone>
 	}
