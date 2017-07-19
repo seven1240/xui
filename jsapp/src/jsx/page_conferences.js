@@ -279,7 +279,7 @@ class ConferencePage extends React.Component {
 			layouts: [],
 			displayStyle: 'table', toolbarText: false,
 			showSettings: false, autoSort: true, autoSwitch: false,
-			prefOnline: false, prefUnmuted: false
+			prefOnline: false, prefUnmuted: false, hideLinkedMember: false
 		};
 
 		this.la = null;
@@ -423,6 +423,9 @@ class ConferencePage extends React.Component {
 		let prefOnline = localStorage.getItem("xui.conference.prefOnline");
 		prefOnline = prefOnline == "true" ? true : false;
 
+		let hideLinkedMember = localStorage.getItem("xui.conference.hideLinkedMember");
+		hideLinkedMember = hideLinkedMember == "true" ? true : false;
+
 		let prefUnmuted = localStorage.getItem("xui.conference.prefUnmuted");
 		prefUnmuted = prefUnmuted == "true" ? true : false;
 
@@ -440,7 +443,7 @@ class ConferencePage extends React.Component {
 		}
 
 		const displayStyle = localStorage.getItem("xui.conference.displayStyle") || "table";
-		this.setState({displayStyle, prefOnline, prefUnmuted, autoSort, autoSwitch});
+		this.setState({displayStyle, prefOnline, hideLinkedMember, prefUnmuted, autoSort, autoSwitch});
 
 		this.state.domain_rows[domain] = []; // init our domain;
 
@@ -897,6 +900,11 @@ class ConferencePage extends React.Component {
 		localStorage.setItem('xui.conference.prefOnline', e.target.checked);
 	}
 
+	handleHideLinkedMember(e) {
+		this.setState({hideLinkedMember: e.target.checked});
+		localStorage.setItem('xui.conference.hideLinkedMember', e.target.checked);
+	}
+
 	handlePrefUnmutedClick(e) {
 		this.setState({prefUnmuted: e.target.checked});
 		localStorage.setItem('xui.conference.prefUnmuted', e.target.checked);
@@ -1085,6 +1093,12 @@ class ConferencePage extends React.Component {
 		this.state.rows = rows;
 
 		const members = rows.map(function(member) {
+
+			if(member.cidNumber.indexOf('.') >0) {
+				let hideLinkedMember = localStorage.getItem("xui.conference.hideLinkedMember");
+				if(hideLinkedMember == 'true') return;
+			}
+
 			if (member && member.hidden) return null;
 			member.room_nbr = _this.props.room.nbr;
 			const dm = member.verto ? member.verto.domain : domain;
@@ -1273,6 +1287,10 @@ class ConferencePage extends React.Component {
 
 					<Checkbox onChange={this.handlePrefOnlineClick.bind(this)} defaultChecked={this.state.prefOnline}>
 						<T.span text="Sort Online Prefered"/>
+					</Checkbox>
+
+					<Checkbox onChange={this.handleHideLinkedMember.bind(this)} defaultChecked={this.state.hideLinkedMember}>
+						<T.span text="Hide Linked Member"/>
 					</Checkbox>
 
 				</div>
