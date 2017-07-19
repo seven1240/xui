@@ -504,6 +504,21 @@ Blockly.Blocks['IVRAction'] = {
     }
 };
 
+Blockly.Blocks['IVRReady'] = {
+    init: function() {
+        this.appendDummyInput()
+            .appendField(Blockly.Msg.FS_BLOCK_READY)
+        this.setInputsInline(true);
+        this.setPreviousStatement(true);
+        this.setNextStatement(true);
+        this.setColour(40);
+        this.setTooltip('');
+        this.setHelpUrl('http://www.example.com/');
+    }
+
+};
+
+
 Blockly.Blocks['fsDBH'] = {
   init: function() {
     this.appendDummyInput()

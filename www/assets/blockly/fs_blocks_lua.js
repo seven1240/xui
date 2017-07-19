@@ -110,12 +110,18 @@ Blockly.Lua.fsSessionRead = function(block) {
   var text_terminator = block.getFieldValue('terminator');
 
   if (!(text_sound.indexOf(".") >= 0 || text_sound.indexOf("/") >= 0 || text_sound.indexOf("\\\\") >= 0)) {
-    text_sound = 'say:' + text_sound;
+	
+	if(text_sound.substring(text_sound.length-1)=="\'")
+      		{
+        	text_sound = text_sound.substr(1,text_sound.length-2)
+      		}
+
+   	text_sound = 'say:' + text_sound;
   }
 
   var code = variable_digits + ' = session:read(' + text_min + ', ' +
-    text_max + ',' +
-    text_sound + ', ' +
+    text_max + ', "' +
+    text_sound + '", ' +
     text_timeout + ', "' +
     text_terminator + '");\n';
   return code;
@@ -163,7 +169,7 @@ Blockly.Lua.IVR = function(block) {
    text_sound = 'say:' + text_sound;
   }
 
-  var code = 'digits = session:read(1, ' + text_max + '," ' +
+  var code = 'digits = session:read(1, ' + text_max + ', "' +
     text_sound + '", ' +
     timeout + ', "#")\n\n' 
   code = code + statements_entries;
@@ -208,6 +214,13 @@ Blockly.Lua.IVRAction= function(block) {
 
   // var code = {action: action, args: args};
   var code = "";
+  return code;
+};
+
+
+Blockly.Lua.IVRReady = function(block) {
+
+  var code = 'if not session:ready() then return end' + '\n'
   return code;
 };
 
