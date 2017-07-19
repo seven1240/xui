@@ -350,6 +350,13 @@ class TicketPage extends React.Component {
 			console.error("ticket", err);
 			notify(err, "error");
 		});
+
+		xFetchJSON("/api/tickets/" + _this.state.ticket.id).then((data) => {
+			console.log("ticket", data);
+			_this.setState({ticket: data});
+		}).catch((e) => {
+			console.error("get ticket", e);
+		});
 	}
 
 	handleCommit(e) {
