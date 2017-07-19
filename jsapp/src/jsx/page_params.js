@@ -150,14 +150,13 @@ class ModuleParamPage extends React.Component {
 
 		console.log("submit...");
 		var dt = form2json('#newParamForm');
+		dt.disabled = (dt.disabled.toLowerCase() == "yes") ? "0" : "1";
 		console.log("dt", dt);
 
 		if (!dt.realm || !dt.k) {
-			this.setState({dt: dt, edit: this.state.edit, errmsg: "Mandatory fields left blank"});
+			this.setState({dt: dt, errmsg: "Mandatory fields left blank"});
 			return;
 		}
-
-		dt.disabled = (dt.disabled.toLowerCase() == "yes") ? "0" : "1";
 
 		xFetchJSON("/api/params/" + dt.id, {
 			method: "PUT",
