@@ -906,13 +906,13 @@ class TicketsPage extends React.Component {
 
 	handleSelect(selectedKey) {
 		let _this = this;
-		let types = _this.state.types.map((type) => { return type.k; });
+
 		if (selectedKey == 0) {
 			xFetchJSON("/api/tickets").then((data) => {
 				this.setState({rows: data, activeKey: selectedKey, display: 'inline'});
 			});
-		}else{
-			xFetchJSON("/api/tickets/onetype?theType=" + types[selectedKey-1]).then((data) => {
+		} else {
+			xFetchJSON("/api/tickets/onetype?theType=" + selectedKey).then((data) => {
 				_this.setState({rows: data, activeKey: selectedKey, display: 'none'});
 			});
 		}
@@ -984,8 +984,6 @@ class TicketsPage extends React.Component {
 			display : isShow
 		}
 
-		let types = this.state.types.map((type) => { return type.v; });
-
 		return <div>
 			<ButtonToolbar className="pull-right">
 				<br/>
@@ -1013,12 +1011,12 @@ class TicketsPage extends React.Component {
 
 			<br/>
 			<Nav bsStyle="tabs" activeKey={this.state.activeKey} onSelect={this.handleSelect}>
-				<NavItem eventKey={0} title="Item0">全部</NavItem>
-				<NavItem eventKey={1} title="Item1">{types[0]}</NavItem>
-				<NavItem eventKey={2} title="Item2">{types[1]}</NavItem>
-				<NavItem eventKey={3} title="Item3">{types[2]}</NavItem>
-				<NavItem eventKey={4} title="Item4">{types[3]}</NavItem>
-				<NavItem eventKey={5} title="Item5">{types[4]}</NavItem>
+				<NavItem eventKey={0}>全部</NavItem>
+				{
+					this.state.types.map((type) => {
+						return <NavItem key={type.k} eventKey={type.k}>{type.v}</NavItem>
+					})
+				}
 			</Nav>
 
 			<div style={{padding: "5px", display: _this.state.hiddendiv}} className="pull-right">

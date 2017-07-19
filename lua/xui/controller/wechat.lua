@@ -399,7 +399,8 @@ post('/:realm', function(params)
 				wechat_openid = FromUserName,
 				cid_number = cidNumber,
 				subject = '用户举报',
-				status = "TICKET_ST_NEW"
+				status = "TICKET_ST_NEW",
+				type = config.ticket_type_wechat_default or "TICKET_TYPE_0"
 			})
 
 			if not ticket then

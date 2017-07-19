@@ -34,3 +34,4 @@ config.wechat_base_url = "http://example.com"
 config.wechat_realm = "xyt"
 -- config.wechat = {}
 -- config.wechat.xyt = {APPID = 'wx', APPSEC = ''}
+-- config.ticket_type_wechat_default = 'TICKET_TYPE_0' -- default ticket type from wechat
