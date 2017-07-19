@@ -429,6 +429,7 @@ Blockly.Msg.FS_BLOCK_IMPORTANCENUM = "Importance_number";
 Blockly.Msg.FS_BLOCK_ANNOUNCE = "Announce file";
 Blockly.Msg.FS_BLOCK_MUSIC = "Music file";
 Blockly.Msg.FS_BLOCK_RETURN = "Return to previous level";
+Blockly.Msg.FS_BLOCK_READY = "over";
 
 Blockly.Msg.tNow = "Now";
 Blockly.Msg.tDate = "Create Time";
