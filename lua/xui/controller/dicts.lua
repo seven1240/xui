@@ -45,18 +45,18 @@ get('/', function(params)
 	-- end
 
 	realm = env:getHeader('realm')
-
 	k = env:getHeader('k')
+	sort = env:getHeader('sort') or 'k'
 
 	if realm and k then
-		n, dicts = xdb.find_by_cond("dicts", {realm = realm, k = k})
+		n, dicts = xdb.find_by_cond("dicts", {realm = realm, k = k}, sort)
 	elseif realm then
-		n, dicts = xdb.find_by_cond("dicts", {realm = realm})
+		n, dicts = xdb.find_by_cond("dicts", {realm = realm}, sort)
 	else
 		if not m_user.has_permission() then
 			n = 0
 		else
-			n, dicts = xdb.find_all("dicts")
+			n, dicts = xdb.find_all("dicts", 'realm, k')
 		end
 	end
 
