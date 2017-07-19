@@ -432,6 +432,7 @@ Blockly.Msg.FS_BLOCK_IMPORTANCENUM = "优先级";
 Blockly.Msg.FS_BLOCK_ANNOUNCE = "播报提示";
 Blockly.Msg.FS_BLOCK_MUSIC = "音乐";
 Blockly.Msg.FS_BLOCK_RETURN = "返回上一级";
+Blockly.Msg.FS_BLOCK_READY = "话机挂机则结束";
 
 Blockly.Msg.tNow = "当前时间";
 Blockly.Msg.tDate = "构造时间";

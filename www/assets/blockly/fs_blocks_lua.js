@@ -212,6 +212,13 @@ Blockly.Lua.IVRAction= function(block) {
 };
 
 
+Blockly.Lua.IVRReady = function(block) {
+
+  var code = 'if not session:ready() then return end' + '\n'
+  return code;
+};
+
+
 Blockly.Lua.fsDBH = function(block) {
   var dsn  = block.getFieldValue('dsn');
   var user = block.getFieldValue('user');

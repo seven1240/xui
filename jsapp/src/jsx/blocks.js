@@ -117,6 +117,8 @@ var toolbox = `<xml id="toolbox" style="display: none">
 	</block>
 	<block type="IVRAction">
 	</block>
+	<block type="IVRReady">
+	</block>
 </category>
 
 <category name="FreeSWITCH" colour="10">
@@ -128,10 +130,10 @@ var toolbox = `<xml id="toolbox" style="display: none">
 		</value>
 	</block>
 	<block type="fsConsoleLog">
-		  <value name="args">
-		  <shadow type="text">
+			<value name="args">
+			<shadow type="text">
 			<field name="TEXT"></field>
-		  </shadow>
+			</shadow>
 		</value>
 	</block>
 	<block type="fsSetTTS">
