@@ -163,6 +163,7 @@ LANGUAGES["zh"] = {
 	"Conference Settings": "会议设置",
 	"Sort Online Prefered": "排序在线用户优先",
 	"Sort Unmuted Prefered": "排序未静音用户优先",
+	"Hide Linked Member": "隐藏连接键",
 	"Auto Sort": "自动排序",
 	"Auto Switch": "自动轮循",
 
