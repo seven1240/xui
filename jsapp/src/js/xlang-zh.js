@@ -567,6 +567,7 @@ LANGUAGES["zh"] = {
 	"Comment": "评论",
 	ALL: "全部",
 	"Ticket Templates": "工单模版",
+	"Ticket Appraise": "工单评价",
 
 	Copyright: "版权所有 2016-" + new Date().getFullYear() + " 烟台小樱桃网络科技有限公司 保留所有权利",
 	the_last_line_______: "Don't put anything beyond this line"
