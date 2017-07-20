@@ -101,6 +101,18 @@ get('/', function(params)
 	end
 end)
 
+get('/my_tickets', function()
+	sql = "SELECT * FROM tickets WHERE status <> 'TICKET_ST_DONE' AND current_user_id = " .. xtra.session.user_id ..
+		" ORDER BY created_epoch DESC LIMIT 1000"
+	n, tickets = xdb.find_by_sql(sql)
+
+	if n > 0 then
+		return tickets
+	else
+		return '[]'
+	end
+end)
+
 get('/url', function(params)
 	return '{"url":"' .. config.url .. '"}'
 end)
@@ -200,12 +212,12 @@ get('/:id', function(params)
 			ticket.user_name = user.name
 		end
 
-		if (ticket.current_user_id == '') then
-			cname = "待定"
+		if ticket.current_user_id == '' then
+			ticket.current_user_name = "待定"
 		else
-			local curr_user = xdb.find("users", ticket.current_user_id)
+			local curr_user = xdb.find_one("users", ticket.current_user_id)
 			if curr_user then
-				ticket.current_user_name = cname
+				ticket.current_user_name = curr_user.name
 			end
 		end
 
