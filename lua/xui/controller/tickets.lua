@@ -51,6 +51,7 @@ require 'm_user'
 require 'xtra_config'
 xdb.bind(xtra.dbh)
 require 'multipart_parser'
+require 'm_dialstring'
 
 get('/', function(params)
 	startDate = env:getHeader('startDate')
@@ -742,6 +743,23 @@ put('/:id/rate', function(params)
 	else
 		return 500
 	end
+end)
+
+put('/:id/callback/:user_id', function(params)
+	me = xdb.find("users", xtra.session.user_id)
+	other = xdb.find("users", params.user_id)
+	ticket = xdb.find("tickets", params.id)
+
+print(utils.serialize(me))
+print(utils.serialize(other))
+
+	if (me and other and me.tel and other.tel) then
+		api = freeswitch.API()
+		dstr = m_dialstring.build(me.tel)
+
+		api:execute("bgapi", "originate " .. dstr .. " " .. other.tel)
+	end
+	return {}
 end)
 
 get('/:id/record', function(params)

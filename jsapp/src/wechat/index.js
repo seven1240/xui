@@ -160,10 +160,11 @@ class Home extends React.Component {
 		});
 	}
 
-	callBack(e) {
-			this.setState({call: "回拨中..."})
-		xFetchJSON('/api/call_back/' + e).then((data) => {
-			this.setState({call: "回拨"})
+	callBack(user_id) {
+		xFetchJSON('/api/tickets/' + this.state.ticket.id + '/callback/' + user_id, {
+			method: 'PUT'
+		}).then((data) => {
+			// this.setState({call: "回拨"})
 		});
 	}
 
@@ -329,7 +330,10 @@ class Home extends React.Component {
 				<div className="weui-form-preview__bd">
 					<div className="weui-form-preview__item">
 						<span style={{color:"black"}} className="weui-form-preview__label">制单人</span>
-						<span className="weui-form-preview__value">{ticket.user_name}</span>
+						<span className="weui-form-preview__value" onClick={() => this.callBack(ticket.user_id)}>
+							{ticket.user_name}&nbsp;
+							<img src='/assets/img/phone.png' style={{width: "20px"}}/>
+						</span>
 					</div>
 				</div>
 				<div className="weui-form-preview__ft">
@@ -337,7 +341,10 @@ class Home extends React.Component {
 				<div className="weui-form-preview__bd">
 					<div className="weui-form-preview__item">
 						<span style={{color:"black"}} className="weui-form-preview__label">执行人</span>
-						<span className="weui-form-preview__value">{ticket.current_user_name}</span>
+						<span className="weui-form-preview__value"  onClick={() => this.callBack(ticket.current_user_id)}>
+							{ticket.current_user_name}&nbsp;
+							<img src='/assets/img/phone.png' style={{width: "20px"}}/>
+						</span>
 					</div>
 				</div>
 				<div className="weui-form-preview__ft">
@@ -370,25 +377,16 @@ class Home extends React.Component {
 				<div className="weui-form-preview__bd">
 					<div className="weui-form-preview__item">
 						<span style={{color:"black"}} className="weui-form-preview__label">处理时限</span>
-						<span className="weui-form-preview__value">{ticket.deadline}</span>
+						<span className="weui-form-preview__value">
+							{ticket.deadline} &nbsp;
+							<a href="javascript:;" onClick={() => _this.backWithdraw(ticket.id)} className="weui-btn weui-btn_mini weui-btn weui-btn_default">撤回</a>
+						</span>
 					</div>
-				</div>
-				<div className="weui-form-preview__ft">
 				</div>
 
 				<div className="weui-form-preview__bd">
 					<div className="weui-form-preview__item">
 					{record}
-				</div>
-				<div className="weui-form-preview__bd">
-					<div className="weui-form-preview__item">
-						<span className="weui-form-preview__label">
-							<a href="javascript:;" onClick={() => _this.callBack(ticket.id)} className="weui-btn weui-btn_mini weui-btn_default">{_this.state.call}</a>
-						</span>
-						<span className="weui-form-preview__value">
-							<a href="javascript:;" onClick={() => _this.backWithdraw(ticket.id)} className="weui-btn weui-btn_mini weui-btn weui-btn_default">撤回</a>
-						</span>
-					</div>
 				</div>
 			</div>
 		</div>
