@@ -365,6 +365,16 @@ class Home extends React.Component {
 				</div>
 				<div className="weui-form-preview__ft">
 				</div>
+
+				<div className="weui-form-preview__bd">
+					<div className="weui-form-preview__item">
+						<span style={{color:"black"}} className="weui-form-preview__label">处理时限</span>
+						<span className="weui-form-preview__value">{ticket.deadline}</span>
+					</div>
+				</div>
+				<div className="weui-form-preview__ft">
+				</div>
+
 				<div className="weui-form-preview__bd">
 					<div className="weui-form-preview__item">
 					{record}
@@ -651,8 +661,8 @@ class Newticket extends React.Component {
 		this.state.input.subject = e.target.value;
 	}
 
-	handleDateEnd(e) {
-		this.state.input.completed_epoch = e.target.value;
+	handleDeadline(e) {
+		this.state.input.deadline = e.target.value;
 	}
 
 	newTicketAdd(e) {
@@ -672,14 +682,16 @@ class Newticket extends React.Component {
 		}
 		var timestamp1 = Date.parse(new Date());
 		var now = timestamp1 / 1000;
-		var timestamp2 = Date.parse(_this.state.input.completed_epoch);
-		var completed_epoch = timestamp2 / 1000;
-		if (now >= completed_epoch) {
+		var timestamp2 = Date.parse(_this.state.input.deadline);
+		var deal_user = timestamp2 / 1000;
+
+		if (now >= deadline) {
 			alert("请选择正确的期限时间");
 			return false;
 		} else {
-			_this.state.input.completed_epoch = completed_epoch;
+			_this.state.input.deadline = deadline;
 		}
+
 		const ticket = _this.state.input;
 		xFetchJSON("/api/tickets", {
 			method:"POST",
@@ -750,7 +762,7 @@ class Newticket extends React.Component {
 						</div>
 
 						<div className="weui-cell__bd">
-							<input type="date" onChange={this.handleDateEnd.bind(this)}/>
+							<input type="date" onChange={this.handleDeadline.bind(this)}/>
 						</div>
 					</div>
 				</div>
@@ -826,9 +838,9 @@ class Tickets extends React.Component {
 		const tickets = _this.state.tickets.map((ticket) => {
 			var ticket_state = ticket.status;
 			var ticket_style = '';
-			var completed_epoch = ticket.completed_epoch;
+			var deadline = ticket.deadline;
 
-			if (now >= completed_epoch && completed_epoch) {
+			if (now >= deadline && deadline) {
 				var warning = <i className="weui-icon-warn"></i>
 			}
 

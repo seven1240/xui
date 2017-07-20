@@ -150,7 +150,7 @@ class NewTicket extends React.Component {
 				</FormGroup>
 				<FormGroup controlId="formDeadline">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Deadline"/></Col>
-					<Col sm={10}><FormControl type="date" name="completed_epoch"/></Col>
+					<Col sm={10}><FormControl type="date" name="deadline"/></Col>
 				</FormGroup>
 				<FormGroup controlId="formContent">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Content"/></Col>
@@ -780,7 +780,7 @@ class TicketPage extends React.Component {
 
 				<FormGroup controlId="formFinished_epoch">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Deadline"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} type="date" name="completed_epoch" defaultValue={ticket.completed_epoch}/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} type="date" name="deadline" defaultValue={ticket.deadline}/></Col>
 				</FormGroup>
 
 				{FORM}

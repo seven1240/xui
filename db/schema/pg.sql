@@ -477,6 +477,7 @@ CREATE TABLE tickets (
 	emergency VARCHAR,
 	privacy VARCHAR DEFAULT 'TICKET_PRIV_PRIVATE',
 	rate VARCHAR,
+	deadline TIMESTAMP(0),
 
 	created_epoch TIMESTAMP(0) DEFAULT now(),
 	updated_epoch TIMESTAMP(0) DEFAULT now(),

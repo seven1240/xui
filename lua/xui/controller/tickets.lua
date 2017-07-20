@@ -669,8 +669,8 @@ post('/', function(params)
 		ticket.emergency = 'URGENT'
 	end
 
-	if ticket.completed_epoch == '' then
-		ticket.completed_epoch = nil
+	if ticket.deadline == '' then
+		ticket.deadline = nil
 	end
 
 	ticket = xdb.create_return_object('tickets', ticket)
@@ -715,8 +715,8 @@ put('/:id', function(params)
 	print(serialize(params))
 	local ticket = params.request
 
-	if ticket.completed_epoch == '' then
-		ticket.completed_epoch = nil
+	if ticket.deadline == '' then
+		ticket.deadline = nil
 	end
 
 	ret = xdb.update("tickets", ticket)
