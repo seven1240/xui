@@ -207,24 +207,28 @@ get('/:id', function(params)
 	ticket = tickets[1]
 
 	if ticket then
-		local user = xdb.find("users", ticket.user_id)
-		if user then
-			ticket.user_name = user.name
+		if ticket.user_id then
+			local user = xdb.find("users", ticket.user_id)
+			if user then
+				ticket.user_name = user.name
+			end
 		end
 
 		if ticket.current_user_id == '' then
 			ticket.current_user_name = "待定"
 		else
-			local curr_user = xdb.find_one("users", ticket.current_user_id)
+			local curr_user = xdb.find("users", ticket.current_user_id)
 			if curr_user then
 				ticket.current_user_name = curr_user.name
 			end
 		end
 
-		media_file = xdb.find_one("media_files", {id = ticket.media_file_id})
+		if ticket.media_file_id ~= '' then
+			media_file = xdb.find_one("media_files", {id = ticket.media_file_id})
 
-		if media_file then
-			ticket.original_file_name = media_file.original_file_name
+			if media_file then
+				ticket.original_file_name = media_file.original_file_name
+			end
 		end
 
 		ticket.wechat_userid = xtra.session.user_id
@@ -245,6 +249,7 @@ get('/:id/comments/media_files', function(params)
 	)
 
 	local media_files = {} 
+
 	for i, v in pairs(mfiles) do
 		local file = xdb.find_one("media_files", {id = v.media_file_id})
 
@@ -255,8 +260,7 @@ get('/:id/comments/media_files', function(params)
 		table.insert(media_files, v)
 	end
 
-
-	if media_files then
+	if n > 0 then
 		return media_files
 	else
 		return "[]"
