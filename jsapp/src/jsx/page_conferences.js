@@ -1153,11 +1153,11 @@ class ConferencePage extends React.Component {
 			</DropdownButton>
 
 			canvases.push(dropdown);
-			canvas_move_to.push(<MenuItem key = {"c" + c} eventKey={{action: 'vid-canvas', target: c}} onSelect={this.handleSeletExtControl.bind(this)}>Move to canvas &nbsp;{circle_numbers[c]}</MenuItem>);
-			canvas_watching.push(<MenuItem key = {"w" + c} eventKey={{action: 'vid-watching-canvas', target: c}} onSelect={this.handleSeletExtControl.bind(this)}>Watching canvas &nbsp;{circle_numbers[c]}</MenuItem>);
+			canvas_move_to.push(<MenuItem key = {"c" + c} eventKey={{action: 'vid-canvas', target: c}} onSelect={this.handleSeletExtControl.bind(this)}><T.span text="Move to canvas"/> &nbsp;{circle_numbers[c]}</MenuItem>);
+			canvas_watching.push(<MenuItem key = {"w" + c} eventKey={{action: 'vid-watching-canvas', target: c}} onSelect={this.handleSeletExtControl.bind(this)}><T.span text="Watching canvas"/> &nbsp;{circle_numbers[c]}</MenuItem>);
 		}
 
-		canvas_watching.push(<MenuItem key = {"w" + this.props.room.canvas_count + 1} eventKey={{action: 'vid-watching-canvas', target: parseInt(this.props.room.canvas_count) + 1}} onSelect={this.handleSeletExtControl.bind(this)}>Watching canvas &nbsp;{circle_numbers[parseInt(this.props.room.canvas_count) + 1]}</MenuItem>);
+		canvas_watching.push(<MenuItem key = {"w" + this.props.room.canvas_count + 1} eventKey={{action: 'vid-watching-canvas', target: parseInt(this.props.room.canvas_count) + 1}} onSelect={this.handleSeletExtControl.bind(this)}><T.span text="Watching canvas"/> &nbsp;{circle_numbers[parseInt(this.props.room.canvas_count) + 1]}</MenuItem>);
 
 		return <div>
 			<ButtonToolbar className="pull-right">

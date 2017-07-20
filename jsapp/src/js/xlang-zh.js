@@ -161,6 +161,8 @@ LANGUAGES["zh"] = {
 	"Save Route": "保存路由",
 	"Auto Calc Route": "自动计算路由",
 	Total: "总数",
+	"Move to canvas": "移动到画布",
+	"Watching canvas": "观看画布",
 	"Conference Settings": "会议设置",
 	"Sort Online Prefered": "排序在线用户优先",
 	"Sort Unmuted Prefered": "排序未静音用户优先",
