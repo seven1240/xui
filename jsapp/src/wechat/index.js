@@ -223,7 +223,6 @@ class Home extends React.Component {
 
 		const comments = this.state.ticket_comments.map((comment) => {
 			const wechat_img = !comment.mfiles ? null : comment.mfiles.map((mfile) => {
-
 				const thumb = '/upload/' + (mfile.thumb ? mfile.thumb : mfile.src);
 				const path = '/upload/' + mfile.src;
 
@@ -241,6 +240,8 @@ class Home extends React.Component {
 					return <video src={path}/>
 				}
 			});
+
+			if (!comment.avatar_url) comment.avatar_url = '/assets/img/default_avatar.png';
 
 			return <a className="weui-media-box weui-media-box_appmsg" key={comment.id}>
 					<div className="weui-media-box__hd">
