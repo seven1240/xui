@@ -56,13 +56,19 @@ get('/', function(params)
 	startDate = env:getHeader('startDate')
 	last = tonumber(env:getHeader('last'))
 	status = env:getHeader('status')
+	ticket_type = env:getHeader('ticket_type')
 
 	if not startDate then
 		if not last then last = 7 end
 
 		local sdate = os.time() - last * 24 * 60 * 60
 		startDate = os.date('%Y-%m-%d', sdate)
-		cond = " created_epoch > '" .. startDate .. "'"
+		if ticket_type == '0' then
+			cond = " created_epoch > '" .. startDate .. "'"
+		else
+			cond = " created_epoch > '" .. startDate .. "'" .. " AND type = '" .. ticket_type .. "'"
+		end
+		print(cond)
 	else
 		local endDate = env:getHeader('endDate')
 		local id = env:getHeader('id')
@@ -75,7 +81,8 @@ get('/', function(params)
 					xdb.if_cond("id", id) ..
 					xdb.if_cond("cid_number", cid_number) ..
 					xdb.if_cond("status", status) ..
-					xdb.if_cond("serial_number", serial_number)
+					xdb.if_cond("serial_number", serial_number) ..
+					xdb.if_cond("type", ticket_type)
 	end
 
 	if m_user.has_permission() then
@@ -91,6 +98,18 @@ get('/', function(params)
 		return tickets
 	else
 		return "[]"
+	end
+end)
+
+get('/my_tickets', function()
+	sql = "SELECT * FROM tickets WHERE status <> 'TICKET_ST_DONE' AND current_user_id = " .. xtra.session.user_id ..
+		" ORDER BY created_epoch DESC LIMIT 1000"
+	n, tickets = xdb.find_by_sql(sql)
+
+	if n > 0 then
+		return tickets
+	else
+		return '[]'
 	end
 end)
 
@@ -193,12 +212,12 @@ get('/:id', function(params)
 			ticket.user_name = user.name
 		end
 
-		if (ticket.current_user_id == '') then
-			cname = "待定"
+		if ticket.current_user_id == '' then
+			ticket.current_user_name = "待定"
 		else
-			local curr_user = xdb.find("users", ticket.current_user_id)
+			local curr_user = xdb.find_one("users", ticket.current_user_id)
 			if curr_user then
-				ticket.current_user_name = cname
+				ticket.current_user_name = curr_user.name
 			end
 		end
 

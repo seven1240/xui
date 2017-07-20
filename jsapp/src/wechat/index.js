@@ -23,14 +23,17 @@ const emergency = {
 class Home extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {ticket: {}, user_options: null, ass_template: null, call:"回拨", ticket_comments: [], wechat_users: props.users, deal_user: null};
+		this.state = {ticket: {}, tickets: [], user_options: null, ass_template: null, call:"回拨", ticket_comments: [], wechat_users: props.users, deal_user: null};
 	}
 
-	componentDidMount() {
-		var _this = this;
-		xFetchJSON("/api/tickets/" + current_ticket_id).then((data) => {
+	fetchTicket(ticket_id) {
+		const _this = this;
+
+		xFetchJSON("/api/tickets/" + ticket_id).then((data) => {
 			_this.setState({ticket: data});
+
 			const uri = "http://xswitch.cn/api/wechat/xyt/tickets/" + data.id;
+
 			var shareData = {
 				title: data.subject,
 				desc: data.content.substr(0, 40),
@@ -49,6 +52,7 @@ class Home extends React.Component {
 					console.log('failed', res);
 				}
 			};
+
 			if (is_wx_ready) {
 				wx.onMenuShareAppMessage(shareData);
 			} else {
@@ -60,13 +64,13 @@ class Home extends React.Component {
 			console.error("get ticket", e);
 		});
 
-		xFetchJSON('/api/tickets/' + current_ticket_id + '/comments').then((data) => {
+		xFetchJSON('/api/tickets/' + ticket_id + '/comments').then((data) => {
 			console.log('comments', data);
 			_this.setState({ticket_comments: data});
 
 			if (data.length > 0) {
 				// check if we have media files
-				xFetchJSON('/api/tickets/' + current_ticket_id + '/comments/media_files').then((media) => {
+				xFetchJSON('/api/tickets/' + ticket_id + '/comments/media_files').then((media) => {
 					console.log('media', media);
 
 					const comments = _this.state.ticket_comments.map((comment) => {
@@ -88,13 +92,27 @@ class Home extends React.Component {
 		});
 	}
 
+	componentDidMount() {
+		var _this = this;
+
+		if (current_ticket_id == 0) { // list my tickets
+			xFetchJSON("/api/tickets/my_tickets").then((data) => {
+				_this.setState({tickets: data});
+			});
+
+			return;
+		}
+
+		this.fetchTicket(current_ticket_id);
+	}
+
 	handleComment(e) {
 		current_ticket_id = e;
 		ReactDOM.render(<Comment/>, document.getElementById('main'));
 	}
 
 	handleAllot(e) {
-		ReactDOM.render(<Userlist/>, document.getElementById('main'));
+		ReactDOM.render(<UserList/>, document.getElementById('main'));
 	}
 
 	sendAssignTem(e) {
@@ -149,12 +167,57 @@ class Home extends React.Component {
 		});
 	}
 
+	handleClick(ticket_id) {
+		this.fetchTicket(ticket_id);
+	}
+
+	backToTicketList() {
+		const _this = this;
+
+		this.setState({ticket: {}});
+
+		xFetchJSON("/api/tickets/my_tickets").then((data) => {
+			_this.setState({tickets: data});
+		});
+	}
+
 	render() {
 		const _this = this;
 		const ticket = this.state.ticket;
+
 		if (!ticket.id) {
-			return <div><br/><br/><br/><br/><br/><br/>
-				<center>当前没有待处理工单</center>
+			if (this.state.tickets.length == 0) {
+				return <div><br/><br/><br/><br/><br/><br/>
+					<center>当前没有待处理工单</center>
+				</div>
+			}
+
+			const warning = ''
+
+			return <div>
+				<h1 style={{textAlign: "center"}}>我的工单</h1>
+				{
+					this.state.tickets.map((ticket) => {
+						return <div className="weui-form-preview__bd" onClick={() => _this.handleClick(ticket.id)} key={ticket.id} >
+							<div className="weui-form-preview__item">
+								<label className="weui-form-preview__label" style={{color:"black"}}>
+									<span className={ticket.status}>X</span>&nbsp;
+									<span>{ticket.subject}</span>
+								</label>
+								<span className="weui-form-preview__value" style={{color:"black"}}>{ticket.cid_number}{warning}</span>
+							</div>
+							<div className="weui-form-preview__item">
+								<label className="weui-form-preview__label">{ticket.content.slice(0,20)}</label>
+								<span className="weui-form-preview__value"></span>
+							</div>
+							<div className="weui-form-preview__item">
+								<label className="weui-form-preview__label" style={{fontSize:"12px"}}>{ticket.created_epoch}</label>
+								<span className="weui-form-preview__value" style={{fontSize:"12px"}}>{ticket_status[ticket.status]}</span>
+							</div>
+							<div className="weui-form-preview__ft"></div>
+						</div>
+					})
+				}
 			</div>
 		}
 
@@ -206,7 +269,9 @@ class Home extends React.Component {
 					</div>
 				</a>
 		})
+
 		var wechat = _this.state.wechat_users;
+
 		if (wechat) {
 			if (is_assign) {
 				_this.state.ass_template = <div className="weui-btn-area">
@@ -231,7 +296,9 @@ class Home extends React.Component {
 		} else {
 			var assigns = <a className="weui-form-preview__btn weui-form-preview__btn_primary" onClick={ () => _this.handleAllot(ticket.id)}>派发</a>
 		}
+
 		var record = '';
+
 		if (ticket.original_file_name) {
 			const rec = "/recordings/" + ticket.original_file_name
 			var record = <div><span style={{color:"black"}} className="weui-form-preview__label">录音</span>
@@ -243,9 +310,10 @@ class Home extends React.Component {
 			</div>
 				</div>
 		}
+
 		return <div>
 			<div className="weui-cells__title">
-				<h1 style={{ textAlign:"center",color:"black" }}>{ticket.subject}</h1>
+				<h1 style={{ textAlign:"center", color:"black" }}>{ticket.subject}</h1>
 			{/* <p>
 				{ticket.content}
 			</p> */}
@@ -256,73 +324,77 @@ class Home extends React.Component {
 					<span className="weui-form-preview__value">{ticket.created_epoch}</span>
 				</div>
 			</div>
-		<div className="weui-form-preview">
-			<div className="weui-form-preview__ft">
-			</div>
-			<div className="weui-form-preview__bd">
-				<div className="weui-form-preview__item">
-					<span style={{color:"black"}} className="weui-form-preview__label">制单人</span>
-					<span className="weui-form-preview__value">{ticket.user_name}</span>
+			<div className="weui-form-preview">
+				<div className="weui-form-preview__ft">
 				</div>
-			</div>
-			<div className="weui-form-preview__ft">
-			</div>
-			<div className="weui-form-preview__bd">
-				<div className="weui-form-preview__item">
-					<span style={{color:"black"}} className="weui-form-preview__label">执行人</span>
-					<span className="weui-form-preview__value">{ticket.current_user_name}</span>
+				<div className="weui-form-preview__bd">
+					<div className="weui-form-preview__item">
+						<span style={{color:"black"}} className="weui-form-preview__label">制单人</span>
+						<span className="weui-form-preview__value">{ticket.user_name}</span>
+					</div>
 				</div>
-			</div>
-			<div className="weui-form-preview__ft">
-			</div>
-			<div className="weui-form-preview__bd">
-				<div className="weui-form-preview__item">
-					<span style={{color:"black"}} className="weui-form-preview__label">类型</span>
-					<span className="weui-form-preview__value"><T.span text={ticket.dtype}/></span>
+				<div className="weui-form-preview__ft">
 				</div>
-			</div>
-			<div className="weui-form-preview__ft">
-			</div>
-			<div className="weui-form-preview__bd">
-				<div className="weui-form-preview__item">
-					<span style={{color:"black"}} className="weui-form-preview__label">状态</span>
-					<span className="weui-form-preview__value">{ticket_status[ticket.status]}</span>
+				<div className="weui-form-preview__bd">
+					<div className="weui-form-preview__item">
+						<span style={{color:"black"}} className="weui-form-preview__label">执行人</span>
+						<span className="weui-form-preview__value">{ticket.current_user_name}</span>
+					</div>
 				</div>
-			</div>
-			<div className="weui-form-preview__ft">
-			</div>
-			<div className="weui-form-preview__bd">
-				<div className="weui-form-preview__item">
-					<span style={{color:"black"}} className="weui-form-preview__label">紧急程度</span>
-					<span className="weui-form-preview__value">{emergency[ticket.emergency]}</span>
+				<div className="weui-form-preview__ft">
 				</div>
-			</div>
-			<div className="weui-form-preview__ft">
-			</div>
-			<div className="weui-form-preview__bd">
-				<div className="weui-form-preview__item">
-				{record}
-			</div>
-			<div className="weui-form-preview__bd">
-				<div className="weui-form-preview__item">
-					<span className="weui-form-preview__label">
-						<a href="javascript:;" onClick={() => _this.callBack(ticket.id)} className="weui-btn weui-btn_mini weui-btn_default">{_this.state.call}</a>
-					</span>
-					<span className="weui-form-preview__value">
-						<a href="javascript:;" onClick={() => _this.backWithdraw(ticket.id)} className="weui-btn weui-btn_mini weui-btn weui-btn_default">撤回</a>
-					</span>
+				<div className="weui-form-preview__bd">
+					<div className="weui-form-preview__item">
+						<span style={{color:"black"}} className="weui-form-preview__label">类型</span>
+						<span className="weui-form-preview__value"><T.span text={ticket.dtype}/></span>
+					</div>
+				</div>
+				<div className="weui-form-preview__ft">
+				</div>
+				<div className="weui-form-preview__bd">
+					<div className="weui-form-preview__item">
+						<span style={{color:"black"}} className="weui-form-preview__label">状态</span>
+						<span className="weui-form-preview__value">{ticket_status[ticket.status]}</span>
+					</div>
+				</div>
+				<div className="weui-form-preview__ft">
+				</div>
+				<div className="weui-form-preview__bd">
+					<div className="weui-form-preview__item">
+						<span style={{color:"black"}} className="weui-form-preview__label">紧急程度</span>
+						<span className="weui-form-preview__value">{emergency[ticket.emergency]}</span>
+					</div>
+				</div>
+				<div className="weui-form-preview__ft">
+				</div>
+				<div className="weui-form-preview__bd">
+					<div className="weui-form-preview__item">
+					{record}
+				</div>
+				<div className="weui-form-preview__bd">
+					<div className="weui-form-preview__item">
+						<span className="weui-form-preview__label">
+							<a href="javascript:;" onClick={() => _this.callBack(ticket.id)} className="weui-btn weui-btn_mini weui-btn_default">{_this.state.call}</a>
+						</span>
+						<span className="weui-form-preview__value">
+							<a href="javascript:;" onClick={() => _this.backWithdraw(ticket.id)} className="weui-btn weui-btn_mini weui-btn weui-btn_default">撤回</a>
+						</span>
+					</div>
 				</div>
 			</div>
 		</div>
-		</div>
+
 		<article className="weui-article">
 			<section>
 				<p>{ticket.content}</p>
 			</section>
 		</article>
+
 		{assigns}
+
 		<br/>
 			<a className="weui-form-preview__btn weui-form-preview__btn_primary" onClick={() => _this.handleComment(ticket.id)}>添加评论</a>
+
 			{/* <div className="weui-cells weui-cells_form">
 				<div className="weui-cell">
 					<div className="weui-cell__bd">
@@ -333,16 +405,24 @@ class Home extends React.Component {
 		{/*  <div className="weui-btn-area" onClick={this.handleSubmit.bind(this)}>
 			<a className="weui-btn weui-btn_primary" href="javascript:" id="showTooltips">提交</a>
 		</div> */}
+
 		<div className="weui-panel weui-panel_access">
 			<div className="weui-panel__bd">
 			{comments}
 			</div>
 		</div>
+
+		<div>
+			<button className="weui-btn" onClick={this.backToTicketList.bind(this)}>返回我的工单列表</button>
+			<br/>
+			<br/>
+		</div>
+
 		</div>
 	}
 }
 
-class Userlist extends React.Component {
+class UserList extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {wechat_users: []};
@@ -741,19 +821,6 @@ class Tickets extends React.Component {
 		const tickets = _this.state.tickets.map((ticket) => {
 			var ticket_state = ticket.status;
 			var ticket_style = '';
-
-			if (ticket_state == 'TICKET_ST_NEW') {
-				ticket_style = "2px solid red";
-			}
-
-			if (ticket_state == 'TICKET_ST_PROCESSING') {
-				ticket_style = "2px solid yellow";
-			}
-
-			if (ticket_state == 'TICKET_ST_DONE') {
-				ticket_style = "2px solid green";
-			}
-
 			var completed_epoch = ticket.completed_epoch;
 
 			if (now >= completed_epoch && completed_epoch) {
@@ -763,8 +830,8 @@ class Tickets extends React.Component {
 			return <div className="weui-form-preview__bd" onClick={() => _this.handleClick(ticket.id)} key={ticket.id} >
 						<div className="weui-form-preview__item">
 							<label className="weui-form-preview__label" style={{color:"black"}}>
-								<span style={{border:ticket_style}}></span>&nbsp;
-								{ticket.subject}
+								<span className={ticket.status}>X</span>&nbsp;
+								<span>{ticket.subject}</span>
 							</label>
 							<span className="weui-form-preview__value" style={{color:"black"}}>{ticket.cid_number}{warning}</span>
 						</div>

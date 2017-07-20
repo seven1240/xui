@@ -828,7 +828,7 @@ class TicketPage extends React.Component {
 class TicketsPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {rows: [], danger: false, formShow: false, hiddendiv: 'none', loaded: false, activeKey: 0, types: [], display: 'inline'};
+		this.state = {rows: [], danger: false, formShow: false, hiddendiv: 'none', loaded: false, activeKey: 0, types: []};
 		this.handleDelete = this.handleDelete.bind(this);
 		this.handleControlClick = this.handleControlClick.bind(this);
 		this.handleQuery = this.handleQuery.bind(this);
@@ -871,7 +871,7 @@ class TicketsPage extends React.Component {
 
 	componentDidMount () {
 		var _this = this;
-		xFetchJSON("/api/tickets").then((data) => {
+		xFetchJSON("/api/tickets?ticket_type=" + 0).then((data) => {
 			console.log('data', data)
 			this.setState({rows: data, loaded: true});
 		});
@@ -902,7 +902,8 @@ class TicketsPage extends React.Component {
 		this.days = data;
 		e.preventDefault();
 
-		xFetchJSON("/api/tickets?last=" + data).then((tickets) => {
+		var type = this.state.activeKey;
+		xFetchJSON("/api/tickets?last=" + data + "&ticket_type=" + type).then((tickets) => {
 			this.setState({rows: tickets});
 		})
 	}
@@ -927,12 +928,13 @@ class TicketsPage extends React.Component {
 		let _this = this;
 
 		if (selectedKey == 0) {
-			xFetchJSON("/api/tickets").then((data) => {
-				this.setState({rows: data, activeKey: selectedKey, display: 'inline'});
+			xFetchJSON("/api/tickets?ticket_type=" + 0).then((data) => {
+				this.setState({rows: data, activeKey: selectedKey});
 			});
 		} else {
-			xFetchJSON("/api/tickets/onetype?theType=" + selectedKey).then((data) => {
-				_this.setState({rows: data, activeKey: selectedKey, display: 'none'});
+			var type = selectedKey;
+			xFetchJSON("/api/tickets?ticket_type=" + selectedKey).then((data) => {
+				_this.setState({rows: data, activeKey: selectedKey});
 			});
 		}
 	}
@@ -1006,7 +1008,7 @@ class TicketsPage extends React.Component {
 		return <div>
 			<ButtonToolbar className="pull-right">
 				<br/>
-				<div style={{display: _this.state.display}}>
+				<div style={{display: 'inline'}}>
 					<T.span text="Last"/> &nbsp;
 					<T.a onClick={this.handleQuery} text={{key:"days", day: 7}} data="7" href="#"/>&nbsp;|&nbsp;
 					<T.a onClick={this.handleQuery} text={{key:"days", day: 15}} data="15" href="#"/>&nbsp;|&nbsp;
