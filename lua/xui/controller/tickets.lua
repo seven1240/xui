@@ -56,13 +56,21 @@ get('/', function(params)
 	startDate = env:getHeader('startDate')
 	last = tonumber(env:getHeader('last'))
 	status = env:getHeader('status')
+	ticket_type = env:getHeader('ticket_type')
+	print(ticket_type)
 
 	if not startDate then
 		if not last then last = 7 end
 
 		local sdate = os.time() - last * 24 * 60 * 60
 		startDate = os.date('%Y-%m-%d', sdate)
-		cond = " created_epoch > '" .. startDate .. "'"
+		if ticket_type == '0' then
+			print(11111111111111111111111111)
+			cond = " created_epoch > '" .. startDate .. "'"
+		else
+			cond = " created_epoch > '" .. startDate .. "'" .. " AND type = '" .. ticket_type .. "'"
+		end
+		print(cond)
 	else
 		local endDate = env:getHeader('endDate')
 		local id = env:getHeader('id')
@@ -75,7 +83,8 @@ get('/', function(params)
 					xdb.if_cond("id", id) ..
 					xdb.if_cond("cid_number", cid_number) ..
 					xdb.if_cond("status", status) ..
-					xdb.if_cond("serial_number", serial_number)
+					xdb.if_cond("serial_number", serial_number) ..
+					xdb.if_cond("type", ticket_type)
 	end
 
 	if m_user.has_permission() then
