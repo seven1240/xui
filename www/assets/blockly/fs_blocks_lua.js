@@ -110,11 +110,9 @@ Blockly.Lua.fsSessionRead = function(block) {
   var text_terminator = block.getFieldValue('terminator');
 
   if (!(text_sound.indexOf(".") >= 0 || text_sound.indexOf("/") >= 0 || text_sound.indexOf("\\\\") >= 0)) {
-	
-	if(text_sound.substring(text_sound.length-1)=="\'")
-      		{
-        	text_sound = text_sound.substr(1,text_sound.length-2)
-      		}
+    if(text_sound.substring(text_sound.length-1)=="\'") {
+      text_sound = text_sound.substr(1,text_sound.length-2)
+    }
 
    	text_sound = 'say:' + text_sound;
   }
