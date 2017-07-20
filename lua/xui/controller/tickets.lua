@@ -675,6 +675,23 @@ post('/', function(params)
 
 	ticket = xdb.create_return_object('tickets', ticket)
 
+	local user = xdb.find("users", xtra.session.user_id)
+	local weuser = xdb.find_one("wechat_users", {
+		user_id = xtra.session.user_id
+	})
+
+	local comment = {}
+	comment.ticket_id = ticket.id
+	comment.user_id = xtra.session.user_id
+	comment.content = user.name .. '创建了工单'
+	comment.user_name = user.name
+
+	if weuser then
+		comment.avatar_url = weuser.headimgurl
+	end
+
+	ret = xdb.create_return_object("ticket_comments", comment)
+
 	if ticket then
 		if config.wechat_realm then
 			realm = config.wechat_realm
