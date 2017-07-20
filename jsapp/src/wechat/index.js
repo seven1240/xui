@@ -696,7 +696,7 @@ class Tickets extends React.Component {
 		var _this = this;
 		// window.addEventListener('scroll', _this.ticketList.bind(_this))
 		var page = _this.state.page
-		xFetchJSON("/api/wechat/xyt/all/" + page).then((data) => {
+		xFetchJSON("/api/tickets").then((data) => {
 			_this.setState({tickets: data});
 		}).catch((e) => {
 			console.error("get ticket", e);
@@ -709,7 +709,7 @@ class Tickets extends React.Component {
 		if (!scrollBottom && _this.state.scro) {
 			_this.setState({scro: false});
 			var page = _this.state.page + 1
-			xFetchJSON("/api/wechat/xyt/all/" + page).then((data) => {
+			xFetchJSON("/api/tickets").then((data) => {
 				if (data.length > 0) {
 					console.log("ticket", data);
 					var tickets = _this.state.tickets
@@ -741,23 +741,29 @@ class Tickets extends React.Component {
 		const tickets = _this.state.tickets.map((ticket) => {
 			var ticket_state = ticket.status;
 			var ticket_style = '';
+
 			if (ticket_state == 'TICKET_ST_NEW') {
 				ticket_style = "2px solid red";
 			}
+
 			if (ticket_state == 'TICKET_ST_PROCESSING') {
 				ticket_style = "2px solid yellow";
 			}
+
 			if (ticket_state == 'TICKET_ST_DONE') {
 				ticket_style = "2px solid green";
 			}
+
 			var completed_epoch = ticket.completed_epoch;
+
 			if (now >= completed_epoch && completed_epoch) {
 				var warning = <i className="weui-icon-warn"></i>
 			}
+
 			return <div className="weui-form-preview__bd" onClick={() => _this.handleClick(ticket.id)} key={ticket.id} >
 						<div className="weui-form-preview__item">
 							<label className="weui-form-preview__label" style={{color:"black"}}>
-								<span style={{border:ticket_style}}></span>
+								<span style={{border:ticket_style}}></span>&nbsp;
 								{ticket.subject}
 							</label>
 							<span className="weui-form-preview__value" style={{color:"black"}}>{ticket.cid_number}{warning}</span>
@@ -773,6 +779,7 @@ class Tickets extends React.Component {
 					<div className="weui-form-preview__ft"></div>
 					</div>
 		});
+
 		return <div className="weui-panel">
 				<div className="weui-panel__hd">
 					<div className="weui-form-preview__bd">

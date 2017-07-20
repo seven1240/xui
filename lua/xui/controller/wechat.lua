@@ -64,27 +64,12 @@ get('/anyway/:realm', function(params)
 	return 	env:getHeader("echostr")
 end)
 
-get('/:realm/all/:page', function(params)
-	freeswitch.consoleLog("ERR", "asdajsldkjal")
-	local user_id = xtra.session.user_id
-	local size = 6
-	local page = params.page * size
-	n, tickets = xdb.find_by_sql([[SELECT u.*, w.v as dtype
-	FROM tickets as u left join dicts as w
-	ON u.type = w.k
-	ORDER BY id DESC]])
-	-- LIMIT ]] .. page .. [[,]] .. size .. [[
-	-- ]])
-	return tickets
-end)
-
 get('/:realm/setting', function(params)
 	local user_id = xtra.session.user_id
 	sql = "select a.id,a.headimgurl,a.nickname,b.extn,b.password from wechat_users as a left join users as b on a.user_id = b.id where a.user_id = '" .. user_id .. "'"
 	n, users = xdb.find_by_sql(sql)
 	return users[1]
 end)
-
 
 get('/:realm/tickets/:id', function(params)
 	if do_debug then
