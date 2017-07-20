@@ -410,6 +410,7 @@ CREATE INDEX fifo_member_fifo_name ON fifo_members(fifo_name);
 CREATE TABLE mcasts (
 	id INTEGER PRIMARY KEY,
 	name VARCHAR NOT NULL,
+	type VARCHAR NOT NULL DEFAULT "MUSIC",
 	source VARCHAR,
 	codec_name VARCHAR,
 	codec_ms INTEGER,
