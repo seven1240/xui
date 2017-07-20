@@ -198,7 +198,7 @@ class TicketPage extends React.Component {
 			types: [],
 			call: "回拨",
 			content: false,
-			appraise: '',
+			rate: '',
 			record_src: '',
 			media_files: [],
 			comment: '',
@@ -212,7 +212,7 @@ class TicketPage extends React.Component {
 		this.handleControlClose = this.handleControlClose.bind(this);
 		this.handleClickChange = this.handleClickChange.bind(this);
 		this.handleSatisfiedSubmit = this.handleSatisfiedSubmit.bind(this);
-		this.handleAppraiseSubmit = this.handleAppraiseSubmit.bind(this);
+		this.handleRateSubmit = this.handleRateSubmit.bind(this);
 		this.handleDownload = this.handleDownload.bind(this);
 		this.onDrop = this.onDrop.bind(this);
 		this.handleCommitUpload = this.handleCommitUpload.bind(this);
@@ -376,16 +376,16 @@ class TicketPage extends React.Component {
 		});
 	}
 
-	handleAppraiseSubmit(e) {
+	handleRateSubmit(e) {
 		var _this = this;
-		var ticket = form2json('#FormAppraise');
+		var ticket = form2json('#FormRate');
 
-		xFetchJSON("/api/tickets/" + this.state.ticket.id + "/appraise", {
+		xFetchJSON("/api/tickets/" + this.state.ticket.id + "/rate", {
 			method: "PUT",
 			body: JSON.stringify(ticket)
 		}).then((data) => {
 			console.log('data', data);
-			_this.setState({appraise: data.appraise, content: true});
+			_this.setState({rate: data.rate, content: true});
 		}).catch((err) => {
 			console.error("ticket", err);
 			notify(err, "error");
@@ -560,7 +560,7 @@ class TicketPage extends React.Component {
 		})
 
 		const ticket = this.state.ticket;
-		if (ticket.appraise || this.state.appraise) {
+		if (ticket.rate || this.state.rate) {
 			this.state.content = true;
 		}
 		let types = {};
@@ -709,17 +709,20 @@ class TicketPage extends React.Component {
 		return <Dropzone ref={(node) => { this.dropzone = node; }} onDrop={this.onDrop} className="dropzone" activeClassName="dropzone_active" disableClick={true}><div>
 			<ButtonToolbar className="pull-right">
 			<ButtonGroup>
-				<Button onClick={this.handleMore.bind(this)}><i className="fa fa-comments" aria-hidden="true"></i>&nbsp;<T.span text="Ticket Appraise"/></Button>
+				<Button onClick={this.handleMore.bind(this)}><i className="fa fa-comments" aria-hidden="true"></i>&nbsp;<T.span text="Rating"/></Button>
 			</ButtonGroup>
+
 			<ButtonGroup>
 				<Link to={`/tickets`} className="btn btn-default">
 						<i className="fa fa-chevron-circle-left" aria-hidden="true"></i>&nbsp;<T.span text="Back"/>
 				</Link>
 				<Button onClick={this.handleDownload}><i className="fa fa-download" aria-hidden="true"></i>&nbsp;<T.span text="Download"/></Button>
 			</ButtonGroup>
+
 			<ButtonGroup>
 				<Button onClick={() => _this.callBack(ticket.id)}><i className="fa fa-phone-square" aria-hidden="true"></i>&nbsp;<T.span text={_this.state.call}/></Button>
 			</ButtonGroup>
+
 			<ButtonGroup>
 				<Button onClick={this.handleControlClose}><i className="fa fa-check-square" aria-hidden="true"></i>&nbsp;<T.span text="Finished"/></Button>
 				{ savebtn }
@@ -731,22 +734,22 @@ class TicketPage extends React.Component {
 			<hr/>
 			<div style={{display: this.state.hiddendiv}}>
 				{satisfied}
-				<Form horizontal id="FormAppraise">
+				<Form horizontal id="FormRate">
 					{
 						this.state.content ?
 						<FormGroup>
 							<Col componentClass={ControlLabel} sm={2}><T.span text="工单评价" /></Col>
 							<Col sm={4}>
-								<EditControl componentClass="textarea" name="appraise" defaultValue={this.state.appraise ? this.state.appraise : this.state.ticket.appraise}/>
+								<EditControl componentClass="textarea" name="rate" defaultValue={this.state.rate ? this.state.rate : this.state.ticket.rate}/>
 							</Col>
 						</FormGroup> :
 						<FormGroup>
 							<Col componentClass={ControlLabel} sm={2}><T.span text="工单评价" /></Col>
 							<Col sm={3}>
-								<FormControl componentClass="textarea" name="appraise" placeholder="评价内容" />
+								<FormControl componentClass="textarea" name="rate" placeholder="评价内容" />
 							</Col>
 							<Col sm={1}>
-								<Button onClick={this.handleAppraiseSubmit}><T.span onClick={this.handleAppraiseSubmit} text="Submit"/></Button>
+								<Button onClick={this.handleRateSubmit}><T.span onClick={this.handleRateSubmit} text="Submit"/></Button>
 							</Col>
 						</FormGroup>
 					}

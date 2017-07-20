@@ -685,14 +685,14 @@ put('/:id', function(params)
 	end
 end)
 
-put('/:id/appraise', function(params)
+put('/:id/rate', function(params)
 	local ticket_id = params.id
-	local appraise = params.request.appraise
+	local rate = params.request.rate
 
-	ret = xdb.update("tickets", {id = ticket_id, appraise = appraise})
+	ret = xdb.update("tickets", {id = ticket_id, rate = rate})
 	
 	if ret == 1 then
-		return '{"appraise":"' .. appraise .. '"}'
+		return {rate = rate}
 	else
 		return 500
 	end

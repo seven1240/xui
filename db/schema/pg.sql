@@ -476,6 +476,7 @@ CREATE TABLE tickets (
 	wechat_openid VARCHAR,
 	emergency VARCHAR,
 	privacy VARCHAR DEFAULT 'TICKET_PRIV_PRIVATE',
+	rate VARCHAR,
 
 	created_epoch TIMESTAMP(0) DEFAULT now(),
 	updated_epoch TIMESTAMP(0) DEFAULT now(),
