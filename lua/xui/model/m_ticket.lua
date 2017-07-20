@@ -63,7 +63,7 @@ m_ticket.close = function(id)
 		comment.user_id = xtra.session.user_id
 		comment.action = "TICKET_ACTION_CLOSE"
 		comment.subject = "关闭工单"
-		comment.content = "关闭了工单"
+		comment.content = user.name .. "关闭了工单"
 
 		if user then
 			comment.user_name = user.name

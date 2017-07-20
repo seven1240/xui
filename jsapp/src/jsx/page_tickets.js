@@ -315,7 +315,7 @@ class TicketPage extends React.Component {
 		this.setState({deal_user: deal_user});
 	}
 
-	handleControlClose () {
+	handleControlClose() {
 		let _this = this;
 		let ticket = this.state.ticket;
 		console.log('ticket', ticket)
@@ -328,6 +328,11 @@ class TicketPage extends React.Component {
 			notify(<T.span text={{key:"Finished at", time: Date()}}/>);
 		}).catch((msg) => {
 			console.error("ticket", msg);
+		});
+
+		xFetchJSON("/api/tickets/" + _this.state.ticket.id + '/comments').then((data) => {
+			console.log('data', data)
+			_this.setState({ticket_comments: data});
 		});
 	} 
 
