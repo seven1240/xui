@@ -178,12 +178,15 @@ end)
 get('/:id', function(params)
 	local ticket = {}
 	local pid = params.id
+
 	n, tickets = xdb.find_by_sql([[SELECT u.*, w.v as dtype
 	FROM tickets as u left join dicts as w
 	ON u.type = w.k
-	WHERE u.id = 
+	WHERE u.id =
 	]] .. xdb.escape(pid))
+
 	ticket = tickets[1]
+
 	if ticket then
 		local user = xdb.find("users", ticket.user_id)
 		if user then
@@ -645,6 +648,10 @@ post('/', function(params)
 
 	if not ticket.emergency then
 		ticket.emergency = 'URGENT'
+	end
+
+	if ticket.completed_epoch == '' then
+		ticket.completed_epoch = nil
 	end
 
 	ticket = xdb.create_return_object('tickets', ticket)

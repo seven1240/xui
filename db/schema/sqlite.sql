@@ -592,7 +592,7 @@ CREATE TABLE tickets (
 	current_user_id INTEGER,    -- the user processing this ticket
 	wechat_openid VARCHAR,
 	emergency VARCHAR,
-	privacy VARCHAR DEFAULT 'TICKET_PRIV_PUBLIC',
+	privacy VARCHAR DEFAULT 'TICKET_PRIV_PRIVATE',
 	appraise VARCHAR,
 
 	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
