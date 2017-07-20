@@ -713,7 +713,13 @@ end)
 
 put('/:id', function(params)
 	print(serialize(params))
-	ret = xdb.update("tickets", params.request)
+	local ticket = params.request
+
+	if ticket.completed_epoch == '' then
+		ticket.completed_epoch = nil
+	end
+
+	ret = xdb.update("tickets", ticket)
 	if ret then
 		return 200, "{}"
 	else

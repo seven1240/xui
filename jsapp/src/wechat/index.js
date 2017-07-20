@@ -15,9 +15,9 @@ const ticket_status = {
 }
 
 const emergency = {
-	"URGENT": "紧急",
+	"NORMAL": "不紧急",
 	"EMERGENT": "较紧急",
-	"NORMAL": "不紧急"
+	"URGENT": "紧急"
 }
 
 class Home extends React.Component {
@@ -312,11 +312,8 @@ class Home extends React.Component {
 		}
 
 		return <div>
-			<div className="weui-cells__title">
-				<h1 style={{ textAlign:"center", color:"black" }}>{ticket.subject}</h1>
-			{/* <p>
-				{ticket.content}
-			</p> */}
+			<div className={"TICKET_E_" + ticket.emergency}>
+				<h1 style={{ textAlign:"center" }}>{ticket.subject}</h1>
 			</div>
 			<div className="weui-form-preview__bd">
 				<div className="weui-form-preview__item">
@@ -700,10 +697,9 @@ class Newticket extends React.Component {
 		})
 		const cnumber = this.state.cnumber
 		return <div>
+				<h1 style={{ textAlign:"center" }}>新建工单</h1>
+
 				<div className="weui-cells weui-cells_form">
-					<div className="weui-cells__title">
-						<h1 style={{ textAlign:"center" }}>新建工单</h1>
-					</div>
 					<div className="weui-cell">
 						<div className="weui-cell__hd">
 							<label className="weui-label">来电号码</label>
@@ -720,34 +716,42 @@ class Newticket extends React.Component {
 							<input className="weui-input" type="text" onChange={this.handleSubject.bind(this)} placeholder="请输入主题"/>
 						</div>
 					</div>
-				</div>
-				<div className="weui-cells__title" style={{color:"black"}}>类型</div>
-				<div className="weui-cells">
-					<div className="weui-cell weui-cell_select">
-						<div className="weui-cell__bd">
-							<select className="weui-select" name="select1" onChange={this.handleType.bind(this)}>
+
+					<div className="weui-cell">
+						<div className="weui-cell__hd">
+							<label className="weui-label">类型</label>
+						</div>
+						<div className="weui-cell__bd weui-cell_select">
+							<select className="weui-select" name="select_type" onChange={this.handleType.bind(this)}>
 								{ticket_type}
 							</select>
 						</div>
 					</div>
-				</div>
-				<div className="weui-cells__title" style={{color:"black"}}>紧急程度</div>
-				<div className="weui-cells">
-					<div className="weui-cell weui-cell_select">
-						<div className="weui-cell__bd">
-							<select className="weui-select" name="select1" onChange={this.handleEmergency.bind(this)}>
-								<option value="URGENT">紧急</option>
-								<option value="EMERGENT">较紧急</option>
-								<option value="NORMAL">不紧急</option>
+
+					<div className="weui-cell">
+						<div className="weui-cell__hd">
+							<label className="weui-label">紧急程度</label>
+						</div>
+						<div className="weui-cell__bd weui-cell_select">
+							<select className="weui-select" name="select_emergency" onChange={this.handleEmergency.bind(this)}>
+							{
+								["NORMAL", "EMERGENT", "URGENT"].map((e) => {
+									return <option key={e} value="URGENT">emergency[e]</option>
+								})
+							}
 							</select>
 						</div>
 					</div>
-				</div>
-				<div className="weui-cells__title" style={{color:"black"}}>处理期限</div>
-				<div className="weui-form-preview__ft">
-				</div>
-				<div className="weui-cells__title" style={{color:"black"}}>
-					<input type="date" onChange={this.handleDateEnd.bind(this)} style={{width:"30%"}}/>
+
+					<div className="weui-cell">
+						<div className="weui-cell__hd">
+							<label className="weui-label">处理期限</label>
+						</div>
+
+						<div className="weui-cell__bd">
+							<input type="date" onChange={this.handleDateEnd.bind(this)}/>
+						</div>
+					</div>
 				</div>
 				<div className="weui-form-preview__ft">
 				</div>

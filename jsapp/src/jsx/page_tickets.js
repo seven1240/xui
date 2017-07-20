@@ -775,12 +775,12 @@ class TicketPage extends React.Component {
 
 				<FormGroup controlId="formCreated_epoch">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Created At"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="created_epoch" defaultValue={ticket.created_epoch}/></Col>
+					<Col sm={10}><FormControl.Static>{ticket.created_epoch}</FormControl.Static></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formFinished_epoch">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Deadline"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="completed_epoch" defaultValue={ticket.completed_epoch}/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} type="date" name="completed_epoch" defaultValue={ticket.completed_epoch}/></Col>
 				</FormGroup>
 
 				{FORM}
