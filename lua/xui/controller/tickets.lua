@@ -63,7 +63,7 @@ get('/', function(params)
 
 		local sdate = os.time() - last * 24 * 60 * 60
 		startDate = os.date('%Y-%m-%d', sdate)
-		if ticket_type == '0' then
+		if (not ticket) or ticket_type == '0' then
 			cond = " created_epoch > '" .. startDate .. "'"
 		else
 			cond = " created_epoch > '" .. startDate .. "'" .. " AND type = '" .. ticket_type .. "'"
