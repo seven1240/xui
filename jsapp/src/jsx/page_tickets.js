@@ -903,7 +903,6 @@ class TicketsPage extends React.Component {
 		e.preventDefault();
 
 		var type = this.state.activeKey;
-		console.log('typeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', type)
 		xFetchJSON("/api/tickets?last=" + data + "&ticket_type=" + type).then((tickets) => {
 			this.setState({rows: tickets});
 		})
@@ -934,7 +933,6 @@ class TicketsPage extends React.Component {
 			});
 		} else {
 			var type = selectedKey;
-			console.log('ddddd', type)
 			xFetchJSON("/api/tickets?ticket_type=" + selectedKey).then((data) => {
 				_this.setState({rows: data, activeKey: selectedKey});
 			});

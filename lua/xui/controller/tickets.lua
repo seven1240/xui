@@ -57,7 +57,6 @@ get('/', function(params)
 	last = tonumber(env:getHeader('last'))
 	status = env:getHeader('status')
 	ticket_type = env:getHeader('ticket_type')
-	print(ticket_type)
 
 	if not startDate then
 		if not last then last = 7 end
@@ -65,7 +64,6 @@ get('/', function(params)
 		local sdate = os.time() - last * 24 * 60 * 60
 		startDate = os.date('%Y-%m-%d', sdate)
 		if ticket_type == '0' then
-			print(11111111111111111111111111)
 			cond = " created_epoch > '" .. startDate .. "'"
 		else
 			cond = " created_epoch > '" .. startDate .. "'" .. " AND type = '" .. ticket_type .. "'"
