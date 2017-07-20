@@ -315,12 +315,13 @@ class Home extends React.Component {
 			<div className={"TICKET_E_" + ticket.emergency}>
 				<h1 style={{ textAlign:"center" }}>{ticket.subject}</h1>
 			</div>
-			<div className="weui-form-preview__bd">
-				<div className="weui-form-preview__item">
-					<span style={{color:"black"}} className="weui-form-preview__label">{ticket.serial_number}</span>
-					<span className="weui-form-preview__value">{ticket.created_epoch}</span>
-				</div>
+
+			<div style={{padding: "5px", color: "#999"}}>
+				<br/>
+				<div style={{float: "right"}}>{ticket.created_epoch}</div>
+				<div>{ticket.serial_number}</div>
 			</div>
+
 			<div className="weui-form-preview">
 				<div className="weui-form-preview__ft">
 				</div>
