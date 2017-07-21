@@ -682,14 +682,12 @@ class Newticket extends React.Component {
 		var timestamp1 = Date.parse(new Date());
 		var now = timestamp1 / 1000;
 		var timestamp2 = Date.parse(_this.state.input.deadline);
-		var deadline = timestamp2 / 1000;
+		var deadline = timestamp2 / 1000 + 86400;
 
-/*
 		if (now >= deadline) {
 			alert("请选择正确的期限时间");
 			return false;
 		}
-*/
 
 		const ticket = _this.state.input;
 		xFetchJSON("/api/tickets", {
