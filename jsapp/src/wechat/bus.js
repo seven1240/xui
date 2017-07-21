@@ -7,8 +7,159 @@ import { FormControl } from 'react-bootstrap';
 
 var is_wx_ready = false;
 var loc = {};
+
+/*
+Becase the global object defined here can't be finded by baidu map's alert windows, I add them in window object.
+*/
 window.start = '市政';
 window.end = '公安局';
+window.station_view_this;
+
+/*
+param must contains stat_name
+*/
+function drawCars(cars) {
+	cars.forEach((c) => {
+		let point = getPosition(c.stat_name);
+		if (point) {
+			addBusMarker(point, 'bus-blue.png');
+		}
+	});
+}
+
+function getPosition(name) {
+	let markers = window.map.getOverlays();
+	let i = 0;
+	let marker;
+
+	for (i; i < markers.length; i++) {
+		marker = markers[i];
+		if (marker.content == name) {
+			break;
+		}
+	}
+
+	if (marker) {
+		return marker.point;
+	}
+}
+
+/*
+draw stations
+By default, the click event function must named onMarkerClick.
+*/
+function drawStations(stations, _this, func) {
+	stations.forEach((station) => {
+		const point = new BMap.Point(station.baidu_x, station.baidu_y);
+		if (func) {
+			addMarker(point, station, func.bind(_this));
+			addLabel(point, station.stat_name, station, func.bind(_this));
+		} else {
+			addMarker(point, station, _this.onMarkerClick.bind(_this));
+			addLabel(point, station.stat_name, station, _this.onMarkerClick.bind(_this));
+		}		
+	});
+}
+
+function alertStationWindow(station) {
+	xFetchJSON('/api/bus/station/lines?name=' + station.stat_name).then((data) => {
+		console.log('lines for station', data);
+
+		const opts = {
+			width : '',
+			height: '',
+			title : station.stat_name
+		}
+
+		let text = '<br>';
+		let lines_showed = [];
+		data.forEach((l) => {
+			if (lines_showed.includes(l.line_code)) {
+				return;
+			}
+			lines_showed.push(l.line_code);
+			if (l.line_code == station.line_code) {
+				text += '<font color="#FF0000">' + l.line_code + '路: ' + l.start_station + '-' + l.stop_station + '</font><br>';
+			} else {
+				text += '<font>' + l.line_code + '路: ' + l.start_station + '-' + l.stop_station + '</font><br>';
+			}
+		});
+
+		const infoWindow = new BMap.InfoWindow(text, opts);
+		window.map.openInfoWindow(infoWindow, new BMap.Point(station.baidu_x, station.baidu_y));
+	});
+}
+
+/*
+param must contains baidu_x, baidu_y
+*/
+function setCenterPosition(stations) {
+	let max_x = stations[0].baidu_x;
+	let max_y = stations[0].baidu_y;
+	let min_x = stations[0].baidu_x;
+	let min_y = stations[0].baidu_y;
+	/* set center position*/
+	stations.forEach((station) => {
+		if (parseFloat(max_x) < parseFloat(station.baidu_x)) { max_x = station.baidu_x}
+		if (parseFloat(max_y) < parseFloat(station.baidu_y)) { max_y = station.baidu_y}
+		if (parseFloat(min_x) > parseFloat(station.baidu_x)) { min_x = station.baidu_x}
+		if (parseFloat(min_y) > parseFloat(station.baidu_y)) { min_y = station.baidu_y}
+	});
+
+	let center_x = (parseFloat(max_x) + parseFloat(min_x))/2;
+	let center_y = (parseFloat(max_y) + parseFloat(min_y))/2;
+	let center_point = new BMap.Point(center_x, center_y);
+
+	window.map.centerAndZoom(center_point, 14);
+}
+
+
+window.get_line = function(line_code, type) {
+	if (!window.map) {return;}
+
+	let is_station_loaded = 'unload';
+	let cars;
+
+	window.map.clearOverlays();
+	//mapStations
+	xFetchJSON('/api/bus/test4').then((data) => {
+		if (data.code != 1) {
+			console.error('response json error', data);
+			return;
+		}
+		let stations = data.list;
+		let _this = window.station_view_this;
+		let i = 0;
+
+		drawStations(stations, _this, _this.onMarkerClick2);
+		setCenterPosition(stations);
+
+		for (i = 0; i < stations.length - 1; i++) {
+			addArrowLine(window.map, stations[i].baidu_x, stations[i].baidu_y,
+				stations[i+1].baidu_x, stations[i+1].baidu_y, 'red', 4, 2, false);
+		}
+
+		is_station_loaded = 'load';
+
+		if (cars) {
+			drawCars(cars);
+		}
+	});
+
+	//realData
+	xFetchJSON('/api/bus/test5').then((data) => {
+		if (data.code != 1) {
+			console.error('response json error', data);
+			return;
+		}
+
+		if (is_station_loaded == 'load') {
+			drawCars(data.res);
+		} else {
+			cars = data.res;
+		}
+	});
+}
 
 function pushHistory(title, url) {
 	var state = {
@@ -243,33 +394,33 @@ class LinePage extends React.Component {
 		window.map.centerAndZoom(new BMap.Point(120.40086416919, 37.37223326585), 14);
 
 		var geolocation = new BMap.Geolocation();
-			geolocation.getCurrentPosition(function(r){
-				if(this.getStatus() == BMAP_STATUS_SUCCESS){
-					_this.setState({self_xpoint: r.point.lng, self_ypoint: r.point.lat});
-					// _this.setState({self_xpoint: 120.404126, self_ypoint: 37.369088});
-					setInterval(function(){
-						xFetchJSON('/api/bus/traffic', {
+		geolocation.getCurrentPosition(function(r){
+			if(this.getStatus() == BMAP_STATUS_SUCCESS){
+				_this.setState({self_xpoint: r.point.lng, self_ypoint: r.point.lat});
+				// _this.setState({self_xpoint: 120.404126, self_ypoint: 37.369088});
+				setInterval(function(){
+					xFetchJSON('/api/bus/traffic', {
+						method: "POST",
+						body: '{"line":'+_this.props.line.line_code+'}'
+					}).then((obj) => {
+						_this.setState({traffics: obj});
+						xFetchJSON('/api/bus/traffic/self', {
 							method: "POST",
-							body: '{"line":'+_this.props.line.line_code+'}'
+							body: '{"line":'+_this.props.line.line_code+', "xpoint":'+_this.state.self_xpoint+', "ypoint":'+_this.state.self_ypoint+'}'
 						}).then((obj) => {
-							_this.setState({traffics: obj});
-							xFetchJSON('/api/bus/traffic/self', {
-								method: "POST",
-								body: '{"line":'+_this.props.line.line_code+', "xpoint":'+_this.state.self_xpoint+', "ypoint":'+_this.state.self_ypoint+'}'
-							}).then((obj) => {
-								_this.setState({self_order: obj[0].station_order});
-							}).catch((msg) => {
-								console.error("new FIFO Err", msg);
-							});
+							_this.setState({self_order: obj[0].station_order});
 						}).catch((msg) => {
 							console.error("new FIFO Err", msg);
 						});
-					},1000);
-				}
-				else {
-				}
-			},{enableHighAccuracy: true})
-		}
+					}).catch((msg) => {
+						console.error("new FIFO Err", msg);
+					});
+				},1000);
+			}
+			else {
+			}
+		},{enableHighAccuracy: true})
+	}
 	
 	componentDidMount() {
 		const _this = this;
@@ -444,17 +595,6 @@ class Home extends React.Component {
 	}
 }
 
-function freshStations(station, _this) {
-	xFetchJSON('/api/bus/station?station=' + station).then((data) => {
-		_this.setState({stations: data});
-		if (window.map) {
-			setupStations();
-		} else {
-			this.state.pendingSetupStations = true;
-		}
-	});
-}
-
 class StationSearch extends React.Component {
 	constructor(props) {
 		super(props);
@@ -463,6 +603,8 @@ class StationSearch extends React.Component {
 			stations: [],
 			pendingSetupStations: false
 		};
+
+		window.station_view_this = this;
 	}
 
 	loadScript() {
@@ -506,31 +648,12 @@ class StationSearch extends React.Component {
 		}
 		xFetchJSON(url).then((data) => {
 			window.map.clearOverlays();
-			data.forEach((station) => {
-				const point = new BMap.Point(station.baidu_x, station.baidu_y);
-				addMarker(point, station, _this.onMarkerClick.bind(_this));
-				addLabel(point, station.stat_name, station, _this.onMarkerClick.bind(_this));
-			});
 
-			let max_x = data[0].baidu_x;
-			let max_y = data[0].baidu_y;
-			let min_x = data[0].baidu_x;
-			let min_y = data[0].baidu_y;
-			data.forEach((station) => {
-				if (parseFloat(max_x) < parseFloat(station.baidu_x)) { max_x = station.baidu_x}
-				if (parseFloat(max_y) < parseFloat(station.baidu_y)) { max_y = station.baidu_y}
-				if (parseFloat(min_x) > parseFloat(station.baidu_x)) { min_x = station.baidu_x}
-				if (parseFloat(min_y) > parseFloat(station.baidu_y)) { min_y = station.baidu_y}
-			});
-
-			let center_x = (parseFloat(max_x) + parseFloat(min_x))/2;
-			let center_y = (parseFloat(max_y) + parseFloat(min_y))/2;
-			let center_point = new BMap.Point(center_x, center_y);
-
-			window.map.centerAndZoom(center_point, 14);
+			drawStations(data, _this, _this.onMarkerClick);
+			setCenterPosition(data);
 		});
 
-		let height = window.innerHeight - 40;
+		let height = window.innerHeight - 80;
 		return <div>
 			<div id = "allmap" style={{width: "100%", height: height}} />
 		</div>
@@ -538,12 +661,10 @@ class StationSearch extends React.Component {
 
 	setupStations() {
 		const _this = this;
+		let stations = this.state.stations;
 
-		this.state.stations.forEach((station) => {
-			const point = new BMap.Point(station.baidu_x, station.baidu_y);
-			addMarker(point, station, _this.onMarkerClick.bind(_this));
-			addLabel(point, station.stat_name, station, _this.onMarkerClick.bind(_this));
-		});
+		drawStations(stations, _this, _this.onMarkerClick);
+		setCenterPosition(stations);
 	}
 
 	initializeBaiduMap() {
@@ -551,6 +672,15 @@ class StationSearch extends React.Component {
 
 		window.map = new BMap.Map("allmap");
 		window.map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT}));   //add map navigation tools
+
+		var geolocationControl = new BMap.GeolocationControl();
+		geolocationControl.addEventListener("locationSuccess", function(e){
+			console.log('定位成功', e);
+		});
+		geolocationControl.addEventListener("locationError",function(e){
+			console.log('定位失败');
+		});
+		window.map.addControl(geolocationControl);
 
 		if (true || !loc.longitude) { // hardcoded for test
 			loc = {longitude: 120.40086416919, latitude: 37.37223326585};
@@ -570,29 +700,50 @@ class StationSearch extends React.Component {
 	onMarkerClick(station) {
 		console.log("clicked", station);
 
-		xFetchJSON('/api/bus/station/lines?name=' + station.stat_name).then((data) => {
-			console.log('lines for station', data);
+		const opts = {
+			width : '',
+			height: '',
+			title : station.stat_name
+		}
 
-			const opts = {
-				width : '',
-				height: '',
-				title : station.stat_name
+		var post_param = {stat_name : station.stat_name};
+		var text = '';
+		// xFetchJSON('http://zyjt.xswitch.cn/bus_api/site/getStationDes', {
+		// 	method: "POST",
+		// 	dataType:'jsonp',
+		// 	body: '{"stat_name":"文化区"}'
+		// }).then((data) => {
+		xFetchJSON('http://zyjt.xswitch.cn/api/bus/test').then((data) => {
+			if (data.code == 1) {
+				data.line_time.forEach((l) => {
+					text += '';
+				});
 			}
+			if(data.code == 1){
+				var html = '';
 
-			var text = '<a onclick="window.start=(\'' + station.stat_name + '\');">设为起点</a> '
-				+ '<a onclick="window.end=(\'' + station.stat_name + '\');">设为终点</a><br><br>';
-			var lines_showed = [];
-			data.forEach((l) => {
-				if (lines_showed.includes(l.line_code)) {
-					return;
-				}
-				lines_showed.push(l.line_code);
-				text += '<font>' + l.line_code + '路: ' + l.start_station + '-' + l.stop_station + '</font><br>';
-			});
+				data.line_time.forEach((item) => {
+					if(item.up_cut){
+						var up_cut = "最近的车辆还有"+item.up_cut+"站到达，预计约"+item.up_cut*2+"分钟";
+					}else{
+						var up_cut = "此站点暂无快到达车辆"
+					}
+					if(item.down_cut){
+						var down_cut = "最近的车辆还有"+item.down_cut+"站到达，预计约"+item.down_cut*2+"分钟";
+					}else{
+						var down_cut = "此站点暂无快到达车辆"
+					}
+					html += item.line_code+"路<br/>(<a style='color:red;' onclick='window.get_line("+item.line_code+",1)'>"+item.stop_station+"->"+item.start_station+"</a>"+up_cut+")<br/>(<a style='color:red;' onclick='window.get_line("+item.line_code+",2)'>"+item.start_station+"->"+item.stop_station+"</a>"+down_cut+")<br/><br/>";
+				});
 
-			const infoWindow = new BMap.InfoWindow(text, opts);
-			window.map.openInfoWindow(infoWindow, new BMap.Point(station.baidu_x, station.baidu_y));
+				const infoWindow = new BMap.InfoWindow(html, opts);
+				window.map.openInfoWindow(infoWindow, new BMap.Point(station.baidu_x, station.baidu_y));
+			}
 		});
+	}
+
+	onMarkerClick2(station) {
+		alertStationWindow(station);
 	}
 }
 
@@ -613,33 +764,34 @@ class TransferMap extends React.Component {
 
 	onMarkerClick(station) {
 		console.log("clicked", station);
+		alertStationWindow(station);
 
-		xFetchJSON('/api/bus/station/lines?name=' + station.stat_name).then((data) => {
-			console.log('lines for station', data);
+		// xFetchJSON('/api/bus/station/lines?name=' + station.stat_name).then((data) => {
+		// 	console.log('lines for station', data);
 
-			const opts = {
-				width : '',
-				height: '',
-				title : station.stat_name
-			}
+		// 	const opts = {
+		// 		width : '',
+		// 		height: '',
+		// 		title : station.stat_name
+		// 	}
 
-			var text = '<br>';
-			var lines_showed = [];
-			data.forEach((l) => {
-				if (lines_showed.includes(l.line_code)) {
-					return;
-				}
-				lines_showed.push(l.line_code);
-				if (l.line_code == station.line_code) {
-					text += '<font color="#FF0000">' + l.line_code + '路: ' + l.start_station + '-' + l.stop_station + '</font><br>';
-				} else {
-					text += '<font>' + l.line_code + '路: ' + l.start_station + '-' + l.stop_station + '</font><br>';
-				}
-			});
+		// 	var text = '<br>';
+		// 	var lines_showed = [];
+		// 	data.forEach((l) => {
+		// 		if (lines_showed.includes(l.line_code)) {
+		// 			return;
+		// 		}
+		// 		lines_showed.push(l.line_code);
+		// 		if (l.line_code == station.line_code) {
+		// 			text += '<font color="#FF0000">' + l.line_code + '路: ' + l.start_station + '-' + l.stop_station + '</font><br>';
+		// 		} else {
+		// 			text += '<font>' + l.line_code + '路: ' + l.start_station + '-' + l.stop_station + '</font><br>';
+		// 		}
+		// 	});
 
-			const infoWindow = new BMap.InfoWindow(text, opts);
-			window.map.openInfoWindow(infoWindow, new BMap.Point(station.baidu_x, station.baidu_y));
-		});
+		// 	const infoWindow = new BMap.InfoWindow(text, opts);
+		// 	window.map.openInfoWindow(infoWindow, new BMap.Point(station.baidu_x, station.baidu_y));
+		// });
 	}
 
 	is_show_arrow(lineStations, i) {
@@ -750,6 +902,15 @@ class TransferMap extends React.Component {
 		window.map = new BMap.Map("allmap");
 		window.map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT}));   //add map navigation tools
 
+		var geolocationControl = new BMap.GeolocationControl();
+		geolocationControl.addEventListener("locationSuccess", function(e){
+			console.log('定位成功', e);
+		});
+		geolocationControl.addEventListener("locationError",function(e){
+			console.log('定位失败');
+		});
+		window.map.addControl(geolocationControl);
+
 		if (true || !loc.longitude) { // hardcoded for test
 			loc = {longitude: 120.40086416919, latitude: 37.37223326585};
 		}
@@ -852,7 +1013,7 @@ class TransferMap extends React.Component {
 
 	render() {
 		let height = 580;
-		height = window.innerHeight - 40;
+		height = window.innerHeight - 80;
 		const _this = this;
 		console.log('render run:', _this.state);
 
