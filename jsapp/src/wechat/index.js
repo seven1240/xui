@@ -682,14 +682,14 @@ class Newticket extends React.Component {
 		var timestamp1 = Date.parse(new Date());
 		var now = timestamp1 / 1000;
 		var timestamp2 = Date.parse(_this.state.input.deadline);
-		var deal_user = timestamp2 / 1000;
+		var deadline = timestamp2 / 1000;
 
+/*
 		if (now >= deadline) {
 			alert("请选择正确的期限时间");
 			return false;
-		} else {
-			_this.state.input.deadline = deadline;
 		}
+*/
 
 		const ticket = _this.state.input;
 		xFetchJSON("/api/tickets", {
@@ -748,7 +748,7 @@ class Newticket extends React.Component {
 							<select className="weui-select" name="select_emergency" onChange={this.handleEmergency.bind(this)}>
 							{
 								["NORMAL", "EMERGENT", "URGENT"].map((e) => {
-									return <option key={e} value="URGENT">emergency[e]</option>
+									return <option key={e} value="URGENT">{emergency[e]}</option>
 								})
 							}
 							</select>
