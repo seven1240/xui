@@ -238,7 +238,7 @@ class Home extends React.Component {
 				} else if (mfile.mime.indexOf('audio') == 0) {
 					return <audio src={path}/>
 				} else if (mfile.mime.indexOf('video') == 0) {
-					return <video src={path}/>
+					return <video controls webkit-playsinline playsinline><source src={path} type="video/mp4"/></video>
 				}
 			});
 
