@@ -131,7 +131,8 @@ class Conferences extends React.Component {
 		this.state = {
 			leftBarShow: true,
 			formShow: false,
-			rows: []
+			rows: [],
+			activeKey: 0
 		};
 	}
 
@@ -149,10 +150,17 @@ class Conferences extends React.Component {
 
 	componentDidMount() {
 		const _this = this;
+		let activeKey = 0;
 		xFetchJSON("/api/conference_rooms").then((rows) => {
 			console.log('conferences', rows);
 			_this.setState({rows: rows});
+			activeKey = rows.length > 0 ? rows[0].id : 0;
+			this.setState({activeKey: activeKey});
 		});
+	}
+
+	handleTabSelect(selectedKey) {
+		this.setState({activeKey: selectedKey});
 	}
 
 	handleToggleLeftBar(e) {
@@ -162,7 +170,6 @@ class Conferences extends React.Component {
 
 	render() {
 		let formClose = () => this.setState({ formShow: false });
-		const defaultActiveKey = this.state.rows.length > 0 ? this.state.rows[0].id : 0;
 
 		let items = this.state.rows.map(function(room) {
 			return <NavItem eventKey={room.id} key={room.id} title={room.description}>{room.name}<br/><small>{room.nbr}</small></NavItem>;
@@ -173,7 +180,7 @@ class Conferences extends React.Component {
 			return <Tab.Pane eventKey={room.id} key={room.id} unmountOnExit><ConferencePage room = {room}/></Tab.Pane>;
 		});
 
-		return <Tab.Container id="conference-tabs" defaultActiveKey={defaultActiveKey}>
+		return <Tab.Container id="conference-tabs" onSelect={this.handleTabSelect.bind(this)} activeKey={this.state.activeKey}>
 			<Row className="clearfix">
 				{ !this.state.leftBarShow ? null : <Col sm={2}>
 					<br />
