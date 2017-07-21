@@ -969,7 +969,6 @@ class TicketsPage extends React.Component {
 				style = {color: 'green'};
 			}
 			return <tr key={row.id}>
-				<td>{row.id}</td>
 				<td>{row.serial_number}</td>
 				<td>{row.cid_number}</td>
 				<td>{row.subject}</td>
@@ -1064,7 +1063,6 @@ class TicketsPage extends React.Component {
 			<table className="table">
 				<tbody>
 					<tr>
-						<th><T.span text="ID"/></th>
 						<th><T.span text="Serial Number"/></th>
 						<th><T.span text="CID Number"/></th>
 						<th><T.span text="Subject"/></th>
