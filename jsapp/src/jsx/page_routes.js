@@ -180,7 +180,7 @@ class NewRoute extends React.Component {
 				</FormGroup>
 
 				<FormGroup controlId="formMaxLength" className="mandatory">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="MaxLength"/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Max Length"/></Col>
 					<Col sm={10}><FormControl type="input" name="max_length" defaultValue="12" /></Col>
 				</FormGroup>
 
@@ -680,7 +680,7 @@ class RoutePage extends React.Component {
 				</FormGroup>
 
 				<FormGroup controlId="formMaxLength">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="MaxLength"/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Max Length"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} name="max_length" defaultValue={route.max_length}/></Col>
 				</FormGroup>
 
@@ -885,6 +885,7 @@ class RoutesPage extends React.Component {
 					<td>{row.id}</td>
 					<td>{row.context}</td>
 					<td>{row.prefix}</td>
+					<td>{row.max_length}</td>
 					<td><Link to={`/settings/routes/${row.id}`}>{row.name}</Link></td>
 					<td>{row.description}</td>
 					<td><T.span text={row.dest_type}/></td>
@@ -918,6 +919,7 @@ class RoutesPage extends React.Component {
 					<th>ID</th>
 					<th><T.span style={hand} text="Context" onClick={() => this.handleSortClick("context")}/></th>
 					<th><T.span style={hand} text="Prefix" onClick={() => this.handleSortClick("prefix")}/></th>
+					<th><T.span style={hand} text="Max Length" onClick={() => this.handleSortClick("max_length")}/></th>
 					<th><T.span text="Name" /></th>
 					<th><T.span text="Description" /></th>
 					<th><T.span text="Dest Type" /></th>
