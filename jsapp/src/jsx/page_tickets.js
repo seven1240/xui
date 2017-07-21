@@ -959,6 +959,7 @@ class TicketsPage extends React.Component {
 		let hand = { cursor: "pointer"};
 		var danger = this.state.danger ? "danger" : "";
 		let formClose = () => this.setState({ formShow: false });
+		let toggleDanger = () => this.setState({ danger: !this.state.danger });
 		var rows = _this.state.rows.map(function(row) {
 			var status = '';
 			var style = null;
@@ -969,12 +970,12 @@ class TicketsPage extends React.Component {
 				style = {color: 'green'};
 			}
 			return <tr key={row.id}>
-				<td>{row.serial_number}</td>
+				<td><Link to={`/tickets/${row.id}`}>{row.serial_number}</Link></td>
 				<td>{row.cid_number}</td>
 				<td>{row.subject}</td>
 				<td>{row.created_epoch}</td>
 				<td><T.span text={row.status} style={style}/></td>
-				<td><Link to={`/tickets/${row.id}`}><T.span text="开始处理"/></Link> | <T.a style={hand} onClick={_this.handleDelete} data-id={row.id} text="Delete" className={danger}/></td>
+				<td><T.a style={hand} onClick={_this.handleDelete} data-id={row.id} text="Delete" className={danger}/></td>
 			</tr>
 		})
 				var now = new Date();
@@ -1068,7 +1069,7 @@ class TicketsPage extends React.Component {
 						<th><T.span text="Subject"/></th>
 						<th><T.span text="Created At"/></th>
 						<th><T.span text="Status"/></th>
-						<th><T.span text="Action"/></th>
+						<th><T.span style={hand} text="Delete" className={danger} onClick={toggleDanger} title={T.translate("Click me to toggle fast delete mode")}/></th>
 					</tr>
 					{rows}
 				</tbody>
