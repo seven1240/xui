@@ -75,6 +75,10 @@ get('/', function(params)
 		local id = env:getHeader('id')
 		local cid_number = env:getHeader('cid_number')
 		local serial_number = env:getHeader('serial_number')
+		if string.len(serial_number) < 9 then
+			id = serial_number
+			serial_number = nil
+		end
 
 		endDate = utils.date_diff(endDate, 1)
 

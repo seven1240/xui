@@ -916,7 +916,6 @@ class TicketsPage extends React.Component {
 	handleSearch (e) {
 		const qs = "startDate=" + this.startDate.value +
 			"&endDate=" + this.endDate.value +
-			"&id=" + this.id.value +
 			"&cid_number=" + this.cid_number.value +
 			"&status=" + this.status.value +
 			"&serial_number=" + this.serial_number.value;
@@ -1048,7 +1047,6 @@ class TicketsPage extends React.Component {
 			<div style={{padding: "5px", display: _this.state.hiddendiv}} className="pull-right">
 				<input type="date" defaultValue={sevenDaysBeforeToday} ref={(input) => { _this.startDate = input; }}/> -&nbsp;
 				<input type="date" defaultValue={today} ref={(input) => { _this.endDate = input; }}/> &nbsp;
-				<T.span text="ID"/><input ref={(input) => { _this.id = input; }}/> &nbsp;
 				<T.span text="Serial Number"/><input ref={(input) => { _this.serial_number = input; }}/> &nbsp;
 				<T.span text="CID Number"/><input ref={(input) => { _this.cid_number = input; }}/> &nbsp;
 				<T.span text="Status"/>
