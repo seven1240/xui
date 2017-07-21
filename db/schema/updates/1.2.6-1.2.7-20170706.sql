@@ -37,9 +37,8 @@ BEGIN
 		SELECT 'TICKET', NEW.ticket_id, NEW.user_id WHERE NEW.user_id IS NOT NULL;
 END;
 
-INSERT INTO subscriptions (realm, ref_id, user_id) SELECT DISTINCT 'TICKET', id, user_id FROM tickets;
-INSERT INTO subscriptions (realm, ref_id, user_id) SELECT DISTINCT 'TICKET', id, current_user_id FROM tickets;
-INSERT INTO subscriptions (realm, ref_id, user_id) SELECT DISTINCT 'TICKET', ticket_id, user_id FROM ticket_comments;
-
+INSERT OR IGNORE INTO subscriptions (realm, ref_id, user_id) SELECT DISTINCT 'TICKET', id, user_id FROM tickets;
+INSERT OR IGNORE INTO subscriptions (realm, ref_id, user_id) SELECT DISTINCT 'TICKET', id, current_user_id FROM tickets;
+INSERT OR IGNORE INTO subscriptions (realm, ref_id, user_id) SELECT DISTINCT 'TICKET', ticket_id, user_id FROM ticket_comments;
 
 UPDATE dicts SET v = '1.2.7' WHERE realm = 'XUI' and k = 'DBVER';

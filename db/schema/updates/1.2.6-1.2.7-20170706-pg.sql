@@ -1,7 +1,6 @@
 ALTER TABLE tickets ADD privacy VARCHAR DEFAULT 'TICKET_PRIV_PUBLIC';
 
 CREATE TABLE subscriptions (
-	id INTEGER PRIMARY Key,
 	realm VARCHAR NOT NULL,  -- what to sub
 	ref_id INTEGER,          -- which to sub
 	user_id INTEGER,
@@ -59,6 +58,8 @@ CREATE TRIGGER t_auto_sub_ticket AFTER INSERT ON tickets FOR EACH ROW EXECUTE PR
 CREATE TRIGGER t_auto_sub_ticket1 AFTER UPDATE ON tickets FOR EACH ROW EXECUTE PROCEDURE auto_sub_ticket1();
 CREATE TRIGGER t_auto_sub_ticket2 AFTER INSERT ON ticket_comments FOR EACH ROW EXECUTE PROCEDURE auto_sub_ticket2();
 
-INSERT OR IGNORE INTO subscriptions (realm, ref_id, user_id) SELECT DISTINCT 'TICKET', id, user_id FROM tickets;
-INSERT OR IGNORE INTO subscriptions (realm, ref_id, user_id) SELECT DISTINCT 'TICKET', id, current_user_id FROM tickets;
-INSERT OR IGNORE INTO subscriptions (realm, ref_id, user_id) SELECT DISTINCT 'TICKET', ticket_id, user_id FROM ticket_comments;
+INSERT INTO subscriptions (realm, ref_id, user_id) SELECT DISTINCT 'TICKET', id, user_id FROM tickets;
+INSERT INTO subscriptions (realm, ref_id, user_id) SELECT DISTINCT 'TICKET', id, current_user_id FROM tickets;
+INSERT INTO subscriptions (realm, ref_id, user_id) SELECT DISTINCT 'TICKET', ticket_id, user_id FROM ticket_comments;
+
+UPDATE dicts SET v = '1.2.7' WHERE realm = 'XUI' and k = 'DBVER';
