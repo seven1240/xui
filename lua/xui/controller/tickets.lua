@@ -759,10 +759,18 @@ print(utils.serialize(other))
 
 	if (me and other and me.tel and other.tel) then
 		api = freeswitch.API()
-		dstr = m_dialstring.build(me.tel)
+		-- dstr = m_dialstring.build(me.tel)
+		contact = api:execute("sofia_contact", '8078910') -- hardcoded
 
-		api:execute("bgapi", "originate " .. dstr .. " " .. other.tel)
+		if not contact == "error/user_not_registered" then
+			return 500
+		end
+
+		new_contact = contact:gsub("^(.+)sip:(.+)@(.+)", "%1sip:" .. me.tel .. "@%3")
+
+		api:execute("bgapi", "originate " .. new_contact .. " " .. other.tel)
 	end
+
 	return {}
 end)
 

@@ -75,6 +75,7 @@ function build(dest, context, cid_number)
 	if not context then context = "default" end
 
 	local sql = "SELECT * FROM routes WHERE context = '" .. context .. "' AND " .. escape(dest) .. " LIKE prefix || '%' ORDER BY length(prefix) DESC LIMIT 1"
+
 	if do_debug then
 		utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", sql)
 	end
@@ -107,10 +108,11 @@ function build(dest, context, cid_number)
 				local app = table.remove(t, 1)
 				local data = table.concat(t, ' ')
 				if app == "bridge" then
-					return data
+					dialstr = data
+					return
 				end
 			end
-			return "loopback/" .. dest
+			dialstr = "loopback/" .. dest
 		elseif (row.dest_type == 'FS_DEST_USER') then
 			dialstr = "user/" .. dest
 		elseif (row.dest_type == 'FS_DEST_GATEWAY') then
