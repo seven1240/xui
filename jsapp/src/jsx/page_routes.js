@@ -179,6 +179,11 @@ class NewRoute extends React.Component {
 					<Col sm={10}><FormControl type="input" name="prefix" placeholder="010" /></Col>
 				</FormGroup>
 
+				<FormGroup controlId="formMaxLength" className="mandatory">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="MaxLength"/></Col>
+					<Col sm={10}><FormControl type="input" name="max_length" defaultValue="12" /></Col>
+				</FormGroup>
+
 				<FormGroup controlId="formContext">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Context"  className="mandatory"/></Col>
 					<Col sm={10}>
@@ -672,6 +677,11 @@ class RoutePage extends React.Component {
 				<FormGroup controlId="formPrefix">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Prefix"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} name="prefix" defaultValue={route.prefix}/></Col>
+				</FormGroup>
+
+				<FormGroup controlId="formMaxLength">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="MaxLength"/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} name="max_length" defaultValue={route.max_length}/></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formDNC">
