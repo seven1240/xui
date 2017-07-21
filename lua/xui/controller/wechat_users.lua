@@ -38,15 +38,9 @@ require 'xdb'
 xdb.bind(xtra.dbh)
 
 get('/', function(params)
-		n, wechatusers = xdb.find_all("wechat_users")
-		local wechat_users = {}
+		n, wechat_users = xdb.find_all("wechat_users")
 
-		n, wechat_users = xdb.find_by_sql([[SELECT w.*, u.extn, u.name
-			FROM wechat_users w, users u
-			WHERE w.user_id = u.id
-			ORDER BY id]])
-
-		if (wechat_users) then
+		if n > 0 then
 			return wechat_users
 		else
 			return "[]"
