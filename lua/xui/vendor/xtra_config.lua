@@ -32,6 +32,7 @@ config.tz = 8
 -- config.conferenceForceMatchCID = true
 config.wechat_base_url = "http://example.com"
 config.wechat_realm = "xyt"
+config.template_id = "Mu6mySnQiCRdCa5QmJSCBOSIkAxjgm3CuUpp6FqTCnA"
 -- config.wechat = {}
 -- config.wechat.xyt = {APPID = 'wx', APPSEC = ''}
 -- config.ticket_type_wechat_default = 'TICKET_TYPE_0' -- default ticket type from wechat

@@ -30,6 +30,8 @@
  */
 ]]
 
+require 'xtra_config'
+
 local do_debug = false
 -- do_debug = true
 
@@ -132,7 +134,7 @@ xwechat.redirect_uri = function(appid, redirect_uri, state)
 			"#wechat_redirect"
 end
 
-xwechat.send_ticket_notification = function(realm, openid, redirect_uri, subject, from, content)
+xwechat.send_ticket_notification = function(realm, openid, redirect_uri, subject, from, content, template_id)
 	if #content > 40 then
 		require 'utils'
 		content = utils.utf8sub(content, 1, 40)
@@ -140,7 +142,7 @@ xwechat.send_ticket_notification = function(realm, openid, redirect_uri, subject
 
 	local msg = {}
 	msg.touser = openid
-	msg.template_id = '7cYHIHuEJe5cKey0KOKIaCcjhUX2vEVHt1NcUAPm7xc'
+	msg.template_id = config.template_id
 	msg.url = redirect_uri
 	msg.data = {}
 	msg.data.fist = {}
@@ -153,7 +155,7 @@ xwechat.send_ticket_notification = function(realm, openid, redirect_uri, subject
 	msg.data.keyword2.value = os.date("%Y年%m月%d日%H时%M分")
 	msg.data.keyword2.color = '#173177'
 	msg.data.keyword3 = {}
-	msg.data.keyword3.value = from
+	msg.data.keyword3.value = "招远交通委" --模板内此选项为地址，等到可以重新选择模板选取有执行人选项的模板
 	msg.data.keyword3.color = '#173177'
 	msg.data.remark = {}
 	msg.data.remark.value = content
