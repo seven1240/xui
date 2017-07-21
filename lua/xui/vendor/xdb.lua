@@ -314,4 +314,16 @@ function xdb.release()
 	xdb.dbh:release()
 end
 
+function xdb.connect2(dsn, user, pass)
+	xdb.dbh2 = freeswitch.Dbh(dsn)
+	assert(xdb.dbh2:connected())
+end
+
+function xdb.create2(t, kvp)
+	local kstr, vstr = _insert_string(kvp)
+	sql = "INSERT INTO " .. t .. " (" .. kstr .. ") VALUES (" .. vstr .. ")"
+	xdb.dbh2:query(sql)
+	return xdb.dbh:affected_rows()
+end
+
 return xdb
