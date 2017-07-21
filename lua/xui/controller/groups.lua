@@ -117,7 +117,7 @@ end)
 get('/build_group_tree', function(params)
 	parent_groups = {}
 	groups_tab  = {}
-	n, parent_groups = xdb.find_by_cond("groups", "group_id IS NULL")
+	n, parent_groups = xdb.find_by_cond("groups", "group_id IS NULL or group_id = ''")
 
 	if n > 0 then
 		build_group_tree(parent_groups, groups_tab)
