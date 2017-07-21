@@ -156,6 +156,13 @@ class NewTicket extends React.Component {
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Content"/></Col>
 					<Col sm={10}><FormControl componentClass="textarea" rows="5" name="content" placeholder="" value={this.state.textareaValue} onChange={this.TextareaChange.bind(this)}/></Col>
 				</FormGroup>
+				<FormGroup controlId="formPri">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Ticket Privilege"/></Col>
+					<Col sm={10}>
+						<Radio name="privacy" value="TICKET_PRIV_PRIVATE" inline defaultChecked><T.span text="Private"/></Radio>
+						<Radio name="privacy" value="TICKET_PRIV_PUBLIC" inline><T.span text="Public"/></Radio>
+					</Col>
+				</FormGroup>
 				<FormGroup>
 					<Col smOffset={2} sm={2}>
 						<Button type="button" bsStyle="primary" onClick={this.handleSubmit}>
@@ -711,6 +718,24 @@ class TicketPage extends React.Component {
 								</Form>;
 								break;
 		}
+
+		let ticket_privacy = ticket.privacy == "TICKET_PRIV_PRIVATE" ? "TICKET_PRIV_PRIVATE" : "TICKET_PRIV_PUBLIC";
+
+		var ticket_privacy_component = <FormControl.Static><T.span text={ticket.privacy == "TICKET_PRIV_PRIVATE" ? "Private" : "Public"}/></FormControl.Static>
+		if (this.state.edit) {
+			if (ticket.privacy == "TICKET_PRIV_PRIVATE") {
+				ticket_privacy_component = <span>
+					<Radio name="privacy" value="TICKET_PRIV_PRIVATE" inline defaultChecked><T.span text="Private"/></Radio>
+					<Radio name="privacy" value="TICKET_PRIV_PUBLIC" inline><T.span text="Public"/></Radio>
+				</span>
+			} else {
+				ticket_privacy_component = <span>
+					<Radio name="privacy" value="TICKET_PRIV_PRIVATE" inline><T.span text="Private"/></Radio>
+					<Radio name="privacy" value="TICKET_PRIV_PUBLIC" inline defaultChecked><T.span text="Public"/></Radio>
+				</span>
+			}
+		}
+
 		return <Dropzone ref={(node) => { this.dropzone = node; }} onDrop={this.onDrop} className="dropzone" activeClassName="dropzone_active" disableClick={true}><div>
 			<ButtonToolbar className="pull-right">
 			<ButtonGroup>
@@ -776,6 +801,11 @@ class TicketPage extends React.Component {
 				<FormGroup controlId="formCreated_epoch">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Created At"/></Col>
 					<Col sm={10}><FormControl.Static>{ticket.created_epoch}</FormControl.Static></Col>
+				</FormGroup>
+
+				<FormGroup controlId="formPri">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Ticket Privilege" /></Col>
+					<Col sm={10}>{ticket_privacy_component}</Col>
 				</FormGroup>
 
 				<FormGroup controlId="formFinished_epoch">
