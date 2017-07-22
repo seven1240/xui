@@ -279,7 +279,7 @@ class GroupPage extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {errmsg: '', group: {}, edit: false, permissions: [], group_options: []};
+		this.state = {group: {}, edit: false, permissions: [], group_options: []};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -307,12 +307,17 @@ class GroupPage extends React.Component {
 			return;
 		}
 
+		if (group.group_id == '') {
+			group.group_id = null;
+		}
+
 		xFetchJSON("/api/groups/" + group.id, {
 			method: "PUT",
 			body: JSON.stringify(group)
 		}).then(() => {
-			this.setState({group: group, errmsg: {key: "Saved at", time: Date()}});
+			this.setState({group: group, edit: false});
 			this.handleGetGroupOptionsTree();
+			notify(<T.span text={{key:"Saved at", time: Date()}}/>);
 		}).catch(() => {
 			console.error("group", msg);
 		});
@@ -370,9 +375,6 @@ class GroupPage extends React.Component {
 
 		if (this.state.edit) {
 			save_btn = <Button onClick={this.handleSubmit}><i className="fa fa-save" aria-hidden="true"></i>&nbsp;<T.span text="Save"/></Button>
-			if (this.state.errmsg) {
-				err_msg  = <Button><T.span text={this.state.errmsg} className="danger"/></Button>
-			}
 		}
 
 		var permissions = this.state.permissions.map(function(row) {
@@ -404,7 +406,7 @@ class GroupPage extends React.Component {
 
 				<FormGroup controlId="formParentGroup">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Parent Group" className="mandatory"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} componentClass="select" name="group_id" options={group_options} defaultValue={group.name}/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} componentClass="select" name="group_id" options={group_options} defaultValue={group.parent_name}/></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formDescription">
