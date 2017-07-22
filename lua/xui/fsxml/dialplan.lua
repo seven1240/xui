@@ -49,7 +49,7 @@ local actions = ""
 local dest = params:getHeader("Hunt-Destination-Number")
 local context = params:getHeader("Hunt-Context")
 local actions_table = {}
-local sql = "SELECT * FROM routes WHERE context = '" .. context .. "' AND " .. escape(dest) .. " LIKE prefix || '%' ORDER BY length(prefix) DESC LIMIT 1"
+local sql = "SELECT * FROM routes WHERE context = '" .. context .. "' AND max_length >= " .. string.len(dest) .. " AND " .. escape(dest) .. " LIKE prefix || '%' ORDER BY max_length, length(prefix) DESC LIMIT 1"
 local found = false
 
 

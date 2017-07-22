@@ -5,7 +5,7 @@ CREATE TABLE routes (
 	name VARCHAR NOT NULL,
 	description VARCHAR,
 	prefix VARCHAR NOT NULL DEFAULT '',
-	length, INTEGER,
+	max_length INTEGER,
 	context VARCHAR,
 	dnc VARCHAR,
 	sdnc VARCHAR,

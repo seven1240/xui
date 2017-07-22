@@ -203,7 +203,7 @@ LANGUAGES["zh"] = {
 	Name: "名称",
 	Description: "描述",
 	Prefix: "起始号码",
-	Length: "长度",
+	"Max Length": "最大长度",
 	DNC: "被叫号码变换",
 	SDNC: "主叫号码变换",
 	Context: "呼叫源",

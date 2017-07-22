@@ -19,7 +19,7 @@ CREATE TABLE routes (
 	name VARCHAR NOT NULL,
 	description VARCHAR,
 	prefix VARCHAR NOT NULL DEFAULT '',
-	length INTEGER,
+	max_length INTEGER NOT NULL DEFAULT 12,
 	context VARCHAR,
 	dnc VARCHAR,
 	sdnc VARCHAR,

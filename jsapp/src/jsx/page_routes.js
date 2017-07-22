@@ -179,6 +179,11 @@ class NewRoute extends React.Component {
 					<Col sm={10}><FormControl type="input" name="prefix" placeholder="010" /></Col>
 				</FormGroup>
 
+				<FormGroup controlId="formMaxLength" className="mandatory">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Max Length"/></Col>
+					<Col sm={10}><FormControl type="input" name="max_length" defaultValue="12" /></Col>
+				</FormGroup>
+
 				<FormGroup controlId="formContext">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Context"  className="mandatory"/></Col>
 					<Col sm={10}>
@@ -674,6 +679,11 @@ class RoutePage extends React.Component {
 					<Col sm={10}><EditControl edit={this.state.edit} name="prefix" defaultValue={route.prefix}/></Col>
 				</FormGroup>
 
+				<FormGroup controlId="formMaxLength">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Max Length"/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} name="max_length" defaultValue={route.max_length}/></Col>
+				</FormGroup>
+
 				<FormGroup controlId="formDNC">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="DNC" /></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} name="dnc" defaultValue={route.dnc}/></Col>
@@ -875,6 +885,7 @@ class RoutesPage extends React.Component {
 					<td>{row.id}</td>
 					<td>{row.context}</td>
 					<td>{row.prefix}</td>
+					<td>{row.max_length}</td>
 					<td><Link to={`/settings/routes/${row.id}`}>{row.name}</Link></td>
 					<td>{row.description}</td>
 					<td><T.span text={row.dest_type}/></td>
@@ -908,6 +919,7 @@ class RoutesPage extends React.Component {
 					<th>ID</th>
 					<th><T.span style={hand} text="Context" onClick={() => this.handleSortClick("context")}/></th>
 					<th><T.span style={hand} text="Prefix" onClick={() => this.handleSortClick("prefix")}/></th>
+					<th><T.span style={hand} text="Max Length" onClick={() => this.handleSortClick("max_length")}/></th>
 					<th><T.span text="Name" /></th>
 					<th><T.span text="Description" /></th>
 					<th><T.span text="Dest Type" /></th>
