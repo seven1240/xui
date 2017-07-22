@@ -1059,8 +1059,13 @@ class Stations extends React.Component {
 	}
 
 	render() {
-		return <div>站点查询
-			<SelectSearch options={this.state.stations} selectType='1' station={this.state.inputStationName} placeholder="请输入站点名称" onChange={this.onChange.bind(this)}/>
+		return <div>
+			<div className="weui-cell">
+				<div className="weui-cell__hd"><label className="weui-label">站点查询：</label></div>
+				<div className="weui-cell__bd">
+					<SelectSearch options={this.state.stations} selectType='1' station={this.state.inputStationName} placeholder="请输入站点名称" onChange={this.onChange.bind(this)}/>
+				</div>
+			</div>
 			<StationSearch station={this.state.inputStationName}/>
 		</div>
 	}
