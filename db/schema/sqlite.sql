@@ -106,6 +106,9 @@ CREATE TABLE groups (
 	realm VARCHAR NOT NULL,           -- a key in dicts
 	name VARCHAR NOT NULL,
 	level integer DEFAULT 0,
+	unique_attribution BOOLEAN NOT NULL DEFAULT 0 CHECK(unique_attribution IN (0, 1, '0', '1')),      -- one user one group
+	music_mcast_id INTEGER REFERENCES mcasts(id),
+	realtime_mcast_id INTEGER REFERENCES mcasts(id),
 	description VARCHAR,
 	group_id INTEGER,        -- nested groups
 	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
