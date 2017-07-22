@@ -562,7 +562,7 @@ class GroupPage extends React.Component {
 
 				<FormGroup controlId="formUniqueAttribution">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Unique Attribution"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} componentClass="select" options={enable_options} name="unique_attribution" defaultValue={ouog_default_value}/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} componentClass="select" options={enable_options} name="unique_attribution" defaultValue={unique_att_default_value}/></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formRealtimeMcast">
