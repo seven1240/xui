@@ -11,8 +11,8 @@ var loc = {};
 /*
 Becase the global object defined here can't be finded by baidu map's alert windows, I add them in window object.
 */
-window.start = '市政';
-window.end = '公安局';
+window.start = '';
+window.end = '';
 window.station_view_this;
 
 /*
@@ -646,15 +646,13 @@ class StationSearch extends React.Component {
 
 	render() {
 		const _this = this;
-		console.error('_this.props.station', _this.props.station);
 		var url = '';
 		if (_this.props.station == "所有站点") {
-			url = '/api/bus/station';
+			url = '/api/bus/same_station';
 		} else {
 			url = '/api/bus/same_station?station=' + _this.props.station;
 		}
 		xFetchJSON(url).then((data) => {
-			console.error('/api/bus/station', url, data);
 			if (window.map) { window.map.clearOverlays();}
 
 			drawStations(data, _this, _this.onMarkerClick);
@@ -723,6 +721,8 @@ class StationSearch extends React.Component {
 			if(data.code == 1){
 				var html = '';
 
+				html += '<a style="color:red;" onclick="window.start=(\'' + station.stat_name + '\');">设为换乘起点</a> '
+					+ '<a style="color:blue;" onclick="window.end=(\'' + station.stat_name + '\');">设为换乘终点</a><br><br>';
 				data.line_time.forEach((item) => {
 					if(item.up_cut){
 						var up_cut = "最近的车辆还有"+item.up_cut+"站到达，预计约"+item.up_cut*2+"分钟";
@@ -734,7 +734,7 @@ class StationSearch extends React.Component {
 					}else{
 						var down_cut = "此站点暂无快到达车辆"
 					}
-					html += item.line_code+"路<br/>(<a style='color:red;' onclick='window.get_line("+item.line_code+",1)'>"+item.stop_station+"->"+item.start_station+"</a>"+up_cut+")<br/>(<a style='color:red;' onclick='window.get_line("+item.line_code+",2)'>"+item.start_station+"->"+item.stop_station+"</a>"+down_cut+")<br/><br/>";
+					html += item.line_code+"路<br/>(<a style='color:red;' onclick='window.get_line("+item.line_code+",1)'>"+item.stop_station+"->"+item.start_station+"</a>"+up_cut+")<br/>(<a style='color:blue;' onclick='window.get_line("+item.line_code+",2)'>"+item.start_station+"->"+item.stop_station+"</a>"+down_cut+")<br/><br/>";
 				});
 
 				const infoWindow = new BMap.InfoWindow(html, opts);
@@ -1069,7 +1069,7 @@ class Stations extends React.Component {
 class Change extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {candidates: [], stations: [], station1: null, station2: null, searched: null};
+		this.state = {candidates: [], stations: [], searched: null};
 
 		this.onChange1 = this.onChange1.bind(this);
 		this.onChange2 = this.onChange2.bind(this);
@@ -1084,18 +1084,18 @@ class Change extends React.Component {
 	}
 
 	onChange1(e) {
-		this.setState({station1: e.value})
+		window.start = e.value;
 	}
 
 	onChange2(e) {
-		this.setState({station2: e.value})
+		window.end = e.value;
 	}
 
 	handleSearchInterchange(e) {
 		e.preventDefault();
 		const _this = this;
 
-		xFetchJSON('/api/bus/interchange?start=' + this.state.station1 + '&stop=' + this.state.station2).then((data) => {
+		xFetchJSON('/api/bus/interchange?start=' + window.start + '&stop=' + window.end).then((data) => {
 			console.log(data);
 			_this.setState({searched: 1});
 			_this.setState({candidates: data});

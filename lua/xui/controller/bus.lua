@@ -271,9 +271,6 @@ get('/interchange', function(params)
 	start = env:getHeader('start')
 	stop = env:getHeader('stop')
 
-	start = '市政'
-	stop = '公安局'
-
 -- start
 -----o------------------o-----  line1
 --			            stop
