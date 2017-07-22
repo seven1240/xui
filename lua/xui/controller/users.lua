@@ -65,7 +65,9 @@ get('/', function(params)
 	local cb = function(row)
 		rowCount = tonumber(row.count)
 	end
+
 	xdb.find_by_sql("SELECT count(1) as count FROM users", cb)
+
 	if rowCount > 0 then
 		local offset = 0
 		local pageCount = 0
@@ -94,6 +96,7 @@ end)
 get('/wechat', function(params)
 	freeswitch.consoleLog("WARNING", "/users/wechat is Deprecated!!, use /users/:id/wechat_users")
 	users = xdb.find_one("users", {id = xtra.session.user_id})
+
 	if users then
 		return users
 	else
@@ -206,7 +209,7 @@ put('/:id', function(params)
 	print(serialize(params))
 	ret = xdb.update("users", params.request)
 	if ret then
-		return 200, "{}"
+		return 200, {id = params.id}
 	else
 		return 500
 	end
@@ -261,7 +264,7 @@ delete('/:id', function(params)
 	ret = xdb.delete("users", params.id);
 
 	if ret == 1 then
-		return 200, "{}"
+		return 200, {id = params.id}
 	else
 		return 500, "{}"
 	end
