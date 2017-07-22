@@ -59,7 +59,7 @@ import Settings from './settings';
 import { ConferenceProfilePage, ConferenceProfilesPage } from '../page_conference_profiles';
 import { ConferenceRooms, ConferenceRoom } from '../page_conference_rooms';
 import { UsersPage, UserPage } from '../page_users';
-import { GroupsPage, GroupPage } from '../page_groups';
+import { GroupsPage, GroupPage } from './page_groups';
 import { RoutesPage, RoutePage } from '../page_routes';
 import { BlocksPage, BlockPage } from '../blocks.js';
 import { GatewaysPage, GatewayPage } from '../page_gateways';
