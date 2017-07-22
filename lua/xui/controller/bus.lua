@@ -173,6 +173,19 @@ get('/station', function(params)
 	return res
 end)
 
+get('/same_station', function(params)
+	station = env:getHeader('station')
+	sql = ''
+	if station then
+		sql = [[select distinct stat_name, baidu_x, baidu_y from station where stat_name = ']] .. url_decode(station) ..
+		[[' and id in (select min(id) from station group by stat_name)]]
+	else
+		sql = [[select distinct stat_name, baidu_x, baidu_y from station where id in (select min(id) from station group by stat_name)]]
+	end
+	n, res = xdb.find_by_sql(sql)
+	return res
+end)
+
 get('/points', function(params)
 	lines = env:getHeader('lines')
 	all_lines = env:getHeader('all_lines')
@@ -322,10 +335,4 @@ get('/interchange', function(params)
 			return "[]"
 		end
 	end
-end)
-
-get('/test', function(params)
-	sql = "select distinct a.station_order, a.stat_name from station a, station b where a.line_code = 6 and b.line_code = 9 and a.stat_name = b.stat_name order by a.station_order"
-	n, res = xdb.find_by_sql(sql)
-	return res
 end)

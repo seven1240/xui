@@ -121,8 +121,12 @@ window.get_line = function(line_code, type) {
 	let cars;
 
 	window.map.clearOverlays();
-	//mapStations
-	xFetchJSON('/api/bus/test4').then((data) => {
+
+	xFetchJSON('http://zyjt.xswitch.cn/bus_api/site/mapStations', {
+			method: "POST",
+			headers: {"Content-Type": "application/x-www-form-urlencoded"},
+			body: 'line=' + line_code + '&up_down' + type
+		}).then((data) => {
 		if (data.code != 1) {
 			console.error('response json error', data);
 			return;
@@ -146,8 +150,11 @@ window.get_line = function(line_code, type) {
 		}
 	});
 
-	//realData
-	xFetchJSON('/api/bus/test5').then((data) => {
+	xFetchJSON('http://zyjt.xswitch.cn/bus_api/site/realData', {
+			method: "POST",
+			headers: {"Content-Type": "application/x-www-form-urlencoded"},
+			body: 'line=' + line_code + '&up_down' + type + '&xpoint=1&ypoint=1'
+	}).then((data) => {
 		if (data.code != 1) {
 			console.error('response json error', data);
 			return;
@@ -644,10 +651,11 @@ class StationSearch extends React.Component {
 		if (_this.props.station == "所有站点") {
 			url = '/api/bus/station';
 		} else {
-			url = '/api/bus/station?station=' + _this.props.station;
+			url = '/api/bus/same_station?station=' + _this.props.station;
 		}
 		xFetchJSON(url).then((data) => {
-			window.map.clearOverlays();
+			console.error('/api/bus/station', url, data);
+			if (window.map) { window.map.clearOverlays();}
 
 			drawStations(data, _this, _this.onMarkerClick);
 			setCenterPosition(data);
@@ -706,19 +714,12 @@ class StationSearch extends React.Component {
 			title : station.stat_name
 		}
 
-		var post_param = {stat_name : station.stat_name};
-		var text = '';
-		// xFetchJSON('http://zyjt.xswitch.cn/bus_api/site/getStationDes', {
-		// 	method: "POST",
-		// 	dataType:'jsonp',
-		// 	body: '{"stat_name":"文化区"}'
-		// }).then((data) => {
-		xFetchJSON('http://zyjt.xswitch.cn/api/bus/test').then((data) => {
-			if (data.code == 1) {
-				data.line_time.forEach((l) => {
-					text += '';
-				});
-			}
+		xFetchJSON('http://zyjt.xswitch.cn/bus_api/site/getStationDes', {
+			method: "POST",
+			headers: {"Content-Type": "application/x-www-form-urlencoded"},
+			body: 'stat_name='+station.stat_name
+		}).then((data) => {
+		// xFetchJSON('http://zyjt.xswitch.cn/api/bus/test').then((data) => {
 			if(data.code == 1){
 				var html = '';
 
