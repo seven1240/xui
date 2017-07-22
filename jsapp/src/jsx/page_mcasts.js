@@ -899,6 +899,7 @@ class McastsPage extends React.Component {
 
 			rows.push(<tr key={row.id} className={enabled_class}>
 					<td><Link to={`/settings/mcasts/${row.id}`}>{row.name}</Link></td>
+					<td><T.span text={row.type}/></td>
 					<td>{row.codec_name}</td>
 					<td>{row.mcast_ip}</td>
 					<td>{row.mcast_port}</td>
@@ -926,6 +927,7 @@ class McastsPage extends React.Component {
 				<tbody>
 				<tr>
 					<th><T.span text="Name"/></th>
+					<th><T.span text="Type"/></th>
 					<th><T.span text="Codec Name"/></th>
 					<th><T.span text="Multicast Address"/></th>
 					<th><T.span text="Multicast Port"/></th>
