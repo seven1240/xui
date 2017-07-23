@@ -1119,8 +1119,17 @@ class Change extends React.Component {
 				"&r=" + r).then((data) => {
 				console.log(data);
 				window.map.closeInfoWindow();
-
 				window.map.clearOverlays();
+
+				// filter to remove duplicated stations
+				let dup = {}
+				data = data.filter((station) => {
+					if (dup[station.stat_name]) return false;
+
+					dup[station.stat_name] = true;
+					return true;
+				});
+
 				// draw stations
 				drawStations(data, _this, _this.onStationClick);
 
@@ -1130,9 +1139,9 @@ class Change extends React.Component {
 			});
 		}
 
-		const text = '<a href="#" onclick="showNearbyStations(500)">显示附近公交站点（500米）</a> <br>' +
-					 '<a href="#" onclick="showNearbyStations(1500)">显示附近公交站点（1500米）</a> <br>' +
-					 '<a href="#" onclick="showNearbyStations(3000)">显示附近公交站点（3000米）</a>';
+		const text = '<a href="#" onclick="showNearbyStations(500);return false">显示附近公交站点（500米）</a> <br>' +
+					 '<a href="#" onclick="showNearbyStations(1500);return false">显示附近公交站点（1500米）</a> <br>' +
+					 '<a href="#" onclick="showNearbyStations(3000);return false">显示附近公交站点（3000米）</a>';
 
 		const infoWindow = new BMap.InfoWindow(text, opts);
 		window.map.openInfoWindow(infoWindow, new BMap.Point(position.lng, position.lat));
@@ -1245,7 +1254,7 @@ class Change extends React.Component {
 						<span>至&nbsp;&nbsp;</span>
 					</td><td style={{textAlign: "right"}}>
 						<SelectSearch options={this.state.stations} selectType='0' placeholder="请输入目的站" station={this.state.endStation} onChange={this.onChange2}/>
-					</td><td>
+					</td><td width="72px" style={{textAlign:"right"}}>
 						<a href="#" className="weui-btn weui-btn_mini weui-btn_primary" style={{marginTop:"10px"}} onClick={this.handleSearchInterchange.bind(this)}>查询</a>
 					</td>
 				</tr>
