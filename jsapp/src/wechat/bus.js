@@ -15,6 +15,16 @@ window.start = '';
 window.end = '';
 window.station_view_this;
 
+window.setStart = function(stat_name) {
+	window.start = stat_name;
+	alert('已设为起点，请到换乘查询页面进行查询');
+}
+
+window.setEnd = function(stat_name) {
+	window.end = stat_name;
+	alert('已设为终点，请到换乘查询页面进行查询');	
+}
+
 /*
 param must contains stat_name
 */
@@ -721,8 +731,8 @@ class StationSearch extends React.Component {
 			if(data.code == 1){
 				var html = '';
 
-				html += '<a style="color:red;" onclick="window.start=(\'' + station.stat_name + '\');">设为换乘起点</a> '
-					+ '<a style="color:blue;" onclick="window.end=(\'' + station.stat_name + '\');">设为换乘终点</a><br><br>';
+				html += '<a style="color:red;" onclick="window.setStart(\'' + station.stat_name + '\');">设为换乘起点</a> '
+					+ '<a style="color:blue;" onclick="window.setEnd(\'' + station.stat_name + '\');">设为换乘终点</a><br><br>';
 				data.line_time.forEach((item) => {
 					if(item.up_cut){
 						var up_cut = "最近的车辆还有"+item.up_cut+"站到达，预计约"+item.up_cut*2+"分钟";
