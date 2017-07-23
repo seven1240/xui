@@ -149,7 +149,7 @@ get('/nearby_stations', function(params)
 	latitude = env:getHeader('latitude') or '37.325945'
 
 	sql =  "SELECT * FROM station " ..
-		"WHERE earth_box(ll_to_earth(" .. longitude .. ", " .. latitude .. "), " .. r .. ") @> ll_to_earth(stat_longitude, stat_latitude)"
+		"WHERE earth_box(ll_to_earth(" .. longitude .. ", " .. latitude .. "), " .. r .. ") @> ll_to_earth(baidu_x, baidu_y)"
 
 	n, rows = xdb.find_by_sql(sql)
 

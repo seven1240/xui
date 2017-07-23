@@ -371,7 +371,7 @@ class SelectSearch extends React.Component {
 		const _this = this;
 
 		return <div>
-			<input className = "weui-input" value={this.state.name} placeholder={this.props.placeholder}
+			<input className = "weui-input" value={this.props.station} placeholder={this.props.placeholder}
 				onChange={this.autoComplete.bind(this)}
 				onBlur={this.hideComplete.bind(this)} />
 
@@ -1072,13 +1072,99 @@ class Stations extends React.Component {
 class Change extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {candidates: [], stations: [], searched: null};
+		this.state = {candidates: [], stations: [], searched: null, startStation: null, endStation: null};
 
 		this.onChange1 = this.onChange1.bind(this);
 		this.onChange2 = this.onChange2.bind(this);
 	}
 
+	addMarker(point, func) {
+		var marker = new BMap.Marker(point);
+
+		if (func) {
+			marker.addEventListener("click", (e) => {
+				func(e);
+			});
+		}
+
+		window.map.addOverlay(marker);
+		marker.enableDragging();
+	}
+
+	initializeBaiduMap() {
+		window.map = new BMap.Map("allmap");
+		window.map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT}));   //add map navigation tools
+		const longitude = 120.40086416919;
+		const latitude = 37.37223326585
+		window.map.centerAndZoom(new BMap.Point(longitude, latitude), 14);
+
+		console.log("loc", loc);
+
+		const point = new BMap.Point(longitude, latitude);
+		this.addMarker(point, this.onMyLocationClick.bind(this));
+	}
+
+	onMyLocationClick(e) {
+		console.log(e.target.getPosition());
+		const position = e.target.getPosition();
+		const opts = {
+			// title: 'blah'
+		}
+
+		const _this = this;
+
+		window.showNearbyStations = function(r) { // has to be global in the old school
+			xFetchJSON('/api/bus/nearby_stations?longitude=' +
+				position.lng + '&latitude=' + position.lat +
+				"&r=" + r).then((data) => {
+				console.log(data);
+				window.map.closeInfoWindow();
+
+				window.map.clearOverlays();
+				// draw stations
+				drawStations(data, _this, _this.onStationClick);
+
+				// add current positioin back
+				const point = new BMap.Point(position.lng, position.lat);
+				_this.addMarker(point, _this.onMyLocationClick.bind(_this));
+			});
+		}
+
+		const text = '<a href="#" onclick="showNearbyStations(500)">显示附近公交站点（500米）</a> <br>' +
+					 '<a href="#" onclick="showNearbyStations(1500)">显示附近公交站点（1500米）</a> <br>' +
+					 '<a href="#" onclick="showNearbyStations(3000)">显示附近公交站点（3000米）</a>';
+
+		const infoWindow = new BMap.InfoWindow(text, opts);
+		window.map.openInfoWindow(infoWindow, new BMap.Point(position.lng, position.lat));
+	}
+
+	onStationClick(data) {
+		const _this = this;
+		console.log("onStationClick", data);
+
+		window.setAsStart = function() {
+			window.start = data.stat_name;
+			_this.setState({startStation: data.stat_name});
+			_this.forceUpdate();
+		}
+
+		window.setAsEnd = function() {
+			window.end = data.stat_name;
+			_this.setState({endStation: data.stat_name});
+		}
+
+		const text = '<a href="#" onclick="setAsStart()">设为起点</a> | ' +
+			'<a href="#" onclick="setAsEnd()">设为终点</a>';
+
+		const opts = {title: "选择起止点"};
+		const infoWindow = new BMap.InfoWindow(text, opts);
+		window.map.openInfoWindow(infoWindow, new BMap.Point(data.baidu_x, data.baidu_y));
+	}
+
 	componentDidMount() {
+		window.initializeBaiduMap = this.initializeBaiduMap.bind(this);
+		loadScript();
+
 		const _this = this;
 		xFetchJSON('/api/bus/station').then((data) => {
 			console.log(data);
@@ -1088,10 +1174,12 @@ class Change extends React.Component {
 
 	onChange1(e) {
 		window.start = e.value;
+		this.setState({startStation: e.value});
 	}
 
 	onChange2(e) {
 		window.end = e.value;
+		this.setState({endStation: e.value});
 	}
 
 	handleSearchInterchange(e) {
@@ -1143,32 +1231,36 @@ class Change extends React.Component {
 			if (_this.state.searched) { content = '没有找到换乘方案';}
 		}
 
+		let mapHeight = window.innerHeight - 180;
+
 		return <div className="page" style={{padding:"0 15px"}}>
 			<h1 className="page__title" style={{textAlign:"center",margin:"10px 0"}}>换乘查询</h1>
 
-			<div className="weui-cell">
-				<div className="weui-cell__hd"><label className="weui-label">起点：</label></div>
-				<div className="weui-cell__bd">
-					<SelectSearch options={this.state.stations} selectType='0' placeholder="请输入出发站" station={window.start} onChange={this.onChange1}/>
-				</div>
+			<div>
+				<table>
+				<tr>
+					<td width="30%">
+						<SelectSearch options={this.state.stations} selectType='0' placeholder="请输入出发站" station={this.state.startStation} onChange={this.onChange1}/>
+					</td><td width="10%">
+						<span>至&nbsp;&nbsp;</span>
+					</td><td style={{textAlign: "right"}}>
+						<SelectSearch options={this.state.stations} selectType='0' placeholder="请输入目的站" station={this.state.endStation} onChange={this.onChange2}/>
+					</td><td>
+						<a href="#" className="weui-btn weui-btn_mini weui-btn_primary" style={{marginTop:"10px"}} onClick={this.handleSearchInterchange.bind(this)}>查询</a>
+					</td>
+				</tr>
+				</table>
 			</div>
-
-			<div className="weui-cell">
-				<div className="weui-cell__hd"><label className="weui-label">终点：</label></div>
-				<div className="weui-cell__bd">
-					<SelectSearch options={this.state.stations} selectType='0' placeholder="请输入目的站" station={window.end} onChange={this.onChange2}/>
-				</div>
+			<div>
+			提示：拖动小红点并点击可选择站点
 			</div>
-
 			<hr/>
-
-			<a href="#" className="weui-btn weui-btn_primary" style={{marginTop:"10px"}} onClick={this.handleSearchInterchange.bind(this)}>查询</a>
-			<br/>
 
 			<div class="page__bd">
 			{content}
 			</div>
 
+			<div id = "allmap" style={{width: "100%", height: mapHeight}} />
 		</div>
 	}
 }
