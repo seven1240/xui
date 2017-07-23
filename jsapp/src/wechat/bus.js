@@ -25,6 +25,12 @@ window.setEnd = function(stat_name) {
 	alert('已设为终点，请到换乘查询页面进行查询');	
 }
 
+function loadScript() {
+	var script = document.createElement("script");
+	script.src = "http://api.map.baidu.com/api?v=2.0&ak=OGvbL6kRPgyBoV8q3bCgxeHfN6DKdOrx&callback=initializeBaiduMap";
+	document.body.appendChild(script);
+}
+
 /*
 param must contains stat_name
 */
@@ -395,12 +401,6 @@ class LinePage extends React.Component {
 		super(props);
 		this.state = {stations: [], traffics: [], self_order: null, self_xpoint: 120.404126, self_ypoint: 37.369088};
 	}
-
-	loadScript() {
-		var script = document.createElement("script");
-		script.src = "http://api.map.baidu.com/api?v=2.0&ak=OGvbL6kRPgyBoV8q3bCgxeHfN6DKdOrx&callback=initializeBaiduMap";
-		document.body.appendChild(script);
-	}
 	
 	initializeBaiduMap() {
 		var _this = this;
@@ -443,7 +443,7 @@ class LinePage extends React.Component {
 		const _this = this;
 
 		window.initializeBaiduMap = this.initializeBaiduMap.bind(this);
-		this.loadScript();
+		loadScript();
 
 		xFetchJSON('/api/bus/lines/' + this.props.line.line_code + '/stations').then((data) => {
 			_this.setState({stations: data});
@@ -624,12 +624,6 @@ class StationSearch extends React.Component {
 		window.station_view_this = this;
 	}
 
-	loadScript() {
-		var script = document.createElement("script");
-		script.src = "http://api.map.baidu.com/api?v=2.0&ak=OGvbL6kRPgyBoV8q3bCgxeHfN6DKdOrx&callback=initializeBaiduMap";
-		document.body.appendChild(script);
-	}
-
 	componentWillUnmount() {
 		window.map = null;
 	}
@@ -638,7 +632,7 @@ class StationSearch extends React.Component {
 		const _this = this;
 
 		window.initializeBaiduMap = this.initializeBaiduMap.bind(this);
-		this.loadScript();
+		loadScript();
 
 		if (true || !loc.longitude) { // hardcoded for test
 			loc = {longitude: 120.40086416919, latitude: 37.37223326585};
@@ -765,12 +759,6 @@ class TransferMap extends React.Component {
 			lines: {}, stations: [],
 			candidate: props.candidate
 		};
-	}
-
-	loadScript() {
-		var script = document.createElement("script");
-		script.src = "http://api.map.baidu.com/api?v=2.0&ak=OGvbL6kRPgyBoV8q3bCgxeHfN6DKdOrx&callback=initializeBaiduMap";
-		document.body.appendChild(script);
 	}
 
 	onMarkerClick(station) {
@@ -943,7 +931,7 @@ class TransferMap extends React.Component {
 		const _this = this;
 
 		window.initializeBaiduMap = this.initializeBaiduMap.bind(this);
-		this.loadScript();
+		loadScript();
 
 		const station_names = this.props.candidate.stat_names.split('-');
 		const lines = this.props.candidate.all_lines.split('-');
