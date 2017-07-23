@@ -503,9 +503,6 @@ class McastPage extends React.Component {
 		var add_files_button_disable = false;
 		var remove_all_button_disable = false;
 		var add_files_select_disable = false;
-		var enable_default_value = "";
-		var auto_mode_default_value = "";
-		var type_default_value = "";
 		var optional_forms = [];
 		var playlist = [];
 
@@ -523,6 +520,9 @@ class McastPage extends React.Component {
 
 		const enable_options = [[1, "Yes"], [0, "No"]];
 		const type_options = [["MUSIC", "Music Multicast"], ["REALTIME", "Realtime Multicast"]];
+		var enable_dval = enable_options[1];
+		var auto_mode_dval = enable_options[1];
+		var type_dval = type_options[0];
 
 		const remain_file_options = this.state.remain_files.map(function(row){
 			return { value: row, label: row.name };
@@ -541,8 +541,8 @@ class McastPage extends React.Component {
 		}
 
 		enable_options.map(function(o){
-			if (o[0] == Number(_this.state.mcast.auto_mode)) auto_mode_default_value = o[1];
-			if (o[0] == Number(_this.state.mcast.enable)) enable_default_value = o[1];
+			if (o[0] == Number(_this.state.mcast.auto_mode)) auto_mode_dval = o;
+			if (o[0] == Number(_this.state.mcast.enable)) enable_dval = o;
 		});
 
 		type_options.map(function(o){
@@ -568,7 +568,7 @@ class McastPage extends React.Component {
 				<FormGroup controlId="formAutoMode">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Mode"/></Col>
 					<Col sm={10}>
-						<EditControl edit={this.state.edit} componentClass="select" name="auto_mode" options={enable_options} text={auto_mode_default_value} defaultValue={auto_mode_default_value}/>
+						<EditControl edit={this.state.edit} componentClass="select" name="auto_mode" options={enable_options} text={auto_mode_dval[1]} defaultValue={auto_mode_dval[0]}/>
 					</Col>
 				</FormGroup>
 			);
@@ -577,7 +577,7 @@ class McastPage extends React.Component {
 				<FormGroup controlId="formEnabled">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Enabled"/></Col>
 					<Col sm={10}>
-						<EditControl edit={this.state.edit} componentClass="select" name="enable" options={enable_options} text={enable_default_value} defaultValue={enable_default_value}/>
+						<EditControl edit={this.state.edit} componentClass="select" name="enable" options={enable_options} text={enable_dval[1]} defaultValue={enable_dval[0]}/>
 					</Col>
 				</FormGroup>
 			);

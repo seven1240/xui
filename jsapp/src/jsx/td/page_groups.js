@@ -482,30 +482,32 @@ class GroupPage extends React.Component {
 		const group = this.state.group;
 		const mcasts = this.state.mcasts;
 		const enable_options = [[1, "Yes"], [0, "No"]];
-		var unique_att_default_value = "No";
-		var real_mcast_default_value = "";
-		var music_mcast_default_value = "";
+		var unique_att_dval = enable_options[1];
+		var real_mcast_dval = ["", ""];
+		var music_mcast_dval = ["", ""];
 
 		const group_options = this.state.group_options.map(function(option) {
 			return [option.value, option.name.replace(/ /g, String.fromCharCode(160))];
 		});
 
-		var realtime_mcast_options = this.state.remain_realtime_mcasts.map(function(o){
-			return [o.id, o.name];
+		var music_mcast_options = [["", "-- Please Select --"]];
+		var realtime_mcast_options = [["", "-- Please Select --"]];
+
+		this.state.remain_realtime_mcasts.map(function(o){
+			realtime_mcast_options.push([o.id, o.name]);
 		})
 
-
-		var music_mcast_options = this.state.remain_music_mcasts.map(function(o){
-			return [o.id, o.name];
+		this.state.remain_music_mcasts.map(function(o){
+			music_mcast_options.push([o.id, o.name]);
 		})
 
 		mcasts.map(function(m) {
 			if (m.id == group.realtime_mcast_id) {
-				real_mcast_default_value = m.name;
+				real_mcast_dval = m;
 				realtime_mcast_options.push([m.id, m.name]);
 			}
 
-			if (m.id == group.music_mcast_id) music_mcast_default_value = m.name;
+			if (m.id == group.music_mcast_id) music_mcast_dval = m;
 		});
 
 		let save_btn = "";
@@ -523,7 +525,7 @@ class GroupPage extends React.Component {
 		})
 
 		enable_options.map(function(o){
-			if (o[0] == group.unique_attribution) unique_att_default_value = o[1];
+			if (o[0] == group.unique_attribution) unique_att_dval = o;
 		});
 
 		return <div>
@@ -562,17 +564,17 @@ class GroupPage extends React.Component {
 
 				<FormGroup controlId="formUniqueAttribution">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Unique Attribution"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} componentClass="select" options={enable_options} name="unique_attribution" defaultValue={unique_att_default_value}/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} componentClass="select" options={enable_options} name="unique_attribution" defaultValue={unique_att_dval[0]} text={unique_att_dval[1]}/></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formRealtimeMcast">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Realtime Multicast Channel"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} componentClass="select" options={realtime_mcast_options} name="realtime_mcast_id" defaultValue={real_mcast_default_value}/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} componentClass="select" options={realtime_mcast_options} name="realtime_mcast_id" defaultValue={real_mcast_dval.id} text={real_mcast_dval.name}/></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formMusicMcast">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Music Multicast Channel"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} componentClass="select" options={music_mcast_options} name="music_mcast_id" defaultValue={music_mcast_default_value}/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} componentClass="select" options={music_mcast_options} name="music_mcast_id" defaultValue={music_mcast_dval.id} text={music_mcast_dval.name}/></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formSave">
