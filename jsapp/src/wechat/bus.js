@@ -1308,12 +1308,14 @@ class App extends React.Component{
 						</div>
 						<p className="weui-tabbar__label">线路查询</p>
 					</a>
+{/*
 					<a className="weui-tabbar__item" onClick={() => _this.handleClick("stations")}>
 						<div className="weui-tabbar__icon">
 							<img src="/assets/wechat_img/icon_nav_button.png" alt=""/>
 						</div>
 						<p className="weui-tabbar__label">站点查询</p>
 					</a>
+*/}
 					<a className="weui-tabbar__item">
 						<div className="weui-tabbar__icon" onClick={() => _this.handleClick("change")}>
 							<img src="/assets/wechat_img/icon_nav_cell.png" alt=""/>
