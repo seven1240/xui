@@ -1,7 +1,7 @@
 -- print("test start ... \n")
 
 local cur_dir = debug.getinfo(1).source;
-cur_dir = string.gsub(cur_dir, "^@(.+)/get_js_token.lua$", "%1")
+cur_dir = string.gsub(cur_dir, "^@(.+)/get_js_ticket.lua$", "%1")
 
 package.path = package.path .. ";/etc/xtra/?.lua"
 package.path = package.path .. ";" .. cur_dir .. "/?.lua"
@@ -26,5 +26,5 @@ if (not wechat.APPID) or (not wechat.APPSEC) then
 	stream:write("APPID/APPSEC NOT CONFIGURED!")
 else
 	token = xwechat.get_token(realm, wechat.APPID, wechat.APPSEC)
-	stream:write("js_token: " .. token .. "\n")
+	stream:write(os.date("%Y-%m-%d %H:%M:%S") .. " js_tiket: " .. token .. "\n")
 end
