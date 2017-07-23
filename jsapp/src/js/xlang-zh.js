@@ -75,6 +75,7 @@ LANGUAGES["zh"] = {
 	Users: "用户",
 	"Users Manage": "用户管理",
 	Groups: "分组",
+	"Unique Attribution": "归属组唯一",
 	"Groups Manage": "分组管理",
 	Sofia: "Sofia",
 
@@ -418,6 +419,12 @@ LANGUAGES["zh"] = {
 
 	"Multicasts": "组播",
 	"Multicast": "组播",
+	"MUSIC": "音乐",
+	"REALTIME": "实时",
+	"Music Multicast": "音乐广播",
+	"Realtime Multicast": "实时广播",
+	"Music Multicast Channel": "音乐广播频道",
+	"Realtime Multicast Channel": "实时广播频道",
 	"Auto Mode": "自动模式",
 	"Auto Start Time": "自动开始时间",
 	"Auto Stop Time": "自动结束时间",
@@ -433,6 +440,7 @@ LANGUAGES["zh"] = {
 	"Sample Rate": "采样频率",
 	"Create New mcast": "新建组播",
 	"Please Select": "请选择",
+	"-- Please Select --": "-- 请选择 --",
 	"PlayList": "播放列表",
 
 	"Terminal": "终端",
