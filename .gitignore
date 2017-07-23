@@ -5,6 +5,7 @@ jsapp/src/js/jsx/*.js
 # auto generated link
 jsapp/src/index.js
 jsapp/src/jsx/index.js
+lua/xui/view/wechat/tickets1.html
 www/index.html
 www/bus.html
 www/assets/js/react*.bundle.js
