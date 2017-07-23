@@ -23,6 +23,7 @@ config.switch_domain = "111.11.28.39"
 config.switch_port = "8000"
 config.abnormal_instant_conference_timeout = "120"
 -- config.auth = "hash" -- or true or file
+-- config.password_use_a1_hash = true
 config.session_path = "/tmp"
 config.view_path = config.base_dir .. "/xui/lua/xui/view"
 -- config.prefix_table = "gw"

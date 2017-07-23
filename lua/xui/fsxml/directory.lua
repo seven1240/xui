@@ -109,9 +109,14 @@ if user then
 			dial_string = "{^^!sip_h_Subject=" .. user .. ":0,34020000001320009999:0!absolute_codec_string=PS}" .. dial_string
 		end
 
-		pars= '<param name="password" value="' .. row.password .. '"/>' ..
-				'<param name="vm-password" value="' .. row.vm_password .. '"/>' ..
+		pars= 	'<param name="vm-password" value="' .. row.vm_password .. '"/>' ..
 				'<param name="dial-string" value="' .. dial_string .. '"/>'
+
+		if config.password_use_a1_hash then
+			pars = pars .. '<param name="a1-hash" value="' .. row.password .. '"/>'
+		else
+			pars = pars .. '<param name="password" value="' .. row.password .. '"/>'
+		end
 
 		vars =  '<variable name="user_context" value="' .. row.context .. '"/>' ..
 				'<variable name="accountcode" value="' .. row.extn .. '"/>'

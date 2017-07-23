@@ -49,11 +49,6 @@ elseif env then
 	from_client = env:getHeader("from_client")
 end
 
-xtra.start_session()
-xtra.require_login()
-
-content_type("text/xml")
-
 local cur_dir = debug.getinfo(1).source;
 cur_dir = string.gsub(debug.getinfo(1).source, "^@(.+/)[^/]+$", "%1")
 
@@ -63,6 +58,12 @@ package.path = package.path .. ";" .. cur_dir .. "vendor/?.lua"
 
 if from_client then
 	package.path = package.path .. ";" .. cur_dir .. "fsxml/td/" .. tag_name .. "/?.lua"
+
+	require 'xtra'
+
+	xtra.start_session()
+	xtra.require_login()
+	content_type("text/xml")
 else
 	package.path = package.path .. ";" .. cur_dir .. "fsxml/" .. tag_name .. "/?.lua"
 end

@@ -49,6 +49,28 @@ get('/', function(params)
 	end
 end)
 
+get('/remain_realtime_mcasts', function(params)
+	sql = "SELECT * FROM mcasts WHERE type = 'REALTIME' AND id NOT IN (SELECT realtime_mcast_id from groups WHERE realtime_mcast_id is not null);"
+	n, mcasts = xdb.find_by_sql(sql)
+	print(serialize(mcasts))
+	if n > 0 then
+		return mcasts
+	else
+		return '[]'
+	end
+end)
+
+get('/remain_music_mcasts', function(params)
+	sql = "SELECT * from mcasts WHERE type = 'MUSIC';"
+	n, mcasts = xdb.find_by_sql(sql)
+	print(serialize(mcasts))
+	if n > 0 then
+		return mcasts
+	else
+		return '[]'
+	end
+end)
+
 get('/:id', function(params)
 	mcast = xdb.find("mcasts", params.id)
 	if mcast then

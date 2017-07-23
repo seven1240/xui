@@ -26,5 +26,5 @@ if (not wechat.APPID) or (not wechat.APPSEC) then
 	stream:write("APPID/APPSEC NOT CONFIGURED!")
 else
 	token = xwechat.get_token(realm, wechat.APPID, wechat.APPSEC)
-	stream:write("token: " .. token .. "\n")
+	stream:write(os.date("%Y-%m-%d %H:%M:%S") .. " token: " .. token .. "\n")
 end

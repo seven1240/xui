@@ -43,11 +43,12 @@ class NewMcast extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {errmsg: '', codec_name: [], sample_rate: []};
+		this.state = {errmsg: '', type: 'MUSIC', codec_name: [], sample_rate: []};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleCodecNameChange = this.handleCodecNameChange.bind(this);
+		this.handleTypeChange = this.handleTypeChange.bind(this);
 	}
 
 	handleCodecNameChange(e) {
@@ -75,6 +76,10 @@ class NewMcast extends React.Component {
 		xFetchJSON("/api/dicts?realm=MCAST_SAMPLE_RATE" + qs).then((data) => {
 			_this.setState({sample_rate: data});
 		});
+	}
+
+	handleTypeChange(e) {
+		this.setState({type: e.target.value});
 	}
 
 	handleSubmit(e) {
@@ -137,6 +142,8 @@ class NewMcast extends React.Component {
 		delete props.handleNewMcastAdded;
 
 		var enable_options = [[1, "Yes"], [0, "No"]];
+		var type_options = [["MUSIC", "Music Multicast"], ["REALTIME", "Realtime Multicast"]];
+		var optional_forms = [];
 		var startDate = new Date();
 		var stopDate = new Date();
 
@@ -150,6 +157,52 @@ class NewMcast extends React.Component {
 		stopDate.setHours(stopDate.getHours() + 1);
 		var defaultStartTime = formatTime(startDate);
 		var defaultStopTime = formatTime(stopDate);
+
+		if (this.state.type != "REALTIME") {
+			optional_forms.push(
+				<FormGroup controlId="formAutoStartTime">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Start Time"/></Col>
+					<Col sm={10}>
+						<FormControl type="input" name="auto_start_time" placeholder={defaultStartTime}/>
+					</Col>
+				</FormGroup>
+			);
+
+			optional_forms.push(
+				<FormGroup controlId="formAutoStopTime">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Stop Time"/></Col>
+					<Col sm={10}>
+						<FormControl type="input" name="auto_stop_time" placeholder={defaultStopTime}/>
+					</Col>
+				</FormGroup>
+			);
+
+			optional_forms.push(
+				<FormGroup controlId="formAutoMode">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Mode" /></Col>
+					<Col sm={10}>
+						<FormControl componentClass="select" name="auto_mode">
+							{enable_options.map(function(o) {
+								return <option key={o[0]} value={o[0]}><T.span text={o[1]}/></option>;
+							})}
+						</FormControl>
+					</Col>
+				</FormGroup>
+			);
+
+			optional_forms.push(
+				<FormGroup controlId="formEnable">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Enabled" /></Col>
+					<Col sm={10}>
+						<FormControl componentClass="select" name="enable">
+							{enable_options.map(function(o) {
+								return <option key={o[0]} value={o[0]}><T.span text={o[1]}/></option>;
+							})}
+						</FormControl>
+					</Col>
+				</FormGroup>
+			);
+		}
 
 		return <Modal {...props} aria-labelledby="contained-modal-title-lg">
 			<Modal.Header closeButton>
@@ -168,6 +221,17 @@ class NewMcast extends React.Component {
 					<Col sm={10}><FormControl type="input" name="source" placeholder="local_stream://test" /></Col>
 				</FormGroup>
 				*/}
+
+				<FormGroup controlId="formType">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Type"/></Col>
+					<Col sm={10}>
+						<FormControl componentClass="select" name="type" onChange={this.handleTypeChange}>
+							{type_options.map(function(o) {
+								return <option key={o[0]} value={o[0]}><T.span text={o[1]}/></option>;
+							})}
+						</FormControl>
+					</Col>
+				</FormGroup>
 
 				<FormGroup controlId="formCodecName">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Codec Name"/></Col>
@@ -211,41 +275,7 @@ class NewMcast extends React.Component {
 					<Col sm={10}><FormControl type="input" name="mcast_port" placeholder="4598"/></Col>
 				</FormGroup>
 
-				<FormGroup controlId="formAutoStartTime">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Start Time"/></Col>
-					<Col sm={10}>
-						<FormControl type="input" name="auto_start_time" placeholder={defaultStartTime}/>
-					</Col>
-				</FormGroup>
-
-				<FormGroup controlId="formAutoStopTime">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Stop Time"/></Col>
-					<Col sm={10}>
-						<FormControl type="input" name="auto_stop_time" placeholder={defaultStopTime}/>
-					</Col>
-				</FormGroup>
-
-				<FormGroup controlId="formAutoMode">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Mode" /></Col>
-					<Col sm={10}>
-						<FormControl componentClass="select" name="auto_mode">
-							{enable_options.map(function(o) {
-								return <option key={o[0]} value={o[0]}><T.span text={o[1]}/></option>;
-							})}
-						</FormControl>
-					</Col>
-				</FormGroup>
-
-				<FormGroup controlId="formEnable">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Enabled" /></Col>
-					<Col sm={10}>
-						<FormControl componentClass="select" name="enable">
-							{enable_options.map(function(o) {
-								return <option key={o[0]} value={o[0]}><T.span text={o[1]}/></option>;
-							})}
-						</FormControl>
-					</Col>
-				</FormGroup>
+				{optional_forms}
 
 				<FormGroup>
 					<Col smOffset={2} sm={10}>
@@ -279,11 +309,13 @@ class McastPage extends React.Component {
 			enable: [],
 			codec_name: [],
 			sample_rate: [],
-			select_value: []
+			select_value: [],
+			type: 'MUSIC'
 		};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
+		this.handleTypeChange = this.handleTypeChange.bind(this);
 		this.handleControlClick = this.handleControlClick.bind(this);
 		this.handleCodecNameChange = this.handleCodecNameChange.bind(this);
 		this.handleSelectChange = this.handleSelectChange.bind(this);
@@ -436,6 +468,10 @@ class McastPage extends React.Component {
 		this.setState({edit: !this.state.edit});
 	}
 
+	handleTypeChange(e) {
+		this.setState({type: e.target.value});
+	}
+
 	componentDidMount() {
 		var _this = this;
 
@@ -446,7 +482,10 @@ class McastPage extends React.Component {
 			_this.setState({sample_rate: data});
 		});
 		xFetchJSON("/api/mcasts/" + this.props.params.id).then((data) => {
-			_this.setState({mcast: data});
+			_this.setState({
+				mcast: data,
+				type: data.type
+			});
 			console.log("mcast", data);
 		}).catch((msg) => {
 			console.log("get mcast ERR");
@@ -466,6 +505,9 @@ class McastPage extends React.Component {
 		var add_files_select_disable = false;
 		var enable_default_value = "";
 		var auto_mode_default_value = "";
+		var type_default_value = "";
+		var optional_forms = [];
+		var playlist = [];
 
 		if (this.state.edit) {
 			save_btn = <Button onClick={this.handleSubmit}><i className="fa fa-save" aria-hidden="true"></i>&nbsp;<T.span text="Save"/></Button>
@@ -480,6 +522,7 @@ class McastPage extends React.Component {
 		});
 
 		const enable_options = [[1, "Yes"], [0, "No"]];
+		const type_options = [["MUSIC", "Music Multicast"], ["REALTIME", "Realtime Multicast"]];
 
 		const remain_file_options = this.state.remain_files.map(function(row){
 			return { value: row, label: row.name };
@@ -501,6 +544,84 @@ class McastPage extends React.Component {
 			if (o[0] == Number(_this.state.mcast.auto_mode)) auto_mode_default_value = o[1];
 			if (o[0] == Number(_this.state.mcast.enable)) enable_default_value = o[1];
 		});
+
+		type_options.map(function(o){
+			if (o[0] == _this.state.mcast.type) type_default_value = o[1];
+		});
+
+		if (_this.state.type == "MUSIC") {
+			optional_forms.push(
+				<FormGroup controlId="formAutoStartTime">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Start Time"/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} name="auto_start_time" defaultValue={mcast.auto_start_time} placeholder={mcast.auto_start_time}/></Col>
+				</FormGroup>
+			);
+
+			optional_forms.push(
+				<FormGroup controlId="formAutoStopTime">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Stop Time"/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} name="auto_stop_time" defaultValue={mcast.auto_stop_time} placeholder={mcast.auto_stop_time}/></Col>
+				</FormGroup>
+			);
+
+			optional_forms.push(
+				<FormGroup controlId="formAutoMode">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Mode"/></Col>
+					<Col sm={10}>
+						<EditControl edit={this.state.edit} componentClass="select" name="auto_mode" options={enable_options} text={auto_mode_default_value} defaultValue={auto_mode_default_value}/>
+					</Col>
+				</FormGroup>
+			);
+
+			optional_forms.push(
+				<FormGroup controlId="formEnabled">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Enabled"/></Col>
+					<Col sm={10}>
+						<EditControl edit={this.state.edit} componentClass="select" name="enable" options={enable_options} text={enable_default_value} defaultValue={enable_default_value}/>
+					</Col>
+				</FormGroup>
+			);
+
+			playlist.push(<h1><T.span text="PlayList"/></h1>);
+			playlist.push(<br/>);
+
+			playlist.push(
+				<ButtonToolbar>
+					<Col sm={3}>
+						<Select multi="true" disabled={add_files_select_disable} value={this.state.select_value} placeholder={T.translate('Please Select')} options={remain_file_options} onChange={this.handleSelectChange}/>
+					</Col>
+
+					<Col sm={3}>
+						<Button disabled={add_files_button_disable} onClick={this.handleAddMcastMediaFiles}>
+							<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
+							<T.span text="Add"/>
+						</Button>
+					</Col>
+
+					<Col sm={6}>
+						<Button className="pull-right" bsStyle="danger" disabled={remove_all_button_disable} onClick={this.handleRemoveMediaFiles} data="new">
+							<T.span text="Remove All Files"/>
+						</Button>
+					</Col>
+				</ButtonToolbar>
+			);
+
+			playlist.push(<br/>);
+			playlist.push(<br/>);
+
+			playlist.push(
+				<table className="table">
+					<tbody>
+						<tr>
+							<th><T.span text="FileName"/></th>
+							<th><T.span text="Size"/></th>
+							<th><T.span text="-"/></th>
+						</tr>
+						{files}
+					</tbody>
+				</table>
+			);
+		}
 
 		var files = this.state.mcast_files.map(function(f) {
 			return (
@@ -540,6 +661,13 @@ class McastPage extends React.Component {
 				</FormGroup>
 				*/}
 
+				<FormGroup controlId="formType">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Type"/></Col>
+					<Col sm={10}>
+						<EditControl edit={this.state.edit} onChange={this.handleTypeChange} componentClass="select" name="type" options={type_options} text={type_default_value} defaultValue={type_default_value}/>
+					</Col>
+				</FormGroup>
+
 				<FormGroup controlId="formCodecName">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Codec Name"/></Col>
 					<Col sm={10}>
@@ -572,69 +700,15 @@ class McastPage extends React.Component {
 					<Col sm={10}><EditControl edit={this.state.edit} name="mcast_port" defaultValue={mcast.mcast_port}/></Col>
 				</FormGroup>
 
-				<FormGroup controlId="formAutoStartTime">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Start Time"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="auto_start_time" defaultValue={mcast.auto_start_time} placeholder={mcast.auto_start_time}/></Col>
-				</FormGroup>
+				{optional_forms}
 
-				<FormGroup controlId="formAutoStopTime">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Stop Time"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="auto_stop_time" defaultValue={mcast.auto_stop_time} placeholder={mcast.auto_stop_time}/></Col>
-				</FormGroup>
-
-				<FormGroup controlId="formAutoMode">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Mode"/></Col>
-					<Col sm={10}>
-						<EditControl edit={this.state.edit} componentClass="select" name="auto_mode" options={enable_options} text={auto_mode_default_value} defaultValue={auto_mode_default_value}/>
-					</Col>
-				</FormGroup>
-
-				<FormGroup controlId="formEnabled">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Enabled"/></Col>
-					<Col sm={10}>
-						<EditControl edit={this.state.edit} componentClass="select" name="enable" options={enable_options} text={enable_default_value} defaultValue={enable_default_value}/>
-					</Col>
-				</FormGroup>
 				<FormGroup controlId="formSave">
 					<Col componentClass={ControlLabel} sm={2}></Col>
 					<Col sm={10}>{save_btn}</Col>
 				</FormGroup>
 			</Form>
 
-			<h1><T.span text="PlayList"/></h1>
-			<br/>
-
-			<ButtonToolbar>
-				<Col sm={3}>
-					<Select multi="true" disabled={add_files_select_disable} value={this.state.select_value} placeholder={T.translate('Please Select')} options={remain_file_options} onChange={this.handleSelectChange}/>
-				</Col>
-
-				<Col sm={3}>
-					<Button disabled={add_files_button_disable} onClick={this.handleAddMcastMediaFiles}>
-						<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
-						<T.span text="Add"/>
-					</Button>
-				</Col>
-
-				<Col sm={6}>
-					<Button className="pull-right" bsStyle="danger" disabled={remove_all_button_disable} onClick={this.handleRemoveMediaFiles} data="new">
-						<T.span text="Remove All Files"/>
-					</Button>
-				</Col>
-			</ButtonToolbar>
-			<br/>
-			<br/>
-
-			<table className="table">
-				<tbody>
-					<tr>
-						<th><T.span text="FileName"/></th>
-						<th><T.span text="Size"/></th>
-						<th><T.span text="-"/></th>
-					</tr>
-					{files}
-				</tbody>
-			</table>
+			{playlist}
 
 		</div>
 	}
@@ -811,19 +885,27 @@ class McastsPage extends React.Component {
 			const enabled_class = dbtrue(row.enable) ? "" : "disabled";
 			const enabled_style = dbtrue(row.enable) ? "success" : "default";
 			const running_class = row.running ? "running" : null;
+			const disabled = row.type == "REALTIME" ? true : false;
+			var mcast_control =
+				<td className={running_class}>
+					<T.a disabled={disabled} onClick={_this.handleMcastAction.bind(_this)} data-name={row.name} data-action="start" text="Start" href='#'/> |&nbsp;
+					<T.a disabled={disabled} onClick={_this.handleMcastAction.bind(_this)} data-name={row.name} data-action="stop" text="Stop" href='#'/> |&nbsp;
+					<T.a disabled={disabled} onClick={_this.handleMcastAction.bind(_this)} data-name={row.name} data-action="restart" text="Restart" href='#'/>
+				</td>;
+
+			if (row.type == "REALTIME") {
+				mcast_control = <td><T.span text="Disabled"/></td>;
+			}
 
 			rows.push(<tr key={row.id} className={enabled_class}>
 					<td><Link to={`/settings/mcasts/${row.id}`}>{row.name}</Link></td>
+					<td><T.span text={row.type}/></td>
 					<td>{row.codec_name}</td>
 					<td>{row.mcast_ip}</td>
 					<td>{row.mcast_port}</td>
 					<td>{row.sample_rate}</td>
-					<td><Button onClick={_this.HandleToggleMcast.bind(_this)} bsStyle={enabled_style} data={row.id}>{dbtrue(row.enable) ? T.translate("Yes") : T.translate("No")}</Button></td>
-					<td className={running_class}>
-						<T.a onClick={_this.handleMcastAction.bind(_this)} data-name={row.name} data-action="start" text="Start" href='#'/> |&nbsp;
-						<T.a onClick={_this.handleMcastAction.bind(_this)} data-name={row.name} data-action="stop" text="Stop" href='#'/> |&nbsp;
-						<T.a onClick={_this.handleMcastAction.bind(_this)} data-name={row.name} data-action="restart" text="Restart" href='#'/>
-					</td>
+					<td><Button disabled={disabled} onClick={_this.HandleToggleMcast.bind(_this)} bsStyle={enabled_style} data={row.id}>{dbtrue(row.enable) ? T.translate("Yes") : T.translate("No")}</Button></td>
+					{mcast_control}
 					<td><T.a style={hand} onClick={_this.handleDelete} data-id={row.id} text="Delete" className={danger}/></td>
 			</tr>);
 		})
@@ -845,6 +927,7 @@ class McastsPage extends React.Component {
 				<tbody>
 				<tr>
 					<th><T.span text="Name"/></th>
+					<th><T.span text="Type"/></th>
 					<th><T.span text="Codec Name"/></th>
 					<th><T.span text="Multicast Address"/></th>
 					<th><T.span text="Multicast Port"/></th>

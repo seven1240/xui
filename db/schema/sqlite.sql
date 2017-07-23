@@ -106,6 +106,9 @@ CREATE TABLE groups (
 	realm VARCHAR NOT NULL,           -- a key in dicts
 	name VARCHAR NOT NULL,
 	level integer DEFAULT 0,
+	unique_attribution BOOLEAN NOT NULL DEFAULT 0 CHECK(unique_attribution IN (0, 1, '0', '1')),      -- one user one group
+	music_mcast_id INTEGER REFERENCES mcasts(id),
+	realtime_mcast_id INTEGER REFERENCES mcasts(id),
 	description VARCHAR,
 	group_id INTEGER,        -- nested groups
 	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
@@ -410,6 +413,7 @@ CREATE INDEX fifo_member_fifo_name ON fifo_members(fifo_name);
 CREATE TABLE mcasts (
 	id INTEGER PRIMARY KEY,
 	name VARCHAR NOT NULL,
+	type VARCHAR NOT NULL DEFAULT "MUSIC",
 	source VARCHAR,
 	codec_name VARCHAR,
 	codec_ms INTEGER,
