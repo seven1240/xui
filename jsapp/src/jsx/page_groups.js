@@ -219,8 +219,8 @@ class NewGroup extends React.Component {
 		delete props.group_options;
 
 		const group_options = the_group_options.map(function(option){
-			var text = option.name.replace(/ /g, String.fromCharCode(160))
-			return <option key={option} value={option.value}>{text}</option>
+			let text = option.name.replace(/ /g, String.fromCharCode(160))
+			return <option key={option.value} value={option.value}>{text}</option>
 		});
 
 		return <Modal {...props} aria-labelledby="contained-modal-title-lg">
@@ -369,6 +369,9 @@ class GroupPage extends React.Component {
 		const group_options = this.state.group_options.map(function(option) {
 			return [option.value, option.name.replace(/ /g, String.fromCharCode(160))];
 		});
+
+
+		group_options.unshift(["", ""]);
 
 		let save_btn = "";
 		let err_msg = "";
