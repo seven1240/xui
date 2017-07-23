@@ -47,7 +47,7 @@ end
 
 xwechat.js_ticket = function(realm)
 	api = freeswitch.API()
-	ticket = api:execute("hash", "select/wechat/js_ticket_" .. realm)
+	ticket = api:execute("hash", "select/wechat/wechat_js_ticket_" .. realm)
 	return ticket
 end
 
@@ -58,6 +58,7 @@ xwechat.get_token = function(realm, AppID, AppSec)
 	json = utils.json_decode(body)
 	-- print(body)
 	api:execute("hash", "insert/wechat/wechat_access_token_" .. realm .. "/" .. json.access_token)
+	api:execute("hash", "insert/wechat/wechat_access_token_json_" .. realm .. "/" .. body)
 	return json.access_token
 end
 
@@ -71,7 +72,8 @@ xwechat.get_js_ticket = function(realm)
 	api = freeswitch.API()
 	body = api:execute("curl", URL)
 	json = utils.json_decode(body)
-	api:execute("hash", "insert/wechat/wechat_access_token_" .. realm .. "/" .. json.ticket)
+	api:execute("hash", "insert/wechat/wechat_js_ticket_" .. realm .. "/" .. json.ticket)
+	api:execute("hash", "insert/wechat/wechat_js_ticket_json_" .. realm .. "/" .. body)
 	return json.ticket
 end
 
