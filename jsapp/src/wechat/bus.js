@@ -1043,7 +1043,7 @@ class TransferMap extends React.Component {
 class Stations extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {stations: [], inputStationName: '文化区'};
+		this.state = {stations: [], inputStationName: '所有站点'};
 	}
 
 	componentDidMount() {
