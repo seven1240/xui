@@ -169,7 +169,7 @@ xdb.find_by_sql(sql, function(row)
 		elseif room.call_perm == "CONF_CP_AUTH_USER" then
 			local userName = params:getHeader('Hunt-Username')
 			if userName ~= cidNumber then
-				utils.xlog(__FILE__() .. ':' .. __LINE__(), "WARNING", cidNumber .. "Forbidden")
+				utils.xlog(__FILE__() .. ':' .. __LINE__(), "WARNING", cidNumber .. " Forbidden")
 				forbidden = true
 			else
 				check = xdb.find_one("conference_members", {room_id = room.id, num = cidNumber})
