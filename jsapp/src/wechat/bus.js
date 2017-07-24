@@ -329,11 +329,6 @@ class SelectSearch extends React.Component {
 	autoComplete(e) {
 		console.log('autoComplete', e.target.value);
 
-		if (e.target.value == "所有站点" && this.props.onChange) {
-			this.props.onChange('所有站点');
-			return;
-		}
-
 		const options = this.props.options.filter((o) => {
 			return o.stat_name.indexOf(e.target.value) >= 0;
 		});
@@ -371,16 +366,13 @@ class SelectSearch extends React.Component {
 		const _this = this;
 
 		return <div>
-			<input className = "weui-input" value={this.props.station} placeholder={this.props.placeholder}
+			<input className = "weui-input" value={_this.state.name} placeholder={this.props.placeholder}
 				onChange={this.autoComplete.bind(this)}
 				onBlur={this.hideComplete.bind(this)} />
 
 			{
 				this.state.options.length == 0 ? null :
 				<div style={{position: "absolute", zIndex: 1000, backgroundColor: "#FFF", border: "1px solid #DDD"}}>	
-				{	_this.props.selectType == '1' ? <li style={{listStyle: "none", padding: "5px"}} onClick={() => _this.handleClick("所有站点")}>所有站点</li>
-						: ''
-				}
 				{
 					this.state.options.map((o) => {
 						return <li style={{listStyle: 'none', padding: "5px"}}
@@ -650,12 +642,7 @@ class StationSearch extends React.Component {
 
 	render() {
 		const _this = this;
-		var url = '';
-		if (_this.props.station == "所有站点") {
-			url = '/api/bus/same_station';
-		} else {
-			url = '/api/bus/same_station?station=' + _this.props.station;
-		}
+		var url = '/api/bus/same_station?station=' + _this.props.station;
 		xFetchJSON(url).then((data) => {
 			if (window.map) { window.map.clearOverlays();}
 
@@ -840,7 +827,10 @@ class TransferMap extends React.Component {
 		const colors = ['red', 'blue', 'green', '#FFFF00'];
 		let colors_i = 0;
 		lines.forEach((line) => {
+			let last_stat_name;
+			console.error('line=', line);
 			_this.state.lines[line].forEach((station) => {
+				last_stat_name = station.stat_name;
 				const point = new BMap.Point(station.baidu_x, station.baidu_y);
 				addMarker(point, station, _this.onMarkerClick.bind(_this));
 
@@ -884,6 +874,27 @@ class TransferMap extends React.Component {
 			console.log('color: ', colors_i, colors[colors_i]);
 
 			colors_i = colors_i+1;
+
+			// //draw cars
+			// let l = _this.state.lines[line];
+			// let url = '/api/bus/get_direction?line=' + line + '&start=' + l[0].stat_name + '&stop=' + last_stat_name;
+			// console.error('url=', url);
+			// xFetchJSON(url).then((d) => {
+			// 	console.error('get_direction', d);
+			// 	xFetchJSON('http://zyjt.xswitch.cn/bus_api/site/realData', {
+			// 		method: "POST",
+			// 		headers: {"Content-Type": "application/x-www-form-urlencoded"},
+			// 		body: 'line=' + line + '&up_down' + d.direction + '&xpoint=1&ypoint=1'
+			// 	}).then((data) => {
+			// 		console.error('realData', data);
+			// 		if (data.code != 1) {
+			// 			console.error('response json error', data);
+			// 			return;
+			// 		}
+
+			// 		drawCars(data.res);
+			// 	});
+			// });
 		});
 
 		let center_x = (parseFloat(max_x) + parseFloat(min_x))/2;
@@ -1041,7 +1052,7 @@ class TransferMap extends React.Component {
 class Stations extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {stations: [], inputStationName: '所有站点'};
+		this.state = {stations: [], inputStationName: ''};
 	}
 
 	componentDidMount() {
