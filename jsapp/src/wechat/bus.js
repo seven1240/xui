@@ -375,8 +375,16 @@ class SelectSearch extends React.Component {
 	render () {
 		const _this = this;
 
+		let stat_name;
+
+		if (_this.props.station) {
+			stat_name = _this.props.station;
+		} else {
+			stat_name = _this.state.name;
+		}
+
 		return <div>
-			<input className = "weui-input" value={_this.state.name} placeholder={this.props.placeholder}
+			<input className = "weui-input" value={stat_name} placeholder={this.props.placeholder}
 				onChange={this.autoComplete.bind(this)}
 				onBlur={this.hideComplete.bind(this)} />
 
