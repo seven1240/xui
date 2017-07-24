@@ -1154,12 +1154,13 @@ class Change extends React.Component {
 		window.setAsStart = function() {
 			window.start = data.stat_name;
 			_this.setState({startStation: data.stat_name});
-			_this.forceUpdate();
+			window.map.closeInfoWindow();
 		}
 
 		window.setAsEnd = function() {
 			window.end = data.stat_name;
 			_this.setState({endStation: data.stat_name});
+			window.map.closeInfoWindow();
 		}
 
 		const text = '<a href="#" onclick="setAsStart()">设为起点</a> | ' +
@@ -1260,8 +1261,8 @@ class Change extends React.Component {
 				</tr>
 				</table>
 			</div>
-			<div>
-			提示：拖动小红点并点击可选择站点
+			<div style={{color: "#999"}}>
+				提示：拖动小红点并点击可选择站点
 			</div>
 			<hr/>
 
