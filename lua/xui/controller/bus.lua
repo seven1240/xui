@@ -333,3 +333,18 @@ get('/interchange', function(params)
 		end
 	end
 end)
+
+get('/get_direction', function(params)
+	start = env:getHeader('start')
+	stop = env:getHeader('stop')
+	line = env:getHeader('line')
+
+	station1 = xdb.find_one("station", {line_code = params.code, stat_name = start})
+	station2 = xdb.find_one("station", {line_code = params.code, stat_name = stop})
+
+	if station1.station_order - station2.station_order > 0 then
+		return {direction=1}
+	else
+		return {direction=2}
+	end
+end)
