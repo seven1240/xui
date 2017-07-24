@@ -718,7 +718,7 @@ class ConferenceRoom extends React.Component {
 			if (row.id == room.profile_id) {
 				current_profile = '[' + row.name + '] ' + row.description;
 			}
-			return [row.id, row.name];
+			return [row.id, '[' + row.name + ']' + row.description];
 		});
 
 		const video_mode_options = this.state.video_modes.map(function(row) {
