@@ -549,6 +549,19 @@ class McastPage extends React.Component {
 			if (o[0] == _this.state.mcast.type) type_dval = o;
 		});
 
+		var files = this.state.mcast_files.map(function(f) {
+			return (
+			<tr key={f.id}>
+				<th><Link to={`/settings/media_files/${f.id}`}>{f.name}</Link></th>
+				<th>{f.file_size}</th>
+				<th>
+					<Button bsStyle="danger" bsSize="xsmall" onClick={(e) => _this.handleRemoveMediaFiles(e, f.id)} data-id={f.id}>
+						<T.span text="Remove"/>
+					</Button>
+				</th>
+			</tr>);
+		})
+
 		if (_this.state.type == "MUSIC") {
 			optional_forms.push(
 				<FormGroup controlId="formAutoStartTime">
@@ -622,19 +635,6 @@ class McastPage extends React.Component {
 				</table>
 			);
 		}
-
-		var files = this.state.mcast_files.map(function(f) {
-			return (
-			<tr key={f.id}>
-				<th><Link to={`/settings/media_files/${f.id}`}>{f.name}</Link></th>
-				<th>{f.file_size}</th>
-				<th>
-					<Button bsStyle="danger" bsSize="xsmall" onClick={(e) => _this.handleRemoveMediaFiles(e, f.id)} data-id={f.id}>
-						<T.span text="Remove"/>
-					</Button>
-				</th>
-			</tr>);
-		})
 
 		return <div>
 			<ButtonToolbar className="pull-right">
