@@ -626,7 +626,7 @@ class MediaFilesPage extends React.Component {
 
 		const _this = this;
 
-		const progress_bar = this.state.progress < 0 ? null : <ProgressBar now={this.state.progress} />
+		const progress_bar = this.state.progress < 0 ? null : <ProgressBar now={this.state.progress} label={`${this.state.progress}%`}/>
 
 		const rows = this.state.rows.map(function(row) {
 			return <tr key={row.id}>

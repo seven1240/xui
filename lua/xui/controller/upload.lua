@@ -166,3 +166,78 @@ post('/', function(params)
 		return "[]"
 	end
 end)
+
+
+post('/licence', function(params)
+	print(env:serialize())
+	local api = freeswitch.API()
+	local ctype = utils.url_decode(env:getHeader("Content-Type"))
+	local content_length = tonumber(env:getHeader("Content-Length"))
+
+	print("ctype: "..ctype.." content_length: "..content_length.."\n");
+
+	local max_body_size = 100 * 1024 * 1024
+
+	if content_length == 0 or content_length > max_body_size then
+		print("Max body size " .. max_body_size)
+		return 413, {error = "Max body size " .. max_body_size}
+	end
+
+	local multipart = string.find(ctype, "multipart")
+	local size = tonumber(content_length)
+	local filename
+	local file
+	local received = 0
+	local files = {}
+	local boundary
+	local parser
+	local uploaded_files = {}
+	local found = 0
+	local times = 10
+	local ftype = env:getHeader("ftype")
+
+	-- print(multipart)
+
+	expect = env:getHeader("expect")
+
+	if expect and expect:match("100%-continue") then
+		-- response_100_continue()
+		print("run");
+		stream:write("HTTP/1.1 100 Continue\r\n")
+		-- stream:write("X-IM-FileID: " .. filename .. "\r\n\r\n")
+	end
+
+	boundary=string.gsub(ctype, "^.*boundary=([^;]+).*$", "%1")
+	print("boundary: " .. boundary)
+
+	base_dir = api:execute("global_getvar", "base_dir")
+	filename = base_dir .. "/storage/upload/mips.licence"
+	file = assert(io.open(filename, "w"))
+
+	while received < size do
+		local x = stream_read()
+		local len = x:len()
+		received = received + len
+
+		print("received= " .. len .. " total= " .. received .. " size= " .. size)
+
+		if not parser then parser = multipart_parser(boundary) end
+
+		if multipart then
+			ret = parser:parse(x)
+		else
+			file:write(x)
+		end
+
+		if (len == 0) then
+			times = times + 1
+			os.execute("sleep " .. 1)
+		else
+			times = 0
+		end
+	end
+
+	if file then file:close() end
+
+	return 200, {code = 200, text = "OK"}
+end)

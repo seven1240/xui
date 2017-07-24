@@ -53,7 +53,7 @@ import FSUsersPage from "../page_fs_users";
 import SofiaPage from "../page_sofia";
 import MonitorPage from '../page_monitor';
 import Conferences from '../conferences';
-import SystemPage from '../page_system';
+import SystemPage from './page_system';
 import { FifoPage, FifoInfo, FifoMemberPage } from '../page_fifos';
 import Settings from './settings';
 import { ConferenceProfilePage, ConferenceProfilesPage } from '../page_conference_profiles';
