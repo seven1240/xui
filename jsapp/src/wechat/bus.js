@@ -1099,7 +1099,7 @@ class Change extends React.Component {
 		this.onChange2 = this.onChange2.bind(this);
 	}
 
-	addMarker(point, func) {
+	addMarker(point, func, title, drag) {
 		var marker = new BMap.Marker(point);
 
 		if (func) {
@@ -1108,8 +1108,16 @@ class Change extends React.Component {
 			});
 		}
 
+		if (title) {
+			let label = new BMap.Label(title, {offset:new BMap.Size(20,-10)});
+			marker.setLabel(label);
+		}
+
 		window.map.addOverlay(marker);
-		marker.enableDragging();
+
+		if (!drag || drag == 'true') {
+			marker.enableDragging();
+		}
 	}
 
 	initializeBaiduMap() {
@@ -1259,7 +1267,6 @@ class Change extends React.Component {
 
 	handleSearchWhere(e) {
 		const _this = this;
-		alert(this.state.where);
 		window.map.centerAndZoom(new BMap.Point('120.40086416919', '37.37223326585'), 14);
 
 		var options = {
@@ -1280,9 +1287,9 @@ class Change extends React.Component {
 							continue;
 						}
 
-						_this.addMarker(poi.point, _this.onMyLocationClick.bind(_this));
+						_this.addMarker(poi.point, _this.onMyLocationClick.bind(_this), poi.title, 'false');
 
-						s.push(results.getPoi(i).title + ", " + results.getPoi(i).address);
+						// s.push(results.getPoi(i).title + ", " + results.getPoi(i).address);
 
 						// if (parseFloat(max_x) < parseFloat(poi.point.lng)) { max_x = poi.point.lng}
 						// if (parseFloat(max_y) < parseFloat(poi.point.lat)) { max_y = poi.point.lat}
@@ -1305,7 +1312,7 @@ class Change extends React.Component {
 						window.map.centerAndZoom(poi.point, 14);
 					}
 
-					console.error('s', s);
+					// console.error('s', s);
 				}
 			}
 		};
@@ -1343,7 +1350,7 @@ class Change extends React.Component {
 			if (_this.state.searched) { content = '没有找到换乘方案';}
 		}
 
-		let mapHeight = window.innerHeight - 220;
+		let mapHeight = window.innerHeight - 240;
 
 		return <div className="page" style={{padding:"0 15px"}}>
 			<h1 className="page__title" style={{textAlign:"center",margin:"10px 0"}}>换乘查询</h1>
@@ -1365,7 +1372,7 @@ class Change extends React.Component {
 				<table>
 					<tr>
 						<td>
-							<p>地点</p>
+							<p>地点&nbsp;&nbsp;</p>
 						</td>
 						<td>
 							<input className = "weui-input" value={this.state.where} placeholder="请输入地名" onChange={this.onChange3.bind(this)}/>
