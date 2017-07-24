@@ -8,6 +8,16 @@ import { FormControl } from 'react-bootstrap';
 var is_wx_ready = false;
 var loc = {};
 
+function is_in_zhaoyuan(x, y) {
+	let min_x = 120.133;
+	let max_x = 120.633;
+	let min_y = 37.083;
+	let max_y = 37.55;
+
+	return (parseFloat(x) > parseFloat(min_x) && parseFloat(x) < parseFloat(max_x))
+		&& (parseFloat(y) > parseFloat(min_y) && parseFloat(y) < parseFloat(max_y));
+}
+
 /*
 Becase the global object defined here can't be finded by baidu map's alert windows, I add them in window object.
 */
@@ -1103,6 +1113,7 @@ class Change extends React.Component {
 	}
 
 	initializeBaiduMap() {
+		const _this = this;
 		window.map = new BMap.Map("allmap");
 		window.map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT}));   //add map navigation tools
 		const longitude = 120.40086416919;
@@ -1110,6 +1121,26 @@ class Change extends React.Component {
 		window.map.centerAndZoom(new BMap.Point(longitude, latitude), 14);
 
 		console.log("loc", loc);
+
+		var geolocationControl = new BMap.GeolocationControl();
+		geolocationControl.addEventListener("locationSuccess", function(e){
+			console.log('定位成功', e);
+			window.map.clearOverlays();
+
+			if (is_in_zhaoyuan(e.point.lng, e.point.lat)) {
+				console.log('in zhaoyuan');
+				_this.addMarker(e.point, _this.onMyLocationClick.bind(_this));
+			} else {
+				console.log('no in zhaoyuan');
+				const point = new BMap.Point('120.40086416919', '37.37223326585');
+				_this.addMarker(point, _this.onMyLocationClick.bind(_this));
+				window.map.centerAndZoom(point, 14);
+			}
+		});
+		geolocationControl.addEventListener("locationError",function(e){
+			console.log('定位失败');
+		});
+		window.map.addControl(geolocationControl);
 
 		const point = new BMap.Point(longitude, latitude);
 		this.addMarker(point, this.onMyLocationClick.bind(this));
