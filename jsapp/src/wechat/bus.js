@@ -1093,7 +1093,7 @@ class Stations extends React.Component {
 class Change extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {candidates: [], stations: [], searched: null, startStation: null, endStation: null};
+		this.state = {candidates: [], stations: [], searched: null, startStation: null, endStation: null, where: null};
 
 		this.onChange1 = this.onChange1.bind(this);
 		this.onChange2 = this.onChange2.bind(this);
@@ -1234,6 +1234,10 @@ class Change extends React.Component {
 		this.setState({endStation: e.value});
 	}
 
+	onChange3(e) {
+		this.setState({where: e.target.value});
+	}
+
 	handleSearchInterchange(e) {
 		e.preventDefault();
 		const _this = this;
@@ -1251,6 +1255,62 @@ class Change extends React.Component {
 
 		options.all_plans = _this.state.candidates;
 		ReactDOM.render(<TransferMap candidate={options}/>, document.getElementById('main'));
+	}
+
+	handleSearchWhere(e) {
+		const _this = this;
+		alert(this.state.where);
+		window.map.centerAndZoom(new BMap.Point('120.40086416919', '37.37223326585'), 14);
+
+		var options = {
+			onSearchComplete: function(results){
+				// 判断状态是否正确
+				if (local.getStatus() == BMAP_STATUS_SUCCESS){
+					window.map.clearOverlays();
+					var s = [];
+					// let min_x = 99999, max_x = 0, min_y = 999999, max_y = 0;
+
+					for (var i = 0; i < results.getCurrentNumPois(); i ++){
+						let poi = results.getPoi(i);
+
+						if (is_in_zhaoyuan(poi.point.lng, poi.point.lat)) {
+							console.log('in zhaoyuan', poi.point.lng, poi.point.lat);
+						} else {
+							console.log('no in zhaoyuan', poi.point.lng, poi.point.lat);
+							continue;
+						}
+
+						_this.addMarker(poi.point, _this.onMyLocationClick.bind(_this));
+
+						s.push(results.getPoi(i).title + ", " + results.getPoi(i).address);
+
+						// if (parseFloat(max_x) < parseFloat(poi.point.lng)) { max_x = poi.point.lng}
+						// if (parseFloat(max_y) < parseFloat(poi.point.lat)) { max_y = poi.point.lat}
+						// if (parseFloat(min_x) > parseFloat(poi.point.lng)) { min_x = poi.point.lng}
+						// if (parseFloat(min_y) > parseFloat(poi.point.lat)) { min_y = poi.point.lat}
+					}
+
+					// let center_x = (parseFloat(max_x) + parseFloat(min_x))/2;
+					// let center_y = (parseFloat(max_y) + parseFloat(min_y))/2;
+
+					// if (parseFloat(center_x) > 0) {
+					// 	window.map.centerAndZoom(new BMap.Point(center_x, center_y), 14);
+					// }
+					/*
+					I used the max/min point to set the center position before, but I find the map view don't show any search results when the max/min point is too far from the others.
+					So, I use the first search result as the center position.
+					*/
+					let poi = results.getPoi(0);
+					if (poi) {
+						window.map.centerAndZoom(poi.point, 14);
+					}
+
+					console.error('s', s);
+				}
+			}
+		};
+		var local = new BMap.LocalSearch(map, options);
+		local.search(this.state.where);
 	}
 
 	render() {
@@ -1283,24 +1343,37 @@ class Change extends React.Component {
 			if (_this.state.searched) { content = '没有找到换乘方案';}
 		}
 
-		let mapHeight = window.innerHeight - 180;
+		let mapHeight = window.innerHeight - 220;
 
 		return <div className="page" style={{padding:"0 15px"}}>
 			<h1 className="page__title" style={{textAlign:"center",margin:"10px 0"}}>换乘查询</h1>
 
 			<div>
 				<table>
-				<tr>
-					<td width="30%">
-						<SelectSearch options={this.state.stations} selectType='0' placeholder="请输入出发站" station={this.state.startStation} onChange={this.onChange1}/>
-					</td><td width="10%">
-						<span>至&nbsp;&nbsp;</span>
-					</td><td style={{textAlign: "right"}}>
-						<SelectSearch options={this.state.stations} selectType='0' placeholder="请输入目的站" station={this.state.endStation} onChange={this.onChange2}/>
-					</td><td width="72px" style={{textAlign:"right"}}>
-						<a href="#" className="weui-btn weui-btn_mini weui-btn_primary" style={{marginTop:"10px"}} onClick={this.handleSearchInterchange.bind(this)}>查询</a>
-					</td>
-				</tr>
+					<tr>
+						<td width="30%">
+							<SelectSearch options={this.state.stations} selectType='0' placeholder="请输入出发站" station={this.state.startStation} onChange={this.onChange1}/>
+						</td><td width="10%">
+							<span>至&nbsp;&nbsp;</span>
+						</td><td style={{textAlign: "right"}}>
+							<SelectSearch options={this.state.stations} selectType='0' placeholder="请输入目的站" station={this.state.endStation} onChange={this.onChange2}/>
+						</td><td width="72px" style={{textAlign:"right"}}>
+							<a href="#" className="weui-btn weui-btn_mini weui-btn_primary" style={{marginTop:"10px"}} onClick={this.handleSearchInterchange.bind(this)}>查询</a>
+						</td>
+					</tr>
+				</table>
+				<table>
+					<tr>
+						<td>
+							<p>地点</p>
+						</td>
+						<td>
+							<input className = "weui-input" value={this.state.where} placeholder="请输入地名" onChange={this.onChange3.bind(this)}/>
+						</td>
+						<td width="72px" style={{textAlign:"right"}}>
+							<a href="#" className="weui-btn weui-btn_mini weui-btn_primary" style={{marginTop:"10px"}} onClick={this.handleSearchWhere.bind(this)}>查询</a>
+						</td>
+					</tr>
 				</table>
 			</div>
 			<div style={{color: "#999"}}>
