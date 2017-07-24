@@ -546,7 +546,7 @@ class McastPage extends React.Component {
 		});
 
 		type_options.map(function(o){
-			if (o[0] == _this.state.mcast.type) type_default_value = o[1];
+			if (o[0] == _this.state.mcast.type) type_dval = o;
 		});
 
 		if (_this.state.type == "MUSIC") {
@@ -664,7 +664,7 @@ class McastPage extends React.Component {
 				<FormGroup controlId="formType">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Type"/></Col>
 					<Col sm={10}>
-						<EditControl edit={this.state.edit} onChange={this.handleTypeChange} componentClass="select" name="type" options={type_options} text={type_default_value} defaultValue={type_default_value}/>
+						<EditControl edit={this.state.edit} onChange={this.handleTypeChange} componentClass="select" name="type" options={type_options} text={type_dval[1]} defaultValue={type_dval[0]}/>
 					</Col>
 				</FormGroup>
 
