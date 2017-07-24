@@ -564,21 +564,21 @@ class McastPage extends React.Component {
 
 		if (_this.state.type == "MUSIC") {
 			optional_forms.push(
-				<FormGroup controlId="formAutoStartTime">
+				<FormGroup controlId="eformAutoStartTime">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Start Time"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} name="auto_start_time" defaultValue={mcast.auto_start_time} placeholder={mcast.auto_start_time}/></Col>
 				</FormGroup>
 			);
 
 			optional_forms.push(
-				<FormGroup controlId="formAutoStopTime">
+				<FormGroup controlId="eformAutoStopTime">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Stop Time"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} name="auto_stop_time" defaultValue={mcast.auto_stop_time} placeholder={mcast.auto_stop_time}/></Col>
 				</FormGroup>
 			);
 
 			optional_forms.push(
-				<FormGroup controlId="formAutoMode">
+				<FormGroup controlId="eformAutoMode">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Auto Mode"/></Col>
 					<Col sm={10}>
 						<EditControl edit={this.state.edit} componentClass="select" name="auto_mode" options={enable_options} text={auto_mode_dval[1]} defaultValue={auto_mode_dval[0]}/>
@@ -587,7 +587,7 @@ class McastPage extends React.Component {
 			);
 
 			optional_forms.push(
-				<FormGroup controlId="formEnabled">
+				<FormGroup controlId="eformEnabled">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Enabled"/></Col>
 					<Col sm={10}>
 						<EditControl edit={this.state.edit} componentClass="select" name="enable" options={enable_options} text={enable_dval[1]} defaultValue={enable_dval[0]}/>
@@ -647,9 +647,9 @@ class McastPage extends React.Component {
 			<h1><T.span text="Multicast"/> <small>{mcast.name}</small></h1>
 			<hr/>
 
-			<Form horizontal id="newMcastForm">
+			<Form horizontal id="editMcastForm">
 				<input type="hidden" name="id" defaultValue={mcast.id}/>
-				<FormGroup controlId="formName">
+				<FormGroup controlId="eformName">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Name" className="mandatory"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} disabled={true} name="name" defaultValue={mcast.name}/></Col>
 				</FormGroup>
@@ -661,48 +661,48 @@ class McastPage extends React.Component {
 				</FormGroup>
 				*/}
 
-				<FormGroup controlId="formType">
+				<FormGroup controlId="eformType">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Type"/></Col>
 					<Col sm={10}>
 						<EditControl edit={this.state.edit} onChange={this.handleTypeChange} componentClass="select" name="type" options={type_options} text={type_dval[1]} defaultValue={type_dval[0]}/>
 					</Col>
 				</FormGroup>
 
-				<FormGroup controlId="formCodecName">
+				<FormGroup controlId="eformCodecName">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Codec Name"/></Col>
 					<Col sm={10}>
 						<EditControl edit={this.state.edit} componentClass="select" name="codec_name" options={codec_name_options} text={T.translate(mcast.codec_name)} defaultValue={mcast.codec_name}/>
 					</Col>
 				</FormGroup>
 
-				<FormGroup controlId="formSampleRate">
+				<FormGroup controlId="eformSampleRate">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Sample Rate"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} disabled={true} componentClass="select" name="sample_rate" options={sample_rate_options} text={T.translate(mcast.sample_rate)} defaultValue={mcast.sample_rate}/></Col>
 				</FormGroup>
 
-				<FormGroup controlId="formCodecMs">
+				<FormGroup controlId="eformCodecMs">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Codec Ms" className="mandatory"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} name="codec_ms" defaultValue={mcast.codec_ms}/></Col>
 				</FormGroup>
 
-				<FormGroup controlId="formChannels">
+				<FormGroup controlId="eformChannels">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Channels" className="mandatory"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} name="channels" defaultValue={mcast.channels}/></Col>
 				</FormGroup>
 
-				<FormGroup controlId="formmcast_ip">
+				<FormGroup controlId="eformMcastIP">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Multicast Address" className="mandatory"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} name="mcast_ip" defaultValue={mcast.mcast_ip}/></Col>
 				</FormGroup>
 
-				<FormGroup controlId="formmcast_port">
+				<FormGroup controlId="eformMcastPort">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Multicast Port" className="mandatory"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} name="mcast_port" defaultValue={mcast.mcast_port}/></Col>
 				</FormGroup>
 
 				{optional_forms}
 
-				<FormGroup controlId="formSave">
+				<FormGroup controlId="eformSave">
 					<Col componentClass={ControlLabel} sm={2}></Col>
 					<Col sm={10}>{save_btn}</Col>
 				</FormGroup>
