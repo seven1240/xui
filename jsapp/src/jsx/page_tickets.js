@@ -209,7 +209,8 @@ class TicketPage extends React.Component {
 			record_src: '',
 			media_files: [],
 			comment: '',
-			hiddendiv: 'none'
+			hiddendiv: 'none',
+			showSelect: false
 		};
 
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -530,6 +531,20 @@ class TicketPage extends React.Component {
 		e.preventDefault();
 		this.setState({hiddendiv: this.state.hiddendiv == 'none' ? 'block' : 'none'});
 	}
+
+	handleShowDealusers() {
+		const users = this.state.users;
+		this.setState({
+			showSelect: true,
+			deal_user: <FormControl componentClass="select" name="current_user_id">{
+								users.map(function(row) {
+									return <option key={row.id} value={row.id}>{row.name} ({row.extn}) {row.nickname}</option>
+								})
+							}
+						</FormControl>
+		})
+	}
+
 	render() {
 		const idArray = this.state.media_files.map((m) => {
 			return m.comment_id;
@@ -592,12 +607,8 @@ class TicketPage extends React.Component {
 		let commit_btn = "";
 		let hidden_user = "";
 		const users = this.state.users;
-		let deal_user = <FormControl componentClass="select" name="current_user_id">{
-				users.map(function(row) {
-					return <option key={row.id} value={row.id}>{row.name} ({row.extn}) {row.nickname}</option>
-				})
-			}
-		</FormControl>;
+		var deal_user;
+
 		if(ticket.current_user_id){
 			users.map(function(row) {
 				if(row.id == ticket.current_user_id){
@@ -605,6 +616,15 @@ class TicketPage extends React.Component {
 					hidden_user = <FormControl type="hidden" name="current_user_id" value={row.id}/>
 				}
 			})
+		} else if(!this.state.showSelect) {
+			deal_user = <FormControl.Static><T.a onClick={() => this.handleShowDealusers()} text="Select" style={{cursor: "pointer"}}/></FormControl.Static>;
+		} else {
+			deal_user = <FormControl componentClass="select" name="current_user_id">{
+								users.map(function(row) {
+									return <option key={row.id} value={row.id}>{row.name} ({row.extn}) {row.nickname}</option>
+								})
+							}
+						</FormControl>;
 		}
 
 		this.state.deal_user = deal_user;
