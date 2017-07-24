@@ -518,6 +518,9 @@ LANGUAGES["zh"] = {
 	node: "节点",
 	Cidr: "无类域间路由",
 
+	"Server Mac Address": "服务器Mac地址",
+	"Upload done": "上传完毕",
+
 	Subject: "主题",
 	TICKET_ST_NEW: "未处理",
 	TICKET_ST_PROCESSING: "处理中",

@@ -642,15 +642,6 @@ post('/:id/comments', function(params)
 	end
 end)
 
-post('/:id/appoint', function(params)
-	ticket = {}
-	ticket.id = params.id
-	ticket.current_user_id = params.request.current_user_id
-	if ticket.current_user_id then
-		xdb.update("tickets", ticket)
-	end
-end)
-
 delete('/:id', function(params)
 	ret = xdb.delete("tickets", params.id);
 	if ret == 1 then
