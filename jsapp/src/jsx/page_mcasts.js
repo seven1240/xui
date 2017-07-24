@@ -601,7 +601,7 @@ class McastPage extends React.Component {
 			playlist.push(
 				<ButtonToolbar>
 					<Col sm={3}>
-						<Select multi="true" disabled={add_files_select_disable} value={this.state.select_value} placeholder={T.translate('Please Select')} options={remain_file_options} onChange={this.handleSelectChange}/>
+						<Select multi={true} disabled={add_files_select_disable} value={this.state.select_value} placeholder={T.translate('Please Select')} options={remain_file_options} onChange={this.handleSelectChange}/>
 					</Col>
 
 					<Col sm={3}>
