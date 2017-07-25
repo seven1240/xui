@@ -685,7 +685,7 @@ class StationSearch extends React.Component {
 		window.map = new BMap.Map("allmap");
 		window.map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT}));   //add map navigation tools
 
-		var geolocationControl = new BMap.GeolocationControl();
+		var geolocationControl = new BMap.GeolocationControl({anchor: BMAP_ANCHOR_TOP_LEFT});
 		geolocationControl.addEventListener("locationSuccess", function(e){
 			console.log('定位成功', e);
 		});
@@ -795,6 +795,44 @@ class TransferMap extends React.Component {
 		// });
 	}
 
+	onStartMarkerClick(station) {
+		window.station_view_this = this;
+
+		const opts = {
+			width : '',
+			height: '',
+			title : station.stat_name
+		}
+
+		xFetchJSON('http://zyjt.xswitch.cn/bus_api/site/getStationDes', {
+			method: "POST",
+			headers: {"Content-Type": "application/x-www-form-urlencoded"},
+			body: 'stat_name='+station.stat_name
+		}).then((data) => {
+		// xFetchJSON('http://zyjt.xswitch.cn/api/bus/test').then((data) => {
+			if(data.code == 1){
+				var html = '';
+
+				data.line_time.forEach((item) => {
+					if(item.up_cut){
+						var up_cut = "最近的车辆还有"+item.up_cut+"站到达，预计约"+item.up_cut*2+"分钟";
+					}else{
+						var up_cut = "此站点暂无快到达车辆"
+					}
+					if(item.down_cut){
+						var down_cut = "最近的车辆还有"+item.down_cut+"站到达，预计约"+item.down_cut*2+"分钟";
+					}else{
+						var down_cut = "此站点暂无快到达车辆"
+					}
+					html += item.line_code+"路<br/>(<a style='color:red;' onclick='window.get_line("+item.line_code+",1)'>"+item.stop_station+"->"+item.start_station+"</a>"+up_cut+")<br/>(<a style='color:blue;' onclick='window.get_line("+item.line_code+",2)'>"+item.start_station+"->"+item.stop_station+"</a>"+down_cut+")<br/><br/>";
+				});
+
+				const infoWindow = new BMap.InfoWindow(html, opts);
+				window.map.openInfoWindow(infoWindow, new BMap.Point(station.baidu_x, station.baidu_y));
+			}
+		});
+	}
+
 	is_show_arrow(lineStations, i) {
 		var flag1, flag2;
 		flag1 = lineStations[i].show;
@@ -843,7 +881,6 @@ class TransferMap extends React.Component {
 		let colors_i = 0;
 		lines.forEach((line) => {
 			let last_stat_name;
-			console.error('line=', line);
 			_this.state.lines[line].forEach((station) => {
 				last_stat_name = station.stat_name;
 				const point = new BMap.Point(station.baidu_x, station.baidu_y);
@@ -863,7 +900,7 @@ class TransferMap extends React.Component {
 
 				if (station.stat_name == start_station) {
 					const label = station.line_code + '路 ' + station.stat_name + ' 上车';
-					addLabel(point, label, station, _this.onMarkerClick.bind(_this));
+					addLabel(point, label, station, _this.onStartMarkerClick.bind(_this));
 				} else if (station.stat_name == stop_station) {
 					const label = station.line_code + '路 ' + station.stat_name + ' 下车';
 					addLabel(point, label, station, _this.onMarkerClick.bind(_this));
@@ -927,7 +964,7 @@ class TransferMap extends React.Component {
 		window.map = new BMap.Map("allmap");
 		window.map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT}));   //add map navigation tools
 
-		var geolocationControl = new BMap.GeolocationControl();
+		var geolocationControl = new BMap.GeolocationControl({anchor: BMAP_ANCHOR_TOP_LEFT});
 		geolocationControl.addEventListener("locationSuccess", function(e){
 			console.log('定位成功', e);
 		});
@@ -1128,14 +1165,14 @@ class Change extends React.Component {
 	initializeBaiduMap() {
 		const _this = this;
 		window.map = new BMap.Map("allmap");
-		window.map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT}));   //add map navigation tools
+		window.map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_LEFT}));   //add map navigation tools
 		const longitude = 120.40086416919;
 		const latitude = 37.37223326585
 		window.map.centerAndZoom(new BMap.Point(longitude, latitude), 14);
 
 		console.log("loc", loc);
 
-		var geolocationControl = new BMap.GeolocationControl();
+		var geolocationControl = new BMap.GeolocationControl({anchor: BMAP_ANCHOR_TOP_RIGHT});
 		geolocationControl.addEventListener("locationSuccess", function(e){
 			console.log('定位成功', e);
 			window.map.clearOverlays();
@@ -1376,8 +1413,8 @@ class Change extends React.Component {
 				</table>
 				<table>
 					<tr>
-						<td>
-							<p>地点&nbsp;&nbsp;</p>
+						<td width="25%">
+							<p>附近站点</p>
 						</td>
 						<td>
 							<input className = "weui-input" value={this.state.where} placeholder="请输入地名" onChange={this.onChange3.bind(this)}/>
