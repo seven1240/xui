@@ -188,6 +188,7 @@ class WechatUsersPage extends React.Component {
 			return <tr key={row.id}>
 					<td>{row.id}</td>
 					<td><Link to={`/settings/wechat_users/${row.id}`}>{row.nickname}</Link></td>
+					<td>{row.user_name}</td>
 					<td>{row.city}</td>
 					<td>{sex}</td>
 					<td><T.a style={hand} onClick={_this.handleDelete} data-id={row.id} text="Delete" className={danger}/></td>
@@ -202,6 +203,7 @@ class WechatUsersPage extends React.Component {
 				<tr>
 					<th><T.span text="ID"/></th>
 					<th><T.span text="Nickname"/></th>
+					<th><T.span text="Username"/></th>
 					<th><T.span text="City"/></th>
 					<th><T.span text="Sex"/></th>
 					<th><T.span style={hand} text="Delete" className={danger} onClick={toggleDanger} title={T.translate("Click me to toggle fast delete mode")}/></th>
