@@ -41,6 +41,61 @@ function loadScript() {
 	document.body.appendChild(script);
 }
 
+
+function searchWhere(_this, where) {
+	window.map.centerAndZoom(new BMap.Point('120.40086416919', '37.37223326585'), 14);
+
+	var options = {
+		onSearchComplete: function(results){
+			// 判断状态是否正确
+			let center_point;
+			if (local.getStatus() == BMAP_STATUS_SUCCESS){
+				window.map.clearOverlays();
+				var s = [];
+				// let min_x = 99999, max_x = 0, min_y = 999999, max_y = 0;
+
+				for (var i = 0; i < results.getCurrentNumPois(); i ++){
+					let poi = results.getPoi(i);
+
+					if (is_in_zhaoyuan(poi.point.lng, poi.point.lat)) {
+						if (!center_point) center_point = poi.point;
+						console.log('in zhaoyuan', poi.point.lng, poi.point.lat);
+					} else {
+						console.log('no in zhaoyuan', poi.point.lng, poi.point.lat);
+						continue;
+					}
+
+					_this.addMarker(poi.point, _this.onMyLocationClick.bind(_this), poi.title, 'false');
+
+					// s.push(results.getPoi(i).title + ", " + results.getPoi(i).address);
+
+					// if (parseFloat(max_x) < parseFloat(poi.point.lng)) { max_x = poi.point.lng}
+					// if (parseFloat(max_y) < parseFloat(poi.point.lat)) { max_y = poi.point.lat}
+					// if (parseFloat(min_x) > parseFloat(poi.point.lng)) { min_x = poi.point.lng}
+					// if (parseFloat(min_y) > parseFloat(poi.point.lat)) { min_y = poi.point.lat}
+				}
+
+				// let center_x = (parseFloat(max_x) + parseFloat(min_x))/2;
+				// let center_y = (parseFloat(max_y) + parseFloat(min_y))/2;
+
+				// if (parseFloat(center_x) > 0) {
+				// 	window.map.centerAndZoom(new BMap.Point(center_x, center_y), 14);
+				// }
+				/*
+				I used the max/min point to set the center position before, but I find the map view don't show any search results when the max/min point is too far from the others.
+				So, I use the first search result as the center position.
+				*/
+				if (center_point) {
+					window.map.centerAndZoom(center_point, 14);
+				}
+
+				// console.error('s', s);
+			}
+		}
+	};
+	var local = new BMap.LocalSearch(map, options);
+	local.search(where);
+}
 /*
 param must contains stat_name
 */
@@ -348,13 +403,7 @@ class SelectSearch extends React.Component {
 		this.setState({name: e.target.value, options : options});
 
 		if (this.props.onChange) {
-			const is_equal = options.filter((o) => {
-				return (e.target.value == o.stat_name);
-			});
-
-			if (is_equal.length > 0) {
-				this.props.onChange({value: e.target.value});
-			}
+			this.props.onChange({value: e.target.value});
 		}
 	}
 
@@ -375,13 +424,7 @@ class SelectSearch extends React.Component {
 	render () {
 		const _this = this;
 
-		let stat_name;
-
-		if (_this.props.station) {
-			stat_name = _this.props.station;
-		} else {
-			stat_name = _this.state.name;
-		}
+		let stat_name = _this.props.station;
 
 		return <div>
 			<input className = "weui-input" value={stat_name} placeholder={this.props.placeholder}
@@ -1033,7 +1076,7 @@ class TransferMap extends React.Component {
 
 		let params = e.target.value.split(' ');
 		let options = [];
-		options.lines=params[0];
+		options.all_lines=params[0];
 		options.stat_names=params[1];
 		options.offs=parseInt(params[2]);
 		options.all_plans = this.props.candidate.all_plans;
@@ -1073,6 +1116,10 @@ class TransferMap extends React.Component {
 		});
 	}
 
+	onClickLine(e) {
+		console.error('onClickLine', e);
+	}
+
 	render() {
 		let height = 580;
 		height = window.innerHeight - 80;
@@ -1082,6 +1129,11 @@ class TransferMap extends React.Component {
 		if (!_this.state.candidate) {
 			return <div></div>
 		}
+
+		let station_names = _this.state.candidate.stat_names.split('-');
+		let lines = _this.state.candidate.all_lines.split('-');
+
+		console.error('render1', _this.state.candidate, lines);
 
 		return <div>
 			<center><select id='myselect' width="100%" onChange={_this.onSelectChange.bind(_this)}>
@@ -1096,6 +1148,13 @@ class TransferMap extends React.Component {
 					}
 				}
 			</select></center>
+			<div>
+				{
+					lines.map(function(l){
+						return 1 ? '':<a href="#" onClick={_this.onClickLine.bind(_this)} className="weui-btn weui-btn_mini weui-btn_primary">{l}路</a>;
+					})
+				}
+			</div>
 			<div id = "allmap" style={{width: "100%", height: height}} />
 		</div>
 	}
@@ -1135,7 +1194,7 @@ class Stations extends React.Component {
 class Change extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {candidates: [], stations: [], searched: null, startStation: null, endStation: null, where: null};
+		this.state = {candidates: [], stations: [], searched: null, startStation: null, endStation: null};
 
 		this.onChange1 = this.onChange1.bind(this);
 		this.onChange2 = this.onChange2.bind(this);
@@ -1179,11 +1238,11 @@ class Change extends React.Component {
 
 			if (is_in_zhaoyuan(e.point.lng, e.point.lat)) {
 				console.log('in zhaoyuan');
-				_this.addMarker(e.point, _this.onMyLocationClick.bind(_this));
+				_this.addMarker(e.point, _this.onMyLocationClick.bind(_this), null, 'false');
 			} else {
 				console.log('no in zhaoyuan');
 				const point = new BMap.Point('120.40086416919', '37.37223326585');
-				_this.addMarker(point, _this.onMyLocationClick.bind(_this));
+				_this.addMarker(point, _this.onMyLocationClick.bind(_this), null, 'false');
 				window.map.centerAndZoom(point, 14);
 			}
 		});
@@ -1284,16 +1343,24 @@ class Change extends React.Component {
 		this.setState({endStation: e.value});
 	}
 
-	onChange3(e) {
-		this.setState({where: e.target.value});
-	}
-
 	handleSearchInterchange(e) {
 		e.preventDefault();
 		const _this = this;
 
 		xFetchJSON('/api/bus/interchange?start=' + window.start + '&stop=' + window.end).then((data) => {
-			console.log(data);
+			console.error('interchange', data);
+			if (data.error == 1 || data.error == 2) {
+				let stat_name = data.name;
+				let text = '请在地图中选择' + stat_name + '附近的站点';
+				alert(text);
+
+				searchWhere(_this, stat_name);
+				return;
+			} else 	if (data.error == 3) {
+				let text = '请输入换乘查询站点;
+				alert(text);
+				return;
+			}
 			_this.setState({searched: 1});
 			_this.setState({candidates: data});
 		});
@@ -1305,61 +1372,6 @@ class Change extends React.Component {
 
 		options.all_plans = _this.state.candidates;
 		ReactDOM.render(<TransferMap candidate={options}/>, document.getElementById('main'));
-	}
-
-	handleSearchWhere(e) {
-		const _this = this;
-		window.map.centerAndZoom(new BMap.Point('120.40086416919', '37.37223326585'), 14);
-
-		var options = {
-			onSearchComplete: function(results){
-				// 判断状态是否正确
-				if (local.getStatus() == BMAP_STATUS_SUCCESS){
-					window.map.clearOverlays();
-					var s = [];
-					// let min_x = 99999, max_x = 0, min_y = 999999, max_y = 0;
-
-					for (var i = 0; i < results.getCurrentNumPois(); i ++){
-						let poi = results.getPoi(i);
-
-						if (is_in_zhaoyuan(poi.point.lng, poi.point.lat)) {
-							console.log('in zhaoyuan', poi.point.lng, poi.point.lat);
-						} else {
-							console.log('no in zhaoyuan', poi.point.lng, poi.point.lat);
-							continue;
-						}
-
-						_this.addMarker(poi.point, _this.onMyLocationClick.bind(_this), poi.title, 'false');
-
-						// s.push(results.getPoi(i).title + ", " + results.getPoi(i).address);
-
-						// if (parseFloat(max_x) < parseFloat(poi.point.lng)) { max_x = poi.point.lng}
-						// if (parseFloat(max_y) < parseFloat(poi.point.lat)) { max_y = poi.point.lat}
-						// if (parseFloat(min_x) > parseFloat(poi.point.lng)) { min_x = poi.point.lng}
-						// if (parseFloat(min_y) > parseFloat(poi.point.lat)) { min_y = poi.point.lat}
-					}
-
-					// let center_x = (parseFloat(max_x) + parseFloat(min_x))/2;
-					// let center_y = (parseFloat(max_y) + parseFloat(min_y))/2;
-
-					// if (parseFloat(center_x) > 0) {
-					// 	window.map.centerAndZoom(new BMap.Point(center_x, center_y), 14);
-					// }
-					/*
-					I used the max/min point to set the center position before, but I find the map view don't show any search results when the max/min point is too far from the others.
-					So, I use the first search result as the center position.
-					*/
-					let poi = results.getPoi(0);
-					if (poi) {
-						window.map.centerAndZoom(poi.point, 14);
-					}
-
-					// console.error('s', s);
-				}
-			}
-		};
-		var local = new BMap.LocalSearch(map, options);
-		local.search(this.state.where);
 	}
 
 	render() {
@@ -1392,7 +1404,7 @@ class Change extends React.Component {
 			if (_this.state.searched) { content = '没有找到换乘方案';}
 		}
 
-		let mapHeight = window.innerHeight - 240;
+		let mapHeight = window.innerHeight - 180;
 
 		return <div className="page" style={{padding:"0 15px"}}>
 			<h1 className="page__title" style={{textAlign:"center",margin:"10px 0"}}>换乘查询</h1>
@@ -1411,22 +1423,9 @@ class Change extends React.Component {
 						</td>
 					</tr>
 				</table>
-				<table>
-					<tr>
-						<td width="25%">
-							<p>附近站点</p>
-						</td>
-						<td>
-							<input className = "weui-input" value={this.state.where} placeholder="请输入地名" onChange={this.onChange3.bind(this)}/>
-						</td>
-						<td width="72px" style={{textAlign:"right"}}>
-							<a href="#" className="weui-btn weui-btn_mini weui-btn_primary" style={{marginTop:"10px"}} onClick={this.handleSearchWhere.bind(this)}>查询</a>
-						</td>
-					</tr>
-				</table>
 			</div>
 			<div style={{color: "#999"}}>
-				提示：拖动小红点并点击可选择站点
+				提示：点击小红点并点击可选择站点
 			</div>
 			<hr/>
 

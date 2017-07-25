@@ -271,6 +271,24 @@ get('/interchange', function(params)
 	start = env:getHeader('start')
 	stop = env:getHeader('stop')
 
+	if not start or not stop then
+		return {error=3}
+	end
+
+	sql = [[select * from station where stat_name=']] .. start .. [[']]
+	n, res = xdb.find_by_sql(sql)
+
+	if n <= 0 then
+		return {error=1, name=start}
+	end
+
+	sql = [[select * from station where stat_name=']] .. stop .. [[']]
+	n, res = xdb.find_by_sql(sql)
+
+	if n <= 0 then
+		return {error=2, name=stop}
+	end
+
 -- start
 -----o------------------o-----  line1
 --			            stop
