@@ -489,7 +489,7 @@ class LinePage extends React.Component {
 					</label>
 				</div>
 				<div className="weui-cell__bd">
-					{this.props.line.start_station}
+					{this.props.line.stop_station}
 					&nbsp;
 					{
 						direction == '上行' ? <span style={{color: 'red'}}>←</span> :
@@ -497,7 +497,7 @@ class LinePage extends React.Component {
 					}
 
 					&nbsp;
-					{this.props.line.stop_station}
+					{this.props.line.start_station}
 				</div>
 				<div className="weui-cell__ft">
 					<div style={{float: "right"}}>
@@ -516,9 +516,7 @@ class LinePage extends React.Component {
 								direction == '上行' ? <span style={{color: 'red'}}>↑</span> :
 									<span style={{color: 'blue'}}>↓</span>
 							}
-
 							&nbsp;
-
 							{ station.station_order }
 						</label>
 					</div>
@@ -550,7 +548,6 @@ class LinePage extends React.Component {
 							}
 						})
 					}
-					
 				</div>
 			})
 		}
