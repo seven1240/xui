@@ -144,7 +144,7 @@ xwechat.send_ticket_notification = function(realm, openid, redirect_uri, subject
 
 	local msg = {}
 	msg.touser = openid
-	msg.template_id = config.template_id
+	msg.template_id = "Mu6mySnQiCRdCa5QmJSCBOSIkAxjgm3CuUpp6FqTCnA"
 	msg.url = redirect_uri
 	msg.data = {}
 	msg.data.fist = {}
