@@ -188,6 +188,7 @@ class WechatUsersPage extends React.Component {
 			return <tr key={row.id}>
 					<td>{row.id}</td>
 					<td><Link to={`/settings/wechat_users/${row.id}`}>{row.nickname}</Link></td>
+					<td>{row.extn}</td>
 					<td>{row.user_name}</td>
 					<td>{row.city}</td>
 					<td>{sex}</td>
@@ -203,6 +204,7 @@ class WechatUsersPage extends React.Component {
 				<tr>
 					<th><T.span text="ID"/></th>
 					<th><T.span text="Nickname"/></th>
+					<th><T.span text="Number"/></th>
 					<th><T.span text="Username"/></th>
 					<th><T.span text="City"/></th>
 					<th><T.span text="Sex"/></th>

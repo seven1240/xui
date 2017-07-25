@@ -38,7 +38,7 @@ require 'xdb'
 xdb.bind(xtra.dbh)
 
 get('/', function(params)
-	n, wechat_users = xdb.find_by_sql("SELECT w.*,u.name AS user_name FROM wechat_users AS w left JOIN users AS u ON w.user_id = u.id;")
+	n, wechat_users = xdb.find_by_sql("SELECT w.*,u.name AS user_name,u.extn AS extn FROM wechat_users AS w left JOIN users AS u ON w.user_id = u.id;")
 
 	if n > 0 then
 		return wechat_users
