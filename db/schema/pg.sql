@@ -479,6 +479,7 @@ CREATE TABLE tickets (
 	privacy VARCHAR DEFAULT 'TICKET_PRIV_PRIVATE',
 	rate VARCHAR,
 	deadline TIMESTAMP(0),
+	satisfied VARCHAR,
 
 	created_epoch TIMESTAMP(0) DEFAULT now(),
 	updated_epoch TIMESTAMP(0) DEFAULT now(),
