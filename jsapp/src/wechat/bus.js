@@ -41,6 +41,63 @@ function loadScript() {
 	document.body.appendChild(script);
 }
 
+function drawLineAndCars(line_code, type, _this, station_click_func) {
+	if (!window.map) {return;}
+
+	let is_station_loaded = 'unload';
+	let cars;
+
+	window.map.clearOverlays();
+
+	xFetchJSON('http://zyjt.xswitch.cn/bus_api/site/mapStations', {
+			method: "POST",
+			headers: {"Content-Type": "application/x-www-form-urlencoded"},
+			body: 'line=' + line_code + '&up_down' + type
+		}).then((data) => {
+		if (data.code != 1) {
+			console.error('response json error', data);
+			return;
+		}
+		let stations = data.list;
+		let i = 0;
+
+		if (station_click_func) {
+			drawStations(stations, _this, station_click_func);
+		} else {
+			drawStations(stations, _this, _this.onMarkerClick);
+		}
+
+		setCenterPosition(stations);
+
+		for (i = 0; i < stations.length - 1; i++) {
+			addArrowLine(window.map, stations[i].baidu_x, stations[i].baidu_y,
+				stations[i+1].baidu_x, stations[i+1].baidu_y, 'red', 4, 2, false);
+		}
+
+		is_station_loaded = 'load';
+
+		if (cars) {
+			drawCars(cars);
+		}
+	});
+
+	xFetchJSON('http://zyjt.xswitch.cn/bus_api/site/realData', {
+			method: "POST",
+			headers: {"Content-Type": "application/x-www-form-urlencoded"},
+			body: 'line=' + line_code + '&up_down' + type + '&xpoint=1&ypoint=1'
+	}).then((data) => {
+		if (data.code != 1) {
+			console.error('response json error', data);
+			return;
+		}
+
+		if (is_station_loaded == 'load') {
+			drawCars(data.res);
+		} else {
+			cars = data.res;
+		}
+	});
+}
 
 function searchWhere(_this, where) {
 	window.map.centerAndZoom(new BMap.Point('120.40086416919', '37.37223326585'), 14);
@@ -100,6 +157,7 @@ function searchWhere(_this, where) {
 param must contains stat_name
 */
 function drawCars(cars) {
+	if (cars.length == 0) { return;}
 	cars.forEach((c) => {
 		let point = getPosition(c.stat_name);
 		if (point) {
@@ -1005,9 +1063,9 @@ class TransferMap extends React.Component {
 		console.log("initializeBaiduMap", this);
 
 		window.map = new BMap.Map("allmap");
-		window.map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT}));   //add map navigation tools
+		window.map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_LEFT}));   //add map navigation tools
 
-		var geolocationControl = new BMap.GeolocationControl({anchor: BMAP_ANCHOR_TOP_LEFT});
+		var geolocationControl = new BMap.GeolocationControl({anchor: BMAP_ANCHOR_TOP_RIGHT});
 		geolocationControl.addEventListener("locationSuccess", function(e){
 			console.log('定位成功', e);
 		});
@@ -1071,26 +1129,10 @@ class TransferMap extends React.Component {
 		});
 	}
 
-	onSelectChange(e) {
-		const _this=this;
-
-		let params = e.target.value.split(' ');
-		let options = [];
-		options.all_lines=params[0];
-		options.stat_names=params[1];
-		options.offs=parseInt(params[2]);
-		options.all_plans = this.props.candidate.all_plans;
-
-		const station_names = params[1].split('-');
-		const lines = params[0].split('-');
+	drawPlan(lines, station_names) {
+		const _this = this;
 		let i = 0;
 		let j = 0;
-
-		_this.setState({candidate: options});
-
-		//clear old map informations
-		_this.setState({lines: []});
-		window.map.clearOverlays();
 
 		//show new map informations
 		lines.forEach((line) => {
@@ -1116,8 +1158,50 @@ class TransferMap extends React.Component {
 		});
 	}
 
-	onClickLine(e) {
-		console.error('onClickLine', e);
+	onSelectChange(e) {
+		const _this = this;
+
+		let params = e.target.value.split(' ');
+		let options = [];
+		options.all_lines=params[0];
+		options.stat_names=params[1];
+		options.offs=parseInt(params[2]);
+		options.all_plans = this.props.candidate.all_plans;
+
+		const station_names = params[1].split('-');
+		const lines = params[0].split('-');
+		let i = 0;
+		let j = 0;
+
+		_this.setState({candidate: options});
+
+		//clear old map informations
+		_this.setState({lines: []});
+		window.map.clearOverlays();
+
+		_this.drawPlan(lines, station_names);
+	}
+
+	onClickOneLine(e) {
+		const _this = this;
+		let l = e.target.getAttribute("data-l");
+		let s1 = e.target.getAttribute("data-s1");
+		let s2 = e.target.getAttribute("data-s2");
+		console.log('onClickLine', l, s1, s2);
+
+		window.map.clearOverlays();
+
+		xFetchJSON('/api/bus/get_direction?start=' + s1 + '&stop=' + s2 + '&line=' + l).then((data) => {
+			drawLineAndCars(l, data.direction, _this, _this.onMarkerClick);
+		});
+	}
+
+	onClickAllLines(e) {
+		const _this = this;
+
+		window.map.clearOverlays();
+		_this.drawPlan(e.target.getAttribute("data-lines").split('-')
+			, e.target.getAttribute("data-stations").split('-'));
 	}
 
 	render() {
@@ -1132,8 +1216,19 @@ class TransferMap extends React.Component {
 
 		let station_names = _this.state.candidate.stat_names.split('-');
 		let lines = _this.state.candidate.all_lines.split('-');
+		let lines_map = [];
+		let i = 0;
 
 		console.error('render1', _this.state.candidate, lines);
+
+		for (; i < lines.length; i++) {
+			let item = {line: null, stat_name1: null, stat_name2: null};
+			item.line = lines[i];
+			item.stat_name1 = station_names[i];
+			item.stat_name2 = station_names[i + 1];
+
+			lines_map.push(item);
+		}
 
 		return <div>
 			<center><select id='myselect' width="100%" onChange={_this.onSelectChange.bind(_this)}>
@@ -1150,10 +1245,11 @@ class TransferMap extends React.Component {
 			</select></center>
 			<div>
 				{
-					lines.map(function(l){
-						return 1 ? '':<a href="#" onClick={_this.onClickLine.bind(_this)} className="weui-btn weui-btn_mini weui-btn_primary">{l}路</a>;
+					lines_map.map(function(l){
+						return <a href="#" data-l={l.line} data-s1={l.stat_name1} data-s2={l.stat_name2} onClick={_this.onClickOneLine.bind(_this)} className="weui-btn weui-btn_mini weui-btn_primary">{l.line}路</a>;
 					})
 				}
+				<a href="#" data-lines={_this.state.candidate.all_lines} data-stations={_this.state.candidate.stat_names} onClick={_this.onClickAllLines.bind(_this)} className="weui-btn weui-btn_mini weui-btn_primary">所有线路</a>
 			</div>
 			<div id = "allmap" style={{width: "100%", height: height}} />
 		</div>
@@ -1240,14 +1336,14 @@ class Change extends React.Component {
 
 			if (is_in_zhaoyuan(e.point.lng, e.point.lat)) {
 				console.log('in zhaoyuan');
-				let marker = _this.addMarker(e.point, _this.onMyLocationClick.bind(_this), null, 'false');
+				let marker = _this.addMarker(e.point, _this.onMyLocationClick.bind(_this), null);
 
 				if (_this.state.marker) { window.map.removeOverlay(_this.state.marker);}
 				_this.setState({marker : marker});
 			} else {
 				console.log('no in zhaoyuan');
 				const point = new BMap.Point('120.40086416919', '37.37223326585');
-				let marker = _this.addMarker(point, _this.onMyLocationClick.bind(_this), null, 'false');
+				let marker = _this.addMarker(point, _this.onMyLocationClick.bind(_this), null);
 				window.map.centerAndZoom(point, 14);
 
 				if (_this.state.marker) { window.map.removeOverlay(_this.state.marker);}
