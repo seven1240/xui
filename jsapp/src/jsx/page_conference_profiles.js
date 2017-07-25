@@ -41,8 +41,6 @@ import { RIEToggle, RIEInput, RIETextArea, RIENumber, RIETags, RIESelect } from 
 import { EditControl, xFetchJSON } from './libs/xtools';
 
 class NewProfile extends React.Component {
-	propTypes: {handleNewProfileAdded: React.PropTypes.func}
-
 	constructor(props) {
 		super(props);
 
@@ -446,7 +444,7 @@ class ConferenceProfilesPage extends React.Component {
 					<td>{row.id}</td>
 					<td><Link to={`/settings/conference_profiles/${row.id}`}>{row.name}</Link></td>
 					<td>{row.description}</td>
-					<td><T.a onClick={_this.handleDelete} data-id={row.id} text="Delete" className={danger} /></td>
+					<td><T.a onClick={_this.handleDelete} data-id={row.id} text="Delete" className={danger} style={{cursor: 'pointer'}} /></td>
 			</tr>;
 		})
 
@@ -468,7 +466,7 @@ class ConferenceProfilesPage extends React.Component {
 					<th><T.span text="ID"/></th>
 					<th><T.span text="Name" onClick={this.handleSortClick.bind(this)} data="name" /></th>
 					<th><T.span text="Description" /></th>
-					<th><T.span style={hand} text="Delete" className={danger} onClick={toggleDanger} title={T.translate("Click me to toggle fast delete mode")}/></th>
+					<th><T.span style={hand} text="Delete" className={danger} onClick={toggleDanger} style={{cursor: 'pointer'}} title={T.translate("Click me to toggle fast delete mode")}/></th>
 				</tr>
 				{rows}
 				</tbody>

@@ -635,7 +635,7 @@ class MediaFilesPage extends React.Component {
 					<td>{row.description}</td>
 					<td>{row.mime}</td>
 					<td>{row.file_size}</td>
-					<td><T.a onClick={() => _this.handleDelete(row.id)} text="Delete" className={danger}/></td>
+					<td><T.a onClick={() => _this.handleDelete(row.id)} text="Delete" className={danger} style={{cursor: 'pointer'}}/></td>
 			</tr>;
 		})
 

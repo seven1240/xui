@@ -533,7 +533,7 @@ class GroupsPage extends React.Component {
 					<td>{row.spaces.replace(/ /g, String.fromCharCode(160))}<Link to={`/settings/groups/${row.id}`}>{row.name}</Link></td>
 					<td>{row.realm}</td>
 					<td>{row.description}</td>
-					<td><T.a onClick={() => _this.handleDelete(row.id)} text="Delete" className={danger}/></td>
+					<td><T.a onClick={() => _this.handleDelete(row.id)} text="Delete" className={danger} style={{cursor: 'pointer'}}/></td>
 			</tr>;
 		})
 
@@ -556,7 +556,7 @@ class GroupsPage extends React.Component {
 					<th><T.span text="Name"/></th>
 					<th><T.span text="Realm"/></th>
 					<th><T.span text="Description"/></th>
-					<th><T.span text="Delete" className={danger} onClick={toggleDanger} title={T.translate("Click me to toggle fast delete mode")}/></th>
+					<th><T.span text="Delete" className={danger} onClick={toggleDanger} style={{cursor: 'pointer'}} title={T.translate("Click me to toggle fast delete mode")}/></th>
 				</tr>
 				{rows}
 				</tbody>
