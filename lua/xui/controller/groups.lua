@@ -176,11 +176,11 @@ get('/group_users', function(params)
 	group_users = {}
 	ungrouped_users = {}
 	grouped_users = {}
-	sql1 = "SELECT id AS userID, name AS userName, extn AS userExten, domain AS userDomain, 'ungrouped' AS groupID FROM users " ..
-		" WHERE id NOT IN (SELECT user_id FROM user_groups)"
-	sql2 = "SELECT u.id as userID, u.name AS userName, u.extn AS userExten, domain AS userDomain, g.id AS groupID, g.name AS groupName " ..
-		" FROM users u JOIN user_groups ug ON u.id = ug.user_id JOIN groups g ON ug.group_id = g.id " ..
-		" ORDER BY g.id"
+	sql1 = 'SELECT id AS "userID", name AS "userName", extn AS "userExten", domain AS "userDomain", \'ungrouped\' AS "groupID" FROM users ' ..
+		' WHERE id NOT IN (SELECT user_id FROM user_groups)'
+	sql2 = 'SELECT u.id as "userID", u.name AS "userName", u.extn AS "userExten", domain AS "userDomain", g.id AS "groupID", g.name AS "groupName" ' ..
+		' FROM users u JOIN user_groups ug ON u.id = ug.user_id JOIN groups g ON ug.group_id = g.id ' ..
+		' ORDER BY g.id'
 
 	n1, ungrouped_users = xdb.find_by_sql(sql1)
 	n2, grouped_users = xdb.find_by_sql(sql2)
