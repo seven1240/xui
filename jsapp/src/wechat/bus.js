@@ -1194,7 +1194,7 @@ class Stations extends React.Component {
 class Change extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {candidates: [], stations: [], searched: null, startStation: null, endStation: null};
+		this.state = {candidates: [], stations: [], searched: null, startStation: null, endStation: null, marker: null};
 
 		this.onChange1 = this.onChange1.bind(this);
 		this.onChange2 = this.onChange2.bind(this);
@@ -1219,6 +1219,8 @@ class Change extends React.Component {
 		if (!drag || drag == 'true') {
 			marker.enableDragging();
 		}
+
+		return marker;
 	}
 
 	initializeBaiduMap() {
@@ -1238,12 +1240,18 @@ class Change extends React.Component {
 
 			if (is_in_zhaoyuan(e.point.lng, e.point.lat)) {
 				console.log('in zhaoyuan');
-				_this.addMarker(e.point, _this.onMyLocationClick.bind(_this), null, 'false');
+				let marker = _this.addMarker(e.point, _this.onMyLocationClick.bind(_this), null, 'false');
+
+				if (_this.state.marker) { window.map.removeOverlay(_this.state.marker);}
+				_this.setState({marker : marker});
 			} else {
 				console.log('no in zhaoyuan');
 				const point = new BMap.Point('120.40086416919', '37.37223326585');
-				_this.addMarker(point, _this.onMyLocationClick.bind(_this), null, 'false');
+				let marker = _this.addMarker(point, _this.onMyLocationClick.bind(_this), null, 'false');
 				window.map.centerAndZoom(point, 14);
+
+				if (_this.state.marker) { window.map.removeOverlay(_this.state.marker);}
+				_this.setState({marker : marker});
 			}
 		});
 		geolocationControl.addEventListener("locationError",function(e){
@@ -1253,6 +1261,12 @@ class Change extends React.Component {
 
 		const point = new BMap.Point(longitude, latitude);
 		this.addMarker(point, this.onMyLocationClick.bind(this));
+
+		window.map.addEventListener("tilesloaded", function() {
+			let marker = _this.addMarker(window.map.getCenter(), _this.onMyLocationClick.bind(_this), null, 'false');
+			if (_this.state.marker) { window.map.removeOverlay(_this.state.marker);}
+			_this.setState({marker : marker});
+		});
 	}
 
 	onMyLocationClick(e) {
@@ -1357,7 +1371,7 @@ class Change extends React.Component {
 				searchWhere(_this, stat_name);
 				return;
 			} else 	if (data.error == 3) {
-				let text = '请输入换乘查询站点;
+				let text = '请输入换乘查询站点';
 				alert(text);
 				return;
 			}
