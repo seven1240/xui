@@ -38,8 +38,7 @@ require 'xdb'
 xdb.bind(xtra.dbh)
 
 get('/', function(params)
-	local cond = 'user_id IS NOT null'
-	n, wechat_users = xdb.find_by_cond("wechat_users", cond)
+	n, wechat_users = xdb.find_all("wechat_users")
 
 	if n > 0 then
 		return wechat_users

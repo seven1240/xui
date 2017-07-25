@@ -262,6 +262,7 @@ end)
 
 delete('/:id', function(params)
 	ret = xdb.delete("users", params.id);
+	xdb.update_by_cond("wechat_users", {user_id = params.id}, {user_id = ""})
 
 	if ret == 1 then
 		return 200, {id = params.id}
