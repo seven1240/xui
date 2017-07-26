@@ -73,7 +73,7 @@ class NewMember extends React.Component {
 	}
 
 	render() {
-		console.log(this.props);
+		// console.log(this.props);
 		const props = Object.assign({}, this.props);
 		delete props.onNewMemberAdded;
 		delete props.room_id;
@@ -157,8 +157,6 @@ class GroupBox extends React.Component {
 	}
 
 	handleCheckUser(e) {
-		console.log("aaa", e.target.checked);
-
 		const rows = this.state.users.map((user) => {
 			if (user.id == e.target.value) user.checked = e.target.checked;
 			return user;
@@ -498,6 +496,11 @@ class NewRoom extends React.Component {
 
 		room.realm = domain;
 
+		var videoBannerText = {fontFace: "/path/to/font.ttf", fontScale: "5",
+			bg: "#000000", fg: "#ffffff", name: "", location: ""};
+		var str = JSON.stringify(videoBannerText);
+		var fontSet = {k: "set", v: str};
+
 		xFetchJSON("/api/conference_rooms", {
 			method: "POST",
 			body: JSON.stringify(room)
@@ -505,6 +508,15 @@ class NewRoom extends React.Component {
 			console.log(obj);
 			room.id = obj.id;
 			_this.props.onNewRoomAdded(room);
+			xFetchJSON("/api/conference_rooms/" + obj.id + "/params/", {
+				method:"POST",
+				body: JSON.stringify(fontSet)
+			}).then((obj) => {
+				notify(<T.span text={{key:"Saved at", time: Date()}}/>);
+			}).catch((msg) => {
+				console.error("hkh", msg);
+				notify(msg, "error");
+			});
 		}).catch((msg) => {
 			console.error("room", msg);
 			_this.setState({errmsg: '' + msg});
@@ -586,7 +598,8 @@ class ConferenceRoom extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {room: {}, params:[], profiles:[], video_modes:[], call_perms:[], edit: false};
+		this.state = {room: {}, params:[], profiles:[], video_modes:[],
+			call_perms:[], edit: false, fonty: [], paramId: [], bgColor: [], fgColor: [] };
 		this.handleSort = this.handleSort.bind(this);
 	}
 
@@ -615,6 +628,11 @@ class ConferenceRoom extends React.Component {
 
 		console.log("submit...");
 		var room = form2json('#editRoomForm');
+		var font = form2json('#editConferenceName');
+		var videoBannerText = {fontFace: "/path/to/font.ttf", fontScale: font.fontScale,
+			bg: font.bg, fg: font.fg, name: font.name, location: font.location};
+		var str = JSON.stringify(videoBannerText);
+		var fontSet = {k: "set", v: str};
 
 		if (!room.name || !room.nbr) {
 			notify(<T.span text="Mandatory fields left blank"/>, 'error');
@@ -664,6 +682,17 @@ class ConferenceRoom extends React.Component {
 			console.error("room", msg);
 			notify(msg, "error");
 		});
+
+		xFetchJSON( "/api/conference_rooms/" + room.id + "/params/" + _this.state.paramId, {
+			method: "PUT",
+			body: JSON.stringify(fontSet)
+		}).then((param) => {
+			console.log("success!!!!", param);
+			_this.setState({fonty: JSON.parse(param.v)});
+			notify(<T.span text={{key:"Saved at", time: Date()}}/>);
+		}).catch((msg) => {
+			console.log("update params",msg)
+		});
 	}
 	
 	handleControlClick(e) {
@@ -695,6 +724,14 @@ class ConferenceRoom extends React.Component {
 			console.log("get room profile ERR");
 		});
 
+		xFetchJSON("/api/conference_rooms/" + this.props.params.id + '/params').then((data) => {
+			var data = data[0];
+			var dataV =  JSON.parse(data.v);
+			_this.setState({ fonty: dataV, paramId: data.id, bgColor: dataV.bg, fgColor: dataV.fg });
+		}).catch((msg) => {
+			console.log(msg);
+		});
+
 		xFetchJSON("/api/dicts?realm=CONF_VIDEO_MODE").then((data) => {
 			_this.setState({video_modes: data});
 		});
@@ -702,6 +739,13 @@ class ConferenceRoom extends React.Component {
 		xFetchJSON("/api/dicts?realm=CONF_CALL_PERM").then((data) => {
 			_this.setState({call_perms: data});
 		});
+	}
+
+	handleChange (e) {
+		if(e.target.name=="bg")
+			this.setState({bgColor: e.target.value});
+		else
+			this.setState({fgColor: e.target.value});
 	}
 
 	render() {
@@ -713,6 +757,7 @@ class ConferenceRoom extends React.Component {
 		let current_video_mode = null;
 		let current_call_perm = null;
 		let cluster = '';
+		let fonty = this.state.fonty;
 
 		const profile_options = this.state.profiles.map(function(row) {
 			if (row.id == room.profile_id) {
@@ -761,7 +806,6 @@ class ConferenceRoom extends React.Component {
 
 			<h1>{room.name} <small>{room.nbr}</small></h1>
 			<hr/>
-
 			<Form horizontal id='editRoomForm'>
 				<input type="hidden" name="id" defaultValue={room.id}/>
 				<FormGroup className="xrowb">
@@ -808,7 +852,7 @@ class ConferenceRoom extends React.Component {
 					</Col>
 				</FormGroup>
 
-				<FormGroup>
+				<FormGroup className="xrowb">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Call Permission" /></Col>
 					<Col sm={4}>
 						<EditControl edit={this.state.edit} componentClass="select" id="formCallPerm" name="call_perm"
@@ -820,7 +864,29 @@ class ConferenceRoom extends React.Component {
 					<Col sm={4}><EditControl edit={this.state.edit} componentClass="textarea" name="cluster" defaultValue={cluster} placeholder="ip:port weight"/></Col>
 				</FormGroup>
 			</Form>
-
+			<Form horizontal id='editConferenceName'>
+			<FormGroup className="xrowb">
+				<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Name Display"/></Col>
+				<Col sm={4}><EditControl edit={this.state.edit} name="name" defaultValue={fonty.name}/></Col>
+				<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Name Scale" /></Col>
+				<Col sm={4}><EditControl edit={this.state.edit} name="fontScale" defaultValue={fonty.fontScale}/></Col>
+			</FormGroup>
+			<FormGroup className="xrowb">
+				<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Name Location" /></Col>
+				<Col sm={4}><EditControl edit={this.state.edit} name="location" defaultValue={fonty.location}/></Col>
+			</FormGroup>
+			<FormGroup className="xrowb">
+				<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Name Background Color" /></Col>
+				<Col sm={4}>
+					<input type="color" name="bg" value={_this.state.bgColor} onChange = {_this.handleChange.bind(this)}/>
+				</Col>
+				<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Name Foreground Color" /></Col>
+				<Col sm={4}>
+					<input type="color" name="fg" value={_this.state.fgColor} onChange = {_this.handleChange.bind(this)}/>
+				</Col>
+			</FormGroup>
+		
+		</Form>
 			<br/>
 
 			{room.id ? <RoomMembers room={this.state.room} handleModeratorSet={this.handleModeratorSet.bind(this)}/> : null}
@@ -864,10 +930,18 @@ class ConferenceRooms extends React.Component {
 			var rows = _this.state.rows.filter(function(row) {
 				return row.id != id;
 			});
-
 			_this.setState({rows: rows});
 		}).catch((msg) => {
 			console.error("conference_rooms", msg);
+		});
+
+		xFetchJSON("/api/conference_rooms/" + id + "/param", {
+			method: "DELETE"
+		}).then((obj) => {
+			console.log("deleted")
+			console.log(obj);
+		}).catch((msg) => {
+			console.log("fonty", msg)
 		});
 	}
 

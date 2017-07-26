@@ -179,6 +179,11 @@ LANGUAGES["zh"] = {
 	"Batch": "批量",
 	"Members": "与会者",
 	"Set As Moderator": "设为管理员",
+	"Conference Name Display": "会场名称显示",
+	"Conference Name Scale": "会场名称大小",
+	"Conference Name Background Color": "字幕背景色",
+	"Conference Name Foreground Color": "字幕前景色",
+	"Conference Name Location": "会场名称位置",
 
 	"Display as Table": "以表格形式显示",
 	"Display as Block": "以方块形式显示",

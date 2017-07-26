@@ -55,6 +55,18 @@ function create(kvp)
 	return id
 end
 
+function createParam(kvp)
+	id = xdb.create_return_id("params", kvp)
+	if id then
+		local ref_id = kvp.ref_id
+		local realm = kvp.realm
+		local sql = "INSERT INTO params (id, realm, k, v, ref_id) values (" .. id .. ", '" .. realm .. "', '" .. kvp.k .. "' , '" .. kvp.v .. "', " .. ref_id .. ")"
+		freeswitch.consoleLog('err',sql)
+		xdb.execute(sql)
+	end
+	return id
+end
+
 function params(profile_id)
 	rows = {}
 	sql = "SELECT * FROM params WHERE realm = 'conference' AND ref_id = " .. profile_id
@@ -64,6 +76,10 @@ function params(profile_id)
 	end)
 	-- print(serialize(rows))
 	return rows
+end
+
+function params_font(profile_id)
+	return xdb.find_by_cond("params", {realm = 'conference', ref_id = profile_id}, "id")
 end
 
 function toggle(profile_id)
@@ -97,6 +113,13 @@ function update_param(profile_id, param_id, kvp)
 	return nil;
 end
 
+function delete_param(id, param_id)
+	local sql = "DELETE FROM params where k = 'set' AND ref_id = " .. id
+	xdb.execute(sql)
+	return xdb.affected_rows()
+end
+
+
 m_conference_profile.delete = function(profile_id)
 	xdb.delete("conference_profiles", profile_id);
 	if (xdb.affected_rows() == 1) then
@@ -107,9 +130,13 @@ m_conference_profile.delete = function(profile_id)
 end
 
 m_conference_profile.create = create
+m_conference_profile.createParam = createParam
+m_conference_profile.params_font = params_font
 m_conference_profile.params = params
 m_conference_profile.toggle = toggle
 m_conference_profile.toggle_param = toggle_param
 m_conference_profile.update_param = update_param
+m_conference_profile.delete_param = delete_param
+
 
 return m_conference_profile
