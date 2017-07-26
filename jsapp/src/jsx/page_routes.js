@@ -55,8 +55,9 @@ class NewRoute extends React.Component {
 	handleDestTypeChange(e) {
 		const _this = this;
 		let body_place_holder = "log ERR line1\nlog ERR line2";
-
-		switch(e.target.value) {
+		// console.log("target value", e.target.value);
+		let value = e ? e.target.value : "FS_DEST_CONFERENCE";
+		switch(value) {
 			case 'FS_DEST_USER':
 				_this.setState({dest_uuid: null, route_body: null});
 				break;
@@ -115,6 +116,20 @@ class NewRoute extends React.Component {
 					_this.setState({dest_uuid: dest_uuid, route_body: null});
 				});
 				break;
+			case 'FS_DEST_USERGW':
+				xFetchJSON("/api/users").then((users) => {
+					const dest_uuid = <FormGroup controlId="formDestUUID">
+						<Col componentClass={ControlLabel} sm={2}><T.span text="Users" /></Col>
+						<Col sm={10}><FormControl componentClass="select" name="dest_uuid">{
+							users.data.map(function(user) {
+								return <option key={user.id} value={user.name}>{user.name} | [{user.extn}]</option>
+							})
+						}</FormControl></Col>
+					</FormGroup>
+
+					_this.setState({dest_uuid: dest_uuid, route_body: null});
+				});
+				break;
 			default:
 				break;
 		}
@@ -152,6 +167,7 @@ class NewRoute extends React.Component {
 		xFetchJSON("/api/dicts?realm=DEST").then((data) => {
 			_this.setState({dest_types: data});
 		});
+		this.handleDestTypeChange();
 	}
 
 	render() {
@@ -444,6 +460,24 @@ class RoutePage extends React.Component {
 						<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Room" /></Col>
 						<Col sm={10}><EditControl edit={_this.state.edit} componentClass="select" name="dest_uuid" text={current_room} defaultValue={_this.state.route.dest_uuid} options={dest_options}/></Col>
 					</FormGroup>;
+
+					_this.setState({dest_uuid: dest_uuid, route_body: null});
+				});
+				break;
+			case 'FS_DEST_USERGW':
+				xFetchJSON("/api/users").then((users) => {
+					let current_user = "null";
+					const dest_options = users.data.map(function(user) {
+						const user_text = user.name + '[' + user.extn + ']';
+						console.log(_this.state.route.dest_uuid, user.id + user_text);
+						if (_this.state.route.dest_uuid == user.id) current_user = user_text;
+						return [user.id, user_text];
+					});
+
+					const dest_uuid = <FormGroup controlId="formDestUUID">
+						<Col componentClass={ControlLabel} sm={2}><T.span text="Users" /></Col>
+						<Col sm={10}><EditControl edit={_this.state.edit} componentClass="select" name="dest_uuid" text={current_user} defaultValue={_this.state.route.dest_uuid} options={dest_options}></EditControl></Col>
+					</FormGroup>
 
 					_this.setState({dest_uuid: dest_uuid, route_body: null});
 				});
