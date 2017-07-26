@@ -210,7 +210,8 @@ class TicketPage extends React.Component {
 			media_files: [],
 			comment: '',
 			hiddendiv: 'none',
-			showSelect: false
+			showSelect: false,
+			picWidth: "50%"
 		};
 
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -224,6 +225,7 @@ class TicketPage extends React.Component {
 		this.handleDownload = this.handleDownload.bind(this);
 		this.onDrop = this.onDrop.bind(this);
 		this.handleCommitUpload = this.handleCommitUpload.bind(this);
+		this.handleShowPic = this.handleShowPic.bind(this);
 	}
 
 	handleCommitUpload() {
@@ -545,6 +547,10 @@ class TicketPage extends React.Component {
 		})
 	}
 
+	handleShowPic() {
+		this.setState({	picWidth: this.state.picWidth == '50%' ? '100%' : '50%'	});
+	}
+
 	render() {
 		const idArray = this.state.media_files.map((m) => {
 			return m.comment_id;
@@ -574,7 +580,7 @@ class TicketPage extends React.Component {
 			}else if ( vasrc.slice(-3) == 'amr' ) {
 				va = <audio src={vasrc.slice(0, -3) + 'mp3'} controls="controls"></audio>;
 			}else if ( vasrc.slice(-3) == 'png' || vasrc.slice(-3) == 'jpg' ) {
-				va = <img src={vasrc} style={{maxWidth: "80%", maxHeight: "200px"}}/>
+				va = <img src={vasrc} style={{width: _this.state.picWidth, height: ""}} onClick={_this.handleShowPic}/>
 			}
 		    var content =  _.indexOf(idArray, row.id) != -1 ? va : <p>{row.content}</p>;
 			let style = {width: '40px'};
