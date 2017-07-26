@@ -233,7 +233,7 @@ class Home extends React.Component {
 
 				if (mfile.mime.indexOf('image') == 0) {
 					return <span>
-						<img style={{width:"60px", height:"60px"}} onClick={ () => _this.previewImageShow(path)} src={thumb}/>&nbsp;
+						<img style={{width:"60px", height:"60px"}} onClick={ () => _this.previewImageShow(path)} src={path}/>&nbsp;
 					</span>
 				} else if (mfile.mime.indexOf('audio') == 0) {
 					return <audio src={path}/>
