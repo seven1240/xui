@@ -230,6 +230,14 @@ var toolbox = `<xml id="toolbox" style="display: none">
 			</shadow>
 		</value>
 	</block>
+	 <block type="fsCurl">
+                <value name="data">
+                        <shadow type="text">
+                        <field name="TEXT"></field>
+                        </shadow>
+                </value>
+        </block>
+
 </category>
 
 <category name="FSDB" colour="20">

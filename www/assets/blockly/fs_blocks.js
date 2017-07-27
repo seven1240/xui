@@ -437,6 +437,30 @@ Blockly.Blocks['fsFIFOS'] = {
     }
 };
 
+Blockly.Blocks['fsCurl'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField(Blockly.Msg.FS_BLOCK_CURL)
+        .appendField(new Blockly.FieldTextInput("http://host/"), "curl")
+        .appendField(new Blockly.FieldDropdown([
+                        ["", ""],
+                        ["headers", "headers"],
+                        ["json", "json"]]),"type")
+        .appendField(new Blockly.FieldDropdown([
+                        ["", ""],
+                        ["get", "get"],
+                        ["head", "head"],
+                        ["post", "post"]]),"method")
+        .appendField(new Blockly.FieldTextInput(" "), "data")
+    this.setInputsInline(true);
+    this.setOutput(true, "fsCurl");
+    this.setColour(20);
+    this.setTooltip('');
+    this.setHelpUrl('http://www.example.com/');
+  }
+};
+
+
 Blockly.Blocks['IVR'] = {
     init: function() {
         this.appendDummyInput()
