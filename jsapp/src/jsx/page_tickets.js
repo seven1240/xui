@@ -32,7 +32,7 @@
 
 import React from 'react';
 import T from 'i18n-react';
-import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col, Radio, Nav, NavItem, DropdownButton, MenuItem } from 'react-bootstrap';
+import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col, Radio, Nav, NavItem, DropdownButton, MenuItem, Label } from 'react-bootstrap';
 import { Link } from 'react-router';
 import { EditControl, xFetchJSON } from './libs/xtools';
 import _ from 'lodash';
@@ -615,38 +615,43 @@ class TicketPage extends React.Component {
 		const users = this.state.users;
 		var deal_user;
 
-		if(ticket.current_user_id){
+		save_btn = <Button onClick={this.handleSubmit}><T.span text="Assign"/></Button>
+
+		if(ticket.current_user_id) {
 			users.map(function(row) {
 				if(row.id == ticket.current_user_id){
-					deal_user = <FormControl.Static><T.span text={row.name} onClick={_this.handleClickChange}/></FormControl.Static>
+					deal_user = <FormGroup>
+									<Col componentClass={ControlLabel} sm={2}><T.span text="处理人" /></Col>
+									<Col sm={2}><FormControl.Static><Label bsStyle="default" bsSize="lg"><T.span text={row.name} onClick={_this.handleClickChange} style={{fontSize: '14px'}}/></Label></FormControl.Static></Col>
+								</FormGroup>
 					hidden_user = <FormControl type="hidden" name="current_user_id" value={row.id}/>
 				}
 			})
 		} else if(!this.state.showSelect) {
-			deal_user = <FormControl.Static><T.a onClick={() => this.handleShowDealusers()} text="Select" style={{cursor: "pointer"}}/></FormControl.Static>;
+			deal_user = <FormGroup>
+							<Col componentClass={ControlLabel} sm={2}><T.span text="处理人" /></Col>
+							<Col sm={2}><FormControl.Static><T.a onClick={() => this.handleShowDealusers()} text="Select" style={{cursor: "pointer"}}/></FormControl.Static></Col>
+						</FormGroup>;
 		} else {
-			deal_user = <FormControl componentClass="select" name="current_user_id">{
-								users.map(function(row) {
-									return <option key={row.id} value={row.id}>{row.name} ({row.extn}) {row.nickname}</option>
-								})
-							}
-						</FormControl>;
+			deal_user = <FormGroup>
+							<Col componentClass={ControlLabel} sm={2}><T.span text="处理人" /></Col>
+							<Col sm={4}><FormControl componentClass="select" name="current_user_id">{
+									users.map(function(row) {
+										return <option key={row.id} value={row.id}>{row.name} ({row.extn}) {row.nickname}</option>
+									})
+								}
+							</FormControl></Col>
+							<Col sm={2}>{save_btn}</Col>
+						</FormGroup>;
 		}
 
 		this.state.deal_user = deal_user;
 		this.state.hidden_user = hidden_user;
 
-		save_btn = <Button onClick={this.handleSubmit}><T.span text="Assign"/></Button>
 		commit_btn = <Button onClick={this.handleCommit}><T.span text="Comment"/></Button>
 		const upload_btn = <Button onClick={this.handleCommitUpload}><T.span text="Upload" /></Button>
 
-		const options = <FormGroup>
-			<Col componentClass={ControlLabel} sm={2}><T.span text="处理人" /></Col>
-			<Col sm={4}>
-				{this.state.deal_user}
-			</Col>
-			<Col sm={2}>{save_btn}</Col>
-		</FormGroup>;
+		const options = this.state.deal_user;
 		let Audio;
 		if (_this.state.record_src) {
 			const src = "/recordings/" + _this.state.record_src;
