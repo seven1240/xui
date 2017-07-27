@@ -1029,7 +1029,24 @@ class TicketsPage extends React.Component {
 			if(row.status == 'TICKET_ST_DONE'){
 				style = {color: 'green'};
 			}
+			var color;
+			if (row.emergency == "NORMAL") {
+				color = 'green';
+			} else if (row.emergency == 'EMERGENT'){
+				color = 'yellow';
+			} else if (row.emergency == 'URGENT'){
+				color = 'red';
+			}
+			var star_six = {
+								width: 0,
+								height: 0,
+								borderLeft: '6px solid transparent',
+								borderRight: '6px solid transparent',
+								borderBottom: '12px solid' + " " + color,
+								position: 'relative'
+							};
 			return <tr key={row.id}>
+				<td><div style={star_six}></div></td>
 				<td><Link to={`/tickets/${row.id}`}>{row.serial_number}</Link></td>
 				<td>{row.cid_number}</td>
 				<td>{row.subject}</td>
@@ -1123,6 +1140,7 @@ class TicketsPage extends React.Component {
 			<table className="table">
 				<tbody>
 					<tr>
+						<th></th>
 						<th><T.span text="Serial Number"/></th>
 						<th><T.span text="CID Number"/></th>
 						<th><T.span text="Subject"/></th>
