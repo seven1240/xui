@@ -48,9 +48,20 @@ get('/', function(params)
 end)
 
 get('/:id', function(params)
-	user = xdb.find("blocks", params.id)
-	if user then
-		return user
+	block = xdb.find("blocks", params.id)
+
+	if block then
+		local xml_file = prefix .. params.id .. ".xml"
+
+		file = io.open(xml_file, "r")
+		if file then
+			xml = file:read("*a")
+			file:close()
+
+			block.xml = xml
+		end
+
+		return block
 	else
 		return 404
 	end
