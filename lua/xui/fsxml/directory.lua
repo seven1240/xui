@@ -45,7 +45,7 @@ end
 if not params then
 	XML_STRING = [[<domain name="]] .. '$${domain}' .. [[">]]
 
-	xdb.find_all("users", {disabled = 0}, function(row)
+	xdb.find_by_cond("users", {disabled = 0}, "extn", function(row)
 		XML_STRING = XML_STRING .. [[<users><user id="]] .. row.extn .. [[">]] ..
 		[[<variables>]] ..
 		[[<variable name="user_context" value="default"/>]] ..
