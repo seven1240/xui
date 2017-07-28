@@ -446,6 +446,13 @@ LANGUAGES["zh"] = {
 	"Terminal": "终端",
 
 	"System Settings": "系统设置",
+	"NTP Sync Setting": "时间同步设置",
+	"Syncing": "同步中",
+	"NTP Server": "NTP服务器",
+	"Sync success": "同步成功",
+	"Sync fail": "同步失败",
+	"Sync": "同步",
+	"System DateTime": "系统时间",
 	"Baidu TTS": "百度TTS",
 	"EventSocket Settings": "EventSocket设置",
 	Fetch: "获取",

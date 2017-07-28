@@ -39,6 +39,7 @@ import SettingEventSocket from '../system/event_socket';
 import SettingDevice from './device';
 import ChangeIpPage from '../page_change_ip';
 import UploadLicence from './page_licence';
+import SettingDateTime from './datetime';
 import Dropzone from 'react-dropzone';
 
 class SystemPage extends React.Component {
@@ -57,6 +58,9 @@ class SystemPage extends React.Component {
 
 			<hr/>
 			<UploadLicence/>
+
+			<hr/>
+			<SettingDateTime/>
 
 			<hr/>
 			<SettingDevice/>
