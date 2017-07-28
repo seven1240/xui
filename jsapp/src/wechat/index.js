@@ -131,6 +131,7 @@ class Home extends React.Component {
 					var localId = res.localId;
 					_this.setState({record: "重新录音"});
 					var audition = <a className="weui-form-preview__btn weui-form-preview__btn_primary" onClick={() => _this.handleAudition()}>试听</a>;
+					var upload = <a className="weui-form-preview__btn weui-form-preview__btn_primary" onClick={() => _this.handleUpload()}>上传</a>;
 					_this.setState({current_localId: localId, audition: audition, upload: upload});
 				}
 			});
@@ -141,6 +142,35 @@ class Home extends React.Component {
 		var localId = this.state.current_localId
 		wx.playVoice({
 			localId: localId
+		});
+	}
+
+	handleUpload() {
+		var _this = this
+		var localId = _this.state.current_localId
+		var ticket = _this.state.ticket
+		wx.uploadVoice({
+			localId: localId,
+			isShowProgressTips: 1,
+			success: function (res) {
+				var serverId = res.serverId;
+				xFetchJSON("/api/tickets/" + ticket.id + "/comments", {
+					method: 'POST',
+					body: JSON.stringify({content: '实时录音'})
+				}).then((datas) => {
+					if (serverId) {
+						xFetchJSON("/api/wechat_upload/xyt/" + datas.id + "/record", {
+							method: 'POST',
+							body: JSON.stringify({serverId: serverId})
+						}).then((res) => {
+							_this.setState({current_localId: null, audition: null, upload: null, record: "开始录音"});
+							_this.fetchComment(ticket.id);
+						}).catch((e) => {
+						});
+					}
+				}).catch((e) => {
+				});
+			}
 		});
 	}
 

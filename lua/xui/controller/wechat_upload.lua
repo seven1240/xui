@@ -59,6 +59,64 @@ get('/base_url', function(params)
 	return config.wechat_base_url
 end)
 
+post('/:realm/:id/record', function(params)
+	local upload = {}
+	upload.user_id = xtra.session.user_id
+	upload.comment_id = params.id
+
+	serverId = params.request.serverId
+
+	wechat = m_dict.get_obj('WECHAT/' .. params.realm)
+	xwechat.get_token(params.realm, wechat.APPID, wechat.APPSEC)
+
+	url = xwechat.download_image_url(params.realm, serverId)
+	prefix = "wechat-js-upload-"
+	rel_path = prefix .. os.date('%Y%m%d%H%M%S-') .. serverId .. ".mp3"
+	thumb_rel_path = "thumb-" .. rel_path
+	local_path = config.upload_path .. "/" .. rel_path
+	thumb_path = config.upload_path .. "/" .. thumb_rel_path
+
+	wget = "wget -O " .. local_path .. " '" .. url .. "'"
+	freeswitch.consoleLog("ERR",wget)
+	os.execute(wget)
+
+	local f = io.open(local_path, "rb")
+
+	if f then
+		local size = assert(f:seek("end"))
+
+		local rec = {}
+
+		rec.name = serverId
+		rec.mime = "audio/mp3"
+		rec.ext = "mp3"
+
+		rec.abs_path = local_path
+		rec.file_size = "" .. size
+		rec.type = "WECHAT"
+		rec.description = "WECHAT"
+		rec.dir_path = config.upload_path
+		-- rec.channel_uuid = uuid
+		rec.original_file_name = rec.name
+		rec.rel_path = rel_path
+		rec.thumb_path = thumb_rel_path
+
+		media_file_id = xdb.create_return_id('media_files', rec)
+
+		-- freeswitch.consoleLog('info', media_file_id)
+
+		if media_file_id then
+			local link = {}
+			link.comment_id = params.id
+			link.media_file_id = media_file_id
+
+			-- freeswitch.consoleLog('info', utils.serialize(link))
+			xdb.create('ticket_comment_media', link)
+		end
+	end
+	return 200, "{}"
+end)
+
 post('/:realm/:id/comments', function(params)
 	local upload = {}
 	upload.user_id = xtra.session.user_id
@@ -78,6 +136,7 @@ post('/:realm/:id/comments', function(params)
 		thumb_path = config.upload_path .. "/" .. thumb_rel_path
 
 		wget = "wget -O " .. local_path .. " '" .. url .. "'"
+		freeswitch.consoleLog("ERR",wget)
 		os.execute(wget)
 
 		convert = "convert -resize 64x64! " .. local_path .. " " .. thumb_path
@@ -119,5 +178,5 @@ post('/:realm/:id/comments', function(params)
 			end
 		end
 	end
-	return {}
+	return 200, "{}"
 end)
