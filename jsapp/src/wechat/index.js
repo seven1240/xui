@@ -23,7 +23,37 @@ const emergency = {
 class Home extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {ticket: {}, tickets: [], user_options: null, ass_template: null, call:"回拨", ticket_comments: [], wechat_users: props.users, deal_user: null};
+		this.state = {ticket: {}, tickets: [], user_options: null, record: "开始录音", upload: null, audition: null, current_localId: null, current_serverId:null, ass_template: null, call:"回拨", ticket_comments: [], wechat_users: props.users, deal_user: null};
+	}
+
+	fetchComment(ticket_id) {
+		var _this = this;
+		xFetchJSON('/api/tickets/' + ticket_id + '/comments').then((data) => {
+			console.log('comments', data);
+			_this.setState({ticket_comments: data});
+
+			if (data.length > 0) {
+				// check if we have media files
+				xFetchJSON('/api/tickets/' + ticket_id + '/comments/media_files').then((media) => {
+					console.log('media', media);
+
+					const comments = _this.state.ticket_comments.map((comment) => {
+						media.forEach((m) => {
+							if (comment.id == m.comment_id) {
+								if (!comment.mfiles) comment.mfiles = [];
+								comment.mfiles.push(m);
+							}
+						});
+
+						return comment;
+					});
+
+					console.log('comments', comments);
+					_this.setState({ticket_comments: comments});
+				});
+			}
+
+		});
 	}
 
 	fetchTicket(ticket_id) {
@@ -63,33 +93,7 @@ class Home extends React.Component {
 		}).catch((e) => {
 			console.error("get ticket", e);
 		});
-
-		xFetchJSON('/api/tickets/' + ticket_id + '/comments').then((data) => {
-			console.log('comments', data);
-			_this.setState({ticket_comments: data});
-
-			if (data.length > 0) {
-				// check if we have media files
-				xFetchJSON('/api/tickets/' + ticket_id + '/comments/media_files').then((media) => {
-					console.log('media', media);
-
-					const comments = _this.state.ticket_comments.map((comment) => {
-						media.forEach((m) => {
-							if (comment.id == m.comment_id) {
-								if (!comment.mfiles) comment.mfiles = [];
-								comment.mfiles.push(m);
-							}
-						});
-
-						return comment;
-					});
-
-					console.log('comments', comments);
-					_this.setState({ticket_comments: comments});
-				});
-			}
-
-		});
+		_this.fetchComment(ticket_id);
 	}
 
 	componentDidMount() {
@@ -109,6 +113,35 @@ class Home extends React.Component {
 	handleComment(e) {
 		current_ticket_id = e;
 		ReactDOM.render(<Comment/>, document.getElementById('main'));
+	}
+
+	handleRecord() {
+		var _this = this;
+		if (_this.state.record == "开始录音") {
+			wx.startRecord();
+			_this.setState({record: "停止录音"});
+		}
+		if (_this.state.record == "重新录音") {
+			_this.setState({record: "停止录音", audition: null, upload: null});
+			wx.startRecord();
+		}
+		if (_this.state.record == "停止录音") {
+			wx.stopRecord({
+				success: function (res) {
+					var localId = res.localId;
+					_this.setState({record: "重新录音"});
+					var audition = <a className="weui-form-preview__btn weui-form-preview__btn_primary" onClick={() => _this.handleAudition()}>试听</a>;
+					_this.setState({current_localId: localId, audition: audition, upload: upload});
+				}
+			});
+		}
+	}
+
+	handleAudition () {
+		var localId = this.state.current_localId
+		wx.playVoice({
+			localId: localId
+		});
 	}
 
 	handleAllot(e) {
@@ -236,7 +269,7 @@ class Home extends React.Component {
 						<img style={{width:"60px", height:"60px"}} onClick={ () => _this.previewImageShow(path)} src={path}/>&nbsp;
 					</span>
 				} else if (mfile.mime.indexOf('audio') == 0) {
-					return <audio src={path}/>
+					return <audio src={path} controls="controls"/>
 				} else if (mfile.mime.indexOf('video') == 0) {
 					return <video controls webkit-playsinline playsinline><source src={path} type="video/mp4"/></video>
 				}
@@ -401,7 +434,10 @@ class Home extends React.Component {
 
 		<br/>
 			<a className="weui-form-preview__btn weui-form-preview__btn_primary" onClick={() => _this.handleComment(ticket.id)}>添加评论</a>
-
+		<br/>
+			<a className="weui-form-preview__btn weui-form-preview__btn_primary" onClick={() => _this.handleRecord()}>{_this.state.record}</a>
+			{_this.state.audition}
+			{_this.state.upload}
 			{/* <div className="weui-cells weui-cells_form">
 				<div className="weui-cell">
 					<div className="weui-cell__bd">
@@ -1032,7 +1068,16 @@ xFetchJSON('/api/wechat/xyt/jsapi_ticket?url=' + escape(location.href.split('#')
 			'previewImage',
 			'uploadImage',
 			'downloadImage',
-			'getLocalImgData'
+			'getLocalImgData',
+			'startRecord',
+			'stopRecord',
+			'onVoiceRecordEnd',
+			'playVoice',
+			'pauseVoice',
+			'stopVoice',
+			'onVoicePlayEnd',
+			'uploadVoice',
+			'downloadVoice'
 		]
 	});
 });
