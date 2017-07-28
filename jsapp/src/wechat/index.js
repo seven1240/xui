@@ -299,9 +299,13 @@ class Home extends React.Component {
 						<img style={{width:"60px", height:"60px"}} onClick={ () => _this.previewImageShow(path)} src={path}/>&nbsp;
 					</span>
 				} else if (mfile.mime.indexOf('audio') == 0) {
-					return <audio src={path} controls="controls"/>
+					return <span>
+							<audio src={path} controls="controls"/>
+						</span>
 				} else if (mfile.mime.indexOf('video') == 0) {
-					return <video controls webkit-playsinline playsinline><source src={path} type="video/mp4"/></video>
+					return <span>
+							<video controls webkit-playsinline playsinline><source src={path} type="video/mp4"/></video>
+						</span>
 				}
 			});
 

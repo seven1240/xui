@@ -72,14 +72,16 @@ post('/:realm/:id/record', function(params)
 	url = xwechat.download_image_url(params.realm, serverId)
 	prefix = "wechat-js-upload-"
 	rel_path = prefix .. os.date('%Y%m%d%H%M%S-') .. serverId .. ".mp3"
+	amr_path = prefix .. os.date('%Y%m%d%H%M%S-') .. serverId .. ".amr"
 	thumb_rel_path = "thumb-" .. rel_path
 	local_path = config.upload_path .. "/" .. rel_path
 	thumb_path = config.upload_path .. "/" .. thumb_rel_path
 
-	wget = "wget -O " .. local_path .. " '" .. url .. "'"
+	wget = "wget -O " .. config.upload_path .. "/" .. amr_path .. " '" .. url .. "'"
 	freeswitch.consoleLog("ERR",wget)
 	os.execute(wget)
-
+	os.execute("ffmpeg -i " .. config.upload_path .. "/" .. amr_path .. " -ar 44100 -ab 128k " .. config.upload_path .. "/" .. rel_path)
+	os.execute("rm " .. config.upload_path .. "/" .. amr_path)
 	local f = io.open(local_path, "rb")
 
 	if f then
