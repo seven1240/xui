@@ -586,6 +586,10 @@ LANGUAGES["zh"] = {
 	Private: "私有",
 	Public: "公开",
 	"Ticket Privilege": "权限",
+	Devices: "设备",
+	Device: "设备",
+	"Create New Device": "新建设备",
+	Vendor: "供应商",
 
 	Copyright: "版权所有 2016-" + new Date().getFullYear() + " 烟台小樱桃网络科技有限公司 保留所有权利",
 	the_last_line_______: "Don't put anything beyond this line"

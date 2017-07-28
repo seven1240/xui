@@ -112,6 +112,12 @@ class Settings extends React.Component {
 					<T.span text="Dicts"/>
 				</NavItem>
 			</LinkContainer>
+			<LinkContainer to="/settings/devices" key="M_DEVICES">
+				<NavItem eventKey="M_DEVICES">
+					<i className="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;
+					<T.span text="Devices"/>
+				</NavItem>
+			</LinkContainer>
 			<LinkContainer to="/settings/module" key="M_MODULE">
 				<NavItem eventKey="M_MODULE">
 					<i className="fa fa-cube" aria-hidden="true"></i>&nbsp;
@@ -143,7 +149,6 @@ class Settings extends React.Component {
 					<T.span text="IVRS"/>
 				</NavItem>
 			</LinkContainer>
-
 
 			<LinkContainer to="/settings/system" key="M_SYSTEM">
 				<NavItem eventKey="M_SYSTEM">

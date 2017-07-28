@@ -68,6 +68,7 @@ import { RoutesPage, RoutePage } from './page_routes';
 import { BlocksPage, BlockPage } from './blocks.js';
 import { GatewaysPage, GatewayPage } from './page_gateways';
 import { DictsPage, DictPage } from './page_dicts';
+import { DevicePage, DevicesPage } from './page_devices';
 import { ModuleParamsPage, ModuleParamPage} from './page_params';
 import { ModulePage } from './page_module';
 import { SIPProfilesPage, SIPProfilePage } from './page_sip';
@@ -216,6 +217,10 @@ class Home extends React.Component{
 					<Route path="dicts">
 						<IndexRoute components={{sidebar: Settings, main: DictsPage}}/>
 						<Route path=":id" components={{sidebar: Settings, main: DictPage}}/>
+					</Route>
+					<Route path="devices">
+						<IndexRoute components={{sidebar: Settings, main: DevicesPage}}/>
+						<Route path=":id" components={{sidebar: Settings, main: DevicePage}}/>
 					</Route>
 					<Route path="module_params">
 						<IndexRoute components={{sidebar: Settings, main: ModuleParamsPage}}/>
