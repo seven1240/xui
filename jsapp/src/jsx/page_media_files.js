@@ -504,6 +504,7 @@ class MediaFilesPage extends React.Component {
 		this.handleControlClick = this.handleControlClick.bind(this);
 		this.handleDelete = this.handleDelete.bind(this);
 		this.onDrop = this.onDrop.bind(this);
+		this.handleSortClick = this.handleSortClick.bind(this);
 	}
 
 	handleControlClick(data) {
@@ -617,6 +618,31 @@ class MediaFilesPage extends React.Component {
 		xhr.send(data);
 	}
 
+	handleSortClick(field) {
+		var rows = this.state.rows;
+
+		var n = 1;
+
+		if (this.state.order == 'ASC') {
+			this.state.order = 'DSC';
+			n = -1;
+		} else {
+			this.state.order = 'ASC';
+		}
+
+		if (field == 'file_size') {
+			rows.sort(function(a,b) {
+				return parseInt(a[field]) < parseInt(b[field]) ? -1 * n : 1 * n;
+			});
+		} else {
+			rows.sort(function(a,b) {
+				return a[field] < b[field] ? -1 * n : 1 * n;
+			});
+		}
+
+		this.setState({rows: rows});
+	}
+
 	render() {
 		let hand = { cursor: "pointer" };
 		const formClose = () => this.setState({ formShow: false });
@@ -694,9 +720,9 @@ class MediaFilesPage extends React.Component {
 				<tr>
 					<th><T.span text="Created"/></th>
 					<th><T.span text="Name"/></th>
-					<th><T.span text="Description"/></th>
-					<th><T.span text="Type"/></th>
-					<th><T.span text="Size"/></th>
+					<th><T.span text="Description" style={hand} onClick={() => this.handleSortClick("description")}/></th>
+					<th><T.span text="Type" style={hand} onClick={() => this.handleSortClick("type")}/></th>
+					<th><T.span text="Size" style={hand} onClick={() => this.handleSortClick("file_size")}/></th>
 					<th><T.span style={hand} text="Delete" className={danger} onClick={toggleDanger} title={T.translate("Click me to toggle fast delete mode")}/></th>
 				</tr>
 				{rows}
