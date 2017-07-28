@@ -149,6 +149,15 @@ Blockly.Lua.fsFIFOS = function(block) {
   return code;
 };
 
+Blockly.Lua.fsCurl = function(block) {
+  var type = block.getFieldValue('type');
+  var method = block.getFieldValue('method');
+  var http = block.getFieldValue('curl');
+  var data = block.getFieldValue('data');
+  var code = 'session:execute("curl","' + http + ' ' + method + ' ' + type + ' ' + data + '")\n';
+  return [code, Blockly.Lua.ORDER_NONE];
+};
+
 Blockly.Lua.IVR = function(block) {
   var text_name = Blockly.Lua.valueToCode(block, 'name', Blockly.Lua.ORDER_ATOMIC);
   var text_sound = Blockly.Lua.valueToCode(block, 'sound', Blockly.Lua.ORDER_ATOMIC);
