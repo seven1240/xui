@@ -708,7 +708,7 @@ class UsersPage extends React.Component {
 				<ButtonGroup>
 					<Button onClick={this.handleDownload.bind(this)}>
 						<i className="fa fa-download" aria-hidden="true"></i>&nbsp;
-						<T.span text="Download" />
+						<T.span text="Export" />
 					</Button>
 				</ButtonGroup>
 				<ButtonGroup>

@@ -940,7 +940,7 @@ class RoutesPage extends React.Component {
 				</Button>
 				<Button onClick={this.handleDownload.bind(this)}>
 					<i className="fa fa-download" aria-hidden="true"></i>&nbsp;
-					<T.span text="Download" />
+					<T.span text="Export" />
 				</Button>
 			</ButtonToolbar>
 

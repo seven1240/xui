@@ -1033,7 +1033,7 @@ class TicketsPage extends React.Component {
 			if (row.emergency == "NORMAL") {
 				color = 'green';
 			} else if (row.emergency == 'EMERGENT'){
-				color = 'yellow';
+				color = '#e98c01';
 			} else if (row.emergency == 'URGENT'){
 				color = 'red';
 			}
@@ -1102,7 +1102,7 @@ class TicketsPage extends React.Component {
 				&nbsp;
 				<Button onClick={this.handleDownload}>
 					<i className="fa fa-download" aria-hidden="true"></i>&nbsp;
-					<T.span text="Download" />
+					<T.span text="Export" />
 				</Button>&nbsp;
 				<Button onClick={this.handleControlClick} data="new">
 					<i className="fa fa-plus" aria-hidden="true" onClick={this.handleControlClick} data="new"></i>&nbsp;
