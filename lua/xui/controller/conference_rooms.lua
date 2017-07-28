@@ -35,6 +35,7 @@ xtra.require_login()
 
 local prefix = config.block_path .. "/blocks-"
 require 'xdb'
+require 'm_conference_profile'
 xdb.bind(xtra.dbh)
 
 get('/', function(params)
@@ -62,6 +63,19 @@ get('/:id', function(params)
 		return room
 	else
 		return 404
+	end
+end)
+
+get('/:id/params', function(params)
+	print(serialize(params))
+	n, conference_params = m_conference_profile.params_font(params.id)
+	print(n)
+	print(serialize(conference_params))
+
+	if n > 0 then
+		return conference_params
+	else
+		return "[]"
 	end
 end)
 
@@ -97,6 +111,18 @@ post('/:id/members', function(params)
 	end
 end)
 
+post('/:ref_id/params/', function(params)
+	params.request.ref_id = params.ref_id
+	params.realm = 'conference'
+	params.request.realm = params.realm
+	ret = m_conference_profile.createParam(params.request)
+	if ret then
+		return {id = ret}
+	else
+		return 500, "{}"
+	end
+end)
+
 put('/:id', function(params)
 	print(serialize(params))
 	params.request.id = params.id
@@ -125,6 +151,23 @@ put('/:id/members/:member_id', function(params)
 	end
 end)
 
+put('/:id/params/:param_id', function(params)
+	print(serialize(params))
+	ret = nil;
+
+	if params.request.action and params.request.action == "toggle" then
+		ret = m_conference_profile.toggle_param(params.id, params.param_id)
+	else
+		ret = m_conference_profile.update_param(params.id, params.param_id, params.request)
+	end
+
+	if ret then
+		return ret
+	else
+		return 404
+	end
+end)
+
 delete('/:id', function(params)
 	ret = xdb.delete("conference_rooms", params.id);
 
@@ -139,6 +182,18 @@ delete('/:id/members/:member_id', function(params)
 	ret = xdb.delete("conference_members", {id = params.member_id, room_id = params.id});
 
 	if ret == 1 then
+		return 200, "{}"
+	else
+		return 500, "{}"
+	end
+end)
+
+delete('/:id/param', function(params)
+	id = params.id
+	param_id = params.param_id
+	ret = m_conference_profile.delete_param(id, param_id)
+	
+	if ret >= 0 then
 		return 200, "{}"
 	else
 		return 500, "{}"
