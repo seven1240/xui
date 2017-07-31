@@ -209,7 +209,10 @@ put("/changepassword", function(params)
 end)
 
 put('/:id', function(params)
-	print(serialize(params))
+	if params.request then
+		params.request.id = params.id
+	end
+
 	ret = xdb.update("users", params.request)
 	if ret then
 		return 200, {id = params.id}
