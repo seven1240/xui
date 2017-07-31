@@ -63,7 +63,6 @@ get('/download', function(params)
 
 	xtra.write('路由ID,' .. '名称,' .. '描述,' .. '起始号码,' .. '呼叫源,' .. '目的地类型,' .. '自动录音\n')
 	for i, v in pairs(routes) do
-		v.auto_record = v.auto_record == '1' and '是' or '否'
 		xtra.write(v.id .. "," .. v.name .. "," .. v.description .. "," .. v.prefix .. "," ..
 		v.context .. "," .. v.dest_type .. "," .. v.auto_record .. "\n")
 	end
@@ -107,13 +106,39 @@ post('/', function(params)
 		params.request.body = room.nbr
 	end
 
-	route = xdb.create_return_object('routes', params.request)
+	if params.request.name then
+		route = xdb.create_return_object('routes', params.request)
 
-	if route then
-		return route
-	else
-		return 500, "{}"
+		if route then
+			return route
+		else
+			return 500, "{}"
+		end
+	else -- import multi lines
+		routes = params.request
+		route = table.remove(routes, 1)
+		if route then
+			ret = xdb.create_return_id('routes', route)
+		end
+
+		route = table.remove(routes, 1)
+		i = 0;
+
+		while route and i < 65536 do
+			print(i)
+			xdb.create('routes', route)
+			route = table.remove(routes, 1)
+			i = i + 1
+		end
+
+		if ret then
+			n, routes = xdb.find_by_cond("routes", "id >= " .. ret)
+			return routes;
+		else
+			return 500
+		end
 	end
+
 end)
 
 put('/:id', function(params)

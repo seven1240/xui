@@ -247,6 +247,102 @@ class NewRoute extends React.Component {
 	}
 }
 
+class ImportRoute extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {errmsg: ''};
+
+		// This binding is necessary to make `this` work in the callback
+		this.handleSubmit = this.handleSubmit.bind(this);
+	}
+
+	handleSubmit(e) {
+		console.log("submit...");
+		var info = form2json('#importRouteForm');
+		console.log("info", info);
+
+		if (!info.info) {
+			this.setState({errmsg: "Mandatory fields left blank"});
+			return;
+		}
+
+		var inputInfo = info.info.split(/\r?\n/);
+		var routes = [];
+
+		for (var i = 0; i < inputInfo.length; i++) {
+
+			var inputInfoI = inputInfo[i];
+
+			inputInfoI = inputInfoI.split("\t");
+
+			var route = {};
+			route.name = inputInfoI[0];
+			route.description = inputInfoI[1];
+			route.prefix = inputInfoI[2];
+			routes.push(route);
+		}
+
+		xFetchJSON("/api/routes",{
+			method: "POST",
+			body: JSON.stringify(routes)
+		}).then((routes) => {
+			console.log("routes created", routes);
+			this.props.handleNewRouteAdded(routes);
+		}).then((msg) => {
+			console.error("route", msg);
+			this.setState({errmsg: <T.span text={{key: "Internal Error", msg: msg}}/>});
+		});
+	}
+
+	render() {
+		const props = Object.assign({}, this.props);
+		delete props.handleNewRouteAdded;
+
+		return <Modal {...props} aria-labelledby="contained-modal-title-lg">
+			<Modal.Header closeButton>
+				<Modal.Title id="contained-modal-title-lg"><T.span text="Import Routes" /></Modal.Title>
+			</Modal.Header>
+			<Modal.Body>
+			<Form horizontal id="importRouteForm">
+				<FormGroup controlId="formExtn">
+					<Col sm={12}><FormControl componentClass="textarea" name="info" rows="5"
+					placeholder={"Conference\tconference\t10\nUser\tLocal Users\t12"} />
+					</Col>
+				</FormGroup>
+
+				<FormGroup>
+					<Col sm={12}>
+						<Button type="button" bsStyle="primary" onClick={this.handleSubmit}>
+							<i className="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;
+							<T.span text="Import" />
+						</Button>
+						&nbsp;&nbsp;<T.span className="danger" text={this.state.errmsg}/>
+					</Col>
+				</FormGroup>
+
+				<FormGroup>
+					<Col sm={12}>
+						<T.span text="说明：导入以制表符分隔的数据，数据可以在Excel中制作，按格式直接粘贴即可导入。" />
+						<br/>
+						<T.span text="格式："/>
+						&lt;<T.span text="Name"/>&gt;&nbsp;
+						&lt;<T.span text="Description"/>&gt;&nbsp;
+						&lt;<T.span text="Prefix"/>&gt;&nbsp;
+					</Col>
+				</FormGroup>
+			</Form>
+			</Modal.Body>
+			<Modal.Footer>
+				<Button onClick={this.props.onHide}>
+					<i className="fa fa-times" aria-hidden="true"></i>&nbsp;
+					<T.span text="Close" />
+				</Button>
+			</Modal.Footer>
+		</Modal>;
+	}
+}
+
 class AddNewParam extends React.Component {
 	constructor(props) {
 		super(props);
@@ -789,7 +885,7 @@ class RoutePage extends React.Component {
 class RoutesPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { formShow: false, rows: [], danger: false, isSysRouterShow: false, ifShowBtName: "Show SysRoute"};
+		this.state = { formShow: false, rows: [], danger: false, isSysRouterShow: false, ifShowBtName: "Show SysRoute", formShow1: false };
 
 	    // This binding is necessary to make `this` work in the callback
 	    this.handleControlClick = this.handleControlClick.bind(this);
@@ -800,8 +896,15 @@ class RoutesPage extends React.Component {
 	handleControlClick(data) {
 		console.log("data", data);
 
-		if (data == "new") {
-			this.setState({ formShow: true});
+		switch ( data ) {
+			case "new":
+				this.setState({ formShow: true });
+				break;
+			case "import":
+				this.setState({ formShow1: true });
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -891,8 +994,14 @@ class RoutesPage extends React.Component {
 		document.body.removeChild(downloadLink);
 	}
 
+	handleRouteAdded(routes) {
+		var rows = routes.concat(this.state.rows);
+		this.setState({rows: rows, formShow: false, formShow1: false});
+	}
+
 	render() {
-	    const formClose = () => this.setState({ formShow: false });
+		const formClose = () => this.setState({ formShow: false });
+		let formClose1 = () => this.setState({ formShow1: false });
 	    const toggleDanger = () => this.setState({ danger: !this.state.danger });
 		const hand = { cursor: "pointer" };
 
@@ -938,6 +1047,10 @@ class RoutesPage extends React.Component {
 					<i className="fa fa-expand" aria-hidden="true"></i>&nbsp;
 					<T.span data="sysRoute" text={isSysRouterShowText} />
 				</Button>
+				<Button onClick={() => _this.handleControlClick("import")}>
+					<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
+					<T.span text="Import" />
+				</Button>
 				<Button onClick={this.handleDownload.bind(this)}>
 					<i className="fa fa-download" aria-hidden="true"></i>&nbsp;
 					<T.span text="Export" />
@@ -966,6 +1079,7 @@ class RoutesPage extends React.Component {
 			</div>
 
 			<NewRoute show={this.state.formShow} onHide={formClose} handleNewRouteAdded={this.handleRouteAdded.bind(this)}/>
+			<ImportRoute show={this.state.formShow1} onHide={formClose1} handleNewRouteAdded={this.handleRouteAdded.bind(this)}/>
 		</div>
 	}
 }
