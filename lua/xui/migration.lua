@@ -14,6 +14,8 @@ if config.db_auto_connect then xdb.connect(config.dsn) end
 xdb.connect2("odbc://test:test:test")
 
 function migrate(tbl)
+    stream:write("migrating table " .. tbl .. "\n")
+
 	n,data = xdb.find_all(tbl)
 	for k,v in pairs(data) do
 		v.deleted_epoch = nil
@@ -80,6 +82,39 @@ function migrate(tbl)
 		 if v.token_expire == "" then
                         v.token_expire = nil
                 end
+
+    v.length = nil
+    v.INTEGER = nil
+    v.appraise = nil
+
+    if tbl == 'media_files' then
+        if tonumber(v.created_epoch) then
+            v.created_epoch = os.date('%Y-%m-%d %H:%M:%S', v.created_epoch)
+        end
+    end
+
+    if tbl == 'fifo_cdrs' then
+        if tonumber(v.start_epoch) then
+            v.start_epoch = os.date('%Y-%m-%d %H:%M:%S', v.start_epoch)
+        end
+
+        if tonumber(v.bridge_epoch) then
+            v.bridge_epoch = os.date('%Y-%m-%d %H:%M:%S', v.bridge_epoch)
+        end
+
+        if tonumber(v.end_epoch) then
+            v.end_epoch = os.date('%Y-%m-%d %H:%M:%S', v.end_epoch)
+        end
+    end
+
+    if tbl == "ticket_comments" then
+        if v.ticket_id == '' then
+            v.ticket_id = nil
+        elseif v.ticket_id == 'undefined' then
+            v.ticket_id = nil
+        end
+    end
+
 	xdb.create2(tbl, v)
 	end
 end
