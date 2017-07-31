@@ -268,7 +268,7 @@ class TicketPage extends React.Component {
 					num2: ticket.cid_number
 				}, {
 					num1: "创建时间",
-					num2: ticket.created_epoch
+					num2: ticket.created_at
 				}, {
 					num1: "内容",
 					num2: ticket.content
@@ -590,7 +590,7 @@ class TicketPage extends React.Component {
 			let style = {width: '40px'};
 			return <Row key={row.id}>
 				<Col componentClass={ControlLabel} sm={1} smOffset={2}><img src={src} style={style}/></Col>
-				<Col sm={6}> <strong>{row.user_name}</strong>&nbsp;<small>{row.created_epoch}</small>
+				<Col sm={6}> <strong>{row.user_name}</strong>&nbsp;<small>{row.created_at}</small>
 					<br/><br/>{content}
 				</Col>
 			</Row>
@@ -833,9 +833,9 @@ class TicketPage extends React.Component {
 					<Col sm={10}><EditControl edit={this.state.edit} name="subject" defaultValue={ticket.subject}/></Col>
 				</FormGroup>
 
-				<FormGroup controlId="formCreated_epoch">
+				<FormGroup controlId="formCreatedAt">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Created At"/></Col>
-					<Col sm={10}><FormControl.Static>{ticket.created_epoch}</FormControl.Static></Col>
+					<Col sm={10}><FormControl.Static>{ticket.created_at}</FormControl.Static></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formPri">
@@ -843,7 +843,7 @@ class TicketPage extends React.Component {
 					<Col sm={10}>{ticket_privacy_component}</Col>
 				</FormGroup>
 
-				<FormGroup controlId="formFinished_epoch">
+				<FormGroup controlId="formFinishedAt">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Deadline"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} type="date" name="deadline" defaultValue={ticket.deadline}/></Col>
 				</FormGroup>
@@ -1054,7 +1054,7 @@ class TicketsPage extends React.Component {
 				<td><Link to={`/tickets/${row.id}`}>{row.serial_number}</Link></td>
 				<td>{row.cid_number}</td>
 				<td>{row.subject}</td>
-				<td>{row.created_epoch}</td>
+				<td>{row.created_at}</td>
 				<td><T.span text={row.status} style={style}/></td>
 				<td><T.a style={hand} onClick={_this.handleDelete} data-id={row.id} text="Delete" className={danger}/></td>
 			</tr>

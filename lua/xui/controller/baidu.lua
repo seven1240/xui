@@ -109,7 +109,7 @@ post("/tts", function(params)
 	record.description = 'TTS'
 	record.dir_path = config.upload_path
 	record.channel_uuid = env:getHeader("Core-UUID")
-	record.created_epoch = "" .. os.time()
+	record.created_at = "" .. os.time()
 
 	local media_file = xdb.create_return_object('media_files', record)
 	return media_file

@@ -108,17 +108,17 @@ class FifoCDRPage extends React.Component {
 
 					<FormGroup controlId="formStart">
 						<Col componentClass={ControlLabel} sm={2}><T.span text="Start"/></Col>
-						<Col sm={10}><EditControl edit={this.state.edit} name="channel_uuid" defaultValue={fifocdr.start_epoch}/></Col>
+						<Col sm={10}><EditControl edit={this.state.edit} name="channel_uuid" defaultValue={fifocdr.started_at}/></Col>
 					</FormGroup>
 
 					<FormGroup controlId="formAnswer">
 						<Col componentClass={ControlLabel} sm={2}><T.span text="Answer"/></Col>
-						<Col sm={10}><EditControl edit={this.state.edit} name="channel_uuid" defaultValue={fifocdr.bridge_epoch}/></Col>
+						<Col sm={10}><EditControl edit={this.state.edit} name="channel_uuid" defaultValue={fifocdr.bridge_at}/></Col>
 					</FormGroup>
 
 					<FormGroup controlId="formEnd">
 						<Col componentClass={ControlLabel} sm={2}><T.span text="End"/></Col>
-						<Col sm={10}><EditControl edit={this.state.edit} name="channel_uuid" defaultValue={fifocdr.end_epoch}/></Col>
+						<Col sm={10}><EditControl edit={this.state.edit} name="channel_uuid" defaultValue={fifocdr.ended_at}/></Col>
 					</FormGroup>
 				</Form>
 			</Modal.Body>
@@ -296,9 +296,9 @@ class FifoCDRsPage extends React.Component {
 				<td>{row.ani}</td>
 				<td>{row.dest_number}</td>
 				<td>{row.bridged_number}</td>
-				<td>{row.start_epoch}</td>
-				<td>{row.bridge_epoch}</td>
-				<td>{row.end_epoch}</td>
+				<td>{row.started_at}</td>
+				<td>{row.bridged_at}</td>
+				<td>{row.ended_at}</td>
 			</tr>
 		});
 

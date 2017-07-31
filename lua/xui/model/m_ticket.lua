@@ -52,7 +52,7 @@ m_ticket.send_wechat_notification = function(realm, user_id, redirect_uri, subje
 end
 
 m_ticket.close = function(id)
-	ret = xdb.update_by_cond("tickets", { id = id }, { status = 'TICKET_ST_DONE', completed_epoch = os.date('%Y-%m-%d %H:%M:%S') })
+	ret = xdb.update_by_cond("tickets", { id = id }, { status = 'TICKET_ST_DONE', completed_at = os.date('%Y-%m-%d %H:%M:%S') })
 
 	if ret == 1 then
 		user = xdb.find("users", xtra.session.user_id)

@@ -72,7 +72,7 @@ get('/', function(params)
 
 			local sdate = os.time() - last * 24 * 60 * 60
 			startDate = os.date('%Y-%m-%d', sdate)
-			cond = " start_epoch > '" .. startDate .. "'"
+			cond = " started_at > '" .. startDate .. "'"
 			print(cond)
 		else
 			local endDate = env:getHeader('endDate')
@@ -82,7 +82,7 @@ get('/', function(params)
 
 			endDate = utils.date_diff(endDate, 1)
 
-			cond = xdb.date_cond("start_epoch", startDate, endDate) ..
+			cond = xdb.date_cond("started_at", startDate, endDate) ..
 						xdb.if_cond("ani", ani) ..
 						xdb.if_cond("dest_number", dest_number) ..
 						xdb.if_cond("bridged_number", bridged_number)
@@ -108,7 +108,7 @@ get('/', function(params)
 
 		offset = (pageNum - 1) * fifocdrsRowsPerPage
 
-		local found, fifocdrsData = xdb.find_by_cond("fifo_cdrs", cond, "start_epoch DESC", nil, fifocdrsRowsPerPage, offset)
+		local found, fifocdrsData = xdb.find_by_cond("fifo_cdrs", cond, "started_at DESC", nil, fifocdrsRowsPerPage, offset)
 
 		if (found > 0) then
 			fifocdrs.rowCount = rowCount
@@ -122,7 +122,7 @@ get('/', function(params)
 end)
 
 get('/:channel_uuid', function(params)
-	n1, fifocdrs = xdb.find_by_cond("fifo_cdrs", {channel_uuid = params.channel_uuid}, "start_epoch", nil, 1)
+	n1, fifocdrs = xdb.find_by_cond("fifo_cdrs", {channel_uuid = params.channel_uuid}, "started_at", nil, 1)
 
 	sql = "select name from media_files where channel_uuid = '" .. params.channel_uuid .. "'"
 	n2, result = xdb.find_by_sql(sql)

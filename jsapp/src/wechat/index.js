@@ -275,7 +275,7 @@ class Home extends React.Component {
 								<span className="weui-form-preview__value"></span>
 							</div>
 							<div className="weui-form-preview__item">
-								<label className="weui-form-preview__label" style={{fontSize:"12px"}}>{ticket.created_epoch}</label>
+								<label className="weui-form-preview__label" style={{fontSize:"12px"}}>{ticket.created_at}</label>
 								<span className="weui-form-preview__value" style={{fontSize:"12px"}}>{ticket_status[ticket.status]}</span>
 							</div>
 							<div className="weui-form-preview__ft"></div>
@@ -320,7 +320,7 @@ class Home extends React.Component {
 							<div className="weui-form-preview__bd">
 								<div className="weui-form-preview__item">
 									<label className="weui-form-preview__label" style={{color:"black",fontSize:"15px"}}>{comment.user_name.substr(0, 10)}</label>
-									<span className="weui-form-preview__value">{comment.created_epoch}</span>
+									<span className="weui-form-preview__value">{comment.created_at}</span>
 								</div>
 								<div className="weui-form-preview__item">
 									<label className="weui-form-preview__label" style={{color:"black",fontSize:"15px"}}>{comment.content}
@@ -387,7 +387,7 @@ class Home extends React.Component {
 
 			<div style={{padding: "5px", color: "#999"}}>
 				<br/>
-				<div style={{float: "right"}}>{ticket.created_epoch}</div>
+				<div style={{float: "right"}}>{ticket.created_at}</div>
 				<div>{ticket.serial_number}</div>
 			</div>
 
@@ -924,7 +924,7 @@ class Tickets extends React.Component {
 							<span className="weui-form-preview__value"></span>
 						</div>
 						<div className="weui-form-preview__item">
-							<label className="weui-form-preview__label" style={{fontSize:"12px"}}>{ticket.created_epoch}</label>
+							<label className="weui-form-preview__label" style={{fontSize:"12px"}}>{ticket.created_at}</label>
 							<span className="weui-form-preview__value" style={{fontSize:"12px"}}>{ticket_status[ticket.status]}</span>
 						</div>
 					<div className="weui-form-preview__ft"></div>

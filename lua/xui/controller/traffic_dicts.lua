@@ -144,8 +144,8 @@ post('/', function(params)
 				record.rel_path = string.sub(record.abs_path, string.len(record.dir_path) + 2)
 				record.file_size = "" .. size .. ""
 				record.channel_uuid = env:getHeader("Core-UUID")
-				record.created_epoch = "" .. os.time() .. ""
-				record.updated_epoch = record.created_epoch
+				record.created_at = "" .. os.time() .. ""
+				record.updated_at = record.created_at
 
 				table.insert(files, record)
 

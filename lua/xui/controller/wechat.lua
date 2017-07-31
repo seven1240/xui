@@ -359,8 +359,8 @@ post('/:realm', function(params)
 	local new_ticket = false
 	local ticket = xdb.find_one("tickets",
 		"wechat_openid = " .. xdb.escape(FromUserName) .. " AND status <> 'TICKET_ST_DONE'" ..
-		" AND created_epoch > '" .. os.date('%Y-%m-%d') .. "'",
-		"created_epoch DESC")
+		" AND created_at > '" .. os.date('%Y-%m-%d') .. "'",
+		"created_at DESC")
 
 	local isValidPhoneNumber = function(str)
 		return str:match("^[1][3,4,5,7,8]%d%d%d%d%d%d%d%d%d$") or

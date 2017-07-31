@@ -65,9 +65,9 @@ get('/', function(params)
 		local sdate = os.time() - last * 24 * 60 * 60
 		startDate = os.date('%Y-%m-%d', sdate)
 		if (not ticket_type) or ticket_type == '0' then
-			cond = " created_epoch > '" .. startDate .. "'"
+			cond = " created_at > '" .. startDate .. "'"
 		else
-			cond = " created_epoch > '" .. startDate .. "'" .. " AND type = '" .. ticket_type .. "'"
+			cond = " created_at > '" .. startDate .. "'" .. " AND type = '" .. ticket_type .. "'"
 		end
 		print(cond)
 	else
@@ -82,7 +82,7 @@ get('/', function(params)
 
 		endDate = utils.date_diff(endDate, 1)
 
-		cond = xdb.date_cond("created_epoch", startDate, endDate) ..
+		cond = xdb.date_cond("created_at", startDate, endDate) ..
 					xdb.if_cond("id", id) ..
 					xdb.if_cond("cid_number", cid_number) ..
 					xdb.if_cond("status", status) ..
@@ -108,7 +108,7 @@ end)
 
 get('/my_tickets', function()
 	sql = "SELECT * FROM tickets WHERE status <> 'TICKET_ST_DONE' AND current_user_id = " .. xtra.session.user_id ..
-		" ORDER BY created_epoch DESC LIMIT 1000"
+		" ORDER BY created_at DESC LIMIT 1000"
 	n, tickets = xdb.find_by_sql(sql)
 
 	if n > 0 then
@@ -298,7 +298,7 @@ get('/:id/comments/media_files_object', function(params)
 end)
 
 get('/:id/comments', function(params)
-	n, comments = xdb.find_by_cond("ticket_comments", {ticket_id = params.id}, "created_epoch DESC")
+	n, comments = xdb.find_by_cond("ticket_comments", {ticket_id = params.id}, "created_at DESC")
 	if (n > 0) then
 		return comments
 	else
@@ -422,8 +422,8 @@ post('/:id/comment_upload', function(params)
 				record.rel_path = string.sub(record.abs_path, string.len(record.dir_path) + 2)
 				record.file_size = "" .. size .. ""
 				record.channel_uuid = env:getHeader("Core-UUID")
-				record.created_epoch = "" .. os.time() .. ""
-				record.updated_epoch = record.created_epoch
+				record.created_at = "" .. os.time() .. ""
+				record.updated_at = record.created_at
 
 				table.insert(files, record)
 

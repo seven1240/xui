@@ -270,13 +270,13 @@ class TrafficDictPage extends React.Component {
 				</FormGroup>
 
 				<FormGroup controlId="formDescription">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="created_epoch"/></Col>
-					<Col sm={10}><FormControl.Static>{mfile.created_epoch}</FormControl.Static></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="created_at"/></Col>
+					<Col sm={10}><FormControl.Static>{mfile.created_at}</FormControl.Static></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formDescription">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="updated_epoch"/></Col>
-					<Col sm={10}><FormControl.Static>{mfile.updated_epoch}</FormControl.Static></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="updated_at"/></Col>
+					<Col sm={10}><FormControl.Static>{mfile.updated_at}</FormControl.Static></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formSave">
@@ -402,7 +402,7 @@ class TrafficDictsPage extends React.Component {
 
 		const rows = this.state.rows.map(function(row) {
 			return <tr key={row.id}>
-					<td>{row.created_epoch}</td>
+					<td>{row.created_at}</td>
 					<td><Link to={`/traffic_dicts/${row.id}`}>{row.name.substring(0, 36)}</Link></td>
 					<td>{row.description}</td>
 					<td>{row.mime}</td>
