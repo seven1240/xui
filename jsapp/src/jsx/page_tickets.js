@@ -430,7 +430,11 @@ class TicketPage extends React.Component {
 	}
 
 	handleControlClick(e) {
-		this.setState({edit: !this.state.edit});
+		if (localStorage.getItem('xui.username') == 'admin') {
+			this.setState({edit: !this.state.edit});
+		} else {
+			notify(<T.span text={'Only Admin has the right to edit ticket'}/>);
+		}
 	}
 
 	componentDidMount() {

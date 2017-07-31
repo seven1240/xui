@@ -604,6 +604,7 @@ LANGUAGES["zh"] = {
 	Vendor: "供应商",
 	Export: "导出",
 	"Import Routes": "路由导入",
+	"Only Admin has the right to edit ticket": "只有Admin有权限编辑工单",
 
 	Copyright: "版权所有 2016-" + new Date().getFullYear() + " 烟台小樱桃网络科技有限公司 保留所有权利",
 	the_last_line_______: "Don't put anything beyond this line"
