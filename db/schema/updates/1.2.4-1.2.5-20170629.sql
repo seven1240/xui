@@ -1,6 +1,6 @@
 ALTER TABLE conference_members ADD route VARCHAR;
 
-ALTER TABLE conference_rooms ADD canvas_count INTEGER;
+ALTER TABLE conference_rooms ADD canvas_count INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE conference_rooms ADD video_mode VARCHAR;
 ALTER TABLE conference_rooms ADD call_perm VARCHAR;
 

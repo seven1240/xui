@@ -275,7 +275,7 @@ CREATE TABLE conference_rooms (
 	pin VARCHAR,
 	profile_id INTEGER,
 	moderator VARCHAR,
-	canvas_count INTEGER,
+	canvas_count INTEGER NOT NULL DEFAULT 0,
 	video_mode VARCHAR,
 	call_perm VARCHAR,
 	cluster TEXT,
@@ -738,6 +738,9 @@ CREATE TABLE subscriptions (
 	realm VARCHAR NOT NULL,  -- what to sub
 	ref_id VARCHAR NOT NULL, -- which to sub
 	user_id INTEGER NOT NULL,
+	recv_wechat_notification INTEGER DEFAULT 1,
+	recv_weapp_notification INTEGER DEFAULT 1,
+	recv_email_notification INTEGER DEFAULT 0,
 
 	created_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),
 	updated_epoch INTEGER DEFAULT (DATETIME('now', 'localtime')),

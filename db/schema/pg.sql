@@ -52,7 +52,7 @@ CREATE TABLE users (
 	tel VARCHAR,
 	auto_record INTEGER DEFAULT 0,
 	disabled INTEGER DEFAULT 0,
-	weblogin_disabled INTEGER NOT NULL DEFAULT 0;
+	weblogin_disabled INTEGER NOT NULL DEFAULT 0,
 
 	created_epoch TIMESTAMP(0) DEFAULT now(),
 	updated_epoch TIMESTAMP(0) DEFAULT now(),
@@ -603,6 +603,9 @@ CREATE TABLE subscriptions (
 	realm VARCHAR NOT NULL,  -- what to sub
 	ref_id VARCHAR NOT NULL, -- which to sub
 	user_id INTEGER NOT NULL,
+	recv_wechat_notification INTEGER DEFAULT 1,
+	recv_weapp_notification INTEGER DEFAULT 1,
+	recv_email_notification INTEGER DEFAULT 0,
 
 	created_epoch TIMESTAMP(0) DEFAULT now(),
 	updated_epoch TIMESTAMP(0) DEFAULT now(),
