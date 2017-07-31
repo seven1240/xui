@@ -81,7 +81,11 @@ get('/', function(params)
 
 		offset = (pageNum - 1) * usersRowsPerPage
 
-		local found, usersData = xdb.find_by_cond("users", nil, 'id', nil, usersRowsPerPage, offset)
+		if m_user.has_permission() then
+			found, usersData = xdb.find_by_cond("users", nil, 'id', nil, usersRowsPerPage, offset)
+		else
+			found, usersData = xdb.find_by_cond("users", {id = xtra.session.user_id}, 'id', nil, usersRowsPerPage, offset)
+		end
 		if (found) then
 			users.rowCount = rowCount
 			users.data = usersData
