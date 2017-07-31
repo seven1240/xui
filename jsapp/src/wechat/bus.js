@@ -27,12 +27,12 @@ window.station_view_this;
 
 window.setStart = function(stat_name) {
 	window.start = stat_name;
-	alert('已设为起点，请到换乘查询页面进行查询');
+	alert('已设为起点，请到乘车查询页面进行查询');
 }
 
 window.setEnd = function(stat_name) {
 	window.end = stat_name;
-	alert('已设为终点，请到换乘查询页面进行查询');	
+	alert('已设为终点，请到乘车查询页面进行查询');	
 }
 
 function loadScript() {
@@ -1479,7 +1479,7 @@ class Change extends React.Component {
 				searchWhere(_this, stat_name);
 				return;
 			} else 	if (data.error == 3) {
-				let text = '请输入换乘查询站点';
+				let text = '请输入乘车查询站点';
 				alert(text);
 				return;
 			}
@@ -1529,7 +1529,7 @@ class Change extends React.Component {
 		let mapHeight = window.innerHeight - 180;
 
 		return <div className="page" style={{padding:"0 15px"}}>
-			<h1 className="page__title" style={{textAlign:"center",margin:"10px 0"}}>换乘查询</h1>
+			<h1 className="page__title" style={{textAlign:"center",margin:"10px 0"}}>乘车查询</h1>
 
 			<div>
 				<table>
@@ -1606,7 +1606,7 @@ class App extends React.Component{
 						<div className="weui-tabbar__icon" onClick={() => _this.handleClick("change")}>
 							<img src="/assets/wechat_img/icon_nav_cell.png" alt=""/>
 						</div>
-						<p className="weui-tabbar__label">换乘查询</p>
+						<p className="weui-tabbar__label">乘车查询</p>
 					</a>
 				</div>
 			</div>
