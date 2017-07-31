@@ -642,7 +642,7 @@ class LinePage extends React.Component {
 								if (traffic.bus_status == "2" && traffic.prev_station_id == station.station_order) {
 									if (station.station_order - _this.state.self_order < 0) {
 										return <div className="weui-cell__ft">
-											<img src="/assets/img/maps/bus-blue-small.png" alt=""/>距您还有{_this.state.self_order - station.station_order}站，预计约，预计约{(_this.state.self_order - station.station_order)*2}分钟
+											<img src="/assets/img/maps/bus-blue-small.png" alt=""/>距您还有{_this.state.self_order - station.station_order}站，预计约{(_this.state.self_order - station.station_order)*2}分钟
 										</div>
 									}
 								}
