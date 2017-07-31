@@ -610,45 +610,57 @@ class LinePage extends React.Component {
 
 		{
 			this.state.stations.map((station) => {
-				return <div className="weui-cell weui-cell_form">
-					<div className="weui-cell__hd" style={{width: "40px"}}>
-						<label className="weui-label">
-							{
-								direction == '上行' ? <span style={{color: 'red'}}>↑</span> :
-									<span style={{color: 'blue'}}>↓</span>
-							}
-							&nbsp;
-							{ station.station_order }
+				return <div>
+				<div className="weui-form-preview__ft"></div>
+				<div className="weui-form-preview__bd">
+					<div className="weui-form-preview__item">
+						<label className="weui-form-preview__label">
+								{
+									direction == '上行' ? <span style={{color: 'red'}}>↑</span> :
+										<span style={{color: 'blue'}}>↓</span>
+								}
+								&nbsp;
+								{
+									direction == '上行' ? <span>{station.station_order}</span> :
+										<span>{this.state.stations.length - station.station_order + 1}</span>
+								}
+							<span>
+								{station.stat_name}
+							</span>
 						</label>
-					</div>
-					<div className="weui-cell__bd">
-							{station.stat_name}
-					</div>
-					{
-						station.station_order == _this.state.self_order ? <div className="weui-cell__ft"><img src="/assets/img/maps/people.png" alt=""/>您的位置</div>:""
-					}
-					{
-						_this.state.traffics.map((traffic) => {
-							if (direction == "下行") {
-								if (traffic.bus_status == "0" && traffic.prev_station_id == station.station_order) {
-									if (station.station_order - _this.state.self_order > 0) {
-										return <div className="weui-cell__ft">
-											<img src="/assets/img/maps/bus-blue-small.png" alt=""/>距您还有{station.station_order - _this.state.self_order}站，预计约{(station.station_order - _this.state.self_order)*2}分钟
-										</div>
+						{
+							station.station_order == _this.state.self_order ? <span className="weui-form-preview__value"><img src="/assets/img/maps/people.png" alt=""/>您的位置</span>:""
+						}
+						</div>
+						{
+							_this.state.traffics.map((traffic) => {
+								if (direction == "下行") {
+									if (traffic.bus_status == "0" && traffic.prev_station_id == station.station_order) {
+										if (station.station_order - _this.state.self_order > 0) {
+											return <div className="weui-form-preview__item">
+											<label className="weui-form-preview__label"></label>
+											<span className="weui-form-preview__value">
+												<img src="/assets/img/maps/bus-blue-small.png" alt=""/>距您还有{station.station_order - _this.state.self_order}站，预计约{(station.station_order - _this.state.self_order)*2}分钟
+											</span>
+											</div>
+										}
 									}
 								}
-							}
-							if (direction == "上行") {
-								if (traffic.bus_status == "2" && traffic.prev_station_id == station.station_order) {
-									if (station.station_order - _this.state.self_order < 0) {
-										return <div className="weui-cell__ft">
-											<img src="/assets/img/maps/bus-blue-small.png" alt=""/>距您还有{_this.state.self_order - station.station_order}站，预计约{(_this.state.self_order - station.station_order)*2}分钟
-										</div>
+								if (direction == "上行") {
+									if (traffic.bus_status == "2" && traffic.prev_station_id == station.station_order) {
+										if (station.station_order - _this.state.self_order < 0) {
+											return <div className="weui-form-preview__item">
+												<label className="weui-form-preview__label"></label>
+												<span className="weui-form-preview__value">
+													<img src="/assets/img/maps/bus-blue-small.png" alt=""/>距您还有{_this.state.self_order - station.station_order}站，预计约{(_this.state.self_order - station.station_order)*2}分钟
+												</span>
+											</div>
+										}
 									}
 								}
-							}
-						})
-					}
+							})
+						}
+					</div>
 				</div>
 			})
 		}
