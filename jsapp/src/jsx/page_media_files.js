@@ -343,6 +343,11 @@ class MediaFilePage extends React.Component {
 		});
 	}
 
+	handleShowDetail() {
+		let url = "/upload/" + this.state.mfile.rel_path;
+		window.open(url);
+	}
+
 	render() {
 		const mfile = this.state.mfile;
 		const _this = this;
@@ -388,7 +393,7 @@ class MediaFilePage extends React.Component {
 
 		switch (media_type) {
 			case "image":
-				mcontrol = <img src={src} style={{maxWidth: "80%", maxHeight: "200px"}}/>
+				mcontrol = <img src={src} style={{maxWidth: "80%", maxHeight: "200px"}} onClick={this.handleShowDetail.bind(this)}/>
 				break;
 			case "audio":
 				if (src.slice(-3) == 'amr') {
