@@ -75,7 +75,8 @@ end
 
 function build_actions(t)
 	for k, v in pairs(t) do
-		actions = actions .. '<action application="' .. v.app .. '" data="' .. nilstr(v.data) .. '"/>'
+		-- actions = actions .. '<action application="' .. v.app .. '" data="' .. nilstr(v.data) .. '"/>'
+		actions = actions .. '<action application="' .. v.app .. '"><![CDATA[' .. nilstr(v.data) .. ']]></action>'
 	end
 end
 
