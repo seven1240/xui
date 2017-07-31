@@ -14,8 +14,8 @@ INSERT INTO dicts (realm, k, v) VALUES ('REALMS', 'TICKET_ACTION', 'TICKET_ACTIO
 
 -- k,v to each realm
 INSERT INTO dicts (realm, k, v) VALUES ('XUI', 'NAME', 'XUI');
-INSERT INTO dicts (realm, k, v) VALUES ('XUI', 'VER', '1.2.0');
-INSERT INTO dicts (realm, k, v) VALUES ('XUI', 'DBVER', '1.2.2');
+INSERT INTO dicts (realm, k, v) VALUES ('XUI', 'VER', '1.3.0');
+INSERT INTO dicts (realm, k, v) VALUES ('XUI', 'DBVER', '1.4.0');
 
 INSERT INTO dicts (realm, k, v) VALUES ('GLOBAL', 'default_password', '1234');
 INSERT INTO dicts (realm, k, v) VALUES ('GLOBAL', 'domain', 'xui');
