@@ -110,34 +110,4 @@ function xFetchJSON(path, options) {
 	});
 }
 
-if (!window.jQuery) {
-
-	/* fake jQuery */
-	window.jQuery = window.$ = {};
-
-	$.ajax = function(options) {
-		options.method = options.type;
-		options.body = options.data;
-		options.headers = {"Content-Type": "application/json"};
-
-		xFetchJSON(options.url, options).then((data) => {
-			options.success(data);
-		}).catch((e) => {
-			if (options.error) options.error(e);
-		});
-	}
-
-	$.getJSON = function(url, cb, cb1) {
-		xFetchJSON(url).then((data) => {
-			if (typeof(cb) == "function") {
-				cb(data);
-			} else if (typeof(cb1) == "function") {
-				cb1(data);
-			}
-		});
-	}
-
-	$.get = $.getJSON;
-}
-
 export {EditControl, xFetch, xFetchJSON};
