@@ -583,12 +583,12 @@ class Comment extends React.Component {
 				method: 'POST',
 				body: JSON.stringify({content: this.state.comment_content})
 			}).then((data) => {
-				ReactDOM.render(<Home/>, document.getElementById('main'));
 				if (serverIds) {
 					xFetchJSON("/api/wechat_upload/xyt/" + data.id + "/comments", {
 						method: 'POST',
 						body: JSON.stringify({serverIds: serverIds, localIds: localIds})
 					}).then((res) => {
+						ReactDOM.render(<Home/>, document.getElementById('main'));
 					}).catch((e) => {
 					});
 				}
