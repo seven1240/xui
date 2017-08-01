@@ -30,6 +30,7 @@ ALTER TABLE ticket_comment_media RENAME created_epoch TO created_at;
 ALTER TABLE wechat_users RENAME created_epoch TO created_at;
 ALTER TABLE wechat_upload RENAME created_epoch TO created_at;
 ALTER TABLE subscriptions RENAME created_epoch TO created_at;
+ALTER TABLE tickets RENAME completed_epoch TO completed_at;
 
 ALTER TABLE routes RENAME updated_epoch TO updated_at;
 ALTER TABLE users RENAME updated_epoch TO updated_at;
