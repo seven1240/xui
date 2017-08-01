@@ -84,7 +84,7 @@ function extract_ip(host)
 	local c = string.find(host, ":")
 
 	if (c) then
-		return host:sub(1, r - 1)
+		return host:sub(1, c - 1)
 	end
 
 	return host
