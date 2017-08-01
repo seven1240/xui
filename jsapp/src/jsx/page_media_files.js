@@ -32,7 +32,7 @@
 
 import React from 'react';
 import T from 'i18n-react';
-import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Radio, Col, ProgressBar } from 'react-bootstrap';
+import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Radio, Col, ProgressBar, Pagination } from 'react-bootstrap';
 import { Link } from 'react-router';
 // http://kaivi.github.io/riek/
 import { RIEToggle, RIEInput, RIETextArea, RIENumber, RIETags, RIESelect } from 'riek'
@@ -503,13 +503,27 @@ class MediaFilePage extends React.Component {
 class MediaFilesPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { formShow: false, recordFormShow: false, rows: [], danger: false, progress: -1, show: false, readonly: false};
+		this.state = {
+			formShow: false,
+			recordFormShow: false,
+			rows: [],
+			danger: false,
+			progress: -1,
+			show: false,
+			readonly: false,
+			curPage: 1,
+			rowCount: 0,
+			pageCount: 0,
+			showSettings: false,
+			rowsPerPage: null
+		};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleControlClick = this.handleControlClick.bind(this);
 		this.handleDelete = this.handleDelete.bind(this);
 		this.onDrop = this.onDrop.bind(this);
 		this.handleSortClick = this.handleSortClick.bind(this);
+		this.handlePageTurn = this.handlePageTurn.bind(this);
 	}
 
 	handleControlClick(data) {
@@ -524,6 +538,8 @@ class MediaFilesPage extends React.Component {
 			this.setState({ recordFormShow: !this.state.recordFormShow, show: false });
 		} else if (data == "record" && this.state.show == false) {
 			this.setState({ recordFormShow: !this.state.recordFormShow, show: true });
+		} else if (data == "settings") {
+			this.setState({ showSettings: !this.state.showSettings });
 		};
 	}
 
@@ -555,9 +571,17 @@ class MediaFilesPage extends React.Component {
 		const readonly = this.props.location.pathname.match(/^\/settings/) ? false : true;
 		const search = this.props.location.search || "";
 
+		const mediafilesPerPage = localStorage.getItem('mediafilesPerPage') || 100;
+		this.setState({ rowsPerPage: mediafilesPerPage });
 		var _this = this;
-		xFetchJSON("/api/media_files" + search).then((data) => {
-			_this.setState({rows: data, readonly: readonly});
+		xFetchJSON("/api/media_files" + search + "?rowPerPage=" + mediafilesPerPage).then((data) => {
+			_this.setState({
+				rows: data.data,
+				readonly: readonly,
+				pageCount: data.pageCount, 
+				rowCount: data.rowCount,
+				curPage: data.curPage
+			});
 		}).catch((msg) => {
 			console.log("get media_files ERR");
 			this.setState({readonly: readonly});
@@ -648,6 +672,30 @@ class MediaFilesPage extends React.Component {
 		this.setState({rows: rows});
 	}
 
+	handlePageTurn (pageNum) {
+		const rowPerPage = localStorage.getItem('mediafilesPerPage') || 100;
+		var qs = "";
+
+		qs = qs + "pageNum=" + pageNum + "&rowPerPage=" + rowPerPage;
+		console.log(qs)
+
+		xFetchJSON("/api/media_files?" + qs).then((media_files) => {
+			this.setState({
+				rows: media_files.data,
+				pageCount: media_files.pageCount, 
+				rowCount: media_files.rowCount,
+				curPage: media_files.curPage
+			});
+		});
+	}
+
+	handleRowsChange(e) {
+		console.log('rows per page', e.target.value);
+		const mediafilesPerPage = parseInt(e.target.value);
+
+		localStorage.setItem("mediafilesPerPage", mediafilesPerPage);
+	}
+
 	render() {
 		let hand = { cursor: "pointer" };
 		const formClose = () => this.setState({ formShow: false });
@@ -670,6 +718,26 @@ class MediaFilesPage extends React.Component {
 			</tr>;
 		})
 
+		let pagination = function() {
+			let maxButtons = 7;
+			if (_this.state.pageCount == 0) return <div></div>
+			if (maxButtons > _this.state.pageCount) maxButtons = _this.state.pageCount;
+			return (
+				<nav className="pull-right">
+					<Pagination
+						prev={T.translate("Prev Page")}
+						next={T.translate("Next Page")}
+						first={T.translate("First Page")}
+						last={T.translate("Last Page")}
+						ellipsis={false}
+						items={_this.state.pageCount}
+						maxButtons={maxButtons}
+						activePage={_this.state.curPage}
+						onSelect={_this.handlePageTurn} />
+				</nav>
+			);
+		}();
+
 		if (_this.state.show == false) {
 			var btng = <ButtonGroup>
 				<Button onClick={() => this.handleControlClick("record")}>
@@ -688,10 +756,15 @@ class MediaFilesPage extends React.Component {
 		
 		return <Dropzone ref={(node) => { this.dropzone = node; }} onDrop={this.onDrop} className="dropzone" activeClassName="dropzone_active" disableClick={true}><div>
 			<NewRecordFile show={this.state.recordFormShow}/>
+			<ButtonGroup className="pull-right">
+				<Button onClick={() => _this.handleControlClick("settings")} title={T.translate("Settings")}>
+					<i className="fa fa-gear" aria-hidden="true"></i>
+				</Button>
+			</ButtonGroup>
 
 			{
 				this.state.readonly ? null :
-				<ButtonToolbar className="pull-right">
+				<ButtonToolbar className="pull-right">				
 				<ButtonGroup>
 					<Button onClick={() => this.handleControlClick("new")}>
 						<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
@@ -710,6 +783,16 @@ class MediaFilesPage extends React.Component {
 				</ButtonToolbar>
 			}
 
+			{
+				!this.state.showSettings ? null :
+				<div style={{position: "absolute", top: "80px", right: "10px", width: "180px", border: "2px solid grey", padding: "10px", zIndex: 999, backgroundColor: "#EEE", textAlign: "right"}}>
+					<T.span text="Paginate Settings"/>
+					<br/>
+					<T.span text="Per Page"/>
+					&nbsp;<input  onChange={this.handleRowsChange.bind(this)} defaultValue={this.state.rowsPerPage} size={3}/>&nbsp;
+					<T.span text="Row"/>
+				</div>
+			}
 
 			<h1><T.span text="Media Files"/>
 			{
@@ -731,6 +814,11 @@ class MediaFilesPage extends React.Component {
 					<th><T.span style={hand} text="Delete" className={danger} onClick={toggleDanger} title={T.translate("Click me to toggle fast delete mode")}/></th>
 				</tr>
 				{rows}
+				<tr>
+					<td colSpan="12">
+						{pagination}
+					</td>
+				</tr>
 				</tbody>
 				</table>
 			</div>

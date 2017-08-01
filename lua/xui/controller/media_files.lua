@@ -40,22 +40,64 @@ xdb.bind(xtra.dbh)
 get('/', function(params)
 	local client = env:getHeader("client")
 	local uuid = env:getHeader("uuid")
+	local pageNum = tonumber(env:getHeader('pageNum'))
+	local rowPerPage = tonumber(env:getHeader('rowPerPage'))
 
-	if client == "BLOCKLY" then
-		n, mfiles = xdb.find_by_cond("media_files", "type IN ('RECORD', 'UPLOAD', 'BLOCKLY')", "id", nil, 100)
-	else
-		if uuid then
-			n, mfiles = xdb.find_by_cond("media_files", {channel_uuid = uuid}, "id DESC", nil, 100)
+	local mfiles = {}
+	local rowCount = 0
+
+	mfiles.pageCount = 0
+	mfiles.rowCount = 0
+	mfiles.curPage = 0
+	mfiles.data = {}
+
+	pageNum = tonumber(pageNum)
+	rowPerPage = tonumber(rowPerPage)
+
+	if not pageNum or pageNum < 0 then
+		pageNum = 1
+	end
+	if not rowPerPage then
+		rowPerPage = 5
+	end
+
+	local cb = function(row)
+		rowCount = tonumber(row.count)
+	end
+
+	xdb.find_by_sql("SELECT count(1) as count FROM media_files", cb)
+
+	if rowCount > 0 then
+		local offset = 0
+		local pageCount = 0
+
+		pageCount = math.ceil(rowCount / rowPerPage);
+
+		if pageNum == 0 then
+			-- It means the last page
+			pageNum = pageCount
+		end
+
+		offset = (pageNum - 1) * rowPerPage
+
+		if client == "BLOCKLY" then
+			n, media_files = xdb.find_by_cond("media_files", "type IN ('RECORD', 'UPLOAD', 'BLOCKLY')", "id", nil, rowPerPage, offset)
 		else
-			n, mfiles = xdb.find_all("media_files", "id DESC", nil, 5000) -- todo fix hardcoded limit
+			if uuid then
+				n, media_files = xdb.find_by_cond("media_files", {channel_uuid = uuid}, "id DESC", nil, rowPerPage, offset)
+			else
+				n, media_files = xdb.find_by_cond("media_files", nil, "id DESC", nil, rowPerPage, offset) -- todo fix hardcoded limit
+			end
+		end
+
+		if (n) then
+			mfiles.rowCount = rowCount
+			mfiles.data = media_files
+			mfiles.curPage = pageNum
+			mfiles.pageCount = pageCount
 		end
 	end
-
-	if (n > 0) then
-		return mfiles
-	else
-		return "[]"
-	end
+	return mfiles
 end)
 
 get('/:id', function(params)
