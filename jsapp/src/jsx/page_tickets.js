@@ -1094,6 +1094,15 @@ class TicketsPage extends React.Component {
 		return <div>
 			<ButtonToolbar className="pull-right">
 				<br/>
+				<Button onClick={this.handleDownload} className="pull-right">
+					<i className="fa fa-download" aria-hidden="true"></i>&nbsp;
+					<T.span text="Export" />
+				</Button>&nbsp;
+				<Button onClick={this.handleControlClick} data="new" className="pull-right">
+					<i className="fa fa-plus" aria-hidden="true" onClick={this.handleControlClick} data="new"></i>&nbsp;
+					<T.span onClick={this.handleControlClick} data="new" text="New" />
+				</Button>
+				<br/><br/>
 				<div style={{display: 'inline'}}>
 					<T.span text="Last"/> &nbsp;
 					<T.a onClick={this.handleQuery} text={{key:"days", day: 7}} data="7" href="#"/>&nbsp;|&nbsp;
@@ -1103,15 +1112,6 @@ class TicketsPage extends React.Component {
 					<T.a onClick={this.handleQuery} text={{key:"days", day: 90}} data="90" href="#"/>&nbsp;|&nbsp;
 					<T.a onClick={this.handleMore} text="More" data="more" href="#"/>...
 				</div>
-				&nbsp;
-				<Button onClick={this.handleDownload}>
-					<i className="fa fa-download" aria-hidden="true"></i>&nbsp;
-					<T.span text="Export" />
-				</Button>&nbsp;
-				<Button onClick={this.handleControlClick} data="new">
-					<i className="fa fa-plus" aria-hidden="true" onClick={this.handleControlClick} data="new"></i>&nbsp;
-					<T.span onClick={this.handleControlClick} data="new" text="New" />
-				</Button>
 			</ButtonToolbar>
 
 			<h1 style={{float: "left"}}><T.span text="Tickets" />&nbsp;&nbsp;&nbsp;&nbsp;</h1>
