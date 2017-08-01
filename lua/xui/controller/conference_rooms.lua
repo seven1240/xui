@@ -60,6 +60,18 @@ get('/:id', function(params)
 		if room.cluster then -- turn JSON string to a JSON Object
 			room.cluster = utils.json_decode(room.cluster)
 		end
+
+		if room.banner and room.banner ~= '' then
+			room.banner = utils.json_decode(room.banner)
+		else
+			room.banner = {
+				fgColor = '#FFFFFF',
+				bgColor = '#000000',
+				fontFace='/usr/local/freeswitch/fonts/FreeMono.ttf',
+				fontScale = '2',
+				text = ''
+			}
+		end
 		return room
 	else
 		return 404

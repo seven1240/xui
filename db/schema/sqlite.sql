@@ -279,6 +279,7 @@ CREATE TABLE conference_rooms (
 	video_mode VARCHAR,
 	call_perm VARCHAR,
 	cluster TEXT,
+	banner VARCHAR,
 
 	created_at DATETIME DEFAULT (DATETIME('now', 'localtime')),
 	updated_at DATETIME DEFAULT (DATETIME('now', 'localtime')),

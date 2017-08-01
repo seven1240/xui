@@ -227,6 +227,16 @@ xdb.find_by_sql(sql, function(row)
 				end
 			end
 
+			if false and room.banner then
+				banner = utils.json_decode(room.banner)
+				banner_text = "{font_face=" .. banner.fontFace ..
+					",font_scale=" .. banner.fontScale ..
+					",bg=" .. banner.bgColor ..
+					",fg=" .. banner.fgColor .. "}" ..
+					banner.text
+				table.insert(actions_table, {app = "set", data = "video_banner_text=" .. banner_text})
+			end
+
 			if room then
 				conf_name = room.nbr
 			else
