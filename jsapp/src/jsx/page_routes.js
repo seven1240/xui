@@ -151,7 +151,7 @@ class NewRoute extends React.Component {
 			method: "POST",
 			body: JSON.stringify(route)
 		}).then((obj) => {
-			_this.props.handleNewRouteAdded(obj);
+			_this.props.handleNewRouteAdded([obj]);
 		}).catch((msg) => {
 			console.error("route", msg);
 			_this.setState({errmsg: '' + msg});
