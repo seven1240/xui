@@ -72,3 +72,9 @@ sync:
 
 xswitch:
 	scp -r lua www root@xswitch.cn:/usr/local/freeswitch/xui/
+
+sqlite-init:
+	make -C db/schema init
+
+pg-init:
+	make -C db/schema initpg
