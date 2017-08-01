@@ -835,19 +835,19 @@ class ConferenceRoom extends React.Component {
 					<Col sm={4}><EditControl edit={this.state.edit} componentClass="textarea" name="cluster" defaultValue={cluster} placeholder="ip:port weight"/></Col>
 				</FormGroup>
 				<FormGroup className="xrowb">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Name Display"/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Banner Display"/></Col>
 					<Col sm={4}><EditControl edit={this.state.edit} name="text" defaultValue={this.state.room.banner.text}/></Col>
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Name Scale" /></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Banner Scale" /></Col>
 					<Col sm={4}><EditControl edit={this.state.edit} name="fontScale" defaultValue={this.state.room.banner.fontScale}/></Col>
 				</FormGroup>
 				<FormGroup className="xrowb">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Name Background Color" /></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Banner Background Color" /></Col>
 					<Col sm={4}>
 						<input type="color" name="bg" value={_this.state.bgColor} onChange = {_this.handleChange.bind(this)}/>
 					</Col>
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Name Foreground Color" /></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Banner Foreground Color" /></Col>
 					<Col sm={4}>
-						<input type="color" name="fg" value={_this.state.room.fgColor} onChange = {_this.handleChange.bind(this)}/>
+						<input type="color" name="fg" value={_this.state.fgColor} onChange = {_this.handleChange.bind(this)}/>
 					</Col>
 				</FormGroup>
 			</Form>
