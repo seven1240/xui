@@ -289,7 +289,7 @@ class Home extends React.Component {
 			const wechat_img = !comment.mfiles ? null : comment.mfiles.map((mfile) => {
 				const thumb = '/upload/' + (mfile.thumb ? mfile.thumb : mfile.src);
 				const path = '/upload/' + mfile.src;
-
+				const mu_path = path.replace(/.mp4/,".m3u8");
 				if (!mfile.mime) return null;
 
 				console.log(mfile);
@@ -304,7 +304,7 @@ class Home extends React.Component {
 						</span>
 				} else if (mfile.mime.indexOf('video') == 0) {
 					return <span>
-							<video controls webkit-playsinline playsinline><source src={path} type="video/mp4"/></video>
+							<video controls webkit-playsinline playsinline style={{"width":"80px","height":"80px"}}><source src={mu_path} type="video/mp4"/></video>
 						</span>
 				}
 			});

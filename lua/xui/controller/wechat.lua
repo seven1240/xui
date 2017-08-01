@@ -503,8 +503,23 @@ post('/:realm', function(params)
 
 			rel_path = prefix .. os.date('%Y%m%d%H%M%S-') .. MediaId .. "." .. ext
 			local_path = config.upload_path .. "/" .. rel_path
-			wget = "wget -O " .. local_path .. " '" .. url .. "'"
-			os.execute(wget)
+
+			if MsgType == "voice" then
+				amr_path = config.upload_path .. "/" .. prefix .. os.date('%Y%m%d%H%M%S-') .. MediaId .. ".amr"
+				wget = "wget -O " .. amr_path .. " '" .. url .. "'"
+				os.execute(wget)
+				os.execute("ffmpeg -i " .. amr_path .. " -ar 44100 -ab 128k " .. local_path)
+				os.execute("rm " .. amr_path)
+			elseif MsgType == "video" then
+				wget = "wget -O " .. local_path .. " '" .. url .. "'"
+				os.execute(wget)
+				local ffmpeg = "ffmpeg -i " .. local_path .. " -f segment -codec copy -map 0 -vbsf h264_mp4toannexb -flags -global_header -segment_format mpegts -segment_list " .. config.upload_path .. "/" .. prefix .. os.date('%Y%m%d%H%M%S-') .. MediaId .. ".m3u8" .. " -segment_time 10 -segment_list_entry_prefix " .. config.wechat_base_url .. "/upload/ -segment_list_size 20 /usr/local/freeswitch/storage/upload/" .. MediaId .. "-%03d.ts"
+				freeswitch.consoleLog("ERR",ffmpeg)
+				os.execute(ffmpeg)
+			else
+				wget = "wget -O " .. local_path .. " '" .. url .. "'"
+				os.execute(wget)
+			end
 
 			local f = io.open(local_path, "rb")
 
