@@ -509,7 +509,7 @@ CREATE TABLE ticket_comments (
 	avatar_url VARCHAR,
 	action VARCHAR,
 	subject VARCHAR,
-	content VARCHAR,
+	content TEXT,
 
 	created_at TIMESTAMP(0) DEFAULT now(),
 	updated_at TIMESTAMP(0) DEFAULT now(),
