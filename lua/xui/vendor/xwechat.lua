@@ -30,8 +30,6 @@
  */
 ]]
 
-require 'xtra_config'
-
 local do_debug = false
 -- do_debug = true
 
@@ -136,7 +134,39 @@ xwechat.redirect_uri = function(appid, redirect_uri, state)
 			"#wechat_redirect"
 end
 
-xwechat.send_ticket_notification = function(realm, openid, redirect_uri, subject, from, content, template_id)
+xwechat.send_xyt_ticket_notification = function(realm, openid, redirect_uri, subject, from, content)
+	if #content > 40 then
+		require 'utils'
+		content = utils.utf8sub(content, 1, 40)
+	end
+
+	local msg = {}
+	msg.touser = openid
+	msg.template_id = "7cYHIHuEJe5cKey0KOKIaCcjhUX2vEVHt1NcUAPm7xc"
+	msg.url = redirect_uri
+	msg.data = {}
+	msg.data.fist = {}
+	msg.data.fist.value = subject
+	msg.data.fist.color = '#173177'
+	msg.data.keyword1 = {}
+	msg.data.keyword1.value = subject
+	msg.data.keyword1.color = '#173177'
+	msg.data.keyword2 = {}
+	msg.data.keyword2.value = os.date("%Y年%m月%d日%H时%M分")
+	msg.data.keyword2.color = '#173177'
+	msg.data.keyword3 = {}
+	msg.data.keyword3.value = from
+	msg.data.keyword3.color = '#173177'
+	msg.data.remark = {}
+	msg.data.remark.value = content
+	msg.data.remark.color = '#173177'
+	json_text = utils.json_encode(msg)
+	print(json_text)
+
+	return xwechat.send_template_msg(realm, json_text)
+end
+
+xwechat.send_zyjt_ticket_notification = function(realm, openid, redirect_uri, subject, from, content)
 	if #content > 40 then
 		require 'utils'
 		content = utils.utf8sub(content, 1, 40)
@@ -157,7 +187,7 @@ xwechat.send_ticket_notification = function(realm, openid, redirect_uri, subject
 	msg.data.keyword2.value = os.date("%Y年%m月%d日%H时%M分")
 	msg.data.keyword2.color = '#173177'
 	msg.data.keyword3 = {}
-	msg.data.keyword3.value = "招远交通委" --模板内此选项为地址，等到可以重新选择模板选取有执行人选项的模板
+	msg.data.keyword3.value = "招远交通委"
 	msg.data.keyword3.color = '#173177'
 	msg.data.remark = {}
 	msg.data.remark.value = content

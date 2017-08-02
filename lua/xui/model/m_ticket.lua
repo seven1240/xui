@@ -33,12 +33,11 @@
 require 'xdb'
 require 'm_dict'
 require 'xwechat'
-
+require 'xtra_config'
 
 m_ticket = {}
 
 m_ticket.send_wechat_notification = function(realm, user_id, redirect_uri, subject, from, content)
-
 	local weuser = xdb.find_one("wechat_users", {user_id = user_id})
 
 	if weuser then
@@ -47,7 +46,11 @@ m_ticket.send_wechat_notification = function(realm, user_id, redirect_uri, subje
 		token = xwechat.get_token(realm, wechat.APPID, wechat.APPSEC)
 		redirect_uri = xwechat.redirect_uri(wechat.APPID, redirect_uri, "200")
 
-		return xwechat.send_ticket_notification(realm, weuser.openid, redirect_uri, subject, from, content)
+		if config.wechat_name == "xyt" then
+			return xwechat.send_xyt_ticket_notification(realm, weuser.openid, redirect_uri, subject, from, content)
+		elseif config.wechat_name == "zyjt" then
+			return xwechat.send_zyjt_ticket_notification(realm, weuser.openid, redirect_uri, subject, from, content)
+		end
 	end
 end
 
