@@ -586,11 +586,11 @@ class TicketPage extends React.Component {
 			}else if ( vasrc.slice(-3) == 'png' || vasrc.slice(-3) == 'jpg' ) {
 				va = <img src={vasrc} style={{width: _this.state.picWidth, height: ""}} onClick={_this.handleShowPic}/>
 			}
-		    var content =  _.indexOf(idArray, row.id) != -1 ? va : <p>{row.content}</p>;
+		    var content =  _.indexOf(idArray, row.id) != -1 ? va : <EditControl componentClass="textarea" defaultValue={row.content}/>
 			let style = {width: '40px'};
 			return <Row key={row.id}>
 				<Col componentClass={ControlLabel} sm={1} smOffset={2}><img src={src} style={style}/></Col>
-				<Col sm={6}> <strong>{row.user_name}</strong>&nbsp;<small>{row.created_at}</small>
+				<Col sm={7}> <strong>{row.user_name}</strong>&nbsp;<small>{row.created_at}</small>
 					<br/><br/>{content}
 				</Col>
 			</Row>
