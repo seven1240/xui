@@ -113,12 +113,12 @@ class TabContent extends React.Component {
 		let channelCallState = user.channelCallState ? user.channelCallState : "idle";
 		let userCallStateStyle = "";
 		let userTextStyle = "";
-		let userImageUrl = user.registerState == "registered" ? "/assets/img/phone-green.png" : "/assets/img/phone-grey.png";
+		let userImageUrl = channelCallState == "ringing" ? "/assets/img/phone-green.png" : "/assets/img/phone-grey.png";
 
 		let userSelectedClass = user.selectedState == "selected" ? "user-selected" : "";
 		let userCallClass = channelCallState!= "idle" ? "td_" + channelCallState : "";
 		let textClass = channelCallState!= "idle" ? "user-text" : "text-default";
-		let divClass = userSelectedClass + " " + " user-item btn btn-default";
+		let divClass = user.registerState == "registered" ? userSelectedClass + " " + " user-item-active btn btn-default" : userSelectedClass + " " + " user-item btn btn-default";
 		let userRegStateText = user.registerState == "registered" ? "Online" : "Offline";
 		let userCallStateText = "Idle";
 
