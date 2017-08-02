@@ -25,3 +25,9 @@ out
 lua/xui/xtra_config.lua
 
 VERSION
+
+lua/xui/controller/wechat.lua
+lua/xui/controller/wechat_upload.lua
+www/assets/js/bus.*.js
+www/assets/js/wechat.*.js
+
