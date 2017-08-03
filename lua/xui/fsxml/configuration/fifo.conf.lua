@@ -38,7 +38,7 @@ function build_members(fifo)
 			if not (fifo.record_template == "") then
 				fifo_record_template = fifo.record_template
 			else
-				fifo_record_template = [[fifo_record_template=$${base_dir}/storage/recordings/]] .. "fifo-record-" .. '${strftime(%Y%m%d-%H%M%S)}' .. "-" .. '${create_uuid()}' .. '.wav,'
+				fifo_record_template = [[fifo_record_template=$${base_dir}/storage/recordings/]] .. "fifo-record-" .. '${strftime(%Y%m%d-%H%M%S)}' .. "-" .. '${create_uuid()}' .. '.mp3,'
 			end
 		end
 
