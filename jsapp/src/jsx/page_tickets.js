@@ -555,6 +555,17 @@ class TicketPage extends React.Component {
 		this.setState({	picWidth: this.state.picWidth == '50%' ? '100%' : '50%'	});
 	}
 
+	handleDelete(id) {
+		var _this = this;
+		xFetchJSON("/api/tickets/" + id, {method: "DELETE"}).then(() => {
+			console.log("ticket deleted");
+			alert('This ticket has been deleted');
+		}).catch((msg) => {
+			console.error("user", msg);
+			notify(msg, 'error');
+		});
+	}
+
 	render() {
 		const idArray = this.state.media_files.map((m) => {
 			return m.comment_id;
@@ -792,6 +803,12 @@ class TicketPage extends React.Component {
 				<Button onClick={this.handleControlClose}><i className="fa fa-check-square" aria-hidden="true"></i>&nbsp;<T.span text="Finished"/></Button>
 				{ savebtn }
 				<Button onClick={this.handleControlClick}><i className="fa fa-edit" aria-hidden="true"></i>&nbsp;<T.span text="Edit"/></Button>
+			</ButtonGroup>
+
+			<ButtonGroup>
+				<Link to={`/tickets`} className="btn btn-danger" onClick={() => _this.handleDelete(ticket.id)}>
+						<i className="fa fa-times" aria-hidden="true"></i>&nbsp;<T.span text="Delete"/>
+				</Link>
 			</ButtonGroup>
 			</ButtonToolbar>
 
@@ -1055,6 +1072,7 @@ class TicketsPage extends React.Component {
 				<td>{row.cid_number}</td>
 				<td>{row.subject}</td>
 				<td>{row.created_at}</td>
+				<td>{row.deadline}</td>
 				<td><T.span text={row.status} style={style}/></td>
 				<td><T.a style={hand} onClick={_this.handleDelete} data-id={row.id} text="Delete" className={danger}/></td>
 			</tr>
@@ -1149,6 +1167,7 @@ class TicketsPage extends React.Component {
 						<th><T.span text="CID Number"/></th>
 						<th><T.span text="Subject"/></th>
 						<th><T.span text="Created At"/></th>
+						<th><T.span text="Deadline"/></th>
 						<th><T.span text="Status"/></th>
 						<th><T.span style={hand} text="Delete" className={danger} onClick={toggleDanger} title={T.translate("Click me to toggle fast delete mode")}/></th>
 					</tr>
