@@ -979,18 +979,18 @@ class Settings extends React.Component {
 		var _this = this;
 		if (_this.state.user_state) {
 			var work_radio = <span>
-								<input type="radio" defaultChecked="checked" name="work" onChange={() => _this.onWork()}/>
+								<input type="radio" defaultChecked="checked" name="work" onClick={() => _this.onWork()}/>
 								上班
 								&nbsp;&nbsp;&nbsp;
-								<input type="radio" name="work" onChange={() => _this.afterWork()}/>
+								<input type="radio" name="work" onClick={() => _this.afterWork()}/>
 								下班
 							</span>
 		} else {
 			var work_radio = <span>
-								<input type="radio" name="work" onChange={() => _this.onWork()}/>
+								<input type="radio" name="work" onClick={() => _this.onWork()}/>
 								上班
 								&nbsp;&nbsp;&nbsp;
-								<input type="radio" defaultChecked="checked" name="work" onChange={() => _this.afterWork()}/>
+								<input type="radio" defaultChecked="checked" name="work" onClick={() => _this.afterWork()}/>
 								下班
 							</span>
 		}
