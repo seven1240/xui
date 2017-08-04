@@ -558,7 +558,7 @@ class UserList extends React.Component {
 class Comment extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {content: [], localIds: [], serverIds: []};
+		this.state = {content: [], localIds: [], serverIds: [], comment_content: null};
 	}
 
 	componentDidMount() {
@@ -575,26 +575,32 @@ class Comment extends React.Component {
 	}
 
 	addComments(e) {
-		console.log('submit', this.state.comment_content);
-		const serverIds = this.state.serverIds;
-		const localIds = this.state.localIds;
-		if (this.state.comment_content) {
-			xFetchJSON("/api/tickets/" + current_ticket_id + "/comments", {
-				method: 'POST',
-				body: JSON.stringify({content: this.state.comment_content})
-			}).then((data) => {
-				if (serverIds) {
-					xFetchJSON("/api/wechat_upload/xyt/" + data.id + "/comments", {
-						method: 'POST',
-						body: JSON.stringify({serverIds: serverIds, localIds: localIds})
-					}).then((res) => {
-						ReactDOM.render(<Home/>, document.getElementById('main'));
-					}).catch((e) => {
-					});
-				}
-			}).catch((e) => {
-			});
+		var _this = this;
+		const serverIds = _this.state.serverIds;
+		const localIds = _this.state.localIds;
+		if (!_this.state.comment_content && serverIds.length == 0) {
+			return false;
 		}
+		if (!_this.state.comment_content) {
+			_this.state.comment_content = "上传了图片:";
+		}
+		xFetchJSON("/api/tickets/" + current_ticket_id + "/comments", {
+			method: 'POST',
+			body: JSON.stringify({content: _this.state.comment_content})
+		}).then((data) => {
+			if (serverIds) {
+				xFetchJSON("/api/wechat_upload/xyt/" + data.id + "/comments", {
+					method: 'POST',
+					body: JSON.stringify({serverIds: serverIds, localIds: localIds})
+				}).then((res) => {
+					ReactDOM.render(<Home/>, document.getElementById('main'));
+				}).catch((e) => {
+				});
+			}else {
+				ReactDOM.render(<Home/>, document.getElementById('main'));
+			}
+		}).catch((e) => {
+		});
 	}
 
 	noComments() {
