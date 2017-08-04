@@ -835,7 +835,7 @@ class ConferenceRoom extends React.Component {
 					<Col sm={4}><EditControl edit={this.state.edit} componentClass="textarea" name="cluster" defaultValue={cluster} placeholder="ip:port weight"/></Col>
 				</FormGroup>
 				<FormGroup className="xrowb">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Banner Display"/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Banner Text"/></Col>
 					<Col sm={4}><EditControl edit={this.state.edit} name="text" defaultValue={this.state.room.banner.text}/></Col>
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Banner Scale" /></Col>
 					<Col sm={4}><EditControl edit={this.state.edit} name="fontScale" defaultValue={this.state.room.banner.fontScale}/></Col>
