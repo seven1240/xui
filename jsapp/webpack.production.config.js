@@ -60,16 +60,6 @@ var config = {
             chunks: ['react', 'index']
         }),
 
-        new HtmlWebpackPlugin({
-            filename: '../../lua/xui/view/wechat/tickets1.html',
-            template: './tickets.html',
-            inject: true,
-            chunks: ['react', 'wechat'],
-            output: {
-                publicPath: '/assets'
-            }
-        }),
-
         new WebpackMd5Hash(),
 
         new ExtractTextPlugin("./css/xui.[chunkhash:8].css"),
