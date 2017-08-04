@@ -559,7 +559,7 @@ class TicketPage extends React.Component {
 		var _this = this;
 		xFetchJSON("/api/tickets/" + id, {method: "DELETE"}).then(() => {
 			console.log("ticket deleted");
-			alert(T.translate('This ticket has been deleted'));
+			notify(<T.span text="This ticket has been deleted"/>, "error");
 		}).catch((msg) => {
 			console.error("user", msg);
 			notify(msg, 'error');
