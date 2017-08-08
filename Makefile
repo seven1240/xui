@@ -25,8 +25,7 @@ init:
 
 setup: init
 	cd jsapp && \
-	npm install #&& \
-#	bower install
+	npm install
 
 link:
 	ln -sf /usr/local/freeswitch/storage/* www/
