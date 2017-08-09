@@ -56,6 +56,38 @@ get('/:id', function(params)
 	end
 end)
 
+get('/:id/members', function(params)
+	n, user_devices = xdb.find_by_cond("user_devices", {device_id = params.id})
+	n, users = xdb.find_all("users")
+	members = {}
+
+	for i, v in ipairs(users)
+	do
+		for j, x in ipairs(user_devices)
+		do
+			if x.user_id == v.id then
+				members[j] = v
+			end
+		end
+	end
+
+	if user_devices then
+		return members
+	else
+		return "{}"
+	end
+end)
+
+get('/:id/remain_members', function(params)
+	sql = "SELECT * from users WHERE id NOT IN (SELECT user_id from user_devices WHERE user_id is not null AND device_id = '" .. params.id .. "');"
+	n, members = xdb.find_by_sql(sql)
+	if n > 0 then
+		return members
+	else
+		return '[]'
+	end
+end)
+
 put('/:id', function(params)
 	print(serialize(params))
 	ret = xdb.update("devices", params.request)
@@ -78,8 +110,42 @@ post('/', function(params)
 	end
 end)
 
+post('/members', function(params)
+	local members = params.request
+
+	for k, v in pairs(members) do
+		if type(v) == "table" then
+			xdb.create('user_devices', v)
+		end
+	end
+	return "{}"
+end)
+
 delete('/:id', function(params)
 	ret = xdb.delete("devices", params.id);
+
+	if ret == 1 then
+		return 200, "{}"
+	else
+		return 500, "{}"
+	end
+end)
+
+
+delete('/members/:device_id', function(params)
+	ret = xdb.delete("user_devices", {device_id = params.device_id});
+
+	if ret >= 0 then
+		return 200, "{}"
+	else
+		return 500, "{}"
+	end
+end)
+
+
+delete('/member/:id/:device_id', function(params)
+	ret = xdb.delete("user_devices", {device_id = params.id, user_id = params.device_id});
+	print('12345678', ret)
 
 	if ret == 1 then
 		return 200, "{}"

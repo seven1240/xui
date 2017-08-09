@@ -599,6 +599,7 @@ LANGUAGES["zh"] = {
 	"Ticket Privilege": "权限",
 	Devices: "设备",
 	Device: "设备",
+	"Device Members": "设备成员",
 	"Create New Device": "新建设备",
 	Vendor: "供应商",
 	Export: "导出",

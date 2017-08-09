@@ -33,6 +33,7 @@
 import React from 'react';
 import T from 'i18n-react';
 import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Radio, Col } from 'react-bootstrap';
+import Select from 'react-select';
 import { Link } from 'react-router';
 import { RIEToggle, RIEInput, RIETextArea, RIENumber, RIETags, RIESelect } from 'riek'
 import { EditControl, xFetchJSON } from './libs/xtools'
@@ -125,7 +126,8 @@ class DevicePage extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {errmsg: '', dt: {}, edit: false, device_users: []};
+		this.state = {errmsg: '', dt: {}, edit: false, members: [], 
+			ifShow: "none", select_value: [], user_remain: [],users: []};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -151,6 +153,83 @@ class DevicePage extends React.Component {
 
 	handleControlClick(e) {
 		this.setState({edit: !this.state.edit});
+		let ifShow = this.state.ifShow == "none" ? "block" : "none";
+		this.setState({ifShow: ifShow});
+	}
+
+	handleDelete(e) {
+		e.preventDefault();
+
+		var member_id = e.target.getAttribute("data-id");
+		console.log("deleting id", member_id);
+
+		if (!this.state.danger) {
+			var c = confirm(T.translate("Confirm to Delete ?"));
+			if (!c) return;
+		}
+
+		xFetchJSON("/api/devices/member/" + this.props.params.id + "/" + member_id, {
+			method: "DELETE"
+		}).then((obj) => {
+			console.log("deleted");
+			this.handleGetDeviceMembers();
+			this.handleGetReaminMembers();
+		}).catch((msg) => {
+			console.error("member ", msg);
+		});
+	}
+
+	handleSelectChange(value) {
+		this.setState({select_value: value});
+		console.log('select_value', value);
+	}
+
+	handleGetDeviceMembers() {
+		xFetchJSON("/api/devices/" + this.props.params.id + "/members").then((data) => {
+			this.setState({members: data});
+		});
+	}
+
+	handleGetReaminMembers() {
+		xFetchJSON("/api/devices/" + this.props.params.id + "/remain_members").then((data) => {
+			this.setState({users: data});
+		}).catch((msg) => {
+			console.log("get remain users ERR", msg);
+		});
+	}
+
+	handleDeleteMembers () {
+		if (!this.state.danger) {
+			var c = confirm(T.translate("Confirm to Delete ?"));
+			if (!c) return;
+		}
+		xFetchJSON("/api/devices/members/" + this.props.params.id, {
+			method: "DELETE"
+		}).then((obj) => {
+			console.log("deleted", obj)
+			this.handleGetDeviceMembers();
+			this.handleGetReaminMembers();
+		}).catch((msg) => {
+			console.error("groups members ", msg);
+		});
+	}
+
+	handleMembersAdded () {
+		const device_id = this.props.params.id;
+		const members = JSON.stringify(this.state.select_value.map(function(select) {
+			return {device_id: device_id, user_id: select.value}
+		}));
+
+		xFetchJSON("/api/devices/members", {
+			method: "POST",
+			body: members
+		}).then((obj) => {
+			this.handleGetDeviceMembers();
+			this.handleGetReaminMembers();
+			this.setState({select_value: []});
+		}).catch((msg) => {
+			console.error("member", msg);
+		});
 	}
 
 	componentDidMount() {
@@ -161,10 +240,20 @@ class DevicePage extends React.Component {
 		}).catch((msg) => {
 			console.log("get device ERR");
 		});
+
+		xFetchJSON("/api/devices/"+ this.props.params.id +"/members").then((data) => {
+			console.log("if there data", data);
+			_this.setState({members: data});
+		}).catch((e) => {
+			console.error("error", e);
+		});
+		this.handleGetDeviceMembers();
+		this.handleGetReaminMembers();
 	}
 
 	render() {
 		const dt = this.state.dt;
+		let _this = this;
 		let save_btn = "";
 		let err_msg = "";
 		var userlist = [];
@@ -172,6 +261,20 @@ class DevicePage extends React.Component {
 		if (this.state.edit) {
 			save_btn = <Button onClick={this.handleSubmit}><i className="fa fa-save" aria-hidden="true"></i>&nbsp;<T.span text="Save"/></Button>
 		}
+
+		const member_options = this.state.users.map(function(member) {
+			return {label: member.name + "|" + member.extn, value: member.id}
+		});
+
+		let members = this.state.members.map(function(member) {
+			return <tr key={member.id}>
+					<td>{member.name}</td>
+					<td>{member.extn}</td>
+					<td style={{textAlign: "right"}}>
+						<T.a onClick={_this.handleDelete.bind(_this)} data-id={member.id} text="Delete" href="#"/>
+					</td>
+			</tr>
+		});
 
 		return <div>
 			<ButtonToolbar className="pull-right" onClick={this.handleControlClick}>
@@ -205,12 +308,27 @@ class DevicePage extends React.Component {
 					<Col componentClass={ControlLabel} sm={2}><T.span text="MAC"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} name="mac" defaultValue={dt.mac}/></Col>
 				</FormGroup>
-
-				<FormGroup controlId="formSave">
-					<Col componentClass={ControlLabel} sm={2}></Col>
-					<Col sm={10}>{save_btn}</Col>
-				</FormGroup>
 			</Form>
+
+			<h2><T.span text="Device Members"/></h2><br/>
+			<ButtonToolbar style={{"display": _this.state.ifShow}}>
+				<Select style={{ minWidth:"160px", maxWidth:"300px"}} name="multi-select" multi={true} className="pull-left" value={this.state.select_value} placeholder={T.translate('Please Select')} options={member_options} onChange={this.handleSelectChange.bind(this)}/>
+				<Button onClick={this.handleMembersAdded.bind(this)} bsStyle="primary" className="pull-left">{T.translate("Add Member(s)")}</Button>
+				<Button onClick={this.handleDeleteMembers.bind(this)} bsStyle="danger" className="pull-right">{T.translate("Remove All Member(s)")}</Button>
+			</ButtonToolbar>
+			<br/>
+			<table className="table">
+				<tbody>
+				<tr>
+					<th><T.span text="Name"/></th>
+					<th><T.span text="Number"/></th>
+					<th style={{textAlign: "right"}}>
+						<T.span style={{cursor: "pointer" }} text="Delete" title={T.translate("Click me to toggle fast delete mode")}/>
+					</th>
+				</tr>
+				{members}
+				</tbody>
+			</table>
 		</div>
 	}
 }
