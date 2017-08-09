@@ -329,7 +329,7 @@ END;
 CREATE TABLE user_devices (
 	id INTEGER PRIMARY KEY,
 	user_id INTEGER NOT NULL,
-	mac_id VARCHAR NOT NULL,
+	device_id VARCHAR NOT NULL,
 
 	created_at DATETIME DEFAULT (DATETIME('now', 'localtime')),
 	updated_at DATETIME DEFAULT (DATETIME('now', 'localtime')),

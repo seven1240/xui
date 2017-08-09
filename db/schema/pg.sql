@@ -257,7 +257,7 @@ CREATE TABLE devices (
 CREATE TABLE user_devices (
 	id SERIAL PRIMARY KEY,
 	user_id SERIAL NOT NULL,
-	mac_id VARCHAR NOT NULL,
+	device_id VARCHAR NOT NULL,
 
 	created_at TIMESTAMP(0) DEFAULT now(),
 	updated_at TIMESTAMP(0) DEFAULT now(),
