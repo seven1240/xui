@@ -200,7 +200,7 @@ class IvrInfo extends React.Component {
 				_this.setState({tones: data});
 			});
 		xFetchJSON( "/api/media_files").then((data) => {
-			_this.setState({media_files: data});
+			_this.setState({media_files: data.data});
 		});
 
 	}
@@ -551,7 +551,7 @@ class IvrPage extends React.Component {
 			console.log("get groups ERR");
 		});
 		xFetchJSON( "/api/media_files").then((data) => {
-			_this.setState({media_files: data});
+			_this.setState({media_files: data.data});
 		});
 	}
 

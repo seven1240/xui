@@ -572,7 +572,7 @@ var toolbox = `<xml id="toolbox" style="display: none">
 		xFetchJSON('/api/media_files?client=BLOCKLY').then((obj) => {
 			console.log("data", obj);
 
-			obj.forEach(function(row) {
+			obj.data.forEach(function(row) {
 				_this.fs_file_path_dropdown_data.push([row.name, row.abs_path]);
 			});
 		});

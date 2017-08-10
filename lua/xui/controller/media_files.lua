@@ -81,7 +81,7 @@ get('/', function(params)
 		offset = (pageNum - 1) * rowPerPage
 
 		if client == "BLOCKLY" then
-			n, media_files = xdb.find_by_cond("media_files", "type IN ('RECORD', 'UPLOAD', 'BLOCKLY')", "id", nil, rowPerPage, offset)
+			n, media_files = xdb.find_by_cond("media_files", "type IN ('RECORD', 'UPLOAD', 'BLOCKLY')", "id", nil, 100)
 		else
 			if uuid then
 				n, media_files = xdb.find_by_cond("media_files", {channel_uuid = uuid}, "id DESC", nil, rowPerPage, offset)
@@ -90,7 +90,7 @@ get('/', function(params)
 			end
 		end
 
-		if (n) then
+		if n > 0 then
 			mfiles.rowCount = rowCount
 			mfiles.data = media_files
 			mfiles.curPage = pageNum
