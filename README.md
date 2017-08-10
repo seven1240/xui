@@ -26,11 +26,16 @@ CSS/JS/HTML: https://github.com/felixge/Node-style-guide
 
 ### Install npm (optional)
 
+* Linux
+
 need recent version of npm, check <https://docs.npmjs.com/getting-started/what-is-npm> for more info.
 
     curl -sL https://deb.nodesource.com/setup_4.x | bash -
     apt-get install -y nodejs
 
+* Mac
+
+    brew install npm
 
 ### Install npm tools
 
@@ -78,9 +83,11 @@ or, if your freeswitch is not installed in /usr/local/freeswitch
 
 prepare:
 
+    mkdir /usr/local/freeswitch/storage/{recordings,upload}
+
     make setup
 
-or if you are in China:
+or if you are in China you could:
 
     make csetup
 
