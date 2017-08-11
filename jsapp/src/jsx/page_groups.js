@@ -158,7 +158,7 @@ class GroupMembers extends React.Component {
 		return <div>
 			<h2><T.span text="Group Members"/></h2><br/>
 			<ButtonToolbar>
-				<Select style={{ minWidth:"160px", maxWidth:"300px"}} name="multi-select" multi="true" className="pull-left" value={this.state.select_value} placeholder={T.translate('Please Select')} options={member_options} onChange={this.handleSelectChange.bind(this)}/>
+				<Select style={{ minWidth:"160px", maxWidth:"300px"}} name="multi-select" multi={true} className="pull-left" value={this.state.select_value} placeholder={T.translate('Please Select')} options={member_options} onChange={this.handleSelectChange.bind(this)}/>
 				<Button bsStyle="primary" onClick={this.handleMembersAdded.bind(this)} className="pull-left">{T.translate("Add Member(s)")}</Button>
 				<Button bsStyle="danger" className="pull-right" onClick={this.handleDeleteMembers.bind(this)}>{T.translate("Remove All Member(s)")}</Button>
 			</ButtonToolbar>
