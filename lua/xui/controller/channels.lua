@@ -93,7 +93,7 @@ function build_application(params)
 			if cid then
 				appstr = "set:effective_caller_id_number=" .. cid .. ","
 			end
-			appstr = appstr .. params.app .. ":'" .. params.args .. " XML ecc'"
+			appstr = appstr .. params.app .. ":'" .. params.args .. " XML default'"
 		elseif params.app == "bridge" then
 			params.args = build_dial_params("origination_caller_id_number", request.cidNumber2 or request.cidNumber, false) ..
 				build_dialstr(params.args)
