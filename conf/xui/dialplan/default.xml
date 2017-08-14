@@ -189,6 +189,18 @@
       <action application="hangup"/>
     </condition>
   </extension>
+
+  <extension name="record_fsv">
+    <condition field="destination_number" expression="^9193$">
+      <action application="record_fsv" data="/tmp/testrecord.fsv"/>
+    </condition>
+  </extension>
+
+  <extension name="play_fsv">
+    <condition field="destination_number" expression="^9194$">
+      <action application="play_fsv" data="/tmp/testrecord.fsv"/>
+    </condition>
+  </extension>
   
   <extension name="echo">
     <condition field="destination_number" expression="^9196$">
