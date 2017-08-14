@@ -347,3 +347,7 @@ span.log0 {color: black;}
 .xrowb {
 	border-bottom: 1px solid #eee;
 }
+
+.xmodal {
+  top: 100px;
+}

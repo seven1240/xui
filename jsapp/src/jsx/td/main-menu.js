@@ -38,7 +38,7 @@ import ReactDOM from 'react-dom';
 import { Button, Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
 import { Router, Route, Link, browserHistory } from 'react-router'
 import { LinkContainer, IndexLinkContainer } from 'react-router-bootstrap';
-import Phone from '../phone';
+import Phone from './phone';
 import { VertoPage } from '../verto';
 
 class Notice extends React.Component {
