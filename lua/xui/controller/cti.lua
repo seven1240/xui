@@ -235,7 +235,7 @@ end)
 put('/setNotReady', function(params)
 	local api = freeswitch.API()
 	local agent_id = params.request.agent_id
-	api:execute("callcenter_config", "agent set status " .. agent_id .. " On Break")
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " 'On Break'")
 	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
 	return 200, {code = 200, text = "OK"}
 end)
@@ -244,7 +244,7 @@ end)
 put('/agentRest', function(params)
 	local api = freeswitch.API()
 	local agent_id = params.request.agent_id
-	api:execute("callcenter_config", "agent set status " .. agent_id .. " On Break")
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " 'On Break'")
 	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
 	return 200, {code = 200, text = "OK"}
 end)
@@ -303,7 +303,7 @@ put('/releaseCall', function(params)
 end)
 
 -- 1.23
-put('/sendDTMF/:uuid/:number', function(params)
+put('/sendDTMF', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
 	local number = params.request.number
@@ -448,7 +448,7 @@ end)
 put('/finishCall', function(params)
 	local api = freeswitch.API()
 	local agent_id = params.request.agent_id
-	status = api:execute("callcenter_config", "agent set status " .. agent_id .. " On Break")
+	status = api:execute("callcenter_config", "agent set status " .. agent_id .. " 'On Break'")
 	return 200, {code = 200, text = "OK"}
 end)
 
