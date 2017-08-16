@@ -208,7 +208,7 @@ xdb.find_by_sql(sql, function(row)
 				flags = "+flags{join-vid-floor|moderator}"
 			end
 
-			if room.canvas_count > "1" then
+			if room.canvas_count > "9" then
 				if cidNumber == room.moderator then
 					table.insert(actions_table, {app = "set", data = "video_initial_watching_canvas=1"})
 					table.insert(actions_table, {app = "set", data = "video_initial_canvas=2"})
