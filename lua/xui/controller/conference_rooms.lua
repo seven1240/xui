@@ -67,7 +67,7 @@ get('/:id', function(params)
 			room.banner = {
 				fgColor = '#FFFFFF',
 				bgColor = '#000000',
-				fontFace='/usr/local/freeswitch/fonts/FreeMono.ttf',
+				fontFace='/usr/local/freeswitch/fonts/SimHei.ttf',
 				fontScale = '2',
 				text = ''
 			}
