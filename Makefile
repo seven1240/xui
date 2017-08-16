@@ -33,10 +33,10 @@ link:
 td:
 	cd jsapp/src/jsx && ln -sf td/index.js index.js
 
-csetup:
+csetup: init
 	cd jsapp && \
-	cnpm install && \
-	bower install
+	cnpm install #&& \
+#	bower install
 
 release:
 	cd jsapp && make release
