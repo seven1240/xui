@@ -614,6 +614,47 @@ CREATE TABLE subscriptions (
 
 CREATE UNIQUE INDEX subscriptions_realm_ref_id_user_id ON subscriptions (realm, ref_id, user_id);
 
+CREATE TABLE conference_infos (
+        conferenceid BIGSERIAL,
+        conference_number VARCHAR NOT NULL,
+        conference_name VARCHAR NOT NULL,
+        conference_start_time TIMESTAMP(0) NOT NULL,
+        conference_end_time   TIMESTAMP(0) NOT NULL,
+        conference_hostname   VARCHAR,
+        conference_rate VARCHAR,
+        conference_interval  VARCHAR,
+        PRIMARY KEY (conferenceid)
+);
+
+
+
+CREATE TABLE conference_cdrs (
+        memberid BIGSERIAL,
+        conferenceid INTEGER NOT NULL REFERENCES conference_infos(conferenceid), 
+        member_join_time TIMESTAMP(0) NOT NULL,
+        member_leave_time TIMESTAMP(0) NOT NULL,
+        member_is_moderator BOOLEAN,
+        member_end_conference BOOLEAN,
+        member_was_kicked BOOLEAN,
+        member_is_ghost BOOLEAN,
+        member_username VARCHAR NOT NULL,
+        member_dialplan VARCHAR NOT NULL,
+        member_caller_id_name VARCHAR NOT NULL,
+        member_caller_id_number VARCHAR NOT NULL,
+        member_callee_id_name VARCHAR ,
+        member_callee_id_number VARCHAR ,
+        member_ani  VARCHAR ,
+        member_aniii VARCHAR ,
+        member_network_addr VARCHAR NOT NULL,
+        member_rdnis VARCHAR ,
+        member_destination_number VARCHAR NOT NULL,
+        member_uuid VARCHAR NOT NULL,
+        member_source VARCHAR NOT NULL,
+        member_context VARCHAR NOT NULL,
+        member_chan_name VARCHAR NOT NULL,
+        PRIMARY KEY (memberid,conferenceid)
+);
+
 -- triggers
 
 CREATE OR REPLACE FUNCTION auto_update_updated_at() RETURNS TRIGGER AS
