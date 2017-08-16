@@ -49,6 +49,7 @@ var config = {
             chunks: ['index']
         }),
 
+
         new WebpackMd5Hash(),
 
         new ExtractTextPlugin("css/xui.[contenthash:8].css"),
