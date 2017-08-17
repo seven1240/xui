@@ -190,6 +190,7 @@ local function method_handler(method, path, func)
 			xtra.request_content_type:match("^application/json") and
 			xtra.request_content_length and
 			xtra.request_content_length > 0 then
+
 			-- JSON request in Body
 			local received = 0
 			local json_text = ""
@@ -208,6 +209,11 @@ local function method_handler(method, path, func)
 					params.request.id = params.id
 				end
 			end
+		elseif xtra.request_content_type and
+			xtra.request_content_type:match("^application/json") and
+			env:getHeader("request") and
+			method == "GET" then
+				params.request = utils.json_decode(env:getHeader("request"))
 		end
 
 		-- execute the controller
