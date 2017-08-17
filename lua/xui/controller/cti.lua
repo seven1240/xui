@@ -41,6 +41,7 @@ xtra.require_login()
 content_type("application/json")
 require 'xdb'
 require 'utils'
+require 'm_dialstring'
 xdb.bind(xtra.dbh)
 
 function getStatus(status)
@@ -193,14 +194,19 @@ put('/agentLogin', function(params)
 	local api = freeswitch.API()
 	local queue_name = params.request.queue_name
 	local agent_id = params.request.agent_id
+	local context = 'cti'
 
 	if queue_name == '' or queue_name == nil then
 		queue_name = "support@cti"
 	end
 
+	local dial_str = m_dialstring.build(agent_id, context)
+
+	freeswitch.consoleLog("debug", "agent dial_str:" .. dial_str)
+
 	api:execute("callcenter_config", "agent add " .. agent_id .. " callback")
-	api:execute("callcenter_config", "agent set contact " .. agent_id .. " user/" .. agent_id)
-	api:execute("callcenter_config", "agent set status " .. agent_id .. " Available")
+	api:execute("callcenter_config", "agent set contact " .. agent_id .. " " .. dial_str)
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " 'On Break'")
 	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
 	api:execute("callcenter_config", "tier add " .. queue_name .. " " .. agent_id)
 	return 200, {code = 200, text = "OK"}
@@ -216,7 +222,7 @@ delete('/agentLogout', function(params)
 		queue_name = "support@cti"
 	end
 	api:execute("callcenter_config", "agent set status " .. agent_id .. " Logged Out")
-	-- api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
+	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
 	api:execute("callcenter_config", "tier del " .. queue_name .. " " .. agent_id)
 	api:execute("callcenter_config", "agent del " .. agent_id)
 	return 200, {code = 200, text = "OK"}
@@ -226,7 +232,7 @@ end)
 put('/setReady', function(params)
 	local api = freeswitch.API()
 	local agent_id = params.request.agent_id
-	api:execute("callcenter_config", "agent set status " .. agent_id .. " Available")
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " 'Available (On Demand)'")
 	api:execute("callcenter_config", "agent set state " .. agent_id .. " Waiting")
 	return 200, {code = 200, text = "OK"}
 end)
@@ -263,7 +269,8 @@ put('/callInner', function(params)
 	local context = 'cti'
 	local agent_id = params.request.agent_id
 	local calledAgent = params.request.calledAgent
-	api:execute("bgapi", "originate user/" .. agent_id .. " "  .. calledAgent .. " XML " .. context)
+	-- freeswitch.consoleLog("debug", "dial_str:originate [x_agent=" .. agent_id .. "]user/" .. agent_id .. " set:x_agent=" .. calledAgent .. ",transfer:" .. "'" .. calledAgent .. " XML " .. context .. "' inline")
+	api:execute("bgapi", "originate {absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "]user/" .. agent_id .. " export:nolocal:x_agent=" .. calledAgent .. ",transfer:" .. "'" .. calledAgent .. " XML " .. context .. "' inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -274,7 +281,7 @@ put('/callOut', function(params)
 	local agent_id = params.request.agent_id
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
-	api:execute("bgapi", "originate user/" .. agent_id .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline")
+	api:execute("bgapi", "originate {absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "]user/" .. agent_id .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
