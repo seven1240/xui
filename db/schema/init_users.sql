@@ -21,3 +21,4 @@ INSERT INTO users (extn, name, password, context) VALUES ('1016', '1016', '1234'
 INSERT INTO users (extn, name, password, context) VALUES ('1017', '1017', '1234', 'default');
 INSERT INTO users (extn, name, password, context) VALUES ('1018', '1018', '1234', 'default');
 INSERT INTO users (extn, name, password, context) VALUES ('1019', '1019', '1234', 'default');
+INSERT INTO users (extn, name, password, context) VALUES ('cti', 'cti', 'cti', 'cti1234567890');
