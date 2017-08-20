@@ -205,7 +205,7 @@ put('/agentLogin', function(params)
 	freeswitch.consoleLog("debug", "agent dial_str:" .. dial_str)
 
 	api:execute("callcenter_config", "agent add " .. agent_id .. " callback")
-	api:execute("callcenter_config", "agent set contact " .. agent_id .. " " .. dial_str)
+	api:execute("callcenter_config", "agent set contact " .. agent_id .. " {absolute_codec_string=PCMU,PCMA}{x_bridge_agent=" .. agent_id .. "}[x_agent=" .. agent_id .. "]" .. dial_str)
 	api:execute("callcenter_config", "agent set status " .. agent_id .. " 'On Break'")
 	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
 	api:execute("callcenter_config", "tier add " .. queue_name .. " " .. agent_id)
@@ -270,7 +270,8 @@ put('/callInner', function(params)
 	local agent_id = params.request.agent_id
 	local calledAgent = params.request.calledAgent
 	-- freeswitch.consoleLog("debug", "dial_str:originate [x_agent=" .. agent_id .. "]user/" .. agent_id .. " set:x_agent=" .. calledAgent .. ",transfer:" .. "'" .. calledAgent .. " XML " .. context .. "' inline")
-	api:execute("bgapi", "originate {absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "]user/" .. agent_id .. " export:nolocal:x_agent=" .. calledAgent .. ",transfer:" .. "'" .. calledAgent .. " XML " .. context .. "' inline")
+	local dial_str = m_dialstring.build(agent_id, context)
+	api:execute("bgapi", "originate {absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "]" .. dial_str .. " export:nolocal:x_agent=" .. calledAgent .. ",transfer:" .. "'" .. calledAgent .. " XML " .. context .. "' inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -281,7 +282,8 @@ put('/callOut', function(params)
 	local agent_id = params.request.agent_id
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
-	api:execute("bgapi", "originate {absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "]user/" .. agent_id .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline")
+	local dial_str = m_dialstring.build(agent_id, context)
+	api:execute("bgapi", "originate {absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "]" .. dial_str .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -369,6 +371,9 @@ put('/transferQueue', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
 	local queue_name = params.request.queue_name
+	if queue_name == '' or queue_name == nil then
+		queue_name = "support@cti"
+	end
 	api:execute("uuid_transfer", uuid .. " callcenter:" .. queue_name .. " inline")
 	return 200, {code = 200, text = "OK"}
 end)
@@ -380,7 +385,12 @@ put('/consultIVR', function(params)
 	local context = 'cti'
 	local uuid = params.request.uuid
 	local accessCode = params.request.accessCode
-	api:execute("uuid_transfer", uuid .. " " .. accessCode .. " XML " .. context)
+	local queue_name = params.request.queue_name
+	if queue_name == '' or queue_name == nil then
+		queue_name = "support@cti"
+	end
+	local dst_nbr = api:execute("uuid_getvar", uuid .. " destination_number")
+	api:execute("uuid_transfer", uuid .. " set:transfer_after_bridge='" .. dst_nbr .. " XML " .. context .. "',transfer:" .. "'" .. accessCode .. " XML " .. context .. "' inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -391,16 +401,18 @@ put('/transferOut', function(params)
 	local uuid = params.request.uuid
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
-	api:execute("uuid_transfer", uuid .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "'")
+	api:execute("uuid_transfer", uuid .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.32
 put('/transferInner', function(params)
 	local api = freeswitch.API()
+	local context = 'cti'
 	local uuid = params.request.uuid
 	local agent_id = params.request.agent_id
-	api:execute("uuid_transfer", uuid .. " bridge user/"  .. agent_id .. " inline")
+	local dial_str = m_dialstring.build(agent_id, context)
+	api:execute("uuid_transfer", uuid .. " bridge "  .. dial_str .. " inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -411,7 +423,7 @@ put('/consultOut', function(params)
 	local uuid = params.request.uuid
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
-	api:execute("uuid_transfer", uuid .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "'")
+	api:execute("uuid_transfer", uuid .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -420,7 +432,8 @@ put('/consultInner', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
 	local agent_id = params.request.agent_id
-	api:execute("uuid_transfer", uuid .. " bridge:user/" .. agent_id .. " inline")
+	local dial_str = m_dialstring.build(agent_id, context)
+	api:execute("uuid_transfer", uuid .. " bridge:" .. dial_str .. " inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -430,7 +443,8 @@ put('/consultTransfer', function(params)
 	local context = 'cti'
 	local uuid = params.request.uuid
 	local agent_id = params.request.agent_id
-	api:execute("uuid_transfer", uuid .. " bind_meta_app:'1 b s execute_extension::xui_attended_xfer XML " .. context .. "',bridge:user/" .. agent_id .. " inline")
+	local dial_str = m_dialstring.build(agent_id, context)
+	api:execute("uuid_transfer", uuid .. " bind_meta_app:'1 b s execute_extension::xui_attended_xfer XML " .. context .. "',bridge:" .. dial_str .. " inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -486,9 +500,11 @@ end)
 -- 1.41
 put('/listen', function(params)
 	local api = freeswitch.API()
+	local context = 'cti'
 	local uuid = params.request.uuid
 	local listenNumber = params.request.listenNumber
-	api:execute("bgapi", "originate user/" .. listenNumber .. " &eavesdrop(" .. uuid .. ")")
+	local dial_str = m_dialstring.build(listenNumber, context)
+	api:execute("bgapi", "originate " .. dial_str .. " &eavesdrop(" .. uuid .. ")")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -504,8 +520,10 @@ end)
 put('/insert', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
+	local context = 'cti'
 	local insertNumber = params.request.insertNumber
-	api:execute("bgapi", "originate user/" .. insertNumber .. " &three_way(" .. uuid .. ")")
+	local dial_str = m_dialstring.build(insertNumber, context)
+	api:execute("bgapi", "originate " .. dial_str .. " &three_way(" .. uuid .. ")")
 	return 200, {code = 200, text = "OK"}
 end)
 
