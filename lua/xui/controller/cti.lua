@@ -221,7 +221,7 @@ delete('/agentLogout', function(params)
 	if queue_name == '' or queue_name == nil then
 		queue_name = "support@cti"
 	end
-	api:execute("callcenter_config", "agent set status " .. agent_id .. " Logged Out")
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " 'Logged Out'")
 	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
 	api:execute("callcenter_config", "tier del " .. queue_name .. " " .. agent_id)
 	api:execute("callcenter_config", "agent del " .. agent_id)
@@ -283,7 +283,11 @@ put('/callOut', function(params)
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
 	local dial_str = m_dialstring.build(agent_id, context)
-	api:execute("bgapi", "originate {absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "]" .. dial_str .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline")
+	local args = "originate {absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "]" .. dial_str .. " transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+	if callerNumber ~= '' and callerNumber ~= nil then
+		args = "originate {absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "]" .. dial_str .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+	end
+	api:execute("bgapi", args)
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -390,7 +394,9 @@ put('/consultIVR', function(params)
 		queue_name = "support@cti"
 	end
 	local dst_nbr = api:execute("uuid_getvar", uuid .. " destination_number")
-	api:execute("uuid_transfer", uuid .. " set:transfer_after_bridge='" .. dst_nbr .. " XML " .. context .. "',transfer:" .. "'" .. accessCode .. " XML " .. context .. "' inline")
+	local args = "set:transfer_fallback_extension="  .. dst_nbr .. ",set:transfer_after_bridge=" .. dst_nbr .. ",transfer:" .. accessCode .. " inline"
+	freeswitch.consoleLog("INFO", "consultIVR:" .. args .."\n")
+	api:execute("uuid_transfer", uuid .. " " .. args)
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -401,7 +407,12 @@ put('/transferOut', function(params)
 	local uuid = params.request.uuid
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
-	api:execute("uuid_transfer", uuid .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline")
+
+	local args = uuid .. " transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+	if callerNumber ~= '' and callerNumber ~= nil then
+		args = uuid .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+	end
+	api:execute("uuid_transfer", args)
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -412,7 +423,9 @@ put('/transferInner', function(params)
 	local uuid = params.request.uuid
 	local agent_id = params.request.agent_id
 	local dial_str = m_dialstring.build(agent_id, context)
-	api:execute("uuid_transfer", uuid .. " bridge "  .. dial_str .. " inline")
+	local args = uuid .. " set:x_callcenter=true,export:'nolocal:x_agent=" .. agent_id .. "',bridge:"  .. dial_str .. " inline"
+	freeswitch.consoleLog("ERR", "transferInner:" .. args .. "\n")
+	api:execute("uuid_transfer", args)
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -423,17 +436,25 @@ put('/consultOut', function(params)
 	local uuid = params.request.uuid
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
-	api:execute("uuid_transfer", uuid .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline")
+
+	local args = uuid .. " transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+	if callerNumber ~= '' and callerNumber ~= nil then
+		args = uuid .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+	end
+	api:execute("uuid_transfer", args)
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.34
 put('/consultInner', function(params)
 	local api = freeswitch.API()
+	local context = 'cti'
 	local uuid = params.request.uuid
 	local agent_id = params.request.agent_id
 	local dial_str = m_dialstring.build(agent_id, context)
-	api:execute("uuid_transfer", uuid .. " bridge:" .. dial_str .. " inline")
+	local args = uuid .. " set:x_callcenter=true,export:'nolocal:x_agent=" .. agent_id .. "',bridge:"  .. dial_str .. " inline"
+	freeswitch.consoleLog("ERR", "transferInner:" .. args .. "\n")
+	api:execute("uuid_transfer", args)
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -444,7 +465,7 @@ put('/consultTransfer', function(params)
 	local uuid = params.request.uuid
 	local agent_id = params.request.agent_id
 	local dial_str = m_dialstring.build(agent_id, context)
-	api:execute("uuid_transfer", uuid .. " bind_meta_app:'1 b s execute_extension::xui_attended_xfer XML " .. context .. "',bridge:" .. dial_str .. " inline")
+	api:execute("uuid_transfer", uuid .. " bind_meta_app:'1 b s execute_extension::cti_attended_xfer XML " .. context .. "',bridge:" .. dial_str .. " inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -493,8 +514,29 @@ end)
 get('/queueWaitNum', function(params)
 	local api = freeswitch.API()
 	local queue_name = params.request.queue_name
-	queueWaitNum = api:execute("callcenter_config", "queue count members " .. queue_name)
-	return {queueWaitNum = queueWaitNum}
+	if queue_name == '' or queue_name == nil then
+		queue_name = "support@cti"
+	end
+	json = {command = "callcenter_config", data = {arguments = "queue list members", queue_name = queue_name}}
+	args = utils.json_encode(json)
+	ret = api:execute("json", args)
+	json = utils.json_decode(ret)
+	local count = 0
+	if json.response then
+		local ret = json.response
+
+		freeswitch.consoleLog("ERR", "xxx===members" .. serialize(ret))
+		for k,v in pairs(ret) do
+			if type(v) == "table" then
+				for k,v in pairs(v) do
+					if k == "state" and v == "Waiting" then
+						count = count + 1
+					end
+				end
+			end
+		end
+	end
+	return {count = count}
 end)
 
 -- 1.41
@@ -539,7 +581,7 @@ end)
 put('/forceReady', function(params)
 	local api = freeswitch.API()
 	local agent_id = params.request.agent_id
-	api:execute("callcenter_config", "agent set status " .. agent_id .. " Available")
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " 'Available (On Demand)'")
 	api:execute("callcenter_config", "agent set state " .. agent_id .. " Waiting")
 	return 200, {code = 200, text = "OK"}
 end)
@@ -547,10 +589,16 @@ end)
 -- 1.46
 put('/forceLogout', function(params)
 	local api = freeswitch.API()
+	local queue_name = params.request.queue_name
 	local agent_id = params.request.agent_id
-	api:execute("callcenter_config", "agent set status " .. agent_id .. " Log Out")
+
+	if queue_name == '' or queue_name == nil then
+		queue_name = "support@cti"
+	end
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " 'Logged Out'")
 	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
-	return 200, {code = 200, text = "OK"}
+	api:execute("callcenter_config", "tier del " .. queue_name .. " " .. agent_id)
+	api:execute("callcenter_config", "agent del " .. agent_id)
 end)
 
 -- 1.47
@@ -564,9 +612,16 @@ end)
 -- 1.48
 put('/forceLogout', function(params)
 	local api = freeswitch.API()
+	local queue_name = params.request.queue_name
 	local agent_id = params.request.agent_id
-	api:execute("callcenter_config", "agent set status " .. agent_id .. " Log Out")
+
+	if queue_name == '' or queue_name == nil then
+		queue_name = "support@cti"
+	end
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " 'Logged Out'")
 	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
+	api:execute("callcenter_config", "tier del " .. queue_name .. " " .. agent_id)
+	api:execute("callcenter_config", "agent del " .. agent_id)
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -586,7 +641,7 @@ end)
 
 -- 1.50
 get("/downloadRecordFile", function(params)
-	local recordFile = env:getHeader("file")
+	local recordFile = params.request.file
 	if recordFile then
 		file = io.open(recordFile)
 		if not file then
@@ -623,7 +678,7 @@ get("/downloadRecordFile", function(params)
 			file:close()
 		end
 	else
-		return 404
+		return 200, {code = 404, message = "file not found"}
 	end
 	return 200, {code = 200, text = "OK"}
 end)
