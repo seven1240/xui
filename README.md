@@ -13,8 +13,7 @@ Follow the morden https://freeswitch.org/stash/projects/FS/repos/fs18configs/bro
 
 ## ToDo
 
-* PostgreSQL support
-* Mixed HTTP & Websocket Authentication suport
+* Make more todos ...
 
 ## Coding Style:
 
@@ -28,6 +27,8 @@ CSS/JS/HTML: https://github.com/felixge/Node-style-guide
 
 * Linux
 
+Debian 8/9
+
 need recent version of npm, check <https://docs.npmjs.com/getting-started/what-is-npm> for more info.
 
     curl -sL https://deb.nodesource.com/setup_4.x | bash -
@@ -39,8 +40,11 @@ need recent version of npm, check <https://docs.npmjs.com/getting-started/what-i
 
 ### Install npm tools
 
+Optionally use the taobao mirror would be faster if you are in China
+
+    npm config set registry https://registry.npm.taobao.org
+
     npm install -g jshint
-    npm install -g browserify
     npm install -g watch
     npm install -g wiredep-cli
     npm install -g usemin-cli
@@ -50,17 +54,11 @@ need recent version of npm, check <https://docs.npmjs.com/getting-started/what-i
 
     cd jsapp
     npm install
-   
-   
 
-or if you are in China, use taobao mirror would be faster
 
-    npm config set registry https://registry.npm.taobao.org
-
-or use cnpm see <https://npm.taobao.org/> for more info
+Alternatively can use cnpm see <https://npm.taobao.org/> for more info.
 
     cnpm install -g jshint
-    cnpm install -g browserify
     cnpm install -g watch
     cnpm install -g wiredep-cli
     cnpm install -g usemin-cli
@@ -84,14 +82,9 @@ or, if your freeswitch is not installed in /usr/local/freeswitch
 prepare:
 
     mkdir /usr/local/freeswitch/storage/{recordings,upload}
-
     make setup
 
-or if you are in China you could:
-
-    make csetup
-
-on terminal 1: // if needed, skip this one if not working
+on terminal 1: // ONLY if needed, skip this one if not working or you don't know what is it
 
     make livereload
 
@@ -103,6 +96,10 @@ build:
 
     make
 
+It's not required but sometimes the following command is helpful, don't ask why:
+
+    make init
+
 Enjoy!
 
 * <http://getbootstrap.com/2.3.2/index.html>
@@ -113,13 +110,24 @@ Enjoy!
 
 ## config
 
-see: conf/samples/verto-directory-conf.xml
+1) backup old config files and use our recommended ones:
+
+    mv /usr/local/freeswitch/conf /usr/local/freeswitch/conf.old
+    cp -R conf/xui /usr/local/freeswitch/conf
+
+2) or you can edit existing configs following the examples:
+
+conf/samples/verto-directory-conf.xml
+conf/samples/lua.conf.xml
+conf/samples/verto.conf.xml
 
 enable livearry-sync on conference profile:
 
     <param name="conference-flags" value="livearray-sync"/>
 
-ref: conf/verto.conf.xml, then https://your-ip:8082
+then goto https://your-ip:8082 or http://your-ip:8081
+
+only Chrome is tested but you could try other browsers and report back.
 
 # Update
 
