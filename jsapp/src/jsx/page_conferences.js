@@ -1147,7 +1147,7 @@ class ConferencePage extends React.Component {
 			const dropdown = <DropdownButton title={title} id={"canvas" + c} key={c}>
 			{
 				this.state.layouts.map((layout) => {
-					return <MenuItem key={layout.k} eventKey={[c, layout.k]} onSelect={this.handleCanvasLayout.bind(this)}>{layout.k}</MenuItem>
+					return <MenuItem key={layout.k} eventKey={[c, layout.k]} onSelect={this.handleCanvasLayout.bind(this)}>{layout.k}|<T.span text={layout.k}/></MenuItem>
 				})
 			}
 			</DropdownButton>
@@ -1161,7 +1161,6 @@ class ConferencePage extends React.Component {
 
 		return <div>
 			<ButtonToolbar className="pull-right">
-
 			{
 				!this.props.room.isMuxing ? null :
 
