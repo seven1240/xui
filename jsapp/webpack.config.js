@@ -4,8 +4,7 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var WebpackMd5Hash = require('webpack-md5-hash');
 var config = {
     entry: {
-        "index": ["./src/jsx/index.js", "./src/css/xui.css", "./src/css/dashboard.css"],
-        "wechat": "./src/wechat/index.js"
+        "index": ["./src/jsx/index.js", "./src/css/xui.css", "./src/css/dashboard.css"]
     },
 
     output: {
