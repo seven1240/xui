@@ -366,7 +366,7 @@ put('/transferIVR', function(params)
 	local context = 'cti'
 	local uuid = params.request.uuid
 	local accessCode = params.request.accessCode
-	api:execute("uuid_transfer", uuid .. " " .. accessCode .. " XML " .. context)
+	api:execute("uuid_transfer", uuid .. " -bleg " .. accessCode .. " XML " .. context)
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -378,7 +378,7 @@ put('/transferQueue', function(params)
 	if queue_name == '' or queue_name == nil then
 		queue_name = "support@cti"
 	end
-	api:execute("uuid_transfer", uuid .. " callcenter:" .. queue_name .. " inline")
+	api:execute("uuid_transfer", uuid .. " -bleg callcenter:" .. queue_name .. " inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -396,7 +396,7 @@ put('/consultIVR', function(params)
 	local dst_nbr = api:execute("uuid_getvar", uuid .. " destination_number")
 	local args = "set:transfer_fallback_extension="  .. dst_nbr .. ",set:transfer_after_bridge=" .. dst_nbr .. ",transfer:" .. accessCode .. " inline"
 	freeswitch.consoleLog("INFO", "consultIVR:" .. args .."\n")
-	api:execute("uuid_transfer", uuid .. " " .. args)
+	api:execute("uuid_transfer", uuid .. " -bleg " .. args)
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -408,9 +408,9 @@ put('/transferOut', function(params)
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
 
-	local args = uuid .. " transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+	local args = uuid .. " -bleg transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
 	if callerNumber ~= '' and callerNumber ~= nil then
-		args = uuid .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+		args = uuid .. " -bleg set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
 	end
 	api:execute("uuid_transfer", args)
 	return 200, {code = 200, text = "OK"}
@@ -423,7 +423,7 @@ put('/transferInner', function(params)
 	local uuid = params.request.uuid
 	local agent_id = params.request.agent_id
 	local dial_str = m_dialstring.build(agent_id, context)
-	local args = uuid .. " set:x_callcenter=true,export:'nolocal:x_agent=" .. agent_id .. "',bridge:"  .. dial_str .. " inline"
+	local args = uuid .. " -bleg set:x_callcenter=true,export:'nolocal:x_agent=" .. agent_id .. "',bridge:"  .. dial_str .. " inline"
 	freeswitch.consoleLog("ERR", "transferInner:" .. args .. "\n")
 	api:execute("uuid_transfer", args)
 	return 200, {code = 200, text = "OK"}
@@ -437,9 +437,9 @@ put('/consultOut', function(params)
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
 
-	local args = uuid .. " transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+	local args = uuid .. " -bleg transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
 	if callerNumber ~= '' and callerNumber ~= nil then
-		args = uuid .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+		args = uuid .. " -bleg set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
 	end
 	api:execute("uuid_transfer", args)
 	return 200, {code = 200, text = "OK"}
@@ -452,7 +452,7 @@ put('/consultInner', function(params)
 	local uuid = params.request.uuid
 	local agent_id = params.request.agent_id
 	local dial_str = m_dialstring.build(agent_id, context)
-	local args = uuid .. " set:x_callcenter=true,export:'nolocal:x_agent=" .. agent_id .. "',bridge:"  .. dial_str .. " inline"
+	local args = uuid .. " -bleg set:x_callcenter=true,export:'nolocal:x_agent=" .. agent_id .. "',bridge:"  .. dial_str .. " inline"
 	freeswitch.consoleLog("ERR", "transferInner:" .. args .. "\n")
 	api:execute("uuid_transfer", args)
 	return 200, {code = 200, text = "OK"}
@@ -465,7 +465,7 @@ put('/consultTransfer', function(params)
 	local uuid = params.request.uuid
 	local agent_id = params.request.agent_id
 	local dial_str = m_dialstring.build(agent_id, context)
-	api:execute("uuid_transfer", uuid .. " bind_meta_app:'1 b s execute_extension::cti_attended_xfer XML " .. context .. "',bridge:" .. dial_str .. " inline")
+	api:execute("uuid_transfer", uuid .. " -bleg bind_meta_app:'1 b s execute_extension::cti_attended_xfer XML " .. context .. "',bridge:" .. dial_str .. " inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -474,7 +474,7 @@ put('/consultConference', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
 	local destUUID = params.request.destUUID
-	api:execute("uuid_transfer", uuid .. " answer,three_way:" .. destUUID .. " inline")
+	api:execute("uuid_transfer", uuid .. " -bleg answer,three_way:" .. destUUID .. " inline")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -525,7 +525,6 @@ get('/queueWaitNum', function(params)
 	if json.response then
 		local ret = json.response
 
-		freeswitch.consoleLog("ERR", "xxx===members" .. serialize(ret))
 		for k,v in pairs(ret) do
 			if type(v) == "table" then
 				for k,v in pairs(v) do
@@ -632,7 +631,7 @@ put('/playLocalFiles', function(params)
 	local files = params.request.files
 	if files then
 		filesStr = string.gsub(files, ",", "!")
-		api:execute("uuid_transfer", uuid .. " set:playback_delimiter=!,playback:'" .. filesStr .. "' inline")
+		api:execute("uuid_transfer", uuid .. " -bleg set:playback_delimiter=!,playback:'" .. filesStr .. "' inline")
 		return 200, {code = 200, text = "OK"}
 	else
 	 return 500
