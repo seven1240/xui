@@ -54,6 +54,7 @@ import CallsPage from "./page_calls";
 import FSUsersPage from "./page_fs_users";
 import SofiaPage from "./page_sofia";
 import MonitorPage from './page_monitor';
+import ServerMonitorPage from './page_server_monitor';
 import Conferences from './conferences';
 import SystemPage from './page_system';
 import { FifoPage, FifoInfo, FifoMemberPage } from './page_fifos';
@@ -183,6 +184,8 @@ class Home extends React.Component{
 				<Route path="logout" component={LoginBox} onEnter={handleLogout}/>
 
 				<Route path="monitor" component={MonitorPage} />
+
+				<Route path="server_monitor" component={ServerMonitorPage} />
 
 				<Route path="conferences" component={Conferences} />
 

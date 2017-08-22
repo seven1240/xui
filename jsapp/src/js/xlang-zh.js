@@ -607,6 +607,8 @@ LANGUAGES["zh"] = {
 	"Only Admin has the right to edit ticket": "只有Admin有权限编辑工单",
 	"This ticket has been deleted": "此工单已被删除",
 
+	"Server Monitor": "服务器监控",
+
 	Copyright: "版权所有 2016-" + new Date().getFullYear() + " 烟台小樱桃网络科技有限公司 保留所有权利",
 	the_last_line_______: "Don't put anything beyond this line"
 };
