@@ -44,6 +44,14 @@ require 'utils'
 require 'm_dialstring'
 xdb.bind(xtra.dbh)
 
+local debug = true
+
+function do_debug(key, args)
+	if debug then
+		freeswitch.consoleLog("debug", key .. ":" .. args .. "\n")
+	end
+end
+
 function getStatus(status)
 	if status == "Logged Out" then
 		return "LoggedOut"
@@ -59,6 +67,16 @@ function getState(state)
 		return "Active"
 	else
 		return state
+	end
+end
+
+function is_agent_uuid(uuid)
+	local api = freeswitch.API()
+	local ret = api:execute("hiredis_raw", "default get " .. uuid)
+	if (tonumber(ret)) then
+		return true
+	else
+		return false
 	end
 end
 
@@ -156,7 +174,7 @@ end)
 -- 1.8
 get('/activeCallInfo', function(params)
 	local api = freeswitch.API()
-	ret = api:execute("show", "calls as json")
+	local ret = api:execute("show", "calls as json")
 	return ret
 end)
 
@@ -164,16 +182,26 @@ end)
 get('/heldCallInfo', function(params)
 	local api = freeswitch.API()
 	local queue_name = params.request.queue_name
-	json = {command = "callcenter_config", data = {arguments = "queue list members",  queue_name = queue_name}}
+	if queue_name == '' or queue_name == nil then
+		queue_name = "support@cti"
+	end
+	json = {command = "callcenter_config", data = {arguments = "queue list members", queue_name = queue_name}}
 	args = utils.json_encode(json)
 	ret = api:execute("json", args)
 	json = utils.json_decode(ret)
+	local tab = {}
+	if json.response then
+		local ret = json.response
 
-	if json.status == "success" then
-		return json.response
-	else
-		return 500
+		for k,v in pairs(ret) do
+			if type(v) == "table" then
+				if v.state == "Waiting"
+					table.insert(v)
+				end
+			end
+		end
 	end
+	return tab
 end)
 
 -- 1.10
@@ -202,7 +230,7 @@ put('/agentLogin', function(params)
 
 	local dial_str = m_dialstring.build(agent_id, context)
 
-	freeswitch.consoleLog("debug", "agent dial_str:" .. dial_str)
+	do_debug("agentLogin dial_str", dial_str)
 
 	api:execute("callcenter_config", "agent add " .. agent_id .. " callback")
 	api:execute("callcenter_config", "agent set contact " .. agent_id .. " {absolute_codec_string=PCMU,PCMA}{x_bridge_agent=" .. agent_id .. "}[x_agent=" .. agent_id .. "]" .. dial_str)
@@ -259,7 +287,16 @@ end)
 put('/answerCall', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
-	api:execute("uuid_phone_event", uuid .. " talk")
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	end
+
+	local args = uuid .. " talk"
+
+	do_debug("answerCall", args)
+	api:execute("uuid_phone_event", args)
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -269,9 +306,10 @@ put('/callInner', function(params)
 	local context = 'cti'
 	local agent_id = params.request.agent_id
 	local calledAgent = params.request.calledAgent
-	-- freeswitch.consoleLog("debug", "dial_str:originate [x_agent=" .. agent_id .. "]user/" .. agent_id .. " set:x_agent=" .. calledAgent .. ",transfer:" .. "'" .. calledAgent .. " XML " .. context .. "' inline")
 	local dial_str = m_dialstring.build(agent_id, context)
-	api:execute("bgapi", "originate {absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "]" .. dial_str .. " export:nolocal:x_agent=" .. calledAgent .. ",transfer:" .. "'" .. calledAgent .. " XML " .. context .. "' inline")
+	local args = "originate {absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "]" .. dial_str .. " export:nolocal:x_agent=" .. calledAgent .. ",transfer:" .. "'" .. calledAgent .. " XML " .. context .. "' inline"
+	do_debug("callInner", args)
+	api:execute("bgapi", args)
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -287,6 +325,7 @@ put('/callOut', function(params)
 	if callerNumber ~= '' and callerNumber ~= nil then
 		args = "originate {absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "]" .. dial_str .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
 	end
+	do_debug("callOut", args)
 	api:execute("bgapi", args)
 	return 200, {code = 200, text = "OK"}
 end)
@@ -295,6 +334,13 @@ end)
 put('/holdCall', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	end
+
+	do_debug("holdCall", uuid)
 	api:execute("uuid_hold", uuid)
 	return 200, {code = 200, text = "OK"}
 end)
@@ -303,6 +349,12 @@ end)
 put('/retrieveCall', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	end
+	do_debug("retrieveCall", "off " .. uuid)
 	api:execute("uuid_hold", "off " .. uuid)
 	return 200, {code = 200, text = "OK"}
 end)
@@ -311,6 +363,14 @@ end)
 put('/releaseCall', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	end
+
+	do_debug("retrieveCall", "off " .. uuid)
+
 	api:execute("uuid_kill", uuid)
 	return 200, {code = 200, text = "OK"}
 end)
@@ -320,6 +380,14 @@ put('/sendDTMF', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
 	local number = params.request.number
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	end
+
+	do_debug("sendDTMF", uuid .. " " .. number .. " W")
+
 	api:execute("uuid_send_dtmf", uuid .. " " .. number .. " W")
 	return 200, {code = 200, text = "OK"}
 end)
@@ -328,6 +396,15 @@ end)
 put('/muteOn', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	end
+
+	do_debug("muteOn", uuid .. " start read mute -4")
+	do_debug("muteOn", uuid .. " start write mute -4")
+
 	api:execute("uuid_audio", uuid .. " start read mute -4")
 	api:execute("uuid_audio", uuid .. " start write mute -4")
 	return 200, {code = 200, text = "OK"}
@@ -337,6 +414,15 @@ end)
 put('/muteOff', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	end
+
+	do_debug("muteOff", uuid .. " start read mute stop")
+	do_debug("muteOff", uuid .. " start write mute stop")
+
 	api:execute("uuid_audio", uuid .. " start read mute stop")
 	api:execute("uuid_audio", uuid .. " start write mute stop")
 	return 200, {code = 200, text = "OK"}
@@ -346,6 +432,14 @@ end)
 get('/callData', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	end
+
+	do_debug("get callData", uuid .. "  json")
+
 	callData = api:execute("uuid_dump", uuid .. "  json")
 	return callData
 end)
@@ -356,6 +450,14 @@ put('/callData', function(params)
 	local uuid = params.request.uuid
 	local key = params.request.key
 	local value = params.request.value
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	end
+
+	do_debug("put callData", uuid .. " " .. key .. " " .. value)
+
 	api:execute("uuid_setvar", uuid .. " " .. key .. " " .. value)
 	return 200, {code = 200, text = "OK"}
 end)
@@ -366,7 +468,22 @@ put('/transferIVR', function(params)
 	local context = 'cti'
 	local uuid = params.request.uuid
 	local accessCode = params.request.accessCode
-	api:execute("uuid_transfer", uuid .. " -bleg " .. accessCode .. " XML " .. context)
+	local bleg = ''
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	else --uuid
+		if is_agent_uuid(uuid) then
+			bleg = "-bleg"
+		end
+	end
+
+	local args = uuid .. "  " .. bleg .. " " .. accessCode .. " XML " .. context
+
+	do_debug("transferIVR", args)
+
+	api:execute("uuid_transfer", args)
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -375,10 +492,25 @@ put('/transferQueue', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
 	local queue_name = params.request.queue_name
+	local bleg = ''
 	if queue_name == '' or queue_name == nil then
 		queue_name = "support@cti"
 	end
-	api:execute("uuid_transfer", uuid .. " -bleg callcenter:" .. queue_name .. " inline")
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	else --uuid
+		if is_agent_uuid(uuid) then
+			bleg = "-bleg"
+		end
+	end
+
+	local args = uuid .. " " .. bleg .. " set:x_callcenter=true,callcenter:" .. queue_name .. " inline"
+
+	do_debug("transferQueue", args)
+
+	api:execute("uuid_transfer", args)
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -390,13 +522,30 @@ put('/consultIVR', function(params)
 	local uuid = params.request.uuid
 	local accessCode = params.request.accessCode
 	local queue_name = params.request.queue_name
+	local bleg = ''
 	if queue_name == '' or queue_name == nil then
 		queue_name = "support@cti"
 	end
 	local dst_nbr = api:execute("uuid_getvar", uuid .. " destination_number")
-	local args = "set:transfer_fallback_extension="  .. dst_nbr .. ",set:transfer_after_bridge=" .. dst_nbr .. ",transfer:" .. accessCode .. " inline"
-	freeswitch.consoleLog("INFO", "consultIVR:" .. args .."\n")
-	api:execute("uuid_transfer", uuid .. " -bleg " .. args)
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	else --uuid
+		if is_agent_uuid(uuid) then
+			bleg = "-bleg"
+		end
+	end
+
+	local args = uuid .. " " .. bleg .. " set:transfer_fallback_extension="  .. dst_nbr .. ",set:transfer_after_bridge=" .. dst_nbr .. ",transfer:" .. accessCode .. " inline"
+
+	do_debug("consultIVR", args)
+	-- local args = "'m:^:set:hangup_after_bridge=false^set:continue_on_fail=NORMAL_TEMPORARY_FAILURE,USER_BUSY,NO_ANSWER,TIMEOUT,NO_ROUTE_DESTINATION,USER_NOT_REGISTERED,NO_USER_RESPONSE,ATTENDED_TRANSFER,CALL_REJECTED^" ..
+	-- 	"transfer:" ..
+	api:execute("uuid_transfer", args)
+		-- - local args = "set:transfer_fallback_extension="  .. dst_nbr .. ",set:transfer_after_bridge=" .. dst_nbr .. ",transfer:" .. accessCode .. " inline"
+	-- freeswitch.consoleLog("INFO", "consultIVR:" .. args .."\n")
+	-- local
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -407,11 +556,24 @@ put('/transferOut', function(params)
 	local uuid = params.request.uuid
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
+	local bleg = ''
 
-	local args = uuid .. " -bleg transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
-	if callerNumber ~= '' and callerNumber ~= nil then
-		args = uuid .. " -bleg set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	else --uuid
+		if is_agent_uuid(uuid) then
+			bleg = "-bleg"
+		end
 	end
+
+	local args = uuid .. " " .. bleg .. " transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+	if callerNumber ~= '' and callerNumber ~= nil then
+		args = uuid .. " " .. bleg .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+	end
+
+	do_debug("transferOut", args)
+
 	api:execute("uuid_transfer", args)
 	return 200, {code = 200, text = "OK"}
 end)
@@ -423,8 +585,21 @@ put('/transferInner', function(params)
 	local uuid = params.request.uuid
 	local agent_id = params.request.agent_id
 	local dial_str = m_dialstring.build(agent_id, context)
-	local args = uuid .. " -bleg set:x_callcenter=true,export:'nolocal:x_agent=" .. agent_id .. "',bridge:"  .. dial_str .. " inline"
-	freeswitch.consoleLog("ERR", "transferInner:" .. args .. "\n")
+	local bleg = ''
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	else --uuid
+		if is_agent_uuid(uuid) then
+			bleg = "-bleg"
+		end
+	end
+
+	local args = uuid .. " " .. bleg .. " set:x_callcenter=true,export:'nolocal:x_agent=" .. agent_id .. "',bridge:"  .. dial_str .. " inline"
+
+	do_debug("transferInner", args)
+
 	api:execute("uuid_transfer", args)
 	return 200, {code = 200, text = "OK"}
 end)
@@ -436,11 +611,24 @@ put('/consultOut', function(params)
 	local uuid = params.request.uuid
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
+	local bleg = ''
 
-	local args = uuid .. " -bleg transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
-	if callerNumber ~= '' and callerNumber ~= nil then
-		args = uuid .. " -bleg set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	else --uuid
+		if is_agent_uuid(uuid) then
+			bleg = "-bleg"
+		end
 	end
+
+	local args = uuid .. " " .. bleg .. " transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+	if callerNumber ~= '' and callerNumber ~= nil then
+		args = uuid .. " " .. bleg .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+	end
+
+	do_debug("consultOut", args)
+
 	api:execute("uuid_transfer", args)
 	return 200, {code = 200, text = "OK"}
 end)
@@ -452,8 +640,22 @@ put('/consultInner', function(params)
 	local uuid = params.request.uuid
 	local agent_id = params.request.agent_id
 	local dial_str = m_dialstring.build(agent_id, context)
-	local args = uuid .. " -bleg set:x_callcenter=true,export:'nolocal:x_agent=" .. agent_id .. "',bridge:"  .. dial_str .. " inline"
-	freeswitch.consoleLog("ERR", "transferInner:" .. args .. "\n")
+	local bleg = ''
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local api = freeswitch.API()
+		ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	else --uuid
+		if is_agent_uuid(uuid) then
+			bleg = "-bleg"
+		end
+	end
+
+	local args = uuid .. " " .. bleg .. " set:x_callcenter=true,export:'nolocal:x_agent=" .. agent_id .. "',bridge:"  .. dial_str .. " inline"
+
+	do_debug("consultInner", args)
+
 	api:execute("uuid_transfer", args)
 	return 200, {code = 200, text = "OK"}
 end)
@@ -465,7 +667,24 @@ put('/consultTransfer', function(params)
 	local uuid = params.request.uuid
 	local agent_id = params.request.agent_id
 	local dial_str = m_dialstring.build(agent_id, context)
-	api:execute("uuid_transfer", uuid .. " -bleg bind_meta_app:'1 b s execute_extension::cti_attended_xfer XML " .. context .. "',bridge:" .. dial_str .. " inline")
+	local xx_agent_id = api:execute("hiredis_raw", "default get " .. uuid)
+
+	api:execute("uuid_broadcast", uuid .. " set::transfer_ringback=$${hold_music}")
+
+	if xx_agent_id ~= '' and xx_agent_id ~= nil then
+		api:execute("uuid_setvar", uuid .. " xx_agent " .. xx_agent_id)
+	end
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	end
+
+	local args = uuid .. " att_xfer::[x_agent=" .. agent_id .."]" .. dial_str
+
+	do_debug("consultTransfer", args)
+
+	api:execute("uuid_broadcast", args)
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -474,7 +693,27 @@ put('/consultConference', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
 	local destUUID = params.request.destUUID
-	api:execute("uuid_transfer", uuid .. " -bleg answer,three_way:" .. destUUID .. " inline")
+	local bleg = ''
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret1 = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret1
+	else --uuid
+		if is_agent_uuid(uuid) then
+			bleg = "-bleg"
+		end
+	end
+
+	if (string.len(destUUID) ~= 36) then -- destUUID is a number
+		local ret2 = api:execute("hiredis_raw", "default get " .. destUUID)
+		destUUID = ret2
+	end
+
+	local args = uuid .. " " .. bleg .. " answer,three_way:" .. destUUID .. " inline"
+
+	do_debug("consultConference", args)
+
+	api:execute("uuid_transfer", args)
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -482,6 +721,14 @@ end)
 put('/cancelConsult', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	end
+
+	do_debug("cancelConsult", uuid)
+
 	api:execute("uuid_kill", uuid)
 	return 200, {code = 200, text = "OK"}
 end)
@@ -490,7 +737,8 @@ end)
 put('/finishCall', function(params)
 	local api = freeswitch.API()
 	local agent_id = params.request.agent_id
-	status = api:execute("callcenter_config", "agent set status " .. agent_id .. " 'On Break'")
+	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " 'On Break'")
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -525,12 +773,10 @@ get('/queueWaitNum', function(params)
 	if json.response then
 		local ret = json.response
 
-		for k,v in pairs(ret) do
+		for k, v in pairs(ret) do
 			if type(v) == "table" then
-				for k,v in pairs(v) do
-					if k == "state" and v == "Waiting" then
-						count = count + 1
-					end
+				if v.state == "Waiting" then
+					count = count + 1
 				end
 			end
 		end
@@ -545,7 +791,16 @@ put('/listen', function(params)
 	local uuid = params.request.uuid
 	local listenNumber = params.request.listenNumber
 	local dial_str = m_dialstring.build(listenNumber, context)
-	api:execute("bgapi", "originate " .. dial_str .. " &eavesdrop(" .. uuid .. ")")
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	end
+
+	local args = "originate [x_agent=" .. listenNumber .. "]" .. dial_str .. " &eavesdrop(" .. uuid .. ")"
+
+	do_debug("listen", args)
+	api:execute("bgapi", args)
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -553,6 +808,14 @@ end)
 put('/stopListen', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	end
+
+	do_debug("stopListen", uuid)
+
 	api:execute("uuid_kill", uuid)
 	return 200, {code = 200, text = "OK"}
 end)
@@ -564,7 +827,17 @@ put('/insert', function(params)
 	local context = 'cti'
 	local insertNumber = params.request.insertNumber
 	local dial_str = m_dialstring.build(insertNumber, context)
-	api:execute("bgapi", "originate " .. dial_str .. " &three_way(" .. uuid .. ")")
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	end
+
+	local args = "originate [x_agent=" .. listenNumber .. "]" .. dial_str .. " &three_way(" .. uuid .. ")"
+
+	do_debug("insert", args)
+
+	api:execute("bgapi", args)
 	return 200, {code = 200, text = "OK"}
 end)
 
@@ -572,6 +845,14 @@ end)
 put('/stopInsert', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	end
+
+	do_debug("stopInsert", uuid)
+
 	api:execute("uuid_kill", uuid)
 	return 200, {code = 200, text = "OK"}
 end)
@@ -598,40 +879,56 @@ put('/forceLogout', function(params)
 	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
 	api:execute("callcenter_config", "tier del " .. queue_name .. " " .. agent_id)
 	api:execute("callcenter_config", "agent del " .. agent_id)
+	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.47
 put('/forceBusy', function(params)
 	local api = freeswitch.API()
 	local agent_id = params.request.agent_id
+	api:execute("callcenter_config", "agent set status " .. agent_id .. " 'On Break'")
 	api:execute("callcenter_config", "agent set state " .. agent_id .. " In a queue call")
 	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.48
-put('/forceLogout', function(params)
-	local api = freeswitch.API()
-	local queue_name = params.request.queue_name
-	local agent_id = params.request.agent_id
+-- put('/forceLogout', function(params)
+-- 	local api = freeswitch.API()
+-- 	local queue_name = params.request.queue_name
+-- 	local agent_id = params.request.agent_id
 
-	if queue_name == '' or queue_name == nil then
-		queue_name = "support@cti"
-	end
-	api:execute("callcenter_config", "agent set status " .. agent_id .. " 'Logged Out'")
-	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
-	api:execute("callcenter_config", "tier del " .. queue_name .. " " .. agent_id)
-	api:execute("callcenter_config", "agent del " .. agent_id)
-	return 200, {code = 200, text = "OK"}
-end)
+-- 	if queue_name == '' or queue_name == nil then
+-- 		queue_name = "support@cti"
+-- 	end
+-- 	api:execute("callcenter_config", "agent set status " .. agent_id .. " 'Logged Out'")
+-- 	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
+-- 	api:execute("callcenter_config", "tier del " .. queue_name .. " " .. agent_id)
+-- 	api:execute("callcenter_config", "agent del " .. agent_id)
+-- 	return 200, {code = 200, text = "OK"}
+-- end)
 
 -- 1.49
 put('/playLocalFiles', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
 	local files = params.request.files
+	local bleg = ''
+
+	if (string.len(uuid) ~= 36) then -- uuid is a number
+		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+		uuid = ret
+	else --uuid
+		if is_agent_uuid(uuid) then
+			bleg = "-bleg"
+		end
+	end
+
 	if files then
 		filesStr = string.gsub(files, ",", "!")
-		api:execute("uuid_transfer", uuid .. " -bleg set:playback_delimiter=!,playback:'" .. filesStr .. "' inline")
+
+		local args = uuid .. " " .. bleg .. " set:playback_delimiter=!,playback:'" .. filesStr .. "' inline"
+		do_debug("playLocalFiles", args)
+		api:execute("uuid_transfer", args)
 		return 200, {code = 200, text = "OK"}
 	else
 	 return 500
