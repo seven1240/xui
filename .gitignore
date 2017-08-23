@@ -31,3 +31,4 @@ lua/xui/controller/wechat_upload.lua
 www/assets/js/bus.*.js
 www/assets/js/wechat.*.js
 
+lua/xui/vendor/xtra_config_local.lua
