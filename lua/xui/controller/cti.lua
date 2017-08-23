@@ -195,8 +195,8 @@ get('/heldCallInfo', function(params)
 
 		for k,v in pairs(ret) do
 			if type(v) == "table" then
-				if v.state == "Waiting"
-					table.insert(v)
+				if v.state == "Waiting" then
+					table.insert(tab, v)
 				end
 			end
 		end
