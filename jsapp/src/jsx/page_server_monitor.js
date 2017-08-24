@@ -32,8 +32,85 @@
 
 import React from 'react';
 import T from 'i18n-react';
-import { ProgressBar, Grid } from 'react-bootstrap';
+import { ProgressBar, Grid, ButtonToolbar, ButtonGroup, Button } from 'react-bootstrap';
 import { xFetchJSON } from '../jsx/libs/xtools';
+
+// class NewServer extends React.Component {
+
+// }
+
+// class ServerList extends React.Component {
+// 	constructor(props) {
+// 		super(props);
+// 		this.state = { servers: null, formShow: false };
+// 	}
+
+// 	componentDidMount() {
+// 		let _this = this;
+
+// 		xFetchJSON('/api/server_monitor/').then((data) => {
+// 			if (data.code == 200) {
+// 				_this.setState({servers: data.data});
+// 			}
+// 		});
+// 	}
+
+// 	handleSortClick(e) {
+// 		let data = e.target.getAttribute("data");
+// 	}
+
+// 	handleClick(e) {
+// 		let data = e.target.getAttribute("data");
+
+// 		console.log("data", data);
+
+// 		if (data == "new") {
+// 			this.setState({ formShow: true});
+// 		}
+// 	}
+
+// 	handleServerAdded(e) {
+
+// 	}
+
+// 	render() {
+// 		let rows = (this.state.servers || []).map((s) => {
+// 			return <tr><td>{s.domain}</td><td></td></tr>
+// 		})
+// 		let formClose = () => this.setState({ formShow: false });
+
+// 		return <div>
+// 				<h2><T.span text="Servers"/></h2>
+// 				<ButtonToolbar className="pull-right">
+// 				<ButtonGroup>
+// 					<Button onClick={this.handleClick.bind(this)} data="new">
+// 						<i className="fa fa-plus" aria-hidden="true" data="new"></i>&nbsp;
+// 						<T.span text="New" data="new"/>
+// 					</Button>
+// 				</ButtonGroup>
+// 				</ButtonToolbar>
+// 				<table className="table">
+// 				<tbody>
+// 				<tr>
+// 					<th><T.span text="Name" onClick={this.handleSortClick.bind(this)} data="Name" /></th>
+// 					<th><T.span text="Description" onClick={this.handleSortClick.bind(this)} data="Description" /></th>
+// 					<th><T.span style={{ cursor: "pointer" }} text="Delete" onClick={this.handleSortClick.bind(this)} title={T.translate("Click me to toggle fast delete mode")}/></th>
+// 				</tr>
+// 				{
+// 					(this.state.servers || []).map((s) => {
+// 						return <tr>
+// 								<td>{s.domain}</td>
+// 								<td></td>
+// 								<td><T.a onClick={this.handleClick.bind(this)} data="Delete" text="Delete"/></td>
+// 							</tr>
+// 					})
+// 				}
+// 				</tbody>
+// 				</table>
+// 				<NewServer show={this.state.formShow} onHide={formClose} onNewAdded={this.handleServerAdded.bind(this)}/>
+// 			</div>
+// 	}
+// }
 
 class ServerPage extends React.Component {
 	constructor(props) {
@@ -44,7 +121,7 @@ class ServerPage extends React.Component {
 	}
 
 	onOpen(evt) {
-		var _this = this;
+		let _this = this;
 
 		console.error("connected\n");
 		_this.timer = setInterval(function() {
@@ -57,7 +134,9 @@ class ServerPage extends React.Component {
 	}
 
 	doDisconnect() {
-		this.websocket.close();
+		if (this.websocket) {
+			this.websocket.close();
+		}
 	}
 
 	onMessage(evt) {
@@ -80,8 +159,8 @@ class ServerPage extends React.Component {
 		this.doSend("111");
 	}
 
-	componentDidMount() {
-		var _this = this;
+	doConnect() {
+		let _this = this;
 
 		_this.websocket = new WebSocket("ws://" + _this.props.domain + ":8000/");
 		_this.websocket.onopen = function(evt) { _this.onOpen(evt) };
@@ -90,8 +169,12 @@ class ServerPage extends React.Component {
 		_this.websocket.onerror = function(evt) { _this.onError(evt) };
 	}
 
+	componentDidMount() {
+		this.doConnect();
+	}
+
 	componentWillUnmount() {
-		var _this = this;
+		let _this = this;
 
 		if (_this.timer) {
 			clearInterval(_this.timer);
@@ -99,17 +182,32 @@ class ServerPage extends React.Component {
 		_this.doDisconnect();
 	}
 
+	handleClick(e) {
+		let data = e.target.getAttribute("data");
+
+		if (data == "Reconnect") {
+			console.log("Reconnect");
+			this.doDisconnect();
+			this.doConnect();
+		}
+	}
+
 	render() {
 		// console.error("render", info);
 		return <div>
-			<div>{this.props.domain}</div>
+			<font color="#00F0F0" size="6">{this.props.domain}</font>
+			<ButtonToolbar className="pull-right">
+				<Button onClick={this.handleClick.bind(this)} data="new">
+					<T.span text="Reconnect" data="Reconnect"/>
+				</Button>
+			</ButtonToolbar>
 			{
 				this.state.info ?
 					<div>
 						<font>CPU: {this.state.info.cpu}% </font>
 						<ProgressBar bsStyle="success" now={this.state.info.cpu} label={this.state.info.cpu + '%'}  />
 						<font>memory: {this.state.info.memory.percent}% {this.state.info.memory.used}M/{this.state.info.memory.total}M</font>
-						<ProgressBar active sytle={{float: "left", width: "50%"}} bsStyle="success" now={this.state.info.memory.percent} label={this.state.info.memory.percent + '%'} />
+						<ProgressBar active bsStyle="success" now={this.state.info.memory.percent} label={this.state.info.memory.percent + '%'} />
 					</div>
 				: ''
 			}
@@ -134,10 +232,26 @@ class ServerMonitorPage extends React.Component {
 	}
 
 	render() {
+		let myStyle = {
+			'width': "48%",
+			'float': "left",
+			'padding-right': "10px",
+			'padding-left': "10px",
+			'padding-top': "5px",
+			'padding-bottom': "5px",
+			'margin-right': "1%",
+			'margin-left': "1%",
+			'margin-top': "5px",
+			'margin-bottom': "5px",
+			'border': "3px solid blue",
+			'background-color': '#F5F5F5'
+		};
 		return <div>
 			{
 				(this.state.servers || []).map((s) => {
-					return <ServerPage domain={s.domain} sytle={{float: "left", width: "50%"}}/>
+					return <div style={myStyle}>
+						<ServerPage domain={s.domain}/>
+						</div>
 				})
 			}
 		</div>
