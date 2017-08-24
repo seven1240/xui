@@ -38,11 +38,24 @@ content_type("application/json")
 require 'xdb'
 xdb.bind(xtra.dbh)
 
+local function csplit(str, sep)
+	local ret={}
+	local n=1
+	for w in str:gmatch("([^"..sep.."]*)") do
+		ret[n]=ret[n] or w -- only set once (so the blank after a string is ignored)
+		if w=="" then n=n+1 end -- step forwards on a blank but not a string
+	end
+	return ret
+end
+
 get("/", function(params)
 	local servers = {}
-
-	table.insert(servers, {domain = '192.168.3.152'});
-	table.insert(servers, {domain = '192.168.3.67'});
+	local result = xdb.find_one("dicts", {realm = 'SERVER_MONITOR', k = 'DOMAIN'})
+	-- utils.print_r(result)
+	local domains = csplit(result.v, ";");
+	for i, v in pairs(domains) do
+		table.insert(servers, {domain = v});
+	end
 
 	return {code = 200, data = servers}
 end)
