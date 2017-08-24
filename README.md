@@ -10,6 +10,21 @@ Use SQLite by default, PostgreSQL is in TODO list.
 
 Follow the morden https://freeswitch.org/stash/projects/FS/repos/fs18configs/browse config layouts, old configs layouts should also work with trival changes. The goals is to remove all static XML configs and store everything in DB and dynamically serve with lua or xml_curl bindings.
 
+### xTra
+
+A Sintra like micro MVC framework called xTra is made in vendor for easier backend development.
+
+xdb is included as a simple ORM.
+
+xtra_config.lua for sample configurations.
+
+xTra will search xtra_config.lua first in /etc/xtra/ and then in a dir including vendor. e.g. if you want to edit xtra_config.lua to include custom configs, do
+
+    cd vendor
+    cp xtra_config.lua ..
+    cd ..
+    vi xtra_config.lua
+
 
 ## ToDo
 
