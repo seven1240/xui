@@ -369,7 +369,7 @@ put('/releaseCall', function(params)
 		uuid = ret
 	end
 
-	do_debug("retrieveCall", "off " .. uuid)
+	do_debug("releaseCall", "off " .. uuid)
 
 	api:execute("uuid_kill", uuid)
 	return 200, {code = 200, text = "OK"}
@@ -473,10 +473,10 @@ put('/transferIVR', function(params)
 	if (string.len(uuid) ~= 36) then -- uuid is a number
 		local ret = api:execute("hiredis_raw", "default get " .. uuid)
 		uuid = ret
-	else --uuid
-		if is_agent_uuid(uuid) then
-			bleg = "-bleg"
-		end
+	end
+
+	if is_agent_uuid(uuid) then
+		bleg = "-bleg"
 	end
 
 	local args = uuid .. "  " .. bleg .. " " .. accessCode .. " XML " .. context
@@ -500,10 +500,10 @@ put('/transferQueue', function(params)
 	if (string.len(uuid) ~= 36) then -- uuid is a number
 		local ret = api:execute("hiredis_raw", "default get " .. uuid)
 		uuid = ret
-	else --uuid
-		if is_agent_uuid(uuid) then
-			bleg = "-bleg"
-		end
+	end
+
+	if is_agent_uuid(uuid) then
+		bleg = "-bleg"
 	end
 
 	local args = uuid .. " " .. bleg .. " set:x_callcenter=true,callcenter:" .. queue_name .. " inline"
@@ -531,10 +531,10 @@ put('/consultIVR', function(params)
 	if (string.len(uuid) ~= 36) then -- uuid is a number
 		local ret = api:execute("hiredis_raw", "default get " .. uuid)
 		uuid = ret
-	else --uuid
-		if is_agent_uuid(uuid) then
-			bleg = "-bleg"
-		end
+	end
+
+	if is_agent_uuid(uuid) then
+		bleg = "-bleg"
 	end
 
 	local args = uuid .. " " .. bleg .. " set:transfer_fallback_extension="  .. dst_nbr .. ",set:transfer_after_bridge=" .. dst_nbr .. ",transfer:" .. accessCode .. " inline"
@@ -561,10 +561,10 @@ put('/transferOut', function(params)
 	if (string.len(uuid) ~= 36) then -- uuid is a number
 		local ret = api:execute("hiredis_raw", "default get " .. uuid)
 		uuid = ret
-	else --uuid
-		if is_agent_uuid(uuid) then
-			bleg = "-bleg"
-		end
+	end
+
+	if is_agent_uuid(uuid) then
+		bleg = "-bleg"
 	end
 
 	local args = uuid .. " " .. bleg .. " transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
@@ -590,10 +590,10 @@ put('/transferInner', function(params)
 	if (string.len(uuid) ~= 36) then -- uuid is a number
 		local ret = api:execute("hiredis_raw", "default get " .. uuid)
 		uuid = ret
-	else --uuid
-		if is_agent_uuid(uuid) then
-			bleg = "-bleg"
-		end
+	end
+
+	if is_agent_uuid(uuid) then
+		bleg = "-bleg"
 	end
 
 	local args = uuid .. " " .. bleg .. " set:x_callcenter=true,export:'nolocal:x_agent=" .. agent_id .. "',bridge:"  .. dial_str .. " inline"
@@ -616,10 +616,10 @@ put('/consultOut', function(params)
 	if (string.len(uuid) ~= 36) then -- uuid is a number
 		local ret = api:execute("hiredis_raw", "default get " .. uuid)
 		uuid = ret
-	else --uuid
-		if is_agent_uuid(uuid) then
-			bleg = "-bleg"
-		end
+	end
+
+	if is_agent_uuid(uuid) then
+		bleg = "-bleg"
 	end
 
 	local args = uuid .. " " .. bleg .. " transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
@@ -646,11 +646,12 @@ put('/consultInner', function(params)
 		local api = freeswitch.API()
 		ret = api:execute("hiredis_raw", "default get " .. uuid)
 		uuid = ret
-	else --uuid
-		if is_agent_uuid(uuid) then
-			bleg = "-bleg"
-		end
 	end
+
+	if is_agent_uuid(uuid) then
+		bleg = "-bleg"
+	end
+
 
 	local args = uuid .. " " .. bleg .. " set:x_callcenter=true,export:'nolocal:x_agent=" .. agent_id .. "',bridge:"  .. dial_str .. " inline"
 
@@ -667,23 +668,22 @@ put('/consultTransfer', function(params)
 	local uuid = params.request.uuid
 	local agent_id = params.request.agent_id
 	local dial_str = m_dialstring.build(agent_id, context)
-	local xx_agent_id = api:execute("hiredis_raw", "default get " .. uuid)
-
-	api:execute("uuid_broadcast", uuid .. " set::transfer_ringback=$${hold_music}")
-
-	if xx_agent_id ~= '' and xx_agent_id ~= nil then
-		api:execute("uuid_setvar", uuid .. " xx_agent " .. xx_agent_id)
-	end
+	-- if xx_agent_id ~= '' and xx_agent_id ~= nil then
+	-- 	api:execute("uuid_setvar", uuid .. " xx_agent " .. xx_agent_id)
+	-- end
 
 	if (string.len(uuid) ~= 36) then -- uuid is a number
 		local ret = api:execute("hiredis_raw", "default get " .. uuid)
 		uuid = ret
 	end
 
-	local args = uuid .. " att_xfer::[x_agent=" .. agent_id .."]" .. dial_str
+	local xx_agent_id = api:execute("hiredis_raw", "default get " .. uuid)
+
+	local args = uuid .. " att_xfer::[xxx_agent=" .. agent_id .."][xx_agent=" .. xx_agent_id .. "]" .. dial_str
 
 	do_debug("consultTransfer", args)
 
+	api:execute("uuid_broadcast", uuid .. " set::transfer_ringback=$${hold_music}")
 	api:execute("uuid_broadcast", args)
 	return 200, {code = 200, text = "OK"}
 end)
@@ -698,10 +698,10 @@ put('/consultConference', function(params)
 	if (string.len(uuid) ~= 36) then -- uuid is a number
 		local ret1 = api:execute("hiredis_raw", "default get " .. uuid)
 		uuid = ret1
-	else --uuid
-		if is_agent_uuid(uuid) then
-			bleg = "-bleg"
-		end
+	end
+
+	if is_agent_uuid(uuid) then
+		bleg = "-bleg"
 	end
 
 	if (string.len(destUUID) ~= 36) then -- destUUID is a number
@@ -917,10 +917,10 @@ put('/playLocalFiles', function(params)
 	if (string.len(uuid) ~= 36) then -- uuid is a number
 		local ret = api:execute("hiredis_raw", "default get " .. uuid)
 		uuid = ret
-	else --uuid
-		if is_agent_uuid(uuid) then
-			bleg = "-bleg"
-		end
+	end
+
+	if is_agent_uuid(uuid) then
+		bleg = "-bleg"
 	end
 
 	if files then
