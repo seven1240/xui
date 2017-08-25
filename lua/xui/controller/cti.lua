@@ -833,7 +833,7 @@ put('/insert', function(params)
 		uuid = ret
 	end
 
-	local args = "originate [x_agent=" .. listenNumber .. "]" .. dial_str .. " &three_way(" .. uuid .. ")"
+	local args = "originate [x_agent=" .. insertNumber .. "]" .. dial_str .. " &three_way(" .. uuid .. ")"
 
 	do_debug("insert", args)
 
