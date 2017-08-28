@@ -262,3 +262,10 @@ function isObject(obj) {
 function isString(obj) {
 	return Object.prototype.toString.call(obj) === "[object String]";
 }
+
+function agoraCall(destNumber, options) {
+	var key = options && options.key ? options.key : "key";
+	var channel = options && options.channel ? options.channel : destNumber;
+
+	verto.fsAPI("agora", "call " + key + " " + channel + " " + destNumber);
+}
