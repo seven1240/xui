@@ -42,7 +42,7 @@ CREATE TABLE users (
 	cid_number VARCHAR,
 	cid_name VARCHAR,
 	context VARCHAR,
-	domain VARCHAR,
+	domain VARCHAR DEFAULT 'xswitch.cn',
 	password VARCHAR,
 	vm_password VARCHAR,
 	user_cidr VARCHAR,
