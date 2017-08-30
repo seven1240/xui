@@ -269,3 +269,8 @@ function agoraCall(destNumber, options) {
 
 	verto.fsAPI("agora", "call " + key + " " + channel + " " + destNumber);
 }
+
+function isAdmin () {
+	const user = localStorage.getItem("xui.username")
+	return user == "admin";
+}

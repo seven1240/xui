@@ -93,6 +93,8 @@ class App extends React.Component{
 	}
 
 	componentDidMount() {
+		if (!isAdmin()) return;
+
 		const _this = this;
 		xFetchJSON("/api/menus?realm=MENUS").then((data) => {
 			_this.setState({menus: data});
@@ -148,7 +150,11 @@ class Home extends React.Component{
 
 		return <Router history={hashHistory}>
 			<Route path="/" component={App}>
-				<IndexRoute components={{sidebar: DashBoard, main: OverViewPage}} />
+				{
+					isAdmin() ? <IndexRoute components={{sidebar: DashBoard, main: OverViewPage}} /> :
+						<IndexRoute component={Conferences} />
+				}
+
 				<Route path="overview" components={{sidebar: DashBoard, main: OverViewPage}} onlyActiveOnIndex/>
 				<Route path="calls" components = {{sidebar: DashBoard, main: CallsPage}}/>
 				<Route path="channels" components = {{sidebar: DashBoard, main: ChannelsPage}}/>

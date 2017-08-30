@@ -40,6 +40,15 @@ import { LinkContainer } from 'react-router-bootstrap';
 class Settings extends React.Component {
 
 	render() {
+		if (!isAdmin()) return <Nav bsStyle="pills" stacked>
+			<LinkContainer to="/settings/users" key="M_USERS">
+				<NavItem eventKey="M_USER">
+					<i className="fa fa-user" aria-hidden="true"></i>&nbsp;
+					<T.span text="Users"/>
+				</NavItem>
+			</LinkContainer>
+		</Nav>
+
 		return <Nav bsStyle="pills" stacked>
 			<LinkContainer to="/settings/users" key="M_USERS">
 				<NavItem eventKey="M_USER">
