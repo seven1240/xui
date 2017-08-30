@@ -167,6 +167,16 @@ if (found) then
 	</domain>]]
 end
 
+if (not found) and (action == "voicemail-lookup") then
+	XML_STRING = [[<domain name="]] .. domain .. [[">
+		<user id="]] .. user .. [[">
+			<params>
+				<param name="vm-password" value="1000"/>
+			</params>
+		</user>
+	</domain>]]
+end
+
 if do_debug then
 	utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", XML_STRING)
 end
