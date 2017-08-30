@@ -330,26 +330,28 @@ class SIPProfilePage extends React.Component {
 	handleDetailsShow() {
 		var _this = this;
 
-		verto.fsAPI("sofia", "xmlstatus profile " + this.state.profile.name, function(data) {
-			if (!data.message.match('<')) {
-				console.log(data);
-				notify(data.message, 'error');
-				return;
-			}
+		if (!this.state.detailsFormShow) {
+			verto.fsAPI("sofia", "xmlstatus profile " + this.state.profile.name, function (data) {
+				if (!data.message.match('<')) {
+					console.log(data);
+					notify(data.message, 'error');
+					return;
+				}
 
-			const parser = new DOMParser();
-			const doc = parser.parseFromString(data.message, "text/xml");
-			console.log('doc', doc);
+				const parser = new DOMParser();
+				const doc = parser.parseFromString(data.message, "text/xml");
+				console.log('doc', doc);
 
-			const profile = parseXML(doc);
+				const profile = parseXML(doc);
 
-			const rows = Object.keys(profile).map(function(k, index) {
-				return {k: k, v: profile[k]};
+				const rows = Object.keys(profile).map(function (k, index) {
+					return {k: k, v: profile[k]};
+				});
+
+				_this.setState({profileDetails: rows});
+				console.log('profileDetails', _this.state.profileDetails)
 			});
-
-			_this.setState({profileDetails: rows});
-			console.log('profileDetails', _this.state.profileDetails)
-		});
+		}
 
 		this.setState({
 			detailsFormShow: !this.state.detailsFormShow,
@@ -363,6 +365,11 @@ class SIPProfilePage extends React.Component {
 		xFetchJSON("/api/sip_profiles/" + this.props.params.id).then((data) => {
 			_this.setState({profile: data, params: data.params});
 			verto.fsAPI("sofia", "xmlstatus profile " + _this.state.profile.name, function(data) {
+				if (!data.message.match('<')) {
+					console.log(data);
+					return;
+				}
+
 				const parser = new DOMParser();
 				const doc = parser.parseFromString(data.message, "text/xml");
 				console.log('doc', doc);
@@ -381,20 +388,6 @@ class SIPProfilePage extends React.Component {
 				if (profile && _this.state.profile.name == profile.name) {
 					_this.setState({running: true});
 				}
-			});
-
-			verto.fsAPI("sofia", "xmlstatus profile " + this.state.profile.name, function(data) {
-				if (!data.message.match('<')) {
-					console.log(data);
-					notify(data.message, 'error');
-					return;
-				}
-
-				const parser = new DOMParser();
-				const doc = parser.parseFromString(data.message, "text/xml");
-				console.log('doc', doc);
-
-				const profile = parseXML(doc);
 
 				const rows = Object.keys(profile).map(function(k, index) {
 					return {k: k, v: profile[k]};
@@ -426,6 +419,35 @@ class SIPProfilePage extends React.Component {
 			console.log("profile_name",profile_name);
 			if(_this.state.profile.name == profile_name) {
 				_this.setState({ running : true});
+				verto.fsAPI("sofia", "xmlstatus profile " + _this.state.profile.name, function(data) {
+					if (!data.message.match('<')) {
+						console.log(data)
+						notify("Profile Start Fail!");
+						return;
+					}
+
+					const parser = new DOMParser();
+					const doc = parser.parseFromString(data.message, "text/xml");
+					console.log('doc', doc);
+
+					const msg = parseXML(doc);
+					console.log("msg sip", msg);
+
+					let profile = {};
+
+					if (isArray(msg)) {
+						profile = msg[0];
+					} else if (isObject(msg)) {
+						profile = msg;
+					}
+
+					const rows = Object.keys(profile).map(function(k, index) {
+						return {k: k, v: profile[k]};
+					});
+
+					_this.setState({profileDetails: rows});
+					console.log('profileDetails', _this.state.profileDetails)
+				});
 			}
 		} else if (e.eventChannel == "FSevent.custom::sofia::profile_stop") {
 			const profile_name = e.data["profile_name"];
@@ -523,6 +545,8 @@ class SIPProfilePage extends React.Component {
 		let hand = { cursor: "pointer" };
 		var danger = this.state.danger ? "danger" : "";
 		let save_btn = "";
+		let detail_btn = "";
+		let detail_form = <div />;
 		let err_msg = "";
 		let params = <tr></tr>;
 		let color = this.state.running ? "lime" : '#dadada';
@@ -572,14 +596,25 @@ class SIPProfilePage extends React.Component {
 			save_btn = <Button onClick={this.handleSubmit}><T.span text="Save"/></Button>
 		}
 
+		if (this.state.running == true) {
+			detail_btn = <ButtonGroup>
+				<Button onClick={_this.handleDetailsShow.bind(_this)}><i className="fa fa-list-ul" aria-hidden="true"></i>&nbsp;<T.span text={this.state.detailsText}/></Button>
+			</ButtonGroup>;
+			detail_form = this.state.detailsFormShow ?
+				<Form horizontal id="DetailsForm">
+					<FormGroup controlId="formDetails">
+						<Col componentClass={ControlLabel} sm={2}><T.span text="Details"/></Col>
+						<Col sm={10}><FormControl.Static>{profiles}</FormControl.Static></Col>
+					</FormGroup>
+				</Form> : <div />;
+		}
+
 		return <div>
 			<ButtonToolbar className="pull-right">
 			<ButtonGroup className="block">
 				<div style={running_state}></div>
 			</ButtonGroup>
-			<ButtonGroup>
-				<Button onClick={_this.handleDetailsShow.bind(_this)}><i className="fa fa-list-ul" aria-hidden="true"></i>&nbsp;<T.span text={this.state.detailsText}/></Button>
-			</ButtonGroup>
+			{detail_btn}
 			<ButtonGroup>
 				<Button onClick={_this.handleStart.bind(_this)}><i className="fa fa-circle" aria-hidden="true"></i>&nbsp;<T.span text="Start"/></Button>
 				<Button onClick={_this.handleStop.bind(_this)}><i className="fa fa-circle-o" aria-hidden="true"></i>&nbsp;<T.span text="Stop"/></Button>
@@ -616,15 +651,7 @@ class SIPProfilePage extends React.Component {
 					<Col sm={10}>{save_btn}</Col>
 				</FormGroup>				
 			</Form>
-			{ this.state.detailsFormShow ? 
-				<Form horizontal id="DetailsForm">
-					<FormGroup controlId="formDetails">
-						<Col componentClass={ControlLabel} sm={2}><T.span text="Details"/></Col>
-						<Col sm={10}><FormControl.Static>{profiles}</FormControl.Static></Col>
-					</FormGroup>
-				</Form> :
-				<div />
-			}
+			{detail_form}
 			<ButtonToolbar className="pull-right">
 			<ButtonGroup>
 				<Button onClick={this.toggleHighlight}><i className="fa fa-edit" aria-hidden="true"></i>&nbsp;<T.span text="Edit"/></Button>
