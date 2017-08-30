@@ -27,6 +27,7 @@ INSERT INTO dicts (realm, k, v) VALUES ('USERTYPE', 'FS_UT_VERTO', 'VERTO');
 
 INSERT INTO dicts (realm, k, v) VALUES ('CONTEXT', 'default', 'default');
 INSERT INTO dicts (realm, k, v) VALUES ('CONTEXT', 'public',  'public' );
+INSERT INTO dicts (realm, k, v) VALUES ('CONTEXT', 'cti',  'cti' );
 
 INSERT INTO dicts (realm, k, v) VALUES ('DEST', 'FS_DEST_USER', 'USER');
 INSERT INTO dicts (realm, k, v) VALUES ('DEST', 'FS_DEST_SYSTEM', 'SYSTEM');
