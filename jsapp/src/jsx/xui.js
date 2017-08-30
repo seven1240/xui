@@ -150,11 +150,7 @@ class Home extends React.Component{
 
 		return <Router history={hashHistory}>
 			<Route path="/" component={App}>
-				{
-					isAdmin() ? <IndexRoute components={{sidebar: DashBoard, main: OverViewPage}} /> :
-						<IndexRoute component={Conferences} />
-				}
-
+				<IndexRoute components={{sidebar: DashBoard, main: OverViewPage}} />
 				<Route path="overview" components={{sidebar: DashBoard, main: OverViewPage}} onlyActiveOnIndex/>
 				<Route path="calls" components = {{sidebar: DashBoard, main: CallsPage}}/>
 				<Route path="channels" components = {{sidebar: DashBoard, main: ChannelsPage}}/>

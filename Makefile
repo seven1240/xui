@@ -43,6 +43,7 @@ release:
 
 clean:
 	rm -f www/assets/js/jsx/*
+	rm -f www/assets/js/plugins/*
 	rm -rf www/assets/css/xui*.css
 	rm -f www/recording
 	rm -f www/recordings
@@ -50,6 +51,9 @@ clean:
 	rm -f www/voicemail
 	rm -f out/*
 
+
+plugins:
+	cd jsapp/plugins/conference && make
 
 out:
 	mkdir out
@@ -60,7 +64,7 @@ tar: out
 	cd .. && tar cvzf xui/out/`cat xui/VERSION`.tar.gz --exclude xui/lua/xui/xtra_config.lua xui/www xui/lua xui/db xui/VERSION
 	ls out
 
-ready: clean release tar
+ready: clean plugins release tar
 	echo "Done"
 
 sync:
