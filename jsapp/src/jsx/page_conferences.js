@@ -444,8 +444,8 @@ class ConferencePage extends React.Component {
 		}
 
 		let value = localStorage.getItem("xui.conference.switchMaxMembers");
-		global_max_members = parseInt(value) % 64;
-		if (global_max_members == 0) {
+		global_max_members = value;
+		if (global_max_members <= 0 || global_max_members > 64) {
 			global_max_members = 4;
 		}
 
@@ -661,7 +661,7 @@ class ConferencePage extends React.Component {
 	}
 
 	handleConferenceEvent (la, a, vt) {
-		console.log("onChange FSevent:", a.action, a);
+		// console.log("onChange FSevent:", a.action, a);
 		const _this = this;
 
 		if (a.hashKey) a.key = a.hashKey;
@@ -922,82 +922,91 @@ class ConferencePage extends React.Component {
 		localStorage.setItem('xui.conference.autoSort', e.target.checked);
 	}
 
-	// switchLoop() {
-	// 	if (!this.state.autoSwitch) {
-	// 		this.loopTimer = null;
-	// 		console.log("auto switch stopped");
-	// 		return;
-	// 	}
-
-	// 	const old_index = global_switch_index;
-	// 	let index = global_switch_index;
-	// 	const max = this.state.total + global_switch_index + 1;
-	// 	let member = null;
-
-	// 	if (this.state.total == 1) {
-	// 		console.log("tick ...");
-	// 		this.loopTimer = setTimeout(this.switchLoop.bind(this), global_loop_interval);
-	// 		return;
-	// 	}
-
-	// 	while(++index < max) {
-	// 		index %= this.state.total;
-	// 		member = this.state.rows[index];
-
-	// 		if (member && parseInt(member.memberID) > 0 && member.cidNumber.indexOf('.') < 0) {
-	// 			global_switch_index = index;
-	// 			break;
-	// 		}
-	// 	}
-
-	// 	console.log(global_switch_index, old_index, member);
-	// 	if (global_switch_index != old_index && member) {
-	// 		console.log("tick ... " + global_switch_index + "/" + (this.state.total - 1) + " memberID=" + member.memberID);
-
-	// 		console.log(member.conference_name + " vid-floor " + member.memberID + " force")
-	// 		member.verto.fsAPI("conference", member.conference_name + " vid-floor " + member.memberID + " force");
-	// 		// verto.fsAPI("conference", member.conference_name + " unvmute " + member.memberID);
-	// 		// verto.fsAPI("conference", member.conference_name + " vmute " + member.memberID);
-
-	// 		// try auto click other floors
-	// 		console.log('links', global_conference_links);
-	// 		console.log('local', global_conference_links_local);
-	// 		console.log(member.verto.domain, domain);
-	// 		if (member.verto.domain == domain) {
-	// 			Object.keys(global_conference_links).forEach((k) => {
-	// 				const m = global_conference_links[k];
-	// 				console.log(m.verto.domain, "conference", m.conference_name + " vid-floor " + m.memberID + " force");
-	// 				// m.verto.fsAPI("conference", m.conference_name + " vid-floor " + m.memberID + " force");
-	// 			});
-	// 		} else {
-	// 			const m = global_conference_links_local[member.verto.domain];
-	// 			console.log(m.verto.domain, "conference", m.conference_name + " vid-floor " + m.memberID + " force");
-	// 			// m.verto.fsAPI("conference", m.conference_name + " vid-floor " + m.memberID + " force");
-
-	// 			Object.keys(global_conference_links).forEach((k) => {
-	// 				const m = global_conference_links[k];
-
-	// 				if (m.verto.domain == member.verto.domain) return;
-
-	// 				console.log(m.verto.domain, "conference", m.conference_name + " vid-floor " + m.memberID + " force");
-	// 				// m.verto.fsAPI("conference", m.conference_name + " vid-floor " + m.memberID + " force");
-	// 			});
-	// 		}
-	// 	} else {
-	// 		console.log("tick ... " + global_switch_index + "/" + (this.state.total - 1));
-	// 	}
-
-	// 	this.loopTimer = setTimeout(this.switchLoop.bind(this), global_loop_interval);
-	// }
-
-	switchLoop() {
+	switchLoopWhenOne() {
 		if (!this.state.autoSwitch) {
 			this.loopTimer = null;
 			console.log("auto switch stopped");
 			return;
 		}
 
-		let max_num_in_canvas = 2;
+		const old_index = global_switch_index;
+		let index = global_switch_index;
+		const max = this.state.total + global_switch_index + 1;
+		let member = null;
+
+		if (this.state.total == 1) {
+			console.log("tick ...");
+			this.loopTimer = setTimeout(this.switchLoop.bind(this), global_loop_interval);
+			return;
+		}
+
+		while(++index < max) {
+			index %= this.state.total;
+			member = this.state.rows[index];
+
+			if (member && parseInt(member.memberID) > 0 && member.cidNumber.indexOf('.') < 0) {
+				global_switch_index = index;
+				break;
+			}
+		}
+
+		console.log(global_switch_index, old_index, member);
+		if (global_switch_index != old_index && member) {
+			console.log("tick ... " + global_switch_index + "/" + (this.state.total - 1) + " memberID=" + member.memberID);
+
+			console.log(member.conference_name + " vid-floor " + member.memberID + " force")
+			member.verto.fsAPI("conference", member.conference_name + " vid-floor " + member.memberID + " force");
+			// verto.fsAPI("conference", member.conference_name + " unvmute " + member.memberID);
+			// verto.fsAPI("conference", member.conference_name + " vmute " + member.memberID);
+
+			// try auto click other floors
+			console.log('links', global_conference_links);
+			console.log('local', global_conference_links_local);
+			console.log(member.verto.domain, domain);
+			if (member.verto.domain == domain) {
+				Object.keys(global_conference_links).forEach((k) => {
+					const m = global_conference_links[k];
+					console.log(m.verto.domain, "conference", m.conference_name + " vid-floor " + m.memberID + " force");
+					// m.verto.fsAPI("conference", m.conference_name + " vid-floor " + m.memberID + " force");
+				});
+			} else {
+				const m = global_conference_links_local[member.verto.domain];
+				console.log(m.verto.domain, "conference", m.conference_name + " vid-floor " + m.memberID + " force");
+				// m.verto.fsAPI("conference", m.conference_name + " vid-floor " + m.memberID + " force");
+
+				Object.keys(global_conference_links).forEach((k) => {
+					const m = global_conference_links[k];
+
+					if (m.verto.domain == member.verto.domain) return;
+
+					console.log(m.verto.domain, "conference", m.conference_name + " vid-floor " + m.memberID + " force");
+					// m.verto.fsAPI("conference", m.conference_name + " vid-floor " + m.memberID + " force");
+				});
+			}
+		} else {
+			console.log("tick ... " + global_switch_index + "/" + (this.state.total - 1));
+		}
+
+		this.loopTimer = setTimeout(this.switchLoop.bind(this), global_loop_interval);
+	}
+
+	switchLoop() {
+		if (global_max_members <=0 || global_max_members > 64) {
+			global_max_members = 4;
+		}
+
+		if (global_max_members == 1) {
+			this.switchLoopWhenOne();
+			return;
+		}
+
+		if (!this.state.autoSwitch) {
+			this.loopTimer = null;
+			console.log("auto switch stopped");
+			return;
+		}
+
+		let max_num_in_canvas = global_max_members;
 
 		if (this.state.total <= max_num_in_canvas) {
 			console.log("tick ...");
@@ -1005,7 +1014,7 @@ class ConferencePage extends React.Component {
 			return;
 		}
 
-		console.log('rows', this.state.rows);
+		console.log('rows', this.state.rows, domain);
 		// move old
 		// admin watch 1, others watch 2;
 		// admin on 2, others on 1;
@@ -1028,9 +1037,9 @@ class ConferencePage extends React.Component {
 
 		while(++index < max && current_num_in_canvas < max_num_in_canvas) {
 			let member = this.state.rows[index];
-			console.log('info', index, old_index, max, member);
+			console.log('info', index, old_index, max, max_num_in_canvas, member);
 
-			if (member && member.verto) {
+			if (member && member.verto && member.verto.domain == domain) {
 				let args = member.conference_name + " vid-canvas " + member.memberID + " " + watch_id;
 
 				console.log("watch args", args);
@@ -1076,7 +1085,7 @@ class ConferencePage extends React.Component {
 	}
 
 	handleSwitchMaxMembersChange(e) {
-		console.log('interval', e.target.value);
+		console.log('max members', e.target.value);
 		let value = parseInt(e.target.value) % 64;
 
 		if (value == 0) {

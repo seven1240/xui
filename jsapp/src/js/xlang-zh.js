@@ -170,6 +170,7 @@ LANGUAGES["zh"] = {
 	"Hide Linked Member": "隐藏连接键",
 	"Auto Sort": "自动排序",
 	"Auto Switch": "自动轮循",
+	"Max Members On Canvas": "画布成员个数",
 
 	//会议视频布局画面
 	"1x1": "单人画面",
