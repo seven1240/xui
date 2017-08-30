@@ -339,7 +339,7 @@ put('/callInner', function(params)
 	local calledAgent = params.request.calledAgent
 	local caller_dial_str = "{absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "]" .. record_str .. m_dialstring.build(agent_id, context)
 	local called_dial_str = "[x_agent=" .. calledAgent .. ",x_caller=" .. agent_id ..",x_dest=" .. calledAgent .. "]" .. m_dialstring.build(calledAgent, context)
-	local args = "originate " .. caller_dial_str .. " 'm:^:callcenter_track:" .. agent_id .. "^bridge:" .. called_dial_str .. "' inline"
+	local args = "originate " .. caller_dial_str .. " m:^:callcenter_track:" .. agent_id .. "^export:nolocal:execute_on_answer='callcenter_track " .. calledAgent .. "'^bridge:" .. called_dial_str .. " inline"
 	do_debug("callInner", args)
 	api:execute("bgapi", args)
 	return 200, {code = 200, text = "OK"}
