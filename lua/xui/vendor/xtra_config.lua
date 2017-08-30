@@ -5,6 +5,7 @@ config.dsn = "sqlite://xui"
 config.db_user = "root"
 config.db_pass = "root"
 config.db_auto_connect = true
+config.auto_record = false
 config.base_dir = "/usr/local/freeswitch"
 config.sounds_dir = config.base_dir .. "/sounds"
 config.storage_dir = config.base_dir .. "/storage"

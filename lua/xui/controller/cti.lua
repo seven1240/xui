@@ -80,6 +80,36 @@ function is_agent_uuid(uuid)
 	end
 end
 
+function set_record()
+	local api = freeswitch.API()
+	local args = ''
+	local uuid = api:execute("create_uuid")
+	if config.auto_record then
+		local grecordings_dir = api:execute("global_getvar", "recordings_dir")
+		local rtime = api:execute("strftime", "%Y-%m-%d-%H-%M-%S")
+		local recording_file = grecordings_dir .. "/cti/" .. rtime .. "." .. uuid .. ".wav"
+		args = "[xrecording_file='" .. recording_file .. "',execute_on_answer='record_session " .. recording_file .. "',origination_uuid=" .. uuid .. "]"
+	end
+	return args
+end
+
+function cancel_record(uuid, hcomma, tcomma)
+	local api = freeswitch.API()
+	local args = ''
+	local stop_uuid = uuid
+	local recording_file = api:execute("hiredis_raw", "default get record_" .. uuid)
+	local guuid = string.gsub(uuid, "-", "%%-")
+	if string.find(recording_file, guuid) then
+		local agent_from_callcenter = api:execute("uuid_getvar", uuid .. " agent_from_callcenter")
+		if agent_from_callcenter == "true" then -- mod_callcenter record_template is for caller not agent
+			stop_uuid =  api:execute("hiredis_raw", "default get other_leg_" .. uuid)
+		end
+		args = hcomma .. "set:xvar=${uuid_record('" .. stop_uuid .. " stop " .. recording_file .. "')}" .. tcomma
+	end
+
+	do_debug("cancel_record", args)
+	return args
+end
 -- 1.1
 -- post('/createCTI', function(params)
 -- 	login = 'cti'
@@ -233,7 +263,7 @@ put('/agentLogin', function(params)
 	do_debug("agentLogin dial_str", dial_str)
 
 	api:execute("callcenter_config", "agent add " .. agent_id .. " callback")
-	api:execute("callcenter_config", "agent set contact " .. agent_id .. " {absolute_codec_string=PCMU,PCMA}{x_bridge_agent=" .. agent_id .. "}[x_agent=" .. agent_id .. "]" .. dial_str)
+	api:execute("callcenter_config", "agent set contact " .. agent_id .. " {absolute_codec_string=PCMU,PCMA}{x_bridge_agent=" .. agent_id .. "}[x_agent=" .. agent_id .. "][agent_from_callcenter=true]" .. dial_str)
 	api:execute("callcenter_config", "agent set status " .. agent_id .. " 'On Break'")
 	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
 	api:execute("callcenter_config", "tier add " .. queue_name .. " " .. agent_id)
@@ -304,10 +334,12 @@ end)
 put('/callInner', function(params)
 	local api = freeswitch.API()
 	local context = 'cti'
+	local record_str = set_record()
 	local agent_id = params.request.agent_id
 	local calledAgent = params.request.calledAgent
-	local dial_str = m_dialstring.build(agent_id, context)
-	local args = "originate {absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "]" .. dial_str .. " export:nolocal:x_agent=" .. calledAgent .. ",transfer:" .. "'" .. calledAgent .. " XML " .. context .. "' inline"
+	local caller_dial_str = "{absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "]" .. record_str .. m_dialstring.build(agent_id, context)
+	local called_dial_str = "[x_agent=" .. calledAgent .. ",x_caller=" .. agent_id ..",x_dest=" .. calledAgent .. "]" .. m_dialstring.build(calledAgent, context)
+	local args = "originate " .. caller_dial_str .. " 'm:^:callcenter_track:" .. agent_id .. "^bridge:" .. called_dial_str .. "' inline"
 	do_debug("callInner", args)
 	api:execute("bgapi", args)
 	return 200, {code = 200, text = "OK"}
@@ -317,13 +349,14 @@ end)
 put('/callOut', function(params)
 	local api = freeswitch.API()
 	local context = 'cti'
+	local record_str = set_record()
 	local agent_id = params.request.agent_id
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
-	local dial_str = m_dialstring.build(agent_id, context)
-	local args = "originate {absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "]" .. dial_str .. " transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+	local caller_dial_str = "{absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "][xx_caller=" .. agent_id .. "]" .. record_str .. m_dialstring.build(agent_id, context)
+	local args = "originate " .. caller_dial_str .. " m:^:callcenter_track:" .. agent_id .. "^export:nolocal:x_caller=" .. agent_id .. "^export:nolocal:x_dest=" .. calledNumber .. "^transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
 	if callerNumber ~= '' and callerNumber ~= nil then
-		args = "originate {absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "]" .. dial_str .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+		args = "originate " .. caller_dial_str .. " m:^:callcenter_track:" .. agent_id .. "^export:nolocal:x_caller=" .. agent_id .. "^export:nolocal:x_dest=" .. calledNumber .. "^set:effective_caller_id_number=" .. callerNumber .. "^set:effective_caller_id_name=" .. callerNumber .. "^set:cc_export_vars=xx_caller^transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
 	end
 	do_debug("callOut", args)
 	api:execute("bgapi", args)
@@ -479,7 +512,9 @@ put('/transferIVR', function(params)
 		bleg = "-bleg"
 	end
 
-	local args = uuid .. "  " .. bleg .. " " .. accessCode .. " XML " .. context
+	local cancel_record_str = cancel_record(uuid, '', ",")
+
+	local args = uuid .. "  " .. bleg .. " " .. cancel_record_str .. "transfer:'" .. accessCode .. " XML " .. context .. "' inline"
 
 	do_debug("transferIVR", args)
 
@@ -506,7 +541,9 @@ put('/transferQueue', function(params)
 		bleg = "-bleg"
 	end
 
-	local args = uuid .. " " .. bleg .. " set:x_callcenter=true,callcenter:" .. queue_name .. " inline"
+	local cancel_record_str = cancel_record(uuid, '', '')
+
+	local args = uuid .. " " .. bleg .. " set:x_callcenter=true," .. cancel_record_str .. ",callcenter:" .. queue_name .. " inline"
 
 	do_debug("transferQueue", args)
 
@@ -537,7 +574,8 @@ put('/consultIVR', function(params)
 		bleg = "-bleg"
 	end
 
-	local args = uuid .. " " .. bleg .. " set:transfer_fallback_extension="  .. dst_nbr .. ",set:transfer_after_bridge=" .. dst_nbr .. ",transfer:" .. accessCode .. " inline"
+	-- local args = uuid .. " " .. bleg .. " set:transfer_fallback_extension="  .. dst_nbr .. ",set:transfer_after_bridge=" .. dst_nbr .. ",transfer:" .. accessCode .. " inline"
+	local args = uuid .. " " .. bleg .. " export:transfer_fallback_extension="  .. dst_nbr .. ",set:transfer_after_bridge=" .. dst_nbr .. ",transfer:" .. accessCode .. " inline"
 
 	do_debug("consultIVR", args)
 	-- local args = "'m:^:set:hangup_after_bridge=false^set:continue_on_fail=NORMAL_TEMPORARY_FAILURE,USER_BUSY,NO_ANSWER,TIMEOUT,NO_ROUTE_DESTINATION,USER_NOT_REGISTERED,NO_USER_RESPONSE,ATTENDED_TRANSFER,CALL_REJECTED^" ..
@@ -567,9 +605,12 @@ put('/transferOut', function(params)
 		bleg = "-bleg"
 	end
 
-	local args = uuid .. " " .. bleg .. " transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+
+	local cancel_record_str = cancel_record(uuid, '', ",")
+
+	local args = uuid .. " " .. bleg .. " " .. cancel_record_str .. "transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
 	if callerNumber ~= '' and callerNumber ~= nil then
-		args = uuid .. " " .. bleg .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+		args = uuid .. " " .. bleg .. " " .. cancel_record_str .. "set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
 	end
 
 	do_debug("transferOut", args)
@@ -596,7 +637,17 @@ put('/transferInner', function(params)
 		bleg = "-bleg"
 	end
 
-	local args = uuid .. " " .. bleg .. " set:x_callcenter=true,export:'nolocal:x_agent=" .. agent_id .. "',bridge:"  .. dial_str .. " inline"
+	local cancel_record_str = cancel_record(uuid, '', ",")
+
+	local record_str_tmp = set_record()
+
+	local record_str = ''
+
+	if record_str_tmp then
+		record_str = string.gsub(record_str_tmp, ",", "\\,")
+	end
+
+	local args = uuid .. " " .. bleg .. " " .. cancel_record_str .. "set:x_callcenter=true,export:'nolocal:x_agent=" .. agent_id .. "',bridge:" .. record_str .. dial_str .. " inline"
 
 	do_debug("transferInner", args)
 
@@ -604,62 +655,62 @@ put('/transferInner', function(params)
 	return 200, {code = 200, text = "OK"}
 end)
 
--- 1.33
-put('/consultOut', function(params)
-	local api = freeswitch.API()
-	local context = 'cti'
-	local uuid = params.request.uuid
-	local callerNumber = params.request.callerNumber
-	local calledNumber = params.request.calledNumber
-	local bleg = ''
+-- -- 1.33
+-- put('/consultOut', function(params)
+-- 	local api = freeswitch.API()
+-- 	local context = 'cti'
+-- 	local uuid = params.request.uuid
+-- 	local callerNumber = params.request.callerNumber
+-- 	local calledNumber = params.request.calledNumber
+-- 	local bleg = ''
 
-	if (string.len(uuid) ~= 36) then -- uuid is a number
-		local ret = api:execute("hiredis_raw", "default get " .. uuid)
-		uuid = ret
-	end
+-- 	if (string.len(uuid) ~= 36) then -- uuid is a number
+-- 		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+-- 		uuid = ret
+-- 	end
 
-	if is_agent_uuid(uuid) then
-		bleg = "-bleg"
-	end
+-- 	if is_agent_uuid(uuid) then
+-- 		bleg = "-bleg"
+-- 	end
 
-	local args = uuid .. " " .. bleg .. " transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
-	if callerNumber ~= '' and callerNumber ~= nil then
-		args = uuid .. " " .. bleg .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
-	end
+-- 	local args = uuid .. " " .. bleg .. " transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+-- 	if callerNumber ~= '' and callerNumber ~= nil then
+-- 		args = uuid .. " " .. bleg .. " set:effective_caller_id_number=" .. callerNumber .. ",set:effective_caller_id_name=" .. callerNumber .. ",transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+-- 	end
 
-	do_debug("consultOut", args)
+-- 	do_debug("consultOut", args)
 
-	api:execute("uuid_transfer", args)
-	return 200, {code = 200, text = "OK"}
-end)
+-- 	api:execute("uuid_transfer", args)
+-- 	return 200, {code = 200, text = "OK"}
+-- end)
 
--- 1.34
-put('/consultInner', function(params)
-	local api = freeswitch.API()
-	local context = 'cti'
-	local uuid = params.request.uuid
-	local agent_id = params.request.agent_id
-	local dial_str = m_dialstring.build(agent_id, context)
-	local bleg = ''
+-- -- 1.34
+-- put('/consultInner', function(params)
+-- 	local api = freeswitch.API()
+-- 	local context = 'cti'
+-- 	local uuid = params.request.uuid
+-- 	local agent_id = params.request.agent_id
+-- 	local dial_str = m_dialstring.build(agent_id, context)
+-- 	local bleg = ''
 
-	if (string.len(uuid) ~= 36) then -- uuid is a number
-		local api = freeswitch.API()
-		ret = api:execute("hiredis_raw", "default get " .. uuid)
-		uuid = ret
-	end
+-- 	if (string.len(uuid) ~= 36) then -- uuid is a number
+-- 		local api = freeswitch.API()
+-- 		ret = api:execute("hiredis_raw", "default get " .. uuid)
+-- 		uuid = ret
+-- 	end
 
-	if is_agent_uuid(uuid) then
-		bleg = "-bleg"
-	end
+-- 	if is_agent_uuid(uuid) then
+-- 		bleg = "-bleg"
+-- 	end
 
 
-	local args = uuid .. " " .. bleg .. " set:x_callcenter=true,export:'nolocal:x_agent=" .. agent_id .. "',bridge:"  .. dial_str .. " inline"
+-- 	local args = uuid .. " " .. bleg .. " set:x_callcenter=true,export:'nolocal:x_agent=" .. agent_id .. "',bridge:"  .. dial_str .. " inline"
 
-	do_debug("consultInner", args)
+-- 	do_debug("consultInner", args)
 
-	api:execute("uuid_transfer", args)
-	return 200, {code = 200, text = "OK"}
-end)
+-- 	api:execute("uuid_transfer", args)
+-- 	return 200, {code = 200, text = "OK"}
+-- end)
 
 -- 1.35
 put('/consultTransfer', function(params)
@@ -668,22 +719,29 @@ put('/consultTransfer', function(params)
 	local uuid = params.request.uuid
 	local agent_id = params.request.agent_id
 	local dial_str = m_dialstring.build(agent_id, context)
-	-- if xx_agent_id ~= '' and xx_agent_id ~= nil then
-	-- 	api:execute("uuid_setvar", uuid .. " xx_agent " .. xx_agent_id)
-	-- end
 
 	if (string.len(uuid) ~= 36) then -- uuid is a number
 		local ret = api:execute("hiredis_raw", "default get " .. uuid)
 		uuid = ret
 	end
 
-	local xx_agent_id = api:execute("hiredis_raw", "default get " .. uuid)
+	local att_xfer_from_agent_id = api:execute("hiredis_raw", "default get " .. uuid)
 
-	local args = uuid .. " att_xfer::[xxx_agent=" .. agent_id .."][xx_agent=" .. xx_agent_id .. "]" .. dial_str
+	local record_str = set_record()
+	local cancel_record_str_tmp = cancel_record(uuid, '', '')
+	local cancel_record_str = ''
 
+	if cancel_record_str_tmp then
+		cancel_record_str = string.gsub(cancel_record_str_tmp, ":", "::")
+	end
+
+	local args = uuid .. " att_xfer::[x_agent=" .. agent_id ..",x_caller=" .. att_xfer_from_agent_id .. ",x_dest=" .. agent_id .."]" .. record_str .. dial_str
+
+	do_debug("cancel_record_str", uuid .. " " .. cancel_record_str)
 	do_debug("consultTransfer", args)
 
 	api:execute("uuid_broadcast", uuid .. " set::transfer_ringback=$${hold_music}")
+	api:execute("uuid_broadcast", uuid .. " " .. cancel_record_str)
 	api:execute("uuid_broadcast", args)
 	return 200, {code = 200, text = "OK"}
 end)
@@ -709,7 +767,9 @@ put('/consultConference', function(params)
 		destUUID = ret2
 	end
 
-	local args = uuid .. " " .. bleg .. " answer,three_way:" .. destUUID .. " inline"
+	local cancel_record_str = cancel_record(uuid, '', ",")
+
+	local args = uuid .. " " .. bleg .. " " .. cancel_record_str .. "answer,three_way:" .. destUUID .. " inline"
 
 	do_debug("consultConference", args)
 
@@ -827,13 +887,14 @@ put('/insert', function(params)
 	local context = 'cti'
 	local insertNumber = params.request.insertNumber
 	local dial_str = m_dialstring.build(insertNumber, context)
+	local record_str = set_record()
 
 	if (string.len(uuid) ~= 36) then -- uuid is a number
 		local ret = api:execute("hiredis_raw", "default get " .. uuid)
 		uuid = ret
 	end
 
-	local args = "originate [x_agent=" .. insertNumber .. "]" .. dial_str .. " &three_way(" .. uuid .. ")"
+	local args = "originate [x_agent=" .. insertNumber .. "]" .. record_str .. dial_str .. " &three_way(" .. uuid .. ")"
 
 	do_debug("insert", args)
 
