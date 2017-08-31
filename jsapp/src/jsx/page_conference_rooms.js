@@ -304,14 +304,16 @@ class RoomMembers extends React.Component {
 		console.log("x", x);
 
 		const members = this.state.members.map((m) => {
-			m.route = nodes[i].host;
-			m.unsaved = true;
+			if (m.name.indexof('.') == -1) {
+				m.route = nodes[i].host;
+				m.unsaved = true;
 
-			if (++count >= nodes[i].weight * x && i < nodes.length - 1) {
-				i++;
-				count = 0;
+				if (++count >= nodes[i].weight * x && i < nodes.length - 1) {
+					i++;
+					count = 0;
+				}
+				return m;
 			}
-			return m;
 		});
 
 		this.setState({members: members});
