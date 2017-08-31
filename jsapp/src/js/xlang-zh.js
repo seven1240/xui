@@ -163,6 +163,7 @@ LANGUAGES["zh"] = {
 	CONF_CP_AUTH_USER: "只允许认证用户呼入",
 	"Save Route": "保存路由",
 	"Auto Calc Route": "自动计算路由",
+	"Clear Route": "清除路由",
 	Total: "总数",
 	"Move to canvas": "移动到画布",
 	"Watching canvas": "观看画布",

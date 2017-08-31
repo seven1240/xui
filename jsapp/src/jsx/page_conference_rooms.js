@@ -283,6 +283,15 @@ class RoomMembers extends React.Component {
 		});
 	}
 
+	clearRoute() {
+		const members = this.state.members.map((m) => {
+			m.route = '';
+			return m;
+		});
+
+		this.setState({members: members});
+	}
+
 	autoCalcRoute() {
 		console.log(this.props.room);
 
@@ -304,7 +313,7 @@ class RoomMembers extends React.Component {
 		console.log("x", x);
 
 		const members = this.state.members.map((m) => {
-			if (m.name.indexof('.') == -1) {
+			if (m.name.indexOf('.') == -1) {
 				m.route = nodes[i].host;
 				m.unsaved = true;
 
@@ -312,8 +321,9 @@ class RoomMembers extends React.Component {
 					i++;
 					count = 0;
 				}
-				return m;
 			}
+
+			return m;
 		});
 
 		this.setState({members: members});
@@ -386,6 +396,11 @@ class RoomMembers extends React.Component {
 				<Button onClick={this.autoCalcRoute.bind(this)}>
 					<i className="fa fa-calculator" aria-hidden="true"></i>&nbsp;
 					<T.span text="Auto Calc Route" />
+				</Button>
+
+				<Button onClick={this.clearRoute.bind(this)}>
+					<i className="fa fa-trash" aria-hidden="true"></i>&nbsp;
+					<T.span text="Clear Route" />
 				</Button>
 
 				<Button onClick={this.handleSaveRoute.bind(this)}>
