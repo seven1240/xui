@@ -51,9 +51,12 @@ clean:
 	rm -f www/voicemail
 	rm -f out/*
 
-
+plugins-init:
+	cd jsapp/plugins/conference && ln -sf ../../node_modules/ ./
 plugins:
 	cd jsapp/plugins/conference && make
+plugins-watch:
+	cd jsapp/plugins/conference && make watch
 
 out:
 	mkdir out
