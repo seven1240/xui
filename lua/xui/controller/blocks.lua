@@ -104,29 +104,31 @@ put('/:id', function(params)
 
 	local ret = xdb.update("blocks", params.request)
 
-	local xml_file = prefix .. params.id .. ".xml"
-	local js_file  = prefix .. params.id .. ".js"
-	local lua_file = prefix .. params.id .. ".lua"
+	if (xml and js and lua) then
+		local xml_file = prefix .. params.id .. ".xml"
+		local js_file  = prefix .. params.id .. ".js"
+		local lua_file = prefix .. params.id .. ".lua"
 
-	-- freeswitch.consoleLog("ERR", xml_file .. "\n");
-	-- freeswitch.consoleLog("ERR", js_file  .. "\n");
-	-- freeswitch.consoleLog("ERR", lua_file .. "\n");
+		-- freeswitch.consoleLog("ERR", xml_file .. "\n");
+		-- freeswitch.consoleLog("ERR", js_file  .. "\n");
+		-- freeswitch.consoleLog("ERR", lua_file .. "\n");
 
-	-- freeswitch.consoleLog("ERR", params.request.xml .. "\n");
-	-- freeswitch.consoleLog("ERR", params.request.js  .. "\n");
-	-- freeswitch.consoleLog("ERR", params.request.lua .. "\n");
+		-- freeswitch.consoleLog("ERR", params.request.xml .. "\n");
+		-- freeswitch.consoleLog("ERR", params.request.js  .. "\n");
+		-- freeswitch.consoleLog("ERR", params.request.lua .. "\n");
 
-	file = io.open(xml_file, "w")
-	file:write(xml, "\n")
-	file:close()
+		file = io.open(xml_file, "w")
+		file:write(xml, "\n")
+		file:close()
 
-	file = io.open(js_file, "w")
-	file:write(js, "\n")
-	file:close()
+		file = io.open(js_file, "w")
+		file:write(js, "\n")
+		file:close()
 
-	file = io.open(lua_file, "w")
-	file:write(lua, "\n")
-	file:close()
+		file = io.open(lua_file, "w")
+		file:write(lua, "\n")
+		file:close()
+	end
 
 	if ret then
 		return 200, "{}"

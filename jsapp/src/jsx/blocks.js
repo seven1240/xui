@@ -968,13 +968,88 @@ class NewBlock extends React.Component {
 	}
 }
 
+class EditBlock extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {errmsg: ''};
+
+		// This binding is necessary to make `this` work in the callback
+		this.handleSubmit = this.handleSubmit.bind(this);
+	}
+
+	handleSubmit(e) {
+		let _this = this;
+
+		console.log("submit...");
+		let block = form2json('#editBlockForm');
+		block.id = _this.props.blockData.blockId;
+		console.log("block", block);
+
+		if (!block.name) {
+			this.setState({errmsg: "Mandatory fields left blank"});
+			return;
+		}
+
+		xFetchJSON("/api/blocks/" + _this.props.blockData.blockId, {
+			method: "PUT",
+			body: JSON.stringify(block)
+		}).then((obj) => {
+			_this.props.handleEditBlock(block);
+		}).catch((msg) => {
+			console.error("route", msg);
+			_this.setState({errmsg: '' + msg});
+		});
+	}
+
+	render() {
+		const props = Object.assign({}, this.props);
+		delete props.handleEditBlock;
+		delete props.blockData;
+
+		return <Modal {...props} aria-labelledby="contained-modal-title-lg">
+			<Modal.Header closeButton>
+				<Modal.Title id="contained-modal-title-lg"><T.span text="Edit Block" /></Modal.Title>
+			</Modal.Header>
+			<Modal.Body>
+				<Form horizontal id="editBlockForm">
+					<FormGroup controlId="formName">
+						<Col componentClass={ControlLabel} sm={2}><T.span text="Name" className="mandatory"/></Col>
+						<Col sm={10}><FormControl type="input" name="name" defaultValue={this.props.blockData.blockName} /></Col>
+					</FormGroup>
+
+					<FormGroup controlId="formDescriptioin">
+						<Col componentClass={ControlLabel} sm={2}><T.span text="Description"/></Col>
+						<Col sm={10}><FormControl type="description" name="description" defaultValue={this.props.blockData.blockDescription} /></Col>
+					</FormGroup>
+
+					<FormGroup>
+						<Col smOffset={2} sm={10}>
+							<Button type="button" bsStyle="primary" onClick={this.handleSubmit}>
+								<i className="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;<T.span text="Save" />
+							</Button>
+							&nbsp;&nbsp;<T.span className="danger" text={this.state.errmsg}/>
+						</Col>
+					</FormGroup>
+				</Form>
+			</Modal.Body>
+			<Modal.Footer>
+				<Button onClick={this.props.onHide}>
+					<i className="fa fa-times" aria-hidden="true"></i>&nbsp;
+					<T.span text="Close" />
+				</Button>
+			</Modal.Footer>
+		</Modal>;
+	}
+}
+
 class BlocksPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {rows: [], formShow: false};
+		this.state = {rows: [], formShow: false, editFormShow: false, editData: {}};
 
 		// this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleControlClick = this.handleControlClick.bind(this);
+		this.handleEditClick = this.handleEditClick.bind(this);
 		this.handleDelete = this.handleDelete.bind(this);
 	}
 
@@ -982,10 +1057,25 @@ class BlocksPage extends React.Component {
 		this.setState({ formShow: true});
 	}
 
+	handleEditClick(data) {
+		this.setState({ editFormShow: true, editData: data });
+	}
+
 	handleBlockAdded(block) {
 		var rows = this.state.rows;
 		rows.unshift(block);
 		this.setState({rows: rows, formShow: false});
+	}
+
+	handleBlockEdit(block) {
+		var rows = this.state.rows;
+		rows.map(function(row) {
+			if (row.id === block.id) {
+				row.description = block.description;
+				row.name = block.name;
+			}
+		});
+		this.setState({rows: rows, editFormShow: false});
 	}
 
 	handleDelete(id) {
@@ -1022,6 +1112,7 @@ class BlocksPage extends React.Component {
 
 	render() {
 		let formClose = () => this.setState({ formShow: false });
+		let editFormClose = () => this.setState({ editFormShow: false });
 		let toggleDanger = () => this.setState({ danger: !this.state.danger });
 		var danger = this.state.danger ? "danger" : "";
 
@@ -1030,12 +1121,14 @@ class BlocksPage extends React.Component {
 		let _this = this;
 
 		let rows = this.state.rows.map(function(row) {
+			let data = { blockId: row.id, blockName: row.name, blockDescription: row.description };
 			return <tr key={row.id}>
 					<td>{row.id}</td>
 					<td><Link to={`/settings/blocks/${row.id}`}>{row.name}</Link></td>
 					<td>{row.description}</td>
 					<td>{row.created_at}</td>
 					<td><T.a onClick={() => _this.handleDelete(row.id)}  text="Delete" className={danger} style={{cursor:"pointer"}}/></td>
+					<td><Button onClick={() => _this.handleEditClick(data)}><T.span text="Edit" /></Button></td>
 			</tr>;
 		})
 
@@ -1057,6 +1150,7 @@ class BlocksPage extends React.Component {
 					<th><T.span text="Description"/></th>
 					<th><T.span text="Created At"/></th>
 					<th><T.span text="Delete" style={hand} className={danger} onClick={toggleDanger} title={T.translate("Click me to toggle fast delete mode")}/></th>
+					<th><T.span text="Edit" /></th>
 				</tr>
 				{rows}
 				</tbody>
@@ -1064,6 +1158,7 @@ class BlocksPage extends React.Component {
 			</div>
 
 			<NewBlock show={this.state.formShow} onHide={formClose} handleNewBlockAdded={this.handleBlockAdded.bind(this)}/>
+			<EditBlock show={this.state.editFormShow} onHide={editFormClose} blockData={this.state.editData} handleEditBlock={this.handleBlockEdit.bind(this)}/>
 		</div>
 	}
 }
