@@ -227,7 +227,7 @@ xdb.find_by_sql(sql, function(row)
 				end
 			end
 
-			if false and room.banner then
+			if room.banner then
 				banner = utils.json_decode(room.banner)
 				banner_text = "{font_face=" .. banner.fontFace ..
 					",font_scale=" .. banner.fontScale ..
