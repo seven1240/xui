@@ -137,6 +137,8 @@ LANGUAGES["zh"] = {
 	"Conference Name": "会议名称",
 	Mute: "静音",
 	unMute: "解除",
+	VMute: "禁止",
+	unVMute: "解除",
 	Hangup: "挂机",
 	Select: "选择",
 	Lock: "锁定",
