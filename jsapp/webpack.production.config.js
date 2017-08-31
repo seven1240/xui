@@ -5,8 +5,7 @@ var WebpackMd5Hash = require('webpack-md5-hash');
 var config = {
     entry: {
         "react": ["react", "react-dom", "react-router", "react-bootstrap", "i18n-react"],
-        "index": ["./src/jsx/index.js", "./src/css/xui.css", "./src/css/dashboard.css"],
-        "wechat": "./src/wechat/index.js"
+        "index": ["./src/jsx/index.js", "./src/css/xui.css", "./src/css/dashboard.css"]
     },
 
     noresolve: {
