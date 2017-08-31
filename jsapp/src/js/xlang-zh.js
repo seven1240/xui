@@ -171,6 +171,7 @@ LANGUAGES["zh"] = {
 	"Auto Sort": "自动排序",
 	"Auto Switch": "自动轮循",
 	"Max Members On Canvas": "画布成员个数",
+	"Conference User": "所属用户",
 
 	//会议视频布局画面
 	"1x1": "单人画面",
@@ -216,8 +217,7 @@ LANGUAGES["zh"] = {
 	"Set As Moderator": "设为管理员",
 	"Conference Banner Text": "会场字幕显示",
 	"Conference Banner Scale": "会场字幕大小",
-	"Conference Banner Background Color": "字幕背景色",
-	"Conference Banner Foreground Color": "字幕前景色",
+	"Conference Banner Color": "字幕颜色",
 
 	"Display as Table": "以表格形式显示",
 	"Display as Block": "以方块形式显示",

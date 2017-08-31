@@ -223,6 +223,8 @@ CREATE TABLE conference_rooms (
 	video_mode VARCHAR,
 	call_perm VARCHAR,
 	cluster JSONB,
+	banner JSONB,
+	user_id INTEGER,
 
 	created_at TIMESTAMP(0) DEFAULT now(),
 	updated_at TIMESTAMP(0) DEFAULT now(),

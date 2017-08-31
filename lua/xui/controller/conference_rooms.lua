@@ -36,10 +36,17 @@ xtra.require_login()
 local prefix = config.block_path .. "/blocks-"
 require 'xdb'
 require 'm_conference_profile'
+require 'm_user'
 xdb.bind(xtra.dbh)
 
 get('/', function(params)
 	n, rooms = xdb.find_all("conference_rooms")
+
+	if m_user.has_permission() then
+		n, rooms = xdb.find_all("conference_rooms")
+	else
+		n, rooms = xdb.find_by_cond("conference_rooms", {user_id = xtra.session.user_id}, 'id')
+	end
 
 	if (n > 0) then
 		for i,v in pairs(rooms) do
@@ -100,6 +107,16 @@ get('/:id/members', function(params)
 	end
 end)
 
+get('/select/users', function(params)
+	n, users = xdb.find_by_sql("SELECT id, extn, name FROM users WHERE type = 'CONFMAN' ORDER BY extn")
+
+	if n > 0 then
+		return users
+	else
+		return '[]'
+	end
+end)
+
 post('/', function(params)
 	ret = xdb.create_return_id('conference_rooms', params.request)
 
@@ -143,6 +160,10 @@ put('/:id', function(params)
 
 	if cluster then
 		params.request.cluster = utils.json_encode(cluster);
+	end
+
+	if params.request.user_id == "" then
+		params.request.user_id = nil
 	end
 
 	ret = xdb.update("conference_rooms", params.request)

@@ -280,6 +280,7 @@ CREATE TABLE conference_rooms (
 	call_perm VARCHAR,
 	cluster TEXT,
 	banner VARCHAR,
+	user_id INTEGER,
 
 	created_at DATETIME DEFAULT (DATETIME('now', 'localtime')),
 	updated_at DATETIME DEFAULT (DATETIME('now', 'localtime')),

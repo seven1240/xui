@@ -586,7 +586,7 @@ class ConferenceRoom extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {room: { banner: {}}, params:[], profiles:[], video_modes:[],
+		this.state = {room: { banner: {}}, params:[], profiles:[], video_modes:[], users:[{id: 0, extn: '----', name: ''}],
 			call_perms:[], edit: false, fonty: [], paramId: [], bgColor: [], fgColor: [] };
 		this.handleSort = this.handleSort.bind(this);
 	}
@@ -713,6 +713,11 @@ class ConferenceRoom extends React.Component {
 		xFetchJSON("/api/dicts?realm=CONF_CALL_PERM").then((data) => {
 			_this.setState({call_perms: data});
 		});
+
+		xFetchJSON("/api/conference_rooms/select/users").then((data) => {
+			data.unshift({id: 0, extn: '----', name: ''});
+			_this.setState({users: data});
+		});
 	}
 
 	handleChange (e) {
@@ -731,6 +736,14 @@ class ConferenceRoom extends React.Component {
 		let current_video_mode = null;
 		let current_call_perm = null;
 		let cluster = '';
+		let current_user = null;
+
+		const conference_user_options = this.state.users.map(function(row) {
+			if (row.id == room.user_id) {
+				current_user = '[' + row.extn + '] ' + row.name;
+			}
+			return [row.id, '[' + row.extn + ']' + row.name];
+		});
 
 		const profile_options = this.state.profiles.map(function(row) {
 			if (row.id == room.profile_id) {
@@ -843,13 +856,19 @@ class ConferenceRoom extends React.Component {
 					<Col sm={4}><EditControl edit={this.state.edit} name="fontScale" defaultValue={this.state.room.banner.fontScale}/></Col>
 				</FormGroup>
 				<FormGroup className="xrowb">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Banner Background Color" /></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Conference User" /></Col>
+					<Col sm={4}>
+						<EditControl edit={this.state.edit} componentClass="select" id="formConfUser" name="user_id"
+							text={current_user} defaultValue={room.user_id}
+							options={conference_user_options}></EditControl>
+					</Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Banner Color" /></Col>
 					<Col sm={4}>
 						<input type="color" name="bg" value={_this.state.bgColor} onChange = {_this.handleChange.bind(this)}/>
-					</Col>
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Conference Banner Foreground Color" /></Col>
-					<Col sm={4}>
+						&nbsp;&nbsp;
 						<input type="color" name="fg" value={_this.state.fgColor} onChange = {_this.handleChange.bind(this)}/>
+						&nbsp;&nbsp;
+						<span style={{color: _this.state.fgColor, backgroundColor: _this.state.bgColor}}>{this.state.room.banner.text ? this.state.room.banner.text : "Banner Text"}</span>
 					</Col>
 				</FormGroup>
 			</Form>
