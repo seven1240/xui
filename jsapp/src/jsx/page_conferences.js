@@ -1203,6 +1203,14 @@ class ConferencePage extends React.Component {
 					<i className="fa fa-microphone" aria-hidden="true"></i>&nbsp;
 					<T.span text= "unMute" style={toolbarTextStyle}/>
 				</Button>
+				<Button onClick={() => _this.handleControlClick("vmute")}>
+					<i className="fa fa-video-camera" aria-hidden="true" style={{color: "#999"}}></i>&nbsp;
+					<T.span text= "VMute" style={toolbarTextStyle}/>
+				</Button>
+				<Button onClick={() => _this.handleControlClick("unvmute")}>
+					<i className="fa fa-video-camera" aria-hidden="true"></i>&nbsp;
+					<T.span text= "unVMute" style={toolbarTextStyle}/>
+				</Button>
 				<Button onClick={() => _this.handleControlClick("hup")}>
 					<i className="fa fa-power-off" aria-hidden="true"></i>&nbsp;
 					<T.span text= "Hangup" style={toolbarTextStyle}/>
