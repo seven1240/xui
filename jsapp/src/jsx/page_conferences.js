@@ -145,18 +145,24 @@ class Member extends React.Component {
 			if (member.verto.domain == domain) {
 				Object.keys(global_conference_links).forEach((k) => {
 					const m = global_conference_links[k];
+
+					if (!m) return;
+
 					console.log(m.verto.domain, "conference", m.conference_name + " vid-floor " + m.memberID + " force");
 					m.verto.fsAPI("conference", m.conference_name + " vid-floor " + m.memberID + " force");
 				});
 			} else {
 				const m = global_conference_links_local[member.verto.domain];
-				console.log(m.verto.domain, "conference", m.conference_name + " vid-floor " + m.memberID + " force");
-				m.verto.fsAPI("conference", m.conference_name + " vid-floor " + m.memberID + " force");
+
+				if (m) {
+					console.log(m.verto.domain, "conference", m.conference_name + " vid-floor " + m.memberID + " force");
+					m.verto.fsAPI("conference", m.conference_name + " vid-floor " + m.memberID + " force");
+				}
 
 				Object.keys(global_conference_links).forEach((k) => {
 					const m = global_conference_links[k];
 
-					if (m.verto.domain == member.verto.domain) return;
+					if (!m || m.verto.domain == member.verto.domain) return;
 
 					console.log(m.verto.domain, "conference", m.conference_name + " vid-floor " + m.memberID + " force");
 					m.verto.fsAPI("conference", m.conference_name + " vid-floor " + m.memberID + " force");
