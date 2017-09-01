@@ -115,7 +115,7 @@ import { xFetchJSON } from '../jsx/libs/xtools';
 class ServerPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { info: null };
+		this.state = { info: null, is_connect: 'false' };
 		this.websocket = null;
 		this.timer = 0;
 	}
@@ -123,14 +123,25 @@ class ServerPage extends React.Component {
 	onOpen(evt) {
 		let _this = this;
 
-		console.error("connected\n");
+		console.log("connected\n");
+
 		_this.timer = setInterval(function() {
+			if (_this.state.is_connect == 'true') {
 				_this.doSend('1')
-			}, 1000);
+			} else {
+				_this.doConnect();
+			}
+		}, _this.props.timer_interval ? _this.props.timer_interval : 1000);
+
+		_this.setState({is_connect: 'true'});
 	}
 
+
 	onClose(evt) {
+		let _this = this;
 		console.log("disconnected\n");
+		_this.setState({is_connect: 'false'});
+
 	}
 
 	doDisconnect() {
@@ -182,34 +193,19 @@ class ServerPage extends React.Component {
 		_this.doDisconnect();
 	}
 
-	handleClick(e) {
-		let data = e.target.getAttribute("data");
-
-		if (data == "Reconnect") {
-			console.log("Reconnect");
-			this.doDisconnect();
-			this.doConnect();
-		}
-	}
-
 	render() {
 		// console.error("render", info);
-		return <div>
-			<font color="#00F0F0" size="6">{this.props.domain}</font>
-			<ButtonToolbar className="pull-right">
-				<Button onClick={this.handleClick.bind(this)} data="new">
-					<T.span text="Reconnect" data="Reconnect"/>
-				</Button>
-			</ButtonToolbar>
+		return <div style={{'height':'180px'}}>
+			<center><font color="#00F0F0" size="6">{this.props.domain}</font></center>
 			{
-				this.state.info ?
+				this.state.info && this.state.is_connect == 'true' ?
 					<div>
 						<font>CPU: {this.state.info.cpu}% </font>
 						<ProgressBar bsStyle="success" now={this.state.info.cpu} label={this.state.info.cpu + '%'}  />
 						<font>memory: {this.state.info.memory.percent}% {this.state.info.memory.used}M/{this.state.info.memory.total}M</font>
 						<ProgressBar active bsStyle="success" now={this.state.info.memory.percent} label={this.state.info.memory.percent + '%'} />
 					</div>
-				: ''
+				: <div style={{'text-align': 'center'}}><font color="red" size="8">disconnect</font></div>
 			}
 		</div>
 	}
@@ -233,7 +229,7 @@ class ServerMonitorPage extends React.Component {
 
 	render() {
 		let myStyle = {
-			'width': "48%",
+			'width': "31%",
 			'float': "left",
 			'padding-right': "10px",
 			'padding-left': "10px",
@@ -243,10 +239,11 @@ class ServerMonitorPage extends React.Component {
 			'margin-left': "1%",
 			'margin-top': "5px",
 			'margin-bottom': "5px",
-			'border': "3px solid blue",
+			'border': "3px solid #ccc",
+			'border-radius': '8px',
 			'background-color': '#F5F5F5'
 		};
-		return <div>
+		return <div style={{'margin-top': "15px"}}>
 			{
 				(this.state.servers || []).map((s) => {
 					return <div style={myStyle}>
