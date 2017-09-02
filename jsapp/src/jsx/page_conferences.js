@@ -79,6 +79,10 @@ function translateMember(member) {
 	return m;
 }
 
+function isLinkedMember(member) {
+	return (member.cidNumber.indexOf('.') > 0);
+}
+
 class Member extends React.Component {
 	propTypes: {
 		onMemberClick: React.PropTypes.func
@@ -120,8 +124,8 @@ class Member extends React.Component {
 				method: "POST",
 				body: JSON.stringify({
 					from: member.cidNumber,
-					to: member.cidNumber.indexOf('.') ? member.room_nbr : member.cidNumber,
-					context: member.cidNumber.indexOf('.') ? member.cidNumber : 'default',
+					to: isLinkedMember(member) ? member.room_nbr : member.cidNumber,
+					context: isLinkedMember(member) ? member.cidNumber : 'default',
 					cidName: member.conference_name,
 					profile: global_conference_profile.name,
 					ignoreDisplayUpdates: "true"
@@ -230,10 +234,10 @@ class Member extends React.Component {
 					<td>{member.email}</td>
 			</tr>;
 		} else {// if (this.props.displayStyle == 'block') { // block or list
-			const imgClass = (member.cidNumber.indexOf('.') < 0) && which_floor.floor ? "conf-avatar conf-avatar-1" : ((parseInt(member.memberID) < 0) ? "conf-avatar conf-avatar-3" : "conf-avatar conf-avatar-2");
+			const imgClass = (!isLinkedMember(member)) && which_floor.floor ? "conf-avatar conf-avatar-1" : ((parseInt(member.memberID) < 0) ? "conf-avatar conf-avatar-3" : "conf-avatar conf-avatar-2");
 			let memberIDStyle = {textAlign: "center"};
 
-			if (member.cidNumber.indexOf('.') > 0) {
+			if (isLinkedMember(member)) {
 				memberIDStyle.color = 'blue';
 			}
 
@@ -679,7 +683,7 @@ class ConferencePage extends React.Component {
 
 				if (m.verto.domain == m.cidNumber) {
 					global_conference_links[m.verto.domain] = m;
-				} else if (m.verto.domain == domain && m.cidNumber.indexOf('.') > 0) {
+				} else if (m.verto.domain == domain && isLinkedMember(m)) {
 					global_conference_links_local[m.cidNumber] = m;
 				}
 
@@ -741,7 +745,7 @@ class ConferencePage extends React.Component {
 			if (vt.domain == member.cidNumber) {
 				console.log("link member id", member.memberID);
 				global_conference_links[vt.domain] = member;
-			} else if (vt.domain == domain && member.cidNumber.indexOf('.') > 0) {
+			} else if (vt.domain == domain && isLinkedMember(member)) {
 				global_conference_links_local[member.cidNumber] = member;
 			}
 
@@ -943,7 +947,7 @@ class ConferencePage extends React.Component {
 			index %= this.state.total;
 			member = this.state.rows[index];
 
-			if (member && parseInt(member.memberID) > 0 && member.cidNumber.indexOf('.') < 0) {
+			if (member && parseInt(member.memberID) > 0 && isLinkedMember(member)) {
 				global_switch_index = index;
 				break;
 			}
@@ -1069,8 +1073,8 @@ class ConferencePage extends React.Component {
 
 		const sort_member = function(a, b) {
 			if (_this.state.prefUnmuted) {
-				const a_unmuted = a.memberID > 0 && a.cidNumber.indexOf('.') < 0 && a.status && a.status.audio.muted == false;
-				const b_unmuted = b.memberID > 0 && a.cidNumber.indexOf('.') < 0 && b.status && b.status.audio.muted == false;
+				const a_unmuted = a.memberID > 0 && !isLinkedMember(a) && a.status && a.status.audio.muted == false;
+				const b_unmuted = b.memberID > 0 && !isLinkedMember(a) && b.status && b.status.audio.muted == false;
 
 				if (a_unmuted && !b_unmuted) {
 					return -1;
@@ -1080,9 +1084,9 @@ class ConferencePage extends React.Component {
 			}
 
 			if (_this.state.prefOnline) {
-				if (a.memberID < 0 && b.memberID > 0 && b.cidNumber.indexOf('.') < 0) {
+				if (a.memberID < 0 && b.memberID > 0 && !isLinkedMember(b)) {
 					return 1;
-				} else if (a.memberID > 0 && b.memberID < 0 && a.cidNumber.indexOf('.') < 0) {
+				} else if (a.memberID > 0 && b.memberID < 0 && !isLinkedMember(b)) {
 					return -1;
 				}
 			}
@@ -1100,7 +1104,7 @@ class ConferencePage extends React.Component {
 
 		const members = rows.map(function(member) {
 
-			if(member.cidNumber.indexOf('.') >0) {
+			if(isLinkedMember(member)) {
 				let hideLinkedMember = localStorage.getItem("xui.conference.hideLinkedMember");
 				if(hideLinkedMember == 'true') return;
 			}
