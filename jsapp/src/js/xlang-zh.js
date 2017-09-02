@@ -151,6 +151,13 @@ LANGUAGES["zh"] = {
 	"Canvas" : "画布",
 	"Canvas Count": "画布个数",
 	"Canvas Controls":"画布控制",
+	"Select ALL": "全选",
+	"Select None": "全不选",
+	"Select Online Members": "选择在线成员",
+	"Select Offline Members": "选择不在线成员",
+	"Select Linked Members": "选择连接键",
+	"Select Domain": "选择特定服务器 [*{domain}*]",
+	"Call Linked Members": "呼叫所有连接",
 
 	"Video Mode": "视频模式",
 	CONF_VIDEO_MODE_PASSTHROUGH: "透传",

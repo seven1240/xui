@@ -333,6 +333,106 @@ class ConferencePage extends React.Component {
 				this.setState({rows: rows});
 			}
 			return;
+		} else if (data == "select-all") {
+			var _this = this;
+			if (this.state.total > 0) {
+				const rows = this.state.rows.map(function(row) {
+					row.active = true;
+					_this.activeMembers[row.memberID] = row;
+					return row;
+				});
+
+				this.setState({rows: rows});
+			}
+			return;
+		} else if (data == "select-none") {
+			var _this = this;
+			if (this.state.total > 0) {
+				const rows = this.state.rows.map(function(row) {
+					row.active = false;
+					_this.activeMembers[row.memberID] = row;
+					return row;
+				});
+
+				this.setState({rows: rows});
+			}
+			return;
+		} else if (data == "select-online") {
+			var _this = this;
+			if (this.state.total > 0) {
+				const rows = this.state.rows.map(function(row) {
+					row.active = row.memberID > 0 && !isLinkedMember(row) ? true : false;
+					_this.activeMembers[row.memberID] = row;
+					return row;
+				});
+
+				this.setState({rows: rows});
+			}
+			return;
+		} else if (data == "select-offline") {
+			var _this = this;
+			if (this.state.total > 0) {
+				const rows = this.state.rows.map(function(row) {
+					row.active = row.memberID < 0 && !isLinkedMember(row) ? true : false;
+					_this.activeMembers[row.memberID] = row;
+					return row;
+				});
+
+				this.setState({rows: rows});
+			}
+			return;
+		} else if (data == "select-linked") {
+			var _this = this;
+			if (this.state.total > 0) {
+				const rows = this.state.rows.map(function(row) {
+					row.active = isLinkedMember(row);
+					_this.activeMembers[row.memberID] = row;
+					return row;
+				});
+
+				this.setState({rows: rows});
+			}
+			return;
+		} else if (data.substr(0, 7) == "select-") {
+			var _this = this;
+			var select_domain = data.substr(7);
+
+			if (this.state.total > 0) {
+				const rows = this.state.rows.map(function(row) {
+					row.active = row.memberID > 0 && !isLinkedMember(row) && (row.verto ? row.verto.domain : domain) == select_domain;
+					_this.activeMembers[row.memberID] = row;
+					return row;
+				});
+
+				this.setState({rows: rows});
+			}
+			return;
+		} else if (data == "call-linked") {
+			var _this = this;
+			if (this.state.total > 0) {
+				const rows = this.state.rows.forEach(function(row) {
+					if (isLinkedMember(row) && row.memberID < 0) {
+						const member = row;
+
+						xFetchJSON("/api/conferences/" + member.room.nbr + '-' + domain, {
+							method: "POST",
+							body: JSON.stringify({
+								from: member.cidNumber,
+								to: isLinkedMember(member) ? member.room_nbr : member.cidNumber,
+								context: isLinkedMember(member) ? member.cidNumber : 'default',
+								cidName: member.conference_name,
+								profile: global_conference_profile.name,
+								ignoreDisplayUpdates: "true"
+							})
+						}).then((res) => {
+							this.setState({calling: true});
+						}).catch((msg) => {
+							console.error("err call", msg);
+						});
+					}
+				});
+			}
+			return;
 		} else if (data == "call") {
 			if (!this.state.outcallNumberShow) {
 				this.setState({outcallNumberShow: true});
@@ -1209,9 +1309,22 @@ class ConferencePage extends React.Component {
 					<i className="fa fa-check-square-o" aria-hidden="true"></i>&nbsp;
 					<T.span text= "Select" style={toolbarTextStyle}/>
 				</Button>
-				<DropdownButton id="select-btn" key="select-btn" title={<i className="fa fa-check-square-o" aria-hidden="true">
+				<DropdownButton id="select-all" key="select-all" title={<i className="fa fa-check-square-o" aria-hidden="true">
 					<T.span text= "Select" style={toolbarTextStyle}/></i>}>
-					<MenuItem key="select-toggle" eventKey="select" onSelect={_this.handleControlClick.bind(this)}><T.span text="Toggle"/></MenuItem>
+					<MenuItem key="select-all" eventKey="select-all" onSelect={_this.handleControlClick.bind(this)}><T.span text="Select ALL"/></MenuItem>
+					<MenuItem key="select-none" eventKey="select-none" onSelect={_this.handleControlClick.bind(this)}><T.span text="Select None"/></MenuItem>
+					<MenuItem key="select-online" eventKey="select-online" onSelect={_this.handleControlClick.bind(this)}><T.span text="Select Online Members"/></MenuItem>
+					<MenuItem key="select-offline" eventKey="select-offline" onSelect={_this.handleControlClick.bind(this)}><T.span text="Select Offline Members"/></MenuItem>
+					<MenuItem key="select-linked" eventKey="select-linked" onSelect={_this.handleControlClick.bind(this)}><T.span text="Select Linked Members"/></MenuItem>
+					<MenuItem key="select-1" eventKey="" className="divider">----</MenuItem>
+					<MenuItem key="call-linked" eventKey="call-linked" onSelect={_this.handleControlClick.bind(this)}><T.span text="Call Linked Members"/></MenuItem>
+					<MenuItem key="select-2" eventKey="" className="divider">----</MenuItem>
+					<MenuItem key={"select-" + domain} eventKey={"select-" + domain} onSelect={_this.handleControlClick.bind(this)}><T.span text={{key:"Select Domain", domain: domain}}/></MenuItem>
+					{
+						Object.keys(global_conference_links_local).map((k) => {
+							return <MenuItem key={"select-" + k} eventKey={"select-" + k} onSelect={_this.handleControlClick.bind(this)}><T.span text={{key:"Select Domain", domain: k}}/></MenuItem>
+						})
+					}
 				</DropdownButton>
 			</ButtonGroup>
 
