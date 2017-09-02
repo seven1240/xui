@@ -843,6 +843,13 @@ class ConferencePage extends React.Component {
 					row.memberID = 0 - row.memberID;
 					row.fakeMemberID = row.memberID;
 					row.verto = null;
+
+					if (row.status.video) {
+						row.status.video.canvasID = null;
+						row.status.video.watchingCavasID = null;
+						row.status.video = {};
+					}
+
 					if (vt.domain != domain) { // check if we should push to the main one so it can be matched later
 						let found = 0;
 						_this.state.domain_rows[domain].forEach(function(r) {
