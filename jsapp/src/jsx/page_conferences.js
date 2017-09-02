@@ -1202,6 +1202,10 @@ class ConferencePage extends React.Component {
 					<i className="fa fa-check-square-o" aria-hidden="true"></i>&nbsp;
 					<T.span text= "Select" style={toolbarTextStyle}/>
 				</Button>
+				<DropdownButton id="select-btn" key="select-btn" title={<i className="fa fa-check-square-o" aria-hidden="true">
+					<T.span text= "Select" style={toolbarTextStyle}/></i>}>
+					<MenuItem key="select-toggle" eventKey="select" onSelect={_this.handleControlClick.bind(this)}><T.span text="Toggle"/></MenuItem>
+				</DropdownButton>
 			</ButtonGroup>
 
 			<ButtonGroup>
