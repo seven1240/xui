@@ -962,37 +962,68 @@ end)
 -- end)
 
 -- 1.49
+-- put('/xplayLocalFiles', function(params)
+-- 	local api = freeswitch.API()
+-- 	local uuid = params.request.uuid
+-- 	local files = params.request.files
+-- 	local bleg = ''
+
+-- 	if (string.len(uuid) ~= 36) then -- uuid is a number
+-- 		local ret = api:execute("hiredis_raw", "default get " .. uuid)
+-- 		uuid = ret
+-- 	end
+
+-- 	if is_agent_uuid(uuid) then
+-- 		bleg = "-bleg"
+-- 	end
+
+-- 	if files then
+-- 		filesStr = string.gsub(files, ",", "!")
+
+-- 		local args = uuid .. " " .. bleg .. " set:playback_delimiter=!,playback:'" .. filesStr .. "' inline"
+-- 		do_debug("playLocalFiles", args)
+-- 		api:execute("uuid_transfer", args)
+-- 		return 200, {code = 200, text = "OK"}
+-- 	else
+-- 	 return 500
+-- 	end
+-- end)
+
 put('/playLocalFiles', function(params)
 	local api = freeswitch.API()
 	local uuid = params.request.uuid
 	local files = params.request.files
+	local context = 'cti'
 	local bleg = ''
-
-	if (string.len(uuid) ~= 36) then -- uuid is a number
-		local ret = api:execute("hiredis_raw", "default get " .. uuid)
-		uuid = ret
-	end
-
-	if is_agent_uuid(uuid) then
-		bleg = "-bleg"
-	end
+	local args = ''
 
 	if files then
 		filesStr = string.gsub(files, ",", "!")
+	else
+		return 500
+	end
 
-		local args = uuid .. " " .. bleg .. " set:playback_delimiter=!,playback:'" .. filesStr .. "' inline"
+	if (string.len(uuid) ~= 36) then -- uuid is agent number
+		local dial_str = m_dialstring.build(uuid, context)
+		args = "originate [x_agent=" .. uuid .. "]" .. dial_str .. " callcenter_track:" .. uuid .. ",set:playback_delimiter=!,playback:'" .. filesStr .. "' inline"
+		do_debug("playLocalFiles", args)
+		api:execute("bgapi", args)
+	else
+		if is_agent_uuid(uuid) then
+			bleg = "-bleg"
+		end
+		args = uuid .. " " .. bleg .. " set:playback_delimiter=!,playback:'" .. filesStr .. "' inline"
 		do_debug("playLocalFiles", args)
 		api:execute("uuid_transfer", args)
-		return 200, {code = 200, text = "OK"}
-	else
-	 return 500
 	end
+	return 200, {code = 200, text = "OK"}
 end)
 
 -- 1.50
 get("/downloadRecordFile", function(params)
 	local recordFile = params.request.file
 	if recordFile then
+		local fileName = recordFile:match( "([^/]+)$" )
 		file = io.open(recordFile)
 		if not file then
 			return 404
@@ -1004,15 +1035,17 @@ get("/downloadRecordFile", function(params)
 		content_dispostiton = env:getHeader("Content-Disposition")
 		if content_dispostiton then
 			header("content-disposition", content_dispostiton)
+		else
+			header("Content-Disposition", "attachment; filename="  .. fileName)
 		end
 		content_type("application/octet-stream")
 		xtra.write("")
 		while size > 0 do
 			local sz = size
 
-			if size > 4096 then
-				sz = 4096
-			end
+			-- if size > 4096 then
+			-- 	sz = 4096
+			-- end
 
 			x = file:read(sz)
 			if (not x) then
