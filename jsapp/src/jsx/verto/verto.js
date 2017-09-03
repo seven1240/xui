@@ -25,6 +25,7 @@
  *
  * Seven Du <dujinfang@x-y-t.cn>
  * Xueyun Jiang <jiangxueyun@x-y-t.cn>
+ * Stefan Yohansson <sy.fen0@gmail.com>
  *
  * verto.js - Main interface
  *
@@ -36,33 +37,10 @@ import VertoLiveArray from './verto-livearray';
 import VertoConfMan from './verto-confman';
 import VertoDialog from './verto-dialog';
 import VertoRTC from './verto-rtc';
-
-function drop_bad(verto, channel) {
-	console.error("drop unauthorized channel: " + channel);
-	delete verto.eventSUBS[channel];
-}
-
-function mark_ready(verto, channel) {
-	for (var j in verto.eventSUBS[channel]) {
-		verto.eventSUBS[channel][j].ready = true;
-
-		console.log("subscribed to channel: " + channel);
-		if (verto.eventSUBS[channel][j].readyHandler) {
-			verto.eventSUBS[channel][j].readyHandler(verto, channel);
-		}
-	}
-}
-
-function ENUM(s) {
-	var i = 0, o = {};
-	s.split(" ").map(function(x) {
-		o[x] = {
-			name: x,
-			val: i++
-		};
-	});
-	return Object.freeze(o);
-};
+import {
+	generateGUID, drop_bad, mark_ready,
+	ENUM
+} from './verto-utils';
 
 class Verto {
 	constructor(params, callbacks) {
@@ -79,50 +57,27 @@ class Verto {
 		this.videoDevices = [];
 		this.audioInDevices = [];
 		this.audioOutDevices = [];
-		this.rpcClient = this; // backward compatable
+		this.rpcClient = this; // backward compatible
 
-		this.generateGUID = (typeof(window.crypto) !== 'undefined' &&
-			typeof(window.crypto.getRandomValues) !== 'undefined') ? function() {
-			// If we have a cryptographically secure PRNG, use that
-			// http://stackoverflow.com/questions/6906916/collisions-when-generating-uuids-in-javascript
-			var buf = new Uint16Array(8);
-			window.crypto.getRandomValues(buf);
-			var S4 = function(num) {
-				var ret = num.toString(16);
-				while (ret.length < 4) {
-					ret = "0" + ret;
-				}
-				return ret;
-			};
-			return (S4(buf[0]) + S4(buf[1]) + "-" + S4(buf[2]) + "-" + S4(buf[3]) + "-" + S4(buf[4]) + "-" + S4(buf[5]) + S4(buf[6]) + S4(buf[7]));
-		} : function() {
-			// Otherwise, just use Math.random
-			// http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript/2117523#2117523
-			return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-				var r = Math.random() * 16 | 0,
-				v = c == 'x' ? r : (r & 0x3 | 0x8);
-				return v.toString(16);
-			});
-		};
+		this.generateGUID = generateGUID();
 
-		// this.connect();
+		this.connect();
 	}
 
 	static init(obj, runtime) {
 		var self = this;
-		var rtc = new VertoRTC();
 		if (!obj) {
 			obj = {};
 		}
 
 		if (!obj.skipPermCheck && !obj.skipDeviceCheck) {
-			rtc.checkPerms(function(status) {
+			VertoRTC.checkPerms(function(status) {
 			  self.checkDevices(runtime);
 			}, true, true);
 		} else if (obj.skipPermCheck && !obj.skipDeviceCheck) {
 			self.checkDevices(runtime);
 		} else if (!obj.skipPermCheck && obj.skipDeviceCheck) {
-			rtc.checkPerms(function(status) {
+			VertoRTC.checkPerms(function(status) {
 			  runtime(status);
 			}, true, true);
 		} else {
@@ -140,7 +95,6 @@ class Verto {
 			return;
 		}
 
-		const _this = this;
 		this.options = Object.assign({
 			login: null,
 			passwd: null,
@@ -156,17 +110,17 @@ class Verto {
 			ringSleep: 6000,
 			sessid: null,
 			// la: new VertoLiveArray(),
-			onmessage: function(e) {
-				return _this.handleMessage(e.eventData);
+			onmessage: (e) => {
+				return this.handleMessage(e.eventData);
 			},
-			onWSConnect: function(o) {
+			onWSConnect: (o) => {
 				console.log("connected!!!!");
 				o.call('login', {});
 			},
-			onWSLogin: function(verto, success) {
+			onWSLogin: (verto, success) => {
 			},
-			onWSClose: function(verto, success) {
-				_this.purge();
+			onWSClose: (verto, success) => {
+				this.purge();
 			}
 		}, params, callbacks);
 
@@ -174,7 +128,7 @@ class Verto {
 		console.info("verto_params", params);
 
 		if (this.options.deviceParams.useCamera) {
-			// $.FSRTC.getValidRes(this.options.deviceParams.useCamera, this.options.deviceParams.onResCheck);
+			VertoRTC.getValidRes(this.options.deviceParams.useCamera, this.options.deviceParams.onResCheck);
 		}
 
 		if (!this.options.deviceParams.useMic) {
@@ -286,23 +240,13 @@ class Verto {
 
 	purge() {
 		var verto = this;
-		var x = 0;
-		var i;
 
-		for (i in verto.dialogs) {
-			if (!x) {
-				console.log("purging dialogs");
-			}
-			x++;
-			verto.dialogs[i].setState(Verto.enum.state.purge);
-		}
+		console.log("purging dialogs");
+		Object.keys(verto.dialogs).forEach(dialog => {
+			verto.dialogs[dialog].setState(Verto.enum.state.purge);
+		});
 
-		for (i in verto.eventSUBS) {
-			if (verto.eventSUBS[i]) {
-				console.log("purging subscription: " + i);
-				delete verto.eventSUBS[i];
-			}
-		}
+		verto.eventSUBS = {};
 	}
 
 	call(method, params, success_cb, error_cb) {
@@ -434,7 +378,6 @@ class Verto {
 						},
 
 						function(e) {
-							self.authing = false;
 							console.log("error logging in, request id:", response.id);
 							delete self._ws_callbacks[response.id];
 							error_cb(response.error, this);
@@ -587,9 +530,7 @@ class Verto {
 					}
 					console.error("UNSUBBED or invalid EVENT " + key + " IGNORED");
 				} else {
-					for (var i in list) {
-						var sub = list[i];
-
+					list.forEach(sub => {
 						if (!sub || !sub.ready) {
 							console.error("invalid EVENT for " + key + " IGNORED");
 						} else if (sub.handler) {
@@ -599,7 +540,7 @@ class Verto {
 						} else {
 							console.log("EVENT:", data.params);
 						}
-					}
+					});
 				}
 
 				break;
@@ -613,6 +554,13 @@ class Verto {
 
 				break;
 
+			case 'verto.clientReady':
+				if (verto.callbacks.onMessage) {
+					verto.callbacks.onMessage(verto, null, $.verto.enum.message.clientReady, data.params);
+					console.debug("CLIENT READY", data.params);
+				}
+
+				break;
 			default:
 				console.error("INVALID METHOD OR NON-EXISTANT CALL REFERENCE IGNORED", data.method);
 				break;
@@ -628,12 +576,12 @@ class Verto {
 
 		switch (method) {
 		case "verto.subscribe":
-			for (i in e.unauthorizedChannels) {
-				drop_bad(verto, e.unauthorizedChannels[i]);
-			}
-			for (i in e.subscribedChannels) {
-				mark_ready(verto, e.subscribedChannels[i]);
-			}
+			Object.keys(e.unauthorizedChannels || {}).forEach(channel => {
+				drop_bad(verto, e.unauthorizedChannels[channel]);
+			});
+			Object.keys(e.subscribedChannels || {}).forEach(channel => {
+				mark_ready(verto, e.subscribedChannels[channel]);
+			});
 
 			break;
 		case "verto.unsubscribe":
@@ -660,12 +608,10 @@ class Verto {
 	broadcast(channel, params) {
 		var msg = {
 			eventChannel: channel,
-			data: {}
+			data: {
+				...params
+			}
 		};
-
-		for (var i in params) {
-			msg.data[i] = params[i];
-		}
 
 		this.sendMethod("verto.broadcast", msg);
 	}
@@ -752,9 +698,9 @@ class Verto {
 		if (typeof(channel) === "string") {
 			r.push(verto.do_subscribe(verto, channel, subChannels, params));
 		} else {
-			for (var i in channel) {
+			Object.keys(channel || {}).forEach(c => {
 				r.push(verto.do_subscribe(verto, channel, subChannels, params));
-			}
+			});
 		}
 
 		if (subChannels.length) {
@@ -768,53 +714,48 @@ class Verto {
 	}
 
 	unsubscribe(handle) {
-		var verto = this;
-		var i;
+		const verto = this;
 
 		if (!handle) {
-			for (i in verto.eventSUBS) {
-				if (verto.eventSUBS[i]) {
-					verto.unsubscribe(verto.eventSUBS[i]);
-				}
-			}
+			Object.keys(verto.eventSUBS).forEach(event => {
+				verto.unsubscribe(verto.eventSUBS[event]);
+			});
 		} else {
-			var unsubChannels = {};
-			var sendChannels = [];
-			var channel;
+			const unsubChannels = {};
+			let sendChannels = [];
 
 			if (typeof(handle) == "string") {
 				delete verto.eventSUBS[handle];
 				unsubChannels[handle]++;
 			} else {
-				for (i in handle) {
-					if (typeof(handle[i]) == "string") {
-						channel = handle[i];
-						delete verto.eventSUBS[channel];
-						unsubChannels[channel]++;
+				Object.keys(handle).forEach(channel => {
+					const eventChannel = handle[channel];
+					if (typeof(eventChannel) == "string") {
+						delete verto.eventSUBS[eventChannel];
+						unsubChannels[eventChannel]++;
 					} else {
-						var repl = [];
-						channel = handle[i].eventChannel;
+					   const repl = [];
+					   const eventChannel = handle[channel].eventChannel;
 
-						for (var j in verto.eventSUBS[channel]) {
-							if (verto.eventSUBS[channel][j].serno == handle[i].serno) {} else {
-								repl.push(verto.eventSUBS[channel][j]);
-							}
-						}
+					   verto.eventSUBS[eventChannel] = verto.eventSUBS[eventChannel].reduce((acc, ec) => {
+						   if (ec.serno != handle[channel].serno) {
+							   acc.push(ec);
+						   }
+						   return acc;
+					   }, []);
 
-						verto.eventSUBS[channel] = repl;
-
-						if (verto.eventSUBS[channel].length === 0) {
-							delete verto.eventSUBS[channel];
-							unsubChannels[channel]++;
-						}
-					}
-				}
+					   if (verto.eventSUBS[eventChannel].length === 0) {
+						   delete verto.eventSUBS[eventChannel];
+						   unsubChannels[eventChannel]++;
+					   }
+				   }
+				});
 			}
 
-			for (var u in unsubChannels) {
-				console.log("Sending Unsubscribe for: ", u);
-				sendChannels.push(u);
-			}
+			sendChannels = Object.keys(unsubChannels).map(i => {
+				console.log("Sending Unsubscribe for: ", i);
+				return i;
+			});
 
 			if (sendChannels.length) {
 				verto.sendMethod("verto.unsubscribe", {
@@ -968,21 +909,22 @@ class Verto {
 		}
 	}
 
-	deviceParams(obj) {
-		for (var i in obj) {
-			this.options.deviceParams[i] = obj[i];
-		}
+	deviceParams(obj = {}) {
+		this.options.deviceParams = {
+			...this.options.deviceParams,
+			...obj
+		};
 
 		if (obj.useCamera) {
-			var rtc = new VertoRTC();
-			rtc.getValidRes(this.options.deviceParams.useCamera, obj ? obj.onResCheck : undefined);
+			VertoRTC.getValidRes(this.options.deviceParams.useCamera, obj ? obj.onResCheck : undefined);
 		}
 	};
 
 	videoParams(obj) {
-		for (var i in obj) {
-			this.options.videoParams[i] = obj[i];
-		}
+		this.options.videoParams = {
+			...this.options.videoParams,
+			...obj
+		};
 	};
 
 	iceServers(obj) {
@@ -1013,9 +955,9 @@ class Verto {
 				dialog.hangup();
 			}
 		} else {
-			for (var i in this.dialogs) {
-				this.dialogs[i].hangup();
-			}
+			Object.keys(this.dialogs).forEach(dialogKey => {
+				this.dialogs[dialogKey].hangup();
+			});
 		}
 	}
 }
@@ -1025,7 +967,7 @@ Verto.unloadJobs = [];
 Verto.enum = {
 	state: ENUM("new requesting trying recovering ringing answering early active held hangup destroy purge"),
 	direction: ENUM("inbound outbound"),
-	message: ENUM("display info pvtEvent"),
+	message: ENUM("display info pvtEvent clientReady"),
 	states: Object.freeze({
 		new: {
 			requesting: 1,

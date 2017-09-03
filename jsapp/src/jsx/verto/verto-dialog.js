@@ -43,7 +43,7 @@ export default class VertoDialog {
 			useVideo: verto.options.useVideo,
 			useStereo: verto.options.useStereo,
 			screenShare: false,
-			useCamera: verto.options.deviceParams.useCamera,
+			useCamera: params.screenShare ? false : verto.options.deviceParams.useCamera,
 			useMic: verto.options.deviceParams.useMic,
 			useSpeak: verto.options.deviceParams.useSpeak,
 			tag: verto.options.tag,
@@ -183,9 +183,9 @@ export default class VertoDialog {
 			localVideo: dialog.screenShare ? null : dialog.localVideo,
 			useVideo: dialog.params.useVideo ? dialog.videoStream : null,
 			useAudio: dialog.audioStream,
-			useStereo: dialog.params.useStereo,
-			videoParams: dialog.params.videoParams,
-			audioParams: verto.options.audioParams,
+			useStereo: dialog.params.useStereo || false,
+			videoParams: dialog.params.videoParams || {},
+			audioParams: verto.options.audioParams || {},
 			iceServers: verto.options.iceServers,
 			screenShare: dialog.screenShare,
 			useCamera: dialog.useCamera,
@@ -287,14 +287,6 @@ export default class VertoDialog {
 
 		dialog.lastState = dialog.state;
 		dialog.state = state;
-
-		if (!dialog.causeCode) {
-			dialog.causeCode = 16;
-		}
-
-		if (!dialog.cause) {
-			dialog.cause = "NORMAL CLEARING";
-		}
 
 		if (dialog.callbacks.onDialogState) {
 			dialog.callbacks.onDialogState(this);
@@ -409,6 +401,10 @@ export default class VertoDialog {
 			if (params.cause) {
 				dialog.cause = params.cause;
 			}
+		}
+
+		if (!dialog.cause && !dialog.causeCode) {
+			dialog.cause = "NORMAL_CLEARING";
 		}
 
 		if (dialog.state.val >= Verto.enum.state.new.val && dialog.state.val < Verto.enum.state.hangup.val) {
