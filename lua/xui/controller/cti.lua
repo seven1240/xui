@@ -541,9 +541,9 @@ put('/transferQueue', function(params)
 		bleg = "-bleg"
 	end
 
-	local cancel_record_str = cancel_record(uuid, '', '')
+	local cancel_record_str = cancel_record(uuid, ',', '')
 
-	local args = uuid .. " " .. bleg .. " set:x_callcenter=true," .. cancel_record_str .. ",callcenter:" .. queue_name .. " inline"
+	local args = uuid .. " " .. bleg .. " set:x_callcenter=true" .. cancel_record_str .. ",callcenter:" .. queue_name .. " inline"
 
 	do_debug("transferQueue", args)
 
@@ -850,7 +850,7 @@ put('/listen', function(params)
 		uuid = ret
 	end
 
-	local args = "originate [x_agent=" .. listenNumber .. "]" .. dial_str .. " &eavesdrop(" .. uuid .. ")"
+	local args = "originate [x_agent=" .. listenNumber .. "]" .. dial_str .. " callcenter_track:" .. listenNumber .. ",eavesdrop:" .. uuid .. " inline"
 
 	do_debug("listen", args)
 	api:execute("bgapi", args)
@@ -887,7 +887,7 @@ put('/insert', function(params)
 		uuid = ret
 	end
 
-	local args = "originate [x_agent=" .. insertNumber .. "]" .. record_str .. dial_str .. " &three_way(" .. uuid .. ")"
+	local args = "originate [x_agent=" .. insertNumber .. "]" .. record_str .. dial_str .. " callcenter_track:" .. insertNumber .. ",three_way:" .. uuid .. " inline"
 
 	do_debug("insert", args)
 
