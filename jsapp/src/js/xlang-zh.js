@@ -35,6 +35,8 @@ LANGUAGES["zh"] = {
 	"More info": "详见",
 	"Conference Profiles": "会议模板",
 	"Conference Profile": "会议模板",
+	"Show Drag Zone": "显示拖动区域",
+	"Hide Drag Zone": "隐藏拖动区域",
 	Author: "作者",
 	Version: "版本",
 	Phone: "电话",
