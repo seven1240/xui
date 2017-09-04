@@ -574,7 +574,8 @@ put('/consultIVR', function(params)
 		bleg = "-bleg"
 	end
 
-	local args = uuid .. " playback:'local_stream://moh'/inline export:transfer_fallback_extension=1007,export:exec_after_bridge_app=intercept,set:exec_after_bridge_arg=" .. uuid .. ",transfer:'" .. accessCode .. " xml cti'/inline"
+	-- local args = uuid .. " playback:'local_stream://moh'/inline export:transfer_fallback_extension=1007,export:exec_after_bridge_app=intercept,set:exec_after_bridge_arg=" .. uuid .. ",set:api_hangup_hook='uuid_kill " .. uuid .. "',transfer:'" .. accessCode .. " xml cti'/inline"
+	local args = uuid .. " playback:'local_stream://moh'/inline set:continue_on_fail=true,set:intercept_uuid=" .. uuid .. ",set:transfer_after_bridge=uuid_" .. uuid .. ",set:api_hangup_hook='uuid_kill " .. uuid .. "',transfer:'" .. accessCode .. " xml cti'/inline"
 	do_debug("consultIVR", args)
 	api:execute("uuid_dual_transfer", args)
 	return 200, {code = 200, text = "OK"}
