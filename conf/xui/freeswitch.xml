@@ -40,7 +40,7 @@
   </section>
 
   <section name="languages" description="Languages">
-    <X-PRE-PROCESS cmd="include" data="languages/*/*/*.xml"/>
+    <X-PRE-PROCESS cmd="include" data="languages/*/*.xml"/>
   </section>
 
 </document>
