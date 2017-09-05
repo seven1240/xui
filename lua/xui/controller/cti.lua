@@ -263,7 +263,7 @@ put('/agentLogin', function(params)
 	do_debug("agentLogin dial_str", dial_str)
 
 	api:execute("callcenter_config", "agent add " .. agent_id .. " callback")
-	api:execute("callcenter_config", "agent set contact " .. agent_id .. " {absolute_codec_string=PCMU,PCMA}{x_bridge_agent=" .. agent_id .. "}[x_agent=" .. agent_id .. "][agent_from_callcenter=true]" .. dial_str)
+	api:execute("callcenter_config", "agent set contact " .. agent_id .. " {absolute_codec_string=^^:PCMU:PCMA,x_bridge_agent=" .. agent_id .. "}[x_agent=" .. agent_id .. "][agent_from_callcenter=true]" .. dial_str)
 	api:execute("callcenter_config", "agent set status " .. agent_id .. " 'On Break'")
 	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
 	api:execute("callcenter_config", "tier add " .. queue_name .. " " .. agent_id)
@@ -337,7 +337,7 @@ put('/callInner', function(params)
 	local record_str = set_record()
 	local agent_id = params.request.agent_id
 	local calledAgent = params.request.calledAgent
-	local caller_dial_str = "{absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "]" .. record_str .. m_dialstring.build(agent_id, context)
+	local caller_dial_str = "{absolute_codec_string=^^:PCMU:PCMA,x_caller_id_name=" .. agent_id ..",x_caller_id_number=" .. agent_id .. ",x_destination_number=" .. calledAgent .. "}[x_agent=" .. agent_id .. "]" .. record_str .. m_dialstring.build(agent_id, context)
 	local called_dial_str = "[x_agent=" .. calledAgent .. ",x_caller=" .. agent_id ..",x_dest=" .. calledAgent .. "]" .. m_dialstring.build(calledAgent, context)
 	local args = "originate " .. caller_dial_str .. " m:^:callcenter_track:" .. agent_id .. "^export:nolocal:execute_on_answer='callcenter_track " .. calledAgent .. "'^bridge:" .. called_dial_str .. " inline"
 	do_debug("callInner", args)
@@ -353,7 +353,7 @@ put('/callOut', function(params)
 	local agent_id = params.request.agent_id
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
-	local caller_dial_str = "{absolute_codec_string=PCMU,PCMA}[x_agent=" .. agent_id .. "][xx_caller=" .. agent_id .. "]" .. record_str .. m_dialstring.build(agent_id, context)
+	local caller_dial_str = "{absolute_codec_string=^^:PCMU:PCMA,x_caller_id_name=" .. agent_id ..",x_caller_id_number=" .. agent_id .. ",x_destination_number=" .. calledNumber .. "}[x_agent=" .. agent_id .. "][xx_caller=" .. agent_id .. "]" .. record_str .. m_dialstring.build(agent_id, context)
 	local args = "originate " .. caller_dial_str .. " m:^:callcenter_track:" .. agent_id .. "^export:nolocal:x_caller=" .. agent_id .. "^export:nolocal:x_dest=" .. calledNumber .. "^transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
 	if callerNumber ~= '' and callerNumber ~= nil then
 		args = "originate " .. caller_dial_str .. " m:^:callcenter_track:" .. agent_id .. "^export:nolocal:x_caller=" .. agent_id .. "^export:nolocal:x_dest=" .. calledNumber .. "^set:effective_caller_id_number=" .. callerNumber .. "^set:effective_caller_id_name=" .. callerNumber .. "^set:cc_export_vars=xx_caller^transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
