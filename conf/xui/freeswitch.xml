@@ -21,9 +21,7 @@
       parsed in the same way.
   -->
 
-  <section name="languages" description="Variables">
-    <X-PRE-PROCESS cmd="include" data="variables.xml"/>
-  </section>
+  <X-PRE-PROCESS cmd="include" data="variables.xml"/>
 
   <section name="configuration" description="Configuration">
     <X-PRE-PROCESS cmd="include" data="configuration/*.xml"/>
