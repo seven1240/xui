@@ -326,8 +326,11 @@ Blockly.Blocks['fsSessionGet'] = {
             ["Caller ID Number", "caller_id_number"],
             ["Caller ID Name", "caller_id_name"],
             ["Destination_number", "destination_number"],
+            ["Sip_refer_to", "sip_refer_to"],
+            ["Sip_invite_failure_status", "sip_invite_failure_status"],
+            ["Originate_disposition", "originate_disposition"],
             ["UUID", "channel_uuid"],
-	    ["Curl_response_code", "curl_response_code"],
+            ["Curl_response_code", "curl_response_code"],
             ["Curl_response_data", "curl_response_data"]]), "NAME");
     this.setInputsInline(true);
     this.setOutput(true, "String");
