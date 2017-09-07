@@ -227,7 +227,7 @@ xdb.find_by_sql(sql, function(row)
 				end
 			end
 
-			if room.banner and (not string.find(cidNumber, '.')) then
+			if room.banner and (not string.find(cidNumber, '%.')) then -- no banner for linked member
 				banner = utils.json_decode(room.banner)
 				banner_text = "{font_face=" .. banner.fontFace ..
 					",font_scale=" .. banner.fontScale ..
