@@ -632,6 +632,28 @@ Blockly.Blocks['tDate'] = {
   }
 };
 
+Blockly.Blocks['tDatetime'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField(Blockly.Msg.tDatetime)
+        .appendField(new Blockly.FieldTextInput("year"), "year")
+        .appendField("-")
+        .appendField(new Blockly.FieldTextInput("month"), "month")
+        .appendField("-")
+        .appendField(new Blockly.FieldTextInput("day"), "day")
+        .appendField(new Blockly.FieldTextInput("hour"), "hour")
+        .appendField(":")
+        .appendField(new Blockly.FieldTextInput("min"), "min")
+        .appendField(":")
+        .appendField(new Blockly.FieldTextInput("sec"), "sec");
+
+    this.setOutput(true, "Time");
+    this.setColour(20);
+    this.setTooltip('');
+    this.setHelpUrl('http://www.example.com/');
+  }
+};
+
 Blockly.Blocks['tDateFormat'] = {
   init: function() {
     this.appendDummyInput()

@@ -272,6 +272,19 @@ Blockly.Lua.tDate = function(block) {
   return [code, Blockly.Lua.ORDER_NONE];
 }
 
+Blockly.Lua.tDatetime = function(block) {
+  var year = block.getFieldValue('year');
+  var month = block.getFieldValue('month');
+  var day = block.getFieldValue('day');
+  var hour = block.getFieldValue('hour');
+  var min = block.getFieldValue('min');
+  var sec = block.getFieldValue('sec');
+  var code = " os.time({year=" + year +
+    ", month=" + month + ", day=" + day +
+    ", hour=" + hour + ", min=" + min + ", sec=" + sec + "})";
+  return [code, Blockly.Lua.ORDER_NONE];
+}
+
 Blockly.Lua.tDateFormat = function(block) {
   var variable_date = Blockly.Lua.variableDB_.getName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
   var fmt_field = block.getFieldValue('fmt');

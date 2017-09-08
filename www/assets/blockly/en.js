@@ -434,6 +434,7 @@ Blockly.Msg.FS_BLOCK_CURL = "Curl";
 
 Blockly.Msg.tNow = "Now";
 Blockly.Msg.tDate = "Create Time";
+Blockly.Msg.tDatetime = "Create Time Stamp";
 Blockly.Msg.tDateField = "Get Field";
 Blockly.Msg.tDateField_YEAR = "Year";
 Blockly.Msg.tDateField_MONTH = "Month";
