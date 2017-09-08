@@ -158,6 +158,7 @@ LANGUAGES["zh"] = {
 	"Select Online Members": "选择在线成员",
 	"Select Offline Members": "选择不在线成员",
 	"Select Linked Members": "选择连接键",
+	"Select Local Linked Members": "选择本地连接键",
 	"Select Domain": "选择特定服务器 [*{domain}*]",
 	"Call Linked Members": "呼叫所有连接",
 
