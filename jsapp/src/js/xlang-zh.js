@@ -24,6 +24,7 @@ LANGUAGES["zh"] = {
 	Show: "Show",
 	Blocks: "Blocks",
 	Conferences: "会议",
+	"Click domain value or to open drag zone": "点击域值打开拖动区域",
 	Monitor: "监控",
 	"Monitor Center": "监控中心",
 	"Some User Offline": "部分用户离线",
