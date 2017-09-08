@@ -556,7 +556,7 @@ class Verto {
 
 			case 'verto.clientReady':
 				if (verto.callbacks.onMessage) {
-					verto.callbacks.onMessage(verto, null, $.verto.enum.message.clientReady, data.params);
+					verto.callbacks.onMessage(verto, null, Verto.enum.message.clientReady, data.params);
 					console.debug("CLIENT READY", data.params);
 				}
 
