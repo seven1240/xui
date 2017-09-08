@@ -161,6 +161,9 @@ LANGUAGES["zh"] = {
 	"Select Local Linked Members": "选择本地连接键",
 	"Select Domain": "选择特定服务器 [*{domain}*]",
 	"Call Linked Members": "呼叫所有连接",
+	"Push Main Canvas": "推送主会场",
+	"Push Sub Canvas": "推送分会场",
+	"Reset": "重置",
 
 	"Video Mode": "视频模式",
 	CONF_VIDEO_MODE_PASSTHROUGH: "透传",
