@@ -30,12 +30,12 @@
  */
 ]]
 
--- print(env:serialize())
+print(event:serialize())
 
-local auto_record = env:getHeader("auto_record")
-local record_path = env:getHeader("auto_record_path")
+local action = event:getHeader("Action")
+local record_path = event:getHeader("Path")
 
-if auto_record == "true" and record_path then
+if action == "stop-recording" then
 	local cur_dir = debug.getinfo(1).source;
 	cur_dir = string.gsub(debug.getinfo(1).source, "^@(.+/)[^/]+$", "%1")
 
@@ -49,20 +49,21 @@ if auto_record == "true" and record_path then
 
 	if config.db_auto_connect then xdb.connect(config.fifo_cdr_dsn or config.dsn) end
 
-	uuid = env:getHeader("Unique-ID")
+	uuid = event:getHeader("Conference-Unique-ID")
+	name = event:getHeader("Conference-Name")
 
-	filename = string.match(record_path, ".*/(auto%-record%-.*)$")
+	slash = record_path:find("/")
+	record_path = record_path:sub(slash)
+	filename = string.match(record_path, ".*/(conference%-record%-.*)$")
 	ext = filename:match("^.+(%..+)$")
 
 	local f = io.open(record_path, "rb")
 
 	if f then
 		local size = assert(f:seek("end"))
-		local cidNumber = env:getHeader("Caller-Caller-ID-Number") or "UNKNOWN"
-		local destNumber = env:getHeader("Caller-Destination-Number") or "UNKNOWN"
 
 		rec = {}
-		rec.name = 'record-' .. cidNumber .. '-' .. destNumber
+		rec.name = 'conference-record-' .. name
 
 		if ext == ".wav" then
 			rec.mime = "audio/wave"
@@ -76,8 +77,8 @@ if auto_record == "true" and record_path then
 		end
 		rec.abs_path = record_path
 		rec.file_size = "" .. size
-		rec.type = "AUTORECORD"
-		rec.description = "Auto Record"
+		rec.type = "VIDEORECORD"
+		rec.description = "Conference Record"
 		rec.dir_path = config.recording_path
 		rec.channel_uuid = uuid
 		rec.original_file_name = filename
