@@ -772,4 +772,43 @@ BEGIN
 		SELECT 'TICKET', NEW.ticket_id, NEW.user_id WHERE NEW.user_id IS NOT NULL;
 END;
 
+
+CREATE TABLE conference_cdrs (
+	id INTEGER PRIMARY KEY,
+	uuid VARCHAR NOT NULL,
+	num VARCHAR NOT NULL,
+	name VARCHAR NOT NULL,
+	started_at DATETIME,
+	completed_at DATETIME,
+	hostname VARCHAR,
+	rate INTEGER,
+	interval INTEGER
+);
+
+CREATE TABLE conference_cdr_members (
+	id INTEGER PRIMARY KEY,
+	conference_cdr_id INTEGER NOT NULL REFERENCES conference_cdrs(id),
+	joined_at DATETIME,
+	left_at DATETIME,
+	is_moderator BOOLEAN NOT NULL DEFAULT 0 CHECK(is_moderator IN (0, 1, '0', '1')),
+	end_conference BOOLEAN NOT NULL DEFAULT 0 CHECK(end_conference IN (0, 1, '0', '1')),
+	was_kicked BOOLEAN NOT NULL DEFAULT 0 CHECK(was_kicked IN (0, 1, '0', '1')),
+	is_ghost BOOLEAN NOT NULL DEFAULT 0 CHECK(is_ghost IN (0, 1, '0', '1')),
+	username VARCHAR,
+	dialplan VARCHAR,
+	caller_id_name VARCHAR,
+	caller_id_number VARCHAR,
+	callee_id_name VARCHAR,
+	callee_id_number VARCHAR,
+	ani VARCHAR,
+	aniii VARCHAR,
+	network_addr VARCHAR,
+	rdnis VARCHAR,
+	destination_number VARCHAR,
+	uuid VARCHAR NOT NULL,
+	source VARCHAR,
+	context VARCHAR,
+	chan_name VARCHAR
+);
+
 -- END
