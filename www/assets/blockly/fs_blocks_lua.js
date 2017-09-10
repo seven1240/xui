@@ -296,6 +296,11 @@ Blockly.Lua.tNow = function(block) {
   return [code, Blockly.Lua.ORDER_NONE];
 }
 
+Blockly.Lua.tNowstring = function(block) {
+  var code = "os.time()";
+  return [code, Blockly.Lua.ORDER_NONE];
+}
+
 Blockly.Lua.tDate = function(block) {
   var year = block.getFieldValue('year');
   var month = block.getFieldValue('month');

@@ -440,6 +440,7 @@ Blockly.Msg.FS_BLOCK_BADINPUT = "失败提示音";
 Blockly.Msg.FS_BLOCK_REGEX = "正则匹配";
 
 Blockly.Msg.tNow = "当前时间";
+Blockly.Msg.tNowstring = "当前时间戳";
 Blockly.Msg.tDate = "构造时间";
 Blockly.Msg.tDatetime = "构造时间戳";
 Blockly.Msg.tDateFormat = "格式化时间";

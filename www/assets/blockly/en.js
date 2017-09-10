@@ -437,6 +437,7 @@ Blockly.Msg.FS_BLOCK_BADINPUT = "Input_error_audio_file";
 Blockly.Msg.FS_BLOCK_REGEX = "Digit_regex";
 
 Blockly.Msg.tNow = "Now";
+Blockly.Msg.tNowstring = "Now Time Stamp";
 Blockly.Msg.tDate = "Create Time";
 Blockly.Msg.tDatetime = "Create Time Stamp";
 Blockly.Msg.tDateField = "Get Field";

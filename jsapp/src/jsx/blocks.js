@@ -287,6 +287,7 @@ var toolbox = `<xml id="toolbox" style="display: none">
 
 <category name="` + T.translate("Time") + `" colour="200">
 	<block type="tNow"></block>
+	<block type="tNowstring"></block>
 	<block type="tDate"></block>
 	<block type="tDatetime"></block>
 	<block type="tDateFormat"></block>

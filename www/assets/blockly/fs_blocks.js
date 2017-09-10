@@ -644,6 +644,18 @@ Blockly.Blocks['tNow'] = {
   }
 };
 
+Blockly.Blocks['tNowstring'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField(Blockly.Msg.tNowstring);
+
+    this.setOutput(true, "Date");
+    // this.setColour(20);
+    this.setTooltip('');
+    this.setHelpUrl('http://www.example.com/');
+  }
+};
+
 Blockly.Blocks['tDate'] = {
   init: function() {
     this.appendDummyInput()
