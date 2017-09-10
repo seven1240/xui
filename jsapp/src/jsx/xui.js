@@ -42,6 +42,7 @@ import FSShow from "./fs_show";
 import { TicketsPage, TicketPage } from "./page_tickets";
 import { TrafficDictPage, TrafficDictsPage } from "./page_traffic_dicts";
 import { CDRsPage, CDRPage } from "./page_cdrs";
+import { ConferenceCDRsPage, ConferenceCDRPage } from "./page_conference_cdrs";
 import { FifoCDRsPage, FifoCDRPage } from "./page_fifo_cdrs";
 import {McastsPage, McastPage} from "./page_mcasts";
 import AboutPage from "./page_about";
@@ -160,7 +161,6 @@ class Home extends React.Component{
 				<Route path="sofia" components = {{sidebar: DashBoard, main: SofiaPage}}/>
 
 				<Route path="show" component={FSShow} />
-				// <Route path="cdrs" component={CDRsPage} />
 
 				<Route path="tickets">
 					<IndexRoute component={TicketsPage} />
@@ -175,6 +175,11 @@ class Home extends React.Component{
 				<Route path="cdrs">
 					<IndexRoute component={CDRsPage} />
 					<Route path=":uuid" component={CDRPage} />
+				</Route>
+
+				<Route path="conference_cdrs">
+					<IndexRoute component={ConferenceCDRsPage} />
+					<Route path=":id" component={ConferenceCDRPage} />
 				</Route>
 
 				<Route path="fifocdrs">

@@ -119,6 +119,7 @@ INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Monitor', '/monitor');
 INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Conference', '/conferences');
 INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Tickets', '/tickets');
 INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'CDR', '/cdrs');
+INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'CCDR', '/conference_cdrs');
 INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'About', '/about');
 -- INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Traffic Dicts', '/traffic_dicts');
 -- INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Dropdown', 'DROPDOWN'); -- v = 'DROPDOWN' for drop menus

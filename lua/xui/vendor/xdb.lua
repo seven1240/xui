@@ -308,6 +308,22 @@ function xdb.affected_rows()
 	return xdb.dbh:affected_rows()
 end
 
+function xdb.count(t, cond)
+	local sql = "SELECT COUNT(1) AS cnt FROM " .. t
+
+	if cond then
+		sql = sql .. _cond_string(cond)
+	end
+
+	local n, rows = xdb.find_by_sql(sql, cb)
+
+	if n > 0 then
+		return tonumber(rows[1]['cnt'])
+	else
+		return 0
+	end
+end
+
 xdb.cond = _cond_string;
 
 function xdb.release()

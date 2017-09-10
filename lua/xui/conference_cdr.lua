@@ -76,11 +76,11 @@ if file and not err then
 	rec.uuid = conference_uuid
 	rec.num = string.sub(xml.cdr.conference.confname:value(), 0, pos-1)
 	rec.name =  xml.cdr.conference.confname:value()
-	rec.started_at =  xml.cdr.conference.start_time:value()
-	rec.completed_at   = xml.cdr.conference.end_time:value()
-	rec.hostname    = xml.cdr.conference.hostconfname:value()
+	rec.started_at = os.date('%Y-%m-%d %H:%M:%S', xml.cdr.conference.start_time:value())
+	rec.completed_at = os.date('%Y-%m-%d %H:%M:%S', xml.cdr.conference.end_time:value())
+	rec.hostname  = xml.cdr.conference.hostconfname:value()
 	rec.rate = xml.cdr.conference.rate:value()
-	rec.interval =xml.cdr.conference.interval:value()
+	rec.interval = xml.cdr.conference.interval:value()
 
 	if do_debug then
 		utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", rec.num)
@@ -100,8 +100,8 @@ if file and not err then
 		for k, member in pairs(xml.cdr.conference.members:children()) do
 			rec = {}
 			rec.conference_cdr_id = cdr_id
-			rec.joined_at          = member.join_time:value()
-			rec.left_at            = member.leave_time:value()
+			rec.joined_at          = os.date('%Y-%m-%d %H:%M:%S', member.join_time:value())
+			rec.left_at            = os.date('%Y-%m-%d %H:%M:%S', member.leave_time:value())
 			rec.is_moderator       = (member.flags.is_moderator:value() == "true") and 1 or 0
 			rec.end_conference     = (member.flags.end_conference:value() == "true") and 1 or 0
 			rec.was_kicked         = (member.flags.was_kicked:value() == "true") and 1 or 0
