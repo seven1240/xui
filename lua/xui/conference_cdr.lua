@@ -53,11 +53,10 @@ do_debug = true
 
 if config.db_auto_connect then xdb.connect(config.fifo_cdr_dsn or config.dsn) end
 
-local filename = argv[1]
-local file, err = io.open(filename, "r")
+local path = argv[1]
+local file, err = io.open(path, "r")
 
-local p = filename:find(".cdr.xml")
-local conference_uuid = filename:sub(1, p - 1)
+local conference_uuid = string.match(path, ".*/([^/]*).cdr.xml$")
 
 if file and not err then
 	local data = file:read("*a")
@@ -98,31 +97,33 @@ if file and not err then
 		utils.xlog(__FILE__() .. ':' .. __LINE__(), "ERR", "Create Conference CDR ERR")
 	else
 		for k, member in pairs(xml.cdr.conference.members:children()) do
-			rec = {}
-			rec.conference_cdr_id = cdr_id
-			rec.joined_at          = os.date('%Y-%m-%d %H:%M:%S', member.join_time:value())
-			rec.left_at            = os.date('%Y-%m-%d %H:%M:%S', member.leave_time:value())
-			rec.is_moderator       = (member.flags.is_moderator:value() == "true") and 1 or 0
-			rec.end_conference     = (member.flags.end_conference:value() == "true") and 1 or 0
-			rec.was_kicked         = (member.flags.was_kicked:value() == "true") and 1 or 0
-			rec.is_ghost           = (member.flags.is_ghost:value() == "true") and 1 or 0
-			rec.username           = member.caller_profile.userconfname:value()
-			rec.dialplan           = member.caller_profile.dialplan:value()
-			rec.caller_id_name     = member.caller_profile.caller_id_confname:value()
-			rec.caller_id_number   = member.caller_profile.caller_id_number:value()
-			rec.callee_id_name     = member.caller_profile.callee_id_confname:value()
-			rec.callee_id_number   = member.caller_profile.callee_id_number:value()
-			rec.ani                = member.caller_profile.ani:value()
-			rec.aniii              = member.caller_profile.aniii:value()
-			rec.network_addr       = member.caller_profile.network_addr:value()
-			rec.rdnis              = member.caller_profile.rdnis:value()
-			rec.destination_number = member.caller_profile.destination_number:value()
-			rec.uuid               = member.caller_profile.uuid:value()
-			rec.source             = member.caller_profile.source:value()
-			rec.context            = member.caller_profile.context:value()
-			rec.chan_name          = member.caller_profile.chan_confname:value()
+			if member['@type'] == "caller" then
+				rec = {}
+				rec.conference_cdr_id = cdr_id
+				rec.joined_at          = os.date('%Y-%m-%d %H:%M:%S', member.join_time:value())
+				rec.left_at            = os.date('%Y-%m-%d %H:%M:%S', member.leave_time:value())
+				rec.is_moderator       = (member.flags.is_moderator:value() == "true") and 1 or 0
+				rec.end_conference     = (member.flags.end_conference:value() == "true") and 1 or 0
+				rec.was_kicked         = (member.flags.was_kicked:value() == "true") and 1 or 0
+				rec.is_ghost           = (member.flags.is_ghost:value() == "true") and 1 or 0
+				rec.username           = member.caller_profile.userconfname:value()
+				rec.dialplan           = member.caller_profile.dialplan:value()
+				rec.caller_id_name     = member.caller_profile.caller_id_confname:value()
+				rec.caller_id_number   = member.caller_profile.caller_id_number:value()
+				rec.callee_id_name     = member.caller_profile.callee_id_confname:value()
+				rec.callee_id_number   = member.caller_profile.callee_id_number:value()
+				rec.ani                = member.caller_profile.ani:value()
+				rec.aniii              = member.caller_profile.aniii:value()
+				rec.network_addr       = member.caller_profile.network_addr:value()
+				rec.rdnis              = member.caller_profile.rdnis:value()
+				rec.destination_number = member.caller_profile.destination_number:value()
+				rec.uuid               = member.caller_profile.uuid:value()
+				rec.source             = member.caller_profile.source:value()
+				rec.context            = member.caller_profile.context:value()
+				rec.chan_name          = member.caller_profile.chan_confname:value()
 
-			xdb.create_return_id("conference_cdr_members", rec)
+				xdb.create_return_id("conference_cdr_members", rec)
+			end
 		end
 	end
 else
