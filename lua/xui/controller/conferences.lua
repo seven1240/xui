@@ -123,6 +123,20 @@ post("/", function(params)
 	return {code = 200, msg = "+OK", data = request.name}
 end)
 
+put("/:name/record", function(params)
+	print(env:serialize())
+	local ext = (params.request and params.request.ext) and params.request.ext or ".mp4"
+	local path = config.recording_path .. '/conference-record-' .. os.date('%Y%m%d%H%M%S-') .. params.name .. ext
+	local ret = execute("conference", params.name .. " record " .. path)
+	ret.path = path
+	return ret
+end)
+
+put("/:name/record/stop", function(params)
+	local filename = (params.request and params.request.filename) and params.request.filename or "all"
+	return execute("conference", params.name .. " norecord " .. filename)
+end)
+
 post("/:name", function(params)
 	req = params.request
 	ret = "+OK"
