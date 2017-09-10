@@ -201,35 +201,35 @@ class ConferenceCDRPage extends React.Component {
 			<Form horizontal id="ConfCDRFormX">
 				<FormGroup controlId="formRecord">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="UUID"/></Col>
-					<Col sm={10}>{cdr.uuid}</Col>
+					<Col sm={10}><FormControl.Static>{cdr.uuid}</FormControl.Static></Col>
 				</FormGroup>
 				<FormGroup controlId="formRecord">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Number"/></Col>
-					<Col sm={10}>{cdr.num}</Col>
+					<Col sm={10}><FormControl.Static>{cdr.num}</FormControl.Static></Col>
 				</FormGroup>
 				<FormGroup controlId="formRecord">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Name"/></Col>
-					<Col sm={10}>{cdr.name}</Col>
+					<Col sm={10}><FormControl.Static>{cdr.name}</FormControl.Static></Col>
 				</FormGroup>
 				<FormGroup controlId="formRecord">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Hostname"/></Col>
-					<Col sm={10}>{cdr.hostname}</Col>
+					<Col sm={10}><FormControl.Static>{cdr.hostname}</FormControl.Static></Col>
 				</FormGroup>
 				<FormGroup controlId="formRecord">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Rate"/></Col>
-					<Col sm={10}>{cdr.rate}</Col>
+					<Col sm={10}><FormControl.Static>{cdr.rate}</FormControl.Static></Col>
 				</FormGroup>
 				<FormGroup controlId="formRecord">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Interval"/></Col>
-					<Col sm={10}>{cdr.interval}</Col>
+					<Col sm={10}><FormControl.Static>{cdr.interval}</FormControl.Static></Col>
 				</FormGroup>
 				<FormGroup controlId="formRecord">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Started At"/></Col>
-					<Col sm={10}>{cdr.started_at}</Col>
+					<Col sm={10}><FormControl.Static>{cdr.started_at}</FormControl.Static></Col>
 				</FormGroup>
 				<FormGroup controlId="formRecord">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Completed At"/></Col>
-					<Col sm={10}>{cdr.completed_at}</Col>
+					<Col sm={10}><FormControl.Static>{cdr.completed_at}</FormControl.Static></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formRecord">
