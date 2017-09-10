@@ -48,9 +48,9 @@ class CDRPage extends React.Component {
 		this.setState({cdr: this.props.cdr});
 
 		xFetchJSON("/api/media_files?uuid=" + this.props.cdr.uuid).then((data) => {
-			_this.setState({mfiles: data});
+			_this.setState({mfiles: data.data});
 		}).catch((err) => {
-			console.err("mediaFile Err", err);
+			console.error("mediaFile Err", err);
 		})
 	}
 

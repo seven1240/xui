@@ -240,9 +240,12 @@ LANGUAGES["zh"] = {
 	"Toggle Toolbar Text": "切换按钮图标文字提示",
 	"Create New Conference Profile": "创建新会议模板",
 	"Conference CDR": "会议记录",
+	"Started At": "开始时间",
 	"Completed At": "完成时间",
 	"Joined At": "加入时间",
 	"Left At": "离开时间",
+	"Rate": "采样率",
+	"Interval": "打包间隔",
 
 	New: "新建",
 	Edit: "编辑",

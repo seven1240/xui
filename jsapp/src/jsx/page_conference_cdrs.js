@@ -39,6 +39,7 @@ import { EditControl, xFetchJSON } from './libs/xtools';
 class MemberPage extends React.Component {
 	constructor(props) {
 		super(props);
+		this.state = {};
 	}
 
 	componentDidMount() {
@@ -159,21 +160,26 @@ class ConferenceCDRPage extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {cdr: {}, members: [], showMember: null};
+		this.state = {cdr: {}, members: [], showMember: null, mfiles: []};
 	}
 
 	componentDidMount() {
 		const _this = this;
 
 		xFetchJSON("/api/conference_cdrs/" + this.props.params.id).then((cdr) => {
-			console.log('cdrrrrr', cdr);
 			xFetchJSON("/api/conference_cdrs/" + this.props.params.id + '/members').then((members) => {
 				_this.setState({cdr: cdr, members: members});
+
+				xFetchJSON("/api/media_files?uuid=" + cdr.uuid).then((data) => {
+					_this.setState({mfiles: data.data});
+				}).catch((err) => {
+					console.error("mediaFile Err", err);
+				});
 			}).catch((err) => {
-				console.err("conference cdr member Err", err);
+				console.error("conference cdr member Err", err);
 			});
 		}).catch((err) => {
-			console.err("conference cdr Err", err);
+			console.error("conference cdr Err", err);
 		})
 	}
 
@@ -191,6 +197,59 @@ class ConferenceCDRPage extends React.Component {
 			</ButtonGroup>
 			</ButtonToolbar>
 			<h1><T.span text="Conference CDR"/> <small>{cdr.name} &lt;{cdr.num}&gt;</small></h1>
+
+			<Form horizontal id="ConfCDRFormX">
+				<FormGroup controlId="formRecord">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="UUID"/></Col>
+					<Col sm={10}>{cdr.uuid}</Col>
+				</FormGroup>
+				<FormGroup controlId="formRecord">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Number"/></Col>
+					<Col sm={10}>{cdr.num}</Col>
+				</FormGroup>
+				<FormGroup controlId="formRecord">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Name"/></Col>
+					<Col sm={10}>{cdr.name}</Col>
+				</FormGroup>
+				<FormGroup controlId="formRecord">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Hostname"/></Col>
+					<Col sm={10}>{cdr.hostname}</Col>
+				</FormGroup>
+				<FormGroup controlId="formRecord">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Rate"/></Col>
+					<Col sm={10}>{cdr.rate}</Col>
+				</FormGroup>
+				<FormGroup controlId="formRecord">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Interval"/></Col>
+					<Col sm={10}>{cdr.interval}</Col>
+				</FormGroup>
+				<FormGroup controlId="formRecord">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Started At"/></Col>
+					<Col sm={10}>{cdr.started_at}</Col>
+				</FormGroup>
+				<FormGroup controlId="formRecord">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Completed At"/></Col>
+					<Col sm={10}>{cdr.completed_at}</Col>
+				</FormGroup>
+
+				<FormGroup controlId="formRecord">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Record"/></Col>
+					<Col sm={10}><ul>
+					{
+						this.state.mfiles.map((mfile) => {
+							return <div key={mfile.id}>
+								<Link to={`/media_files/${mfile.id}`} target="_blank">{mfile.name}</Link><br/>
+								{
+									(mfile.mime || "").match(/^audio/) ? <audio src={'/recordings/' + mfile.rel_path} controls/> : (
+									(mfile.mime || "").match(/^video/) ? <video src={'/recordings/' + mfile.rel_path} controls style={{maxWidth: "80%"}}/> : null )
+								}
+							</div>
+						})
+					}
+					</ul></Col>
+				</FormGroup>
+			</Form>
+
 			<table className="table">
 				<thead>
 					<tr>
@@ -222,7 +281,10 @@ class ConferenceCDRPage extends React.Component {
 				}
 				</tbody>
 			</table>
-			<MemberPage show={this.state.showMember ? true : false} onHide={formClose} member={this.state.showMember}/>
+			{
+				!this.state.showMember ? null :
+				<MemberPage show={this.state.showMember ? true : false} onHide={formClose} member={this.state.showMember}/>
+			}
 		</div>
 	}
 }
