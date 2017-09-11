@@ -52,4 +52,4 @@ insert into params(realm,k,v,ref_id,disabled) values('conference','verbose-event
 insert into params(realm,k,v,ref_id,disabled) values('conference','video-quality','2',0,1);
 insert into params(realm,k,v,ref_id,disabled) values('conference','video-kps-debounce','100',0,1);
 insert into params(realm,k,v,ref_id,disabled) values('conference','video-mode','mux',0,1);
-insert into params(realm,k,v,ref_id,disabled) values('conference','cdr-log-dir','auto',3,0);
+insert into params(realm,k,v,ref_id,disabled) values('conference','cdr-log-dir','auto',0,1);
