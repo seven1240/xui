@@ -54,6 +54,11 @@ do_debug = true
 if config.db_auto_connect then xdb.connect(config.fifo_cdr_dsn or config.dsn) end
 
 local path = argv[1]
+
+if path == "IN_CLOSE_WRITE" then
+	path = argv[2]
+end
+
 local file, err = io.open(path, "r")
 
 local conference_uuid = string.match(path, ".*/([^/]*).cdr.xml$")
