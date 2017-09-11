@@ -87,12 +87,32 @@ function set_record()
 	if config.auto_record then
 		local grecordings_dir = api:execute("global_getvar", "recordings_dir")
 		local rtime = api:execute("strftime", "%Y-%m-%d-%H-%M-%S")
-		local recording_file = grecordings_dir .. "/cti/" .. rtime .. "." .. uuid .. ".wav"
-		args = "[xrecording_file='" .. recording_file .. "',execute_on_answer='record_session " .. recording_file .. "',origination_uuid=" .. uuid .. "]"
+		local data = string.sub(rtime, 0, 10)
+		local recording_file = grecordings_dir .. "/cti/" .. data .. "/" ..rtime .. "." .. uuid .. ".wav"
+		args = "[x_recording_file='" .. recording_file .. "',execute_on_answer_1='record_session " .. recording_file .. "',origination_uuid=" .. uuid .. "]"
 	end
 	return args
 end
 
+function set_record_app(leg, connecntor, hconnector, tconnector)
+	local api = freeswitch.API()
+	local args = ''
+	local uuid = api:execute("create_uuid")
+
+	if config.auto_record then
+		local grecordings_dir = api:execute("global_getvar", "recordings_dir")
+		local rtime = api:execute("strftime", "%Y-%m-%d-%H-%M-%S")
+		local data = string.sub(rtime, 0, 10)
+		local recording_file = grecordings_dir .. "/cti/" .. data .. "/" ..rtime .. "." .. uuid .. ".wav"
+		if leg == "a" then
+			return hconnector .. "set:x_recording_file='" .. recording_file .. "'" .. connecntor .. "set:origination_uuid=" .. uuid .. connecntor .. "set:execute_on_answer_1='record_session " .. recording_file .. "'" .. tconnector
+		else
+			return hconnector .. "export:_nolocal_x_recording_file='" .. recording_file .. "'" .. connecntor .. "export:_nolocal_origination_uuid=" .. uuid .. connecntor .. "export:_nolocal_execute_on_answer_1='record_session " .. recording_file .. "'" .. tconnector
+		end
+	end
+end
+
+-- do not use cancel record, because record_sesson execute on both legs, when one leg hangup, it will stop to record.
 function cancel_record(uuid, hcomma, tcomma)
 	local api = freeswitch.API()
 	local args = ''
@@ -108,7 +128,22 @@ function cancel_record(uuid, hcomma, tcomma)
 	end
 
 	do_debug("cancel_record", args)
-	return args
+	-- return args
+	return ''
+end
+
+function get_cdr_args(caller, dest)
+	local api = freeswitch.API()
+	local x_cdr_uuid = api:execute("create_uuid")
+	return "[x_caller_id_name=" .. caller .. ",x_caller_id_number=" .. caller .. ",x_destination_number=" .. dest .. ",x_cdr_uuid=" .. x_cdr_uuid .. "]"
+end
+
+function get_export_args()
+	return "x_cdr_uuid,context"
+end
+
+function build_dial_string(number, context)
+	return m_dialstring.build("d" .. number, context)
 end
 -- 1.1
 -- post('/createCTI', function(params)
@@ -258,12 +293,18 @@ put('/agentLogin', function(params)
 		queue_name = "support@cti"
 	end
 
-	local dial_str = m_dialstring.build(agent_id, context)
+	local agent_args = "[absolute_codec_string=^^:PCMU:PCMA,x_bridge_agent=" .. agent_id .. ",x_agent=" .. agent_id ..
+		",agent_from_callcenter=true,context=" .. context ..
+		",origination_uuid=${agent_origination_uuid},execute_on_answer='record_session $${recordings_dir}/cti/${strftime(%Y-%m-%d)}/${strftime(%Y-%m-%d-%H-%M-%S)}.${agent_origination_uuid}.wav']"
+
+
+	local dial_str = agent_args .. build_dial_string(agent_id, context)
+
 
 	do_debug("agentLogin dial_str", dial_str)
 
 	api:execute("callcenter_config", "agent add " .. agent_id .. " callback")
-	api:execute("callcenter_config", "agent set contact " .. agent_id .. " {absolute_codec_string=^^:PCMU:PCMA,x_bridge_agent=" .. agent_id .. "}[x_agent=" .. agent_id .. "][agent_from_callcenter=true]" .. dial_str)
+	api:execute("callcenter_config", "agent set contact " .. agent_id .. " " .. dial_str)
 	api:execute("callcenter_config", "agent set status " .. agent_id .. " 'On Break'")
 	api:execute("callcenter_config", "agent set state " .. agent_id .. " Idle")
 	api:execute("callcenter_config", "tier add " .. queue_name .. " " .. agent_id)
@@ -334,12 +375,16 @@ end)
 put('/callInner', function(params)
 	local api = freeswitch.API()
 	local context = 'cti'
-	local record_str = set_record()
+	local caller_record_str = set_record()
+	local called_record_str = set_record()
 	local agent_id = params.request.agent_id
 	local calledAgent = params.request.calledAgent
-	local caller_dial_str = "{absolute_codec_string=^^:PCMU:PCMA,x_caller_id_name=" .. agent_id ..",x_caller_id_number=" .. agent_id .. ",x_destination_number=" .. calledAgent .. "}[x_agent=" .. agent_id .. "]" .. record_str .. m_dialstring.build(agent_id, context)
-	local called_dial_str = "[x_agent=" .. calledAgent .. ",x_caller=" .. agent_id ..",x_dest=" .. calledAgent .. "]" .. m_dialstring.build(calledAgent, context)
-	local args = "originate " .. caller_dial_str .. " m:^:callcenter_track:" .. agent_id .. "^export:nolocal:execute_on_answer='callcenter_track " .. calledAgent .. "'^bridge:" .. called_dial_str .. " inline"
+	local cdr_args = get_cdr_args(agent_id, calledAgent)
+	local export_vars = get_export_args()
+	local caller_dial_str = "[absolute_codec_string=^^:PCMU:PCMA,x_agent=" .. agent_id .. ",context=" .. context .. "]" .. cdr_args .. caller_record_str .. build_dial_string(agent_id, context)
+	local called_dial_str = "[x_agent=" .. calledAgent .. ",x_caller=" .. agent_id ..",x_dest=" .. calledAgent .. "]" .. called_record_str .. build_dial_string(calledAgent, context)
+	local args = "originate " .. caller_dial_str .. " m:^:callcenter_track:" .. agent_id .. "^export:export_vars=" .. export_vars .. "^export:_nolocal_execute_on_answer_2='callcenter_track " ..
+		calledAgent .. "'^export:_nolocal_x_cdr_uuid=${x_cdr_uuid}^export:agent_origination_uuid=${create_uuid()}^export:cc_export_vars=x_cdr_uuid^bridge:" .. called_dial_str .. " inline cti"
 	do_debug("callInner", args)
 	api:execute("bgapi", args)
 	return 200, {code = 200, text = "OK"}
@@ -349,14 +394,24 @@ end)
 put('/callOut', function(params)
 	local api = freeswitch.API()
 	local context = 'cti'
-	local record_str = set_record()
+	local caller_record_str = set_record()
+	local called_record_str = set_record_app("b", "^", "^", "")
 	local agent_id = params.request.agent_id
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
-	local caller_dial_str = "{absolute_codec_string=^^:PCMU:PCMA,x_caller_id_name=" .. agent_id ..",x_caller_id_number=" .. agent_id .. ",x_destination_number=" .. calledNumber .. "}[x_agent=" .. agent_id .. "][xx_caller=" .. agent_id .. "]" .. record_str .. m_dialstring.build(agent_id, context)
-	local args = "originate " .. caller_dial_str .. " m:^:callcenter_track:" .. agent_id .. "^export:nolocal:x_caller=" .. agent_id .. "^export:nolocal:x_dest=" .. calledNumber .. "^transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+	local cdr_args = get_cdr_args(agent_id, calledNumber)
+	local export_vars = get_export_args()
+	local caller_dial_str = "[absolute_codec_string=^^:PCMU:PCMA,x_agent=" .. agent_id .. ",xx_caller=" .. agent_id .. "]" .. cdr_args .. caller_record_str .. build_dial_string(agent_id, context)
+	local args = "originate " .. caller_dial_str .. " m:^:callcenter_track:" .. agent_id ..
+		"^export:export_vars=" .. export_vars .. "^export:_nolocal_x_caller=" .. agent_id ..
+		"^export:_nolocal_x_dest=" .. calledNumber .. "^export:cc_export_vars=xx_caller,x_cdr_uuid" ..
+		called_record_str.. "^export:_nolocal_x_cdr_uuid=${x_cdr_uuid}^export:agent_origination_uuid=${create_uuid()}^transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
 	if callerNumber ~= '' and callerNumber ~= nil then
-		args = "originate " .. caller_dial_str .. " m:^:callcenter_track:" .. agent_id .. "^export:nolocal:x_caller=" .. agent_id .. "^export:nolocal:x_dest=" .. calledNumber .. "^set:effective_caller_id_number=" .. callerNumber .. "^set:effective_caller_id_name=" .. callerNumber .. "^set:cc_export_vars=xx_caller^transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+		args = "originate " .. caller_dial_str .. " m:^:callcenter_track:" .. agent_id ..
+			"^export:export_vars=" .. export_vars .."^export:_nolocal_x_caller=" .. agent_id ..
+			"^export:_nolocal_x_dest=" .. calledNumber .. "^set:effective_caller_id_number=" .. callerNumber ..
+			"^set:effective_caller_id_name=" .. callerNumber .. "^export:cc_export_vars=xx_caller,x_cdr_uuid" ..
+			called_record_str .. "^export:_nolocal_x_cdr_uuid=${x_cdr_uuid}^export:agent_origination_uuid=${create_uuid()}^transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
 	end
 	do_debug("callOut", args)
 	api:execute("bgapi", args)
@@ -502,6 +557,7 @@ put('/transferIVR', function(params)
 	local uuid = params.request.uuid
 	local accessCode = params.request.accessCode
 	local bleg = ''
+	local leg = 'aleg'
 
 	if (string.len(uuid) ~= 36) then -- uuid is a number
 		local ret = api:execute("hiredis_raw", "default get " .. uuid)
@@ -510,7 +566,11 @@ put('/transferIVR', function(params)
 
 	if is_agent_uuid(uuid) then
 		bleg = "-bleg"
+		leg = 'bleg'
 	end
+
+	api:execute("uuid_broadcast", uuid .. " unset::_nolocal_execute_on_answer_1 " .. leg)
+	api:execute("uuid_broadcast", uuid .. " unset::_nolocal_origination_uuid " .. leg)
 
 	local cancel_record_str = cancel_record(uuid, '', ",")
 
@@ -528,6 +588,8 @@ put('/transferQueue', function(params)
 	local uuid = params.request.uuid
 	local queue_name = params.request.queue_name
 	local bleg = ''
+	local leg = 'aleg'
+
 	if queue_name == '' or queue_name == nil then
 		queue_name = "support@cti"
 	end
@@ -539,7 +601,11 @@ put('/transferQueue', function(params)
 
 	if is_agent_uuid(uuid) then
 		bleg = "-bleg"
+		leg = 'bleg'
 	end
+
+	api:execute("uuid_broadcast", uuid .. " unset::_nolocal_execute_on_answer_1 " .. leg)
+	api:execute("uuid_broadcast", uuid .. " unset::_nolocal_origination_uuid " .. leg)
 
 	local cancel_record_str = cancel_record(uuid, ',', '')
 
@@ -589,6 +655,7 @@ put('/transferOut', function(params)
 	local callerNumber = params.request.callerNumber
 	local calledNumber = params.request.calledNumber
 	local bleg = ''
+	local leg = 'aleg'
 
 	if (string.len(uuid) ~= 36) then -- uuid is a number
 		local ret = api:execute("hiredis_raw", "default get " .. uuid)
@@ -597,8 +664,11 @@ put('/transferOut', function(params)
 
 	if is_agent_uuid(uuid) then
 		bleg = "-bleg"
+		leg = 'bleg'
 	end
 
+	api:execute("uuid_broadcast", uuid .. " unset::_nolocal_execute_on_answer_1 " .. leg)
+	api:execute("uuid_broadcast", uuid .. " unset::_nolocal_origination_uuid " .. leg)
 
 	local cancel_record_str = cancel_record(uuid, '', ",")
 
@@ -619,8 +689,9 @@ put('/transferInner', function(params)
 	local context = 'cti'
 	local uuid = params.request.uuid
 	local agent_id = params.request.agent_id
-	local dial_str = m_dialstring.build(agent_id, context)
+	local dial_str = build_dial_string(agent_id, context)
 	local bleg = ''
+	local leg = 'aleg'
 
 	if (string.len(uuid) ~= 36) then -- uuid is a number
 		local ret = api:execute("hiredis_raw", "default get " .. uuid)
@@ -629,7 +700,11 @@ put('/transferInner', function(params)
 
 	if is_agent_uuid(uuid) then
 		bleg = "-bleg"
+		leg = 'bleg'
 	end
+
+	api:execute("uuid_broadcast", uuid .. " unset::_nolocal_execute_on_answer_1 " .. leg)
+	api:execute("uuid_broadcast", uuid .. " unset::_nolocal_origination_uuid " .. leg)
 
 	local cancel_record_str = cancel_record(uuid, '', ",")
 
@@ -641,7 +716,7 @@ put('/transferInner', function(params)
 		record_str = string.gsub(record_str_tmp, ",", "\\,")
 	end
 
-	local args = uuid .. " " .. bleg .. " " .. cancel_record_str .. "set:x_callcenter=true,export:'nolocal:x_agent=" .. agent_id .. "',bridge:" .. record_str .. dial_str .. " inline"
+	local args = uuid .. " " .. bleg .. " " .. cancel_record_str .. "set:x_callcenter=true,export:'_nolocal_x_agent=" .. agent_id .. "',bridge:" .. record_str .. dial_str .. " inline"
 
 	do_debug("transferInner", args)
 
@@ -684,7 +759,7 @@ end)
 -- 	local context = 'cti'
 -- 	local uuid = params.request.uuid
 -- 	local agent_id = params.request.agent_id
--- 	local dial_str = m_dialstring.build(agent_id, context)
+-- 	local dial_str = build_dial_string(agent_id, context)
 -- 	local bleg = ''
 
 -- 	if (string.len(uuid) ~= 36) then -- uuid is a number
@@ -698,7 +773,7 @@ end)
 -- 	end
 
 
--- 	local args = uuid .. " " .. bleg .. " set:x_callcenter=true,export:'nolocal:x_agent=" .. agent_id .. "',bridge:"  .. dial_str .. " inline"
+-- 	local args = uuid .. " " .. bleg .. " set:x_callcenter=true,export:'_nolocal_x_agent=" .. agent_id .. "',bridge:"  .. dial_str .. " inline"
 
 -- 	do_debug("consultInner", args)
 
@@ -712,7 +787,7 @@ put('/consultTransfer', function(params)
 	local context = 'cti'
 	local uuid = params.request.uuid
 	local agent_id = params.request.agent_id
-	local dial_str = m_dialstring.build(agent_id, context)
+	local dial_str = build_dial_string(agent_id, context)
 
 	if (string.len(uuid) ~= 36) then -- uuid is a number
 		local ret = api:execute("hiredis_raw", "default get " .. uuid)
@@ -729,13 +804,18 @@ put('/consultTransfer', function(params)
 		cancel_record_str = string.gsub(cancel_record_str_tmp, ":", "::")
 	end
 
+	api:execute("uuid_broadcast", uuid .. " unset::_nolocal_origination_uuid")
+	api:execute("uuid_broadcast", uuid .. " unset::_nolocal_x_recording_file")
+	api:execute("uuid_broadcast", uuid .. " unset::_nolocal_execute_on_answer_1")
+	api:execute("uuid_broadcast", uuid .. " unset::agent_origination_uuid")
+
 	local args = uuid .. " att_xfer::[x_agent=" .. agent_id ..",x_caller=" .. att_xfer_from_agent_id .. ",x_dest=" .. agent_id .."]" .. record_str .. dial_str
 
 	do_debug("cancel_record_str", uuid .. " " .. cancel_record_str)
 	do_debug("consultTransfer", args)
 
 	api:execute("uuid_broadcast", uuid .. " set::transfer_ringback=$${hold_music}")
-	api:execute("uuid_broadcast", uuid .. " " .. cancel_record_str)
+	-- api:execute("uuid_broadcast", uuid .. " " .. cancel_record_str)
 	api:execute("uuid_broadcast", args)
 	return 200, {code = 200, text = "OK"}
 end)
@@ -844,14 +924,23 @@ put('/listen', function(params)
 	local context = 'cti'
 	local uuid = params.request.uuid
 	local listenNumber = params.request.listenNumber
-	local dial_str = m_dialstring.build(listenNumber, context)
+	local dial_str = build_dial_string(listenNumber, context)
+	local dest = ''
 
 	if (string.len(uuid) ~= 36) then -- uuid is a number
 		local ret = api:execute("hiredis_raw", "default get " .. uuid)
 		uuid = ret
 	end
 
-	local args = "originate [x_agent=" .. listenNumber .. "]" .. dial_str .. " callcenter_track:" .. listenNumber .. ",eavesdrop:" .. uuid .. " inline"
+	dest = api:execute("hiredis_raw", "default get " .. uuid)
+
+	local x_cdr_uuid = api:execute("uuid_getvar", uuid .. " x_cdr_uuid")
+
+	if x_cdr_uuid == "" or x_cdr_uuid == nil then
+		x_cdr_uuid = api:execute("create_uuid")
+	end
+
+	local args = "originate [x_agent=" .. listenNumber .. ",x_cdr_uuid=" .. x_cdr_uuid .. ",x_caller_id_name=" .. listenNumber .. ",x_caller_id_number=" .. listenNumber .. ",x_destination_number=" .. dest .. "]" .. dial_str .. " callcenter_track:" .. listenNumber .. ",eavesdrop:" .. uuid .. " inline"
 
 	do_debug("listen", args)
 	api:execute("bgapi", args)
@@ -880,15 +969,24 @@ put('/insert', function(params)
 	local uuid = params.request.uuid
 	local context = 'cti'
 	local insertNumber = params.request.insertNumber
-	local dial_str = m_dialstring.build(insertNumber, context)
+	local dial_str = build_dial_string(insertNumber, context)
 	local record_str = set_record()
+	local dest = ''
 
 	if (string.len(uuid) ~= 36) then -- uuid is a number
 		local ret = api:execute("hiredis_raw", "default get " .. uuid)
 		uuid = ret
 	end
 
-	local args = "originate [x_agent=" .. insertNumber .. "]" .. record_str .. dial_str .. " callcenter_track:" .. insertNumber .. ",three_way:" .. uuid .. " inline"
+	dest = api:execute("hiredis_raw", "default get " .. uuid)
+
+	local x_cdr_uuid = api:execute("uuid_getvar", uuid .. " x_cdr_uuid")
+
+	if x_cdr_uuid == "" or x_cdr_uuid == nil then
+		x_cdr_uuid = api:execute("create_uuid")
+	end
+
+	local args = "originate [x_agent=" .. insertNumber .. ",x_cdr_uuid=" .. x_cdr_uuid .. ",x_caller_id_name=" .. insertNumber .. ",x_caller_id_number=" .. insertNumber .. ",x_destination_number=" .. dest .. "]" .. record_str .. dial_str .. " callcenter_track:" .. insertNumber .. ",three_way:" .. uuid .. " inline"
 
 	do_debug("insert", args)
 
@@ -1005,7 +1103,7 @@ put('/playLocalFiles', function(params)
 	end
 
 	if (string.len(uuid) ~= 36) then -- uuid is agent number
-		local dial_str = m_dialstring.build(uuid, context)
+		local dial_str = build_dial_string(uuid, context)
 		args = "originate [x_agent=" .. uuid .. "]" .. dial_str .. " callcenter_track:" .. uuid .. ",set:playback_delimiter=!,playback:'" .. filesStr .. "' inline"
 		do_debug("playLocalFiles", args)
 		api:execute("bgapi", args)
