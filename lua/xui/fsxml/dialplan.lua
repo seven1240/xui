@@ -188,16 +188,32 @@ xdb.find_by_sql(sql, function(row)
 
 		if (not matched) and room.cluster then
 			nodes = utils.json_decode(room.cluster)
+
 			if do_debug then
 				-- utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", utils.serialize(nodes))
 				-- utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", utils.serialize(check))
+			end
 
-				if check and check.route then
+			if check then
+				if check.route then
 					if extract_ip(check.route) ~= local_ipv4 then
 						table.insert(actions_table, {app = "set", data = "bypass_media=true"})
 						table.insert(actions_table, {app = "bridge", data = "sofia/public/" .. room.nbr .. '@' .. check.route})
 						matched = true
 						utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", "Route matched " .. cidNumber .. " " .. check.route)
+					end
+				elseif room.moderator ~= cidNumber then
+					local api = freeswitch.API()
+					local ret = api:execute("distributor", room.nbr)
+					if ret then
+						table.insert(actions_table, {app = "set", data = "bypass_media=true"})
+						table.insert(actions_table, {app = "bridge", data = "sofia/public/" .. room.nbr .. '@' .. ret})
+						matched = true
+						utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", "Route to distributor " .. ret .. " cidNumber:" .. cidNumber)
+					else
+						utils.xlog(__FILE__() .. ':' .. __LINE__(), "WARNING", cidNumber .. " NO_ROUTE_DESTINATION")
+						table.insert(actions_table, {app = "hangup", data = "NO_ROUTE_DESTINATION"})
+						matched = true
 					end
 				end
 			end
