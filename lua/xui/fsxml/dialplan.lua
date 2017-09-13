@@ -195,7 +195,7 @@ xdb.find_by_sql(sql, function(row)
 			end
 
 			if check then
-				if check.route then
+				if check.route and (check.route ~= '') then
 					if extract_ip(check.route) ~= local_ipv4 then
 						table.insert(actions_table, {app = "set", data = "bypass_media=true"})
 						table.insert(actions_table, {app = "bridge", data = "sofia/public/" .. room.nbr .. '@' .. check.route})
