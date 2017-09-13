@@ -54,7 +54,7 @@ if action == "stop-recording" then
 
 	slash = record_path:find("/")
 	record_path = record_path:sub(slash)
-	filename = string.match(record_path, ".*/(conference%-record%-.*)$")
+	filename = string.match(record_path, "^.*/(.*)$")
 	ext = filename:match("^.+(%..+)$")
 
 	local f = io.open(record_path, "rb")
