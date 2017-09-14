@@ -729,26 +729,27 @@ class Verto {
 				unsubChannels[handle]++;
 			} else {
 				Object.keys(handle).forEach(channel => {
-					const eventChannel = handle[channel];
 					if (typeof(eventChannel) == "string") {
 						delete verto.eventSUBS[eventChannel];
 						unsubChannels[eventChannel]++;
 					} else {
-					   const repl = [];
-					   const eventChannel = handle[channel].eventChannel;
+						const repl = [];
+						const eventChannel = handle[channel].eventChannel;
 
-					   verto.eventSUBS[eventChannel] = verto.eventSUBS[eventChannel].reduce((acc, ec) => {
-						   if (ec.serno != handle[channel].serno) {
-							   acc.push(ec);
-						   }
-						   return acc;
-					   }, []);
+						if (verto.eventSUBS[eventChannel]) {
+							verto.eventSUBS[eventChannel] = verto.eventSUBS[eventChannel].reduce((acc, ec) => {
+								if (ec.serno != handle[channel].serno) {
+								acc.push(ec);
+								}
+								return acc;
+							}, []);
 
-					   if (verto.eventSUBS[eventChannel].length === 0) {
-						   delete verto.eventSUBS[eventChannel];
-						   unsubChannels[eventChannel]++;
-					   }
-				   }
+							if (verto.eventSUBS[eventChannel].length === 0) {
+								delete verto.eventSUBS[eventChannel];
+								unsubChannels[eventChannel]++;
+							}
+						}
+					}
 				});
 			}
 
