@@ -37,7 +37,7 @@ build_lists = function()
       <node name="foo2" weight="9"/>]]
 
 
-	xdb.find_by_cond("dicts", "realm like 'DISTRIBUTOR/%'", "k", function(row)
+	xdb.find_by_cond("dicts", "realm like 'DISTRIBUTOR/%'", "realm,k", function(row)
 		local realm = row.realm:sub(#"DISTRIBUTOR/" + 1)
 
 		if realm ~= last_realm then
