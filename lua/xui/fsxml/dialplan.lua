@@ -161,8 +161,9 @@ xdb.find_by_sql(sql, function(row)
 		local check = nil
 		local matched = false
 
+		check = xdb.find_one("conference_members", {room_id = room.id, num = cidNumber})
+
 		if room.call_perm == "CONF_CP_CHECK_CID" then
-			check = xdb.find_one("conference_members", {room_id = room.id, num = cidNumber})
 			if not check then
 				utils.xlog(__FILE__() .. ':' .. __LINE__(), "WARNING", cidNumber .. "Forbidden")
 				forbidden = true
@@ -173,7 +174,6 @@ xdb.find_by_sql(sql, function(row)
 				utils.xlog(__FILE__() .. ':' .. __LINE__(), "WARNING", cidNumber .. " Forbidden")
 				forbidden = true
 			else
-				check = xdb.find_one("conference_members", {room_id = room.id, num = cidNumber})
 				if not check then
 					utils.xlog(__FILE__() .. ':' .. __LINE__(), "WARNING", cidNumber .. " Forbidden")
 					forbidden = true
