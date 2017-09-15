@@ -83,7 +83,7 @@ class Notice extends React.Component {
 class MainMenu extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { user_id: null };
+		this.state = { user_id: null, headimgurl: null };
 	}
 
 	componentDidMount() {
@@ -91,7 +91,7 @@ class MainMenu extends React.Component {
 		var username = localStorage.getItem('xui.username');
 
 		xFetchJSON("/api/users/getID?username=" + username).then((data) => {
-			_this.setState({ user_id: data });
+			_this.setState({ user_id: data.user_id, headimgurl: data.headimgurl });
 		}).catch((msg) => {
 			console.log("get userID ERR");
 		});
@@ -123,10 +123,10 @@ class MainMenu extends React.Component {
 				<NavItem eventKey={item.id}>{T.translate(item.description)}</NavItem>
 			</LinkContainer>
 		});
-
+		const img_w = !this.state.headimgurl ? "/assets/img/sit.png" : this.state.headimgurl;
        const navbarInstance = (
 			<Nav pullRight>
-				<NavDropdown id='user_profile' eventKey={3} title={<img src="/assets/img/sit.png" />} noCaret>
+				<NavDropdown id='user_profile' eventKey={3} title={<img src={img_w} style={{width:"18px",height:"18px"}} />} noCaret>
 					<IndexLinkContainer to={"/settings/users/" + this.state.user_id}>
 						<MenuItem eventKey={3.1}><T.span text="User Settings"/></MenuItem>
 					</IndexLinkContainer>
