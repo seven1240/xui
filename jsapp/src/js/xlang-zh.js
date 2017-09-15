@@ -115,6 +115,8 @@ LANGUAGES["zh"] = {
 	Group: "组",
 	"Parent Group": "所属组",
 	"Add Member(s)": "添加用户",
+	"Select Groups": "选择用户组",
+	"Select All": "全选",
 	"Remove All Member(s)": "移除所有用户",
 	"Group Members": "组成员",
 	"Create New Group": "新建组",

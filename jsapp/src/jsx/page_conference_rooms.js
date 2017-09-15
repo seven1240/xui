@@ -35,6 +35,7 @@ import React from 'react';
 import T from 'i18n-react';
 import ReactDOM from 'react-dom';
 import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox } from 'react-bootstrap';
+import Select from 'react-select';
 import { Tab, Row, Col, Nav, NavItem } from 'react-bootstrap';
 import { Link } from 'react-router';
 import { RIEToggle, RIEInput, RIETextArea, RIENumber, RIETags, RIESelect } from 'riek';
@@ -59,7 +60,7 @@ class NewMember extends React.Component {
 			_this.setState({ errmsg: "Mandatory fields left blank" });
 			return;
 		}
-
+		console.log("pick2", member);
 		xFetchJSON("/api/conference_rooms/" + this.props.room_id + '/members', {
 			method: "POST",
 			body: JSON.stringify(member)
@@ -130,7 +131,7 @@ class GroupBox extends React.Component {
 	handleGroupChange(e) {
 		const _this = this;
 
-		xFetchJSON("/api/groups/" + e.target.value + '/members').then((users) => {
+		xFetchJSON("/api/groups/" + e.value + '/members').then((users) => {
 			_this.setState({users: users});
 		}).catch((msg) => {
 			console.error("get group users err", msg);
@@ -172,8 +173,10 @@ class GroupBox extends React.Component {
 				const member = {
 					name: user.name,
 					description: '',
-					num: user.extn
+					num: user.extn,
+					route: ''
 				};
+				console.log("pick1", member)
 
 				xFetchJSON("/api/conference_rooms/" + this.props.room_id + '/members', {
 					method: "POST",
@@ -190,21 +193,18 @@ class GroupBox extends React.Component {
 	}
 
 	render() {
-		return <div style={{padding: "20px", border: "1px solid blue", textAlign: "right"}}>
-			<h2>选择用户组</h2>
-
-			<Checkbox onClick={this.handleCheckGroup.bind(this)} inline></Checkbox>
-
-			<select onChange={this.handleGroupChange.bind(this)}>
-				<option></option>
-			{
-				this.state.groups.map((group) => {
-					return <option key={group.id} value={group.id}>{group.id}-{group.name}</option>
-				})
-			}
-			</select>
-
-			<ul>
+		const groups_options = this.state.groups.map(function(group) {
+			return {label: group.id + "-" + group.name, value: group.id, key: group.id}
+		});
+		return <div style={{padding: "20px", border: "1px solid #ddd", borderRadius: "4px"}}>
+			<h4><T.span text="Select Groups"/></h4>
+			<hr/>
+			<Select style={{ minWidth:"130px", maxWidth:"200px"}}
+				placeholder={T.translate('Please Select')}
+				options={groups_options}
+				onChange={this.handleGroupChange.bind(this)}/>
+			<ul style={{listStyle: "none"}}>
+				<Checkbox onClick={this.handleCheckGroup.bind(this)} inline><T.span text="Select All"/></Checkbox>
 				{
 					this.state.users.map((user) => {
 						return <li key={user.id}>
@@ -217,7 +217,7 @@ class GroupBox extends React.Component {
 			</ul>
 
 			<br/>
-			<T.button onClick={this.batchAddMember.bind(this)} text="Add Members"/>
+			<Button onClick={this.batchAddMember.bind(this)} bsStyle="primary"><T.span text="Add Member(s)"/></Button>
 		</div>
 	}
 
@@ -233,6 +233,7 @@ class RoomMembers extends React.Component {
 	handleMemberAdded(member) {
 		var members = this.state.members;
 		members.unshift(member);
+		console.log("mmmmmmm", members);
 		this.setState({members: members, memberFormShow: false});
 	}
 
@@ -426,7 +427,7 @@ class RoomMembers extends React.Component {
 			<h2><T.span text="Members"/></h2>
 
 			{
-				!this.state.batchAddmemberShow ? null :
+				// !this.state.batchAddmemberShow ? null :
 				<GroupBox room_id={this.props.room.id} onNewMemberAdded={this.handleMemberAdded.bind(this)}/>
 			}
 
