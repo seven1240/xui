@@ -427,7 +427,7 @@ class RoomMembers extends React.Component {
 			<h2><T.span text="Members"/></h2>
 
 			{
-				// !this.state.batchAddmemberShow ? null :
+				!this.state.batchAddmemberShow ? null :
 				<GroupBox room_id={this.props.room.id} onNewMemberAdded={this.handleMemberAdded.bind(this)}/>
 			}
 
