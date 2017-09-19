@@ -391,7 +391,7 @@ put('/callInner', function(params)
 	local caller_dial_str = "[absolute_codec_string=^^:PCMU:PCMA,x_agent=" .. agent_id .. ",context=" .. context .. ",x_call_direction=out]" .. cdr_args .. caller_record_str .. build_dial_string(agent_id, context)
 	local called_dial_str = "[x_agent=" .. calledAgent .. ",x_caller=" .. agent_id ..",x_dest=" .. calledAgent .. ",x_call_direction=in]" .. called_record_str .. build_dial_string(calledAgent, context)
 	local args = "originate " .. caller_dial_str .. " m:^:callcenter_track:" .. agent_id .. "^export:export_vars=" .. export_vars .. "^export:_nolocal_execute_on_answer_2='callcenter_track " ..
-		calledAgent .. "'^export:_nolocal_x_cdr_uuid=${x_cdr_uuid}^export:agent_origination_uuid=${create_uuid()}^export:cc_export_vars=x_cdr_uuid,agent_origination_uuid^bridge:" .. called_dial_str .. " inline cti"
+		calledAgent .. "'^export:_nolocal_x_cdr_uuid=${x_cdr_uuid}^export:cc_export_vars=x_cdr_uuid^bridge:" .. called_dial_str .. " inline cti"
 	do_debug("callInner", args)
 	api:execute("bgapi", args)
 	return 200, {code = 200, text = "OK"}
@@ -411,14 +411,14 @@ put('/callOut', function(params)
 	local caller_dial_str = "[absolute_codec_string=^^:PCMU:PCMA,x_agent=" .. agent_id .. ",xx_caller=" .. agent_id .. ",x_call_direction=out]" .. cdr_args .. caller_record_str .. build_dial_string(agent_id, context)
 	local args = "originate " .. caller_dial_str .. " m:^:callcenter_track:" .. agent_id ..
 		"^export:export_vars=" .. export_vars .. "^export:_nolocal_x_caller=" .. agent_id ..
-		"^export:_nolocal_x_dest=" .. calledNumber .. "^export:cc_export_vars=xx_caller,x_cdr_uuid,agent_origination_uuid" ..
-		called_record_str.. "^export:_nolocal_x_cdr_uuid=${x_cdr_uuid}^export:_nolocal_x_call_direction=in^export:agent_origination_uuid=${create_uuid()}^transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+		"^export:_nolocal_x_dest=" .. calledNumber .. "^export:cc_export_vars=xx_caller,x_cdr_uuid" ..
+		called_record_str.. "^export:_nolocal_x_cdr_uuid=${x_cdr_uuid}^export:_nolocal_x_call_direction=in^transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
 	if callerNumber ~= '' and callerNumber ~= nil then
 		args = "originate " .. caller_dial_str .. " m:^:callcenter_track:" .. agent_id ..
 			"^export:export_vars=" .. export_vars .."^export:_nolocal_x_caller=" .. agent_id ..
 			"^export:_nolocal_x_dest=" .. calledNumber .. "^set:effective_caller_id_number=" .. callerNumber ..
-			"^set:effective_caller_id_name=" .. callerNumber .. "^export:cc_export_vars=xx_caller,x_cdr_uuid,agent_origination_uuid" ..
-			called_record_str .. "^export:_nolocal_x_cdr_uuid=${x_cdr_uuid}^export:_nolocal_x_call_direction=in^export:agent_origination_uuid=${create_uuid()}^transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
+			"^set:effective_caller_id_name=" .. callerNumber .. "^export:cc_export_vars=xx_caller,x_cdr_uuid" ..
+			called_record_str .. "^export:_nolocal_x_cdr_uuid=${x_cdr_uuid}^export:_nolocal_x_call_direction=in^transfer:" .. "'" .. calledNumber .. " XML " .. context .. "' inline"
 	end
 	do_debug("callOut", args)
 	api:execute("bgapi", args)
@@ -814,7 +814,6 @@ put('/consultTransfer', function(params)
 	api:execute("uuid_broadcast", uuid .. " unset::_nolocal_origination_uuid")
 	api:execute("uuid_broadcast", uuid .. " unset::_nolocal_x_recording_file")
 	api:execute("uuid_broadcast", uuid .. " unset::_nolocal_execute_on_answer_1")
-	api:execute("uuid_broadcast", uuid .. " unset::agent_origination_uuid")
 
 	local args = uuid .. " att_xfer::[x_agent=" .. agent_id ..",x_caller=" .. att_xfer_from_agent_id .. ",x_dest=" .. agent_id ..",x_call_direction=in]" .. record_str .. dial_str
 
