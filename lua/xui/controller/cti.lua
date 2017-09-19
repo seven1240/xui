@@ -34,6 +34,11 @@
 -- xtra.ignore_login('/createCTI')
 -- xtra.ignore_login('/startService')
 
+if argv[1] == "agent_record" then
+	session:execute("record_session", "$${recordings_dir}/cti/${strftime(%Y-%m-%d)}/${strftime(%Y-%m-%d-%H-%M-%S)}.${uuid}.wav")
+	return
+end
+
 xtra.ignore_login('/login')
 xtra.start_session()
 xtra.require_login()
@@ -44,10 +49,10 @@ require 'utils'
 require 'm_dialstring'
 xdb.bind(xtra.dbh)
 
-local debug = true
+local cti_debug = true
 
 function do_debug(key, args)
-	if debug then
+	if cti_debug then
 		freeswitch.consoleLog("debug", key .. ":" .. args .. "\n")
 	end
 end
@@ -293,9 +298,11 @@ put('/agentLogin', function(params)
 		queue_name = "support@cti"
 	end
 
+	local cur_dir = debug.getinfo(1,'S').source:sub(2)
+
 	local agent_args = "[absolute_codec_string=^^:PCMU:PCMA,x_bridge_agent=" .. agent_id .. ",x_agent=" .. agent_id ..
 		",agent_from_callcenter=true,context=" .. context .. ",x_call_direction=in,x_cdr_uuid=${x_cdr_uuid}" ..
-		",origination_uuid=${agent_origination_uuid},execute_on_answer='record_session $${recordings_dir}/cti/${strftime(%Y-%m-%d)}/${strftime(%Y-%m-%d-%H-%M-%S)}.${agent_origination_uuid}.wav']"
+		",origination_uuid=${create_uuid()},execute_on_answer='lua " .. cur_dir .. " agent_record']"
 
 
 	local dial_str = agent_args .. build_dial_string(agent_id, context)
