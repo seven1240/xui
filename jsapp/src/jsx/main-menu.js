@@ -91,7 +91,7 @@ class MainMenu extends React.Component {
 		var username = localStorage.getItem('xui.username');
 
 		xFetchJSON("/api/users/getID?username=" + username).then((data) => {
-			_this.setState({ user_id: data.user_id, headimgurl: data.headimgurl });
+			_this.setState({ user_id: data.id, headimgurl: data.headimgurl });
 		}).catch((msg) => {
 			console.log("get userID ERR");
 		});
