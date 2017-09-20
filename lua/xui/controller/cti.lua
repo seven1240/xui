@@ -302,7 +302,7 @@ put('/agentLogin', function(params)
 
 	local agent_args = "[absolute_codec_string=^^:PCMU:PCMA,x_bridge_agent=" .. agent_id .. ",x_agent=" .. agent_id ..
 		",agent_from_callcenter=true,context=" .. context .. ",x_call_direction=in,x_cdr_uuid=${x_cdr_uuid}" ..
-		",origination_uuid=${create_uuid()},execute_on_answer='lua " .. cur_dir .. " agent_record']"
+		",execute_on_answer='lua " .. cur_dir .. " agent_record']"
 
 
 	local dial_str = agent_args .. build_dial_string(agent_id, context)
