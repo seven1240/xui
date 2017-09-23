@@ -249,6 +249,8 @@ LANGUAGES["zh"] = {
 	"Left At": "离开时间",
 	"Rate": "采样率",
 	"Interval": "打包间隔",
+	"Joined Conference": "加入会议",
+	"Left Conference": "离开会议",
 
 	New: "新建",
 	Edit: "编辑",
