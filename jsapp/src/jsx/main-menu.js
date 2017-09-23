@@ -39,46 +39,7 @@ import { Router, Route, Link, browserHistory } from 'react-router';
 import { LinkContainer, IndexLinkContainer } from 'react-router-bootstrap';
 import Phone from './phone';
 import { VertoPage } from './verto';
-import { xFetchJSON } from './libs/xtools';
-
-class Notice extends React.Component {
-	constructor(props) {
-		super(props);
-		this.notice = 0;
-		this.state = {msg: null};
-		this.handleNotification = this.handleNotification.bind(this);
-	}
-
-	componentDidMount() {
-		window.addEventListener("notification", this.handleNotification);
-	}
-
-	componentWillUnmount() {
-		window.removeEventListener("notification", this.handleNotification);
-	}
-
-	handleNotification(e) {
-		console.log("notice", e);
-		this.notice++;
-		this.setState({msg: e.detail.msg, level: e.detail.level});
-
-		const _this = this;
-		const clear_notice = function() {
-			if (--_this.notice == 0) _this.setState({msg: null, level: 'none'});
-		};
-
-		setTimeout(clear_notice, e.detail.timeout ? e.detail.timeout : 3000);
-	}
-
-	render() {
-		let class_name = 'none';
-
-		if (this.state.msg) class_name = 'info';
-		if (this.state.level == 'error') class_name = 'error';
-
-		return <NavItem><span className={class_name} id='notification'>{this.state.msg ? this.state.msg : ""}</span></NavItem>
-	}
-}
+import { xFetchJSON, Notice } from './libs/xtools';
 
 class MainMenu extends React.Component {
 	constructor(props) {

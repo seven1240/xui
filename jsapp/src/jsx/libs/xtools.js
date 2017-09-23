@@ -32,7 +32,7 @@
 
 import React from 'react';
 import T from 'i18n-react';
-import { Modal, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Radio, Checkbox, Col } from 'react-bootstrap';
+import { Modal, NavItem, MenuItem, NavDropdown, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Radio, Checkbox, Col } from 'react-bootstrap';
 import 'whatwg-fetch';
 
 class EditControl extends FormControl {
@@ -80,6 +80,67 @@ class EditControl extends FormControl {
 
 }
 
+class Notice extends React.Component {
+	constructor(props) {
+		super(props);
+		this.notice = 0;
+		this.state = {msg: null, msgs: [], max: 0}; // if max > 0 then show as dropdown
+		this.handleNotification = this.handleNotification.bind(this);
+	}
+
+	componentDidMount() {
+		window.addEventListener("notification", this.handleNotification);
+	}
+
+	componentWillUnmount() {
+		window.removeEventListener("notification", this.handleNotification);
+	}
+
+	handleNotification(e) {
+		if (e.detail.level == "max") {
+			this.setState({max: parseInt(e.detail.msg)});
+			return;
+		}
+
+		if (this.state.max > 0) {
+			this.state.msgs.unshift({msg: e.detail.msg, level: e.detail.level});
+			if (this.state.msgs.length > this.state.max) {
+				this.state.msgs.pop();
+			}
+		}
+
+		console.log("notice", e);
+		this.notice++;
+		this.setState({msg: e.detail.msg, level: e.detail.level});
+
+		const _this = this;
+		const clear_notice = function() {
+			if (--_this.notice == 0) _this.setState({msg: null, level: 'none'});
+		};
+
+		setTimeout(clear_notice, e.detail.timeout ? e.detail.timeout : 3000);
+	}
+
+	render() {
+		let class_name = 'none';
+
+		if (this.state.msg) class_name = 'info';
+		if (this.state.level == 'error') class_name = 'error';
+
+		if (this.state.max > 0 && this.state.msgs.length > 0) {
+			return <NavDropdown id="notifications" key="notifications" eventKey="notifications" title={this.state.msg}>
+				{
+					this.state.msgs.map((msg, i)=> {
+						return <MenuItem eventKey={i} id={i}>{msg.msg}</MenuItem>
+					})
+				}
+			</NavDropdown>
+		}
+
+		return <NavItem><span className={class_name} id='notification'>{this.state.msg}</span></NavItem>
+	}
+}
+
 function xFetch(path, options) {
 	if (!options) options = {};
 
@@ -110,4 +171,4 @@ function xFetchJSON(path, options) {
 	});
 }
 
-export {EditControl, xFetch, xFetchJSON};
+export {EditControl, xFetch, xFetchJSON, Notice};
