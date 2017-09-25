@@ -49,7 +49,7 @@ get('/token', function(params)
 
 		if ret == '' then
 			freeswitch.consoleLog('NOTICE', 'access_token not found in local catch, trying upstream ...')
-			xwechat.get_token(realm, appid, secret)
+			-- xwechat.access_token(realm, appid, secret)
 			ret = api:execute("hash", "select/wechat/wechat_access_token_json_" .. realm)
 		end
 
@@ -72,7 +72,7 @@ get('/getticket', function(params)
 
 		if ret == '' then
 			freeswitch.consoleLog('NOTICE', 'js_ticket not found in local catch, trying upstream ...')
-			xwechat.get_js_ticket(realm)
+			-- xwechat.js_ticket(realm)
 			ret = api:execute("hash", "select/wechat/wechat_js_ticket_json_" .. realm)
 		end
 

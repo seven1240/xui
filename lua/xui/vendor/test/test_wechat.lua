@@ -18,7 +18,7 @@ if config.db_auto_connect then xdb.connect(config.dsn) end
 
 local wechat = m_dict.get_obj('WECHAT')
 
-token = xwechat.get_token('sipsip', wechat.APPID, wechat.APPSEC)
+token = xwechat.access_token('sipsip', wechat.APPID, wechat.APPSEC)
 print(token)
 print(xwechat.access_token('sipsip'))
 

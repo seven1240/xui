@@ -43,7 +43,7 @@ m_ticket.send_wechat_notification = function(realm, user_id, redirect_uri, subje
 	if weuser then
 		local wechat = m_dict.get_obj('WECHAT/' .. realm)
 		-- token = xwechat.access_token('realm')
-		token = xwechat.get_token(realm, wechat.APPID, wechat.APPSEC)
+		token = xwechat.access_token(realm, wechat.APPID, wechat.APPSEC)
 		redirect_uri = xwechat.redirect_uri(wechat.APPID, redirect_uri, "200")
 
 		if config.wechat_name == "xyt" then
