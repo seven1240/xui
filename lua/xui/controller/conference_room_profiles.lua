@@ -39,20 +39,9 @@ xdb.bind(xtra.dbh)
 
 get('/:id', function(params)
 	n, profiles = xdb.find_all("conference_profiles")
-	local group_res = {}
-	for i, v in pairs(profiles) do
-		local selectshow = ""
-		sql = "select * from room_profiles where room_id = " .. params.id .. " and profile_id = " .. v.id
-		selected = xdb.find_by_sql(sql,function(row)
-			if row then
-				selectshow = 'selected'
-			end
-		end)
-		v['selectshow'] = selectshow
-		table.insert(group_res,v)
-	end
-	if (profiles) then
-		return group_res
+
+	if n > 0 then
+		return profiles
 	else
 		return "[]"
 	end

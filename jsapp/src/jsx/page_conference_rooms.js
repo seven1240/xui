@@ -716,11 +716,11 @@ class ConferenceRoom extends React.Component {
 		});
 
 
-		// xFetchJSON("/api/conference_room_profiles/" + this.props.params.id).then((data) => {
-		// 	_this.setState({profiles: data});
-		// }).catch((msg) => {
-		// 	console.log("get room profile ERR");
-		// });
+		xFetchJSON("/api/conference_room_profiles/" + this.props.params.id).then((data) => {
+			_this.setState({profiles: data});
+		}).catch((msg) => {
+			console.log("get room profile ERR");
+		});
 
 		xFetchJSON("/api/dicts?realm=CONF_VIDEO_MODE").then((data) => {
 			_this.setState({video_modes: data});
