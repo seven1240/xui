@@ -334,7 +334,7 @@ class RoomMembers extends React.Component {
 		const _this = this;
 
 		this.state.members.forEach((member) => {
-			if (!member.route) return;
+			// if (!member.route) return;
 
 			xFetchJSON("/api/conference_rooms/" + this.props.room.id + "/members/" + member.id, {
 				method: 'PUT',
