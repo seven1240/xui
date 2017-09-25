@@ -128,10 +128,10 @@ class Notice extends React.Component {
 		if (this.state.level == 'error') class_name = 'error';
 
 		if (this.state.max > 0 && this.state.msgs.length > 0) {
-			return <NavDropdown id="notifications" key="notifications" eventKey="notifications" title={this.state.msg}>
+			return <NavDropdown id="notifications" key="notifications" title="notifications" eventKey="notifications" title={this.state.msg}>
 				{
 					this.state.msgs.map((msg, i)=> {
-						return <MenuItem eventKey={i} id={i}>{msg.msg}</MenuItem>
+						return <MenuItem key={i} eventKey={i} id={i}>{msg.msg}</MenuItem>
 					})
 				}
 			</NavDropdown>
