@@ -516,7 +516,7 @@ class Phone extends React.Component {
 		</Button>
 
 		const tVideoButton = !(this.inCall() && this.useVideo()) ? null :
-		<Button bsStyle="" bsSize="xsmall" onClick={this.handleVideoToggle}>
+		<Button bsStyle="primary" bsSize="xsmall" onClick={this.handleVideoToggle}>
 			<i className="fa fa-video-camera" aria-hidden="true"></i>
 		</Button>
 
