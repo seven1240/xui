@@ -123,6 +123,7 @@ if user then
 
 		if row.cid_name ~= 'PASS' then
 			vars = vars ..
+				'<variable name="caller_id_name" value="' .. cid_name .. '"/>' ..
 				'<variable name="effective_caller_id_name" value="' .. cid_name .. '"/>' ..
 				'<variable name="effective_caller_id_number" value="' .. cid_number .. '"/>'
 		end
