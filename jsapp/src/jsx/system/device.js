@@ -178,6 +178,7 @@ class SettingDevice extends React.Component {
 					<Col sm={2}><T.span text="Camera" /></Col>
 					<Col sm={3}>
 						<FormControl name="videoDevice" componentClass="select" onChange={_this.handleChange} value={_this.state.videoDevice}>
+							<option key='none' value='none'>{T.translate("No Camera")}</option>
 							{_this.state.cameras.map(function(obj){
 								return <option key={obj.id} value={obj.id}>{obj.label ? obj.label : obj.id}</option>
 							})}
