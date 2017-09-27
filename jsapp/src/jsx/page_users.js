@@ -320,7 +320,6 @@ class UserPage extends React.Component {
 
 	componentDidMount() {
 		xFetchJSON("/api/users/" + this.props.params.id).then((data) => {
-			// console.log("user", data);
 			this.setState({user: data});
 		}).catch((msg) => {
 			console.log("get user ERR");
@@ -521,7 +520,7 @@ class UsersPage extends React.Component {
 			rowCount: 0,
 			pageCount: 0,
 			showSettings: false,
-			rowsPerPage: null
+			rowsPerPage: null,
 		};
 
 		// This binding is necessary to make `this` work in the callback
@@ -730,6 +729,7 @@ class UsersPage extends React.Component {
 			}
 
 			<h1><T.span text="Users"/></h1>
+			<span className="pull-right"> <T.span text="Total"/> : {this.state.rowCount}</span>
 			<div>
 				<table className="table">
 				<tbody>
