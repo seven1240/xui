@@ -31,3 +31,5 @@ UPDATE dicts SET v='两人画面_样式9' WHERE k='presenter-overlap-large-top-r
 UPDATE dicts SET v='两人画面_样式10' WHERE k='presenter-overlap-large-bot-right';
 UPDATE dicts SET v='重叠样式' WHERE k='overlaps';
 DELETE from dicts WHERE k='1-1-1';
+UPDATE dicts SET v = '1.4.5' WHERE realm = 'XUI' and k = 'DBVER';
+
