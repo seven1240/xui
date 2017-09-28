@@ -563,7 +563,7 @@ class ConferencePage extends React.Component {
 			console.error("err", err);
 		});
 
-		xFetchJSON("/api/dicts?realm=LAYOUT").then((data) => {
+		xFetchJSON("/api/dicts?realm=LAYOUT&sort=o").then((data) => {
 			_this.setState({layouts: data});
 		});
 
