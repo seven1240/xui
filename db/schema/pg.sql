@@ -616,6 +616,30 @@ CREATE TABLE subscriptions (
 
 CREATE UNIQUE INDEX subscriptions_realm_ref_id_user_id ON subscriptions (realm, ref_id, user_id);
 
+
+CREATE TABLE distributors (
+	id SERIAL PRIMARY Key,
+	name VARCHAR NOT NULL,
+	total_weight VARCHAR NOT NULL,
+
+	created_at TIMESTAMP(0) DEFAULT now(),
+	updated_at TIMESTAMP(0) DEFAULT now(),
+	deleted_at TIMESTAMP(0)
+);
+
+CREATE UNIQUE INDEX distributors_name ON distributors(name);
+
+CREATE TABLE distributor_nodes (
+	id SERIAL PRIMARY KEY,
+	k VARCHAR NOT NULL,
+	v VARCHAR,
+	distributors_id INTEGER,
+
+	created_at TIMESTAMP(0) DEFAULT now(),
+	updated_at TIMESTAMP(0) DEFAULT now(),
+	deleted_at TIMESTAMP(0)
+);
+
 CREATE TABLE conference_cdrs (
 	id SERIAL,
 	uuid VARCHAR NOT NULL,
@@ -691,6 +715,8 @@ CREATE TRIGGER t_auto_update_updated_at_on_conference_profiles BEFORE UPDATE ON 
 CREATE TRIGGER t_auto_update_updated_at_on_ivr_menus BEFORE UPDATE ON ivr_menus FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_at();
 CREATE TRIGGER t_auto_update_updated_at_on_acls BEFORE UPDATE ON acls FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_at();
 CREATE TRIGGER t_auto_update_updated_at_on_acl_nodes BEFORE UPDATE ON acl_nodes FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_at();
+CREATE TRIGGER t_auto_update_updated_at_on_distributors BEFORE UPDATE ON distributors FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_at();
+CREATE TRIGGER t_auto_update_updated_at_on_distributor_nodes BEFORE UPDATE ON distributor_nodes FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_at();
 CREATE TRIGGER t_auto_update_updated_at_on_ivr_actions BEFORE UPDATE ON ivr_actions FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_at();
 CREATE TRIGGER t_auto_update_updated_at_on_tickets BEFORE UPDATE ON tickets FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_at();
 CREATE TRIGGER t_auto_update_updated_at_on_ticket_comments BEFORE UPDATE ON ticket_comments FOR EACH ROW EXECUTE PROCEDURE auto_update_updated_at();
