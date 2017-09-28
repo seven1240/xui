@@ -54,7 +54,7 @@ clean:
 plugins-init:
 	cd jsapp/plugins/conference && ln -sf ../../node_modules/ ./
 plugins:
-	cd jsapp/plugins/conference && make
+	cd jsapp/plugins/conference && make release
 plugins-watch:
 	cd jsapp/plugins/conference && make watch
 
