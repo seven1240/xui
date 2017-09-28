@@ -60,6 +60,7 @@ import Conferences from './conferences';
 import SystemPage from './page_system';
 import { FifoPage, FifoInfo, FifoMemberPage } from './page_fifos';
 import { IvrPage, IvrInfo, IvrActionPage } from './page_ivrs';
+import { DistributorPage, DistributorsPage } from './page_distributor';
 import Settings from './settings';
 import { ConferenceProfilePage, ConferenceProfilesPage } from './page_conference_profiles';
 import { ConferenceRooms, ConferenceRoom } from './page_conference_rooms';
@@ -246,6 +247,10 @@ class Home extends React.Component{
 					<Route path="conference_rooms">
 						<IndexRoute components={{sidebar: Settings, main: ConferenceRooms}}/>
 						<Route path=":id" components={{sidebar: Settings, main: ConferenceRoom}}/>
+					</Route>
+					<Route path="distributors">
+						<IndexRoute components={{sidebar: Settings, main:  DistributorsPage}} onEnter={ensureVisible}/>
+						<Route path=":id" components={{sidebar: Settings, main: DistributorPage}} />
 					</Route>
 					<Route path="sip_profiles">
 						<IndexRoute components={{sidebar: Settings, main: SIPProfilesPage}}/>

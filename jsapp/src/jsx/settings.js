@@ -103,6 +103,12 @@ class Settings extends React.Component {
 				<T.span text="Conference Profiles"/>
 				</NavItem>
 			</LinkContainer>
+			<LinkContainer to="/settings/distributors" key="M_DISTRIBUTORS">
+				<NavItem eventKey="M_DISTRIBUTORS">
+					<i className="fa fa-file-text" aria-hidden="true"></i>&nbsp;
+				<T.span text="Distributors"/>
+				</NavItem>
+			</LinkContainer>
 			<LinkContainer to="/settings/media_files" key="M_MEDIA_FILES">
 				<NavItem eventKey="M_MEDIA_FILES">
 					<i className="fa fa-file-sound-o" aria-hidden="true"></i>&nbsp;

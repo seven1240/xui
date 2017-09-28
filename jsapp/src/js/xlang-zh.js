@@ -60,6 +60,10 @@ LANGUAGES["zh"] = {
 	"Password successfully changed": "密码修改成功",
 	"Are you sure?": "确定要这么做吗？",
 
+	"Distributors": "集群",
+	"Total Weight": "总权重",
+	"weight": "权重",
+
 	Overview: "状态",
 	"Session Since Start": "运行后的会话总数",
 	"Max Sessions": "可同时并存的最大通话数",

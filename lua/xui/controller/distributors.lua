@@ -99,11 +99,10 @@ post('/:distributor_id/nodes/', function(params)
 	end
 end)
 
-delete('/', function(params)
-	id = tonumber(env:getHeader('id'))
-	ret = m_distributor.delete(id)
+delete('/nodes/:id', function(params)
+	ret = xdb.delete("distributor_nodes", params.id);
 
-	if ret >= 0 then
+	if ret == 1 then
 		return 200, "{}"
 	else
 		return 500, "{}"
