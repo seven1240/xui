@@ -181,7 +181,7 @@ xdb.find_by_sql(sql, function(row)
 			end
 		end
 
-		if forbidden and (params:getHeader("direction") == "inbound") then
+		if forbidden and (params:getHeader("Call-Direction") == "inbound") then
 			table.insert(actions_table, {app = "hangup", data = "CALL_REJECTED"})
 			matched = true
 		end
