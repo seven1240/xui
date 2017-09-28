@@ -57,6 +57,8 @@ plugins:
 	cd jsapp/plugins/conference && make release
 plugins-watch:
 	cd jsapp/plugins/conference && make watch
+plugins-release:
+	cd jsapp/plugins/conference && make release
 
 out:
 	mkdir out
@@ -67,7 +69,7 @@ tar: out
 	cd .. && tar cvzf xui/out/`cat xui/VERSION`.tar.gz --exclude xui/lua/xui/xtra_config.lua xui/www xui/lua xui/db xui/VERSION
 	ls out
 
-ready: clean plugins release tar
+ready: clean plugins-release release tar
 	echo "Done"
 
 sync:
