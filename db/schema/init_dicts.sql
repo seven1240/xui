@@ -137,6 +137,7 @@ INSERT INTO dicts (realm, k, v) VALUES ('CONF_CALL_PERM', 'CONF_CP_NO_CHECK', 'C
 INSERT INTO dicts (realm, k, v) VALUES ('CONF_CALL_PERM', 'CONF_CP_CHECK_CID', 'CONF_CP_CHECK_CID');
 INSERT INTO dicts (realm, k, v) VALUES ('CONF_CALL_PERM', 'CONF_CP_AUTH_USER', 'CONF_CP_AUTH_USER');
 
+INSERT INTO dicts (realm, k, v, o) VALUES('LAYOUT','group:grid', '自动', 0);
 INSERT INTO dicts (realm, k, v, o) VALUES('LAYOUT','1x1', '单人画面', '1');
 INSERT INTO dicts (realm, k, v, o) VALUES('LAYOUT','2x2', '四人画面', '2');
 INSERT INTO dicts (realm, k, v, o) VALUES('LAYOUT','3x3', '九人画面', '3');
@@ -169,5 +170,4 @@ INSERT INTO dicts (realm, k, v, o) VALUES('LAYOUT','presenter-overlap-small-bot-
 INSERT INTO dicts (realm, k, v, o) VALUES('LAYOUT','presenter-overlap-large-top-right', '两人画面_样式9', '30');
 INSERT INTO dicts (realm, k, v, o) VALUES('LAYOUT','presenter-overlap-large-bot-right', '两人画面_样式10', '31');
 INSERT INTO dicts (realm, k, v, o) VALUES('LAYOUT','overlaps', '重叠样式', '32');
-
 -- END
