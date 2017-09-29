@@ -160,9 +160,9 @@ class SettingDevice extends React.Component {
 		var runtime = function(obj) {
 			console.log("refreshDevices runtime", obj);
 			_this.setState({
-				cameras: Verto.videoDevices,
-				microphones: Verto.audioInDevices,
-				speakers: Verto.audioOutDevices,
+				cameras: Verto.videoDevices || [],
+				microphones: Verto.audioInDevices || [],
+				speakers: Verto.audioOutDevices || [],
 				videoDevice: ds.videoDevice,
 				frameRate: ds.frameRate
 			});
@@ -178,7 +178,8 @@ class SettingDevice extends React.Component {
 					<Col sm={2}><T.span text="Camera" /></Col>
 					<Col sm={3}>
 						<FormControl name="videoDevice" componentClass="select" onChange={_this.handleChange} value={_this.state.videoDevice}>
-							<option key='none' value='none'>{T.translate("No Camera")}</option>
+							<option key='any' value='any'>{T.translate("Auto")}</option>
+							<option key='none' value='none'>{T.translate("None")}</option>
 							{_this.state.cameras.map(function(obj){
 								return <option key={obj.id} value={obj.id}>{obj.label ? obj.label : obj.id}</option>
 							})}
@@ -255,6 +256,8 @@ class SettingDevice extends React.Component {
 				<Col sm={2}><T.span text="Microphone" /></Col>
 				<Col sm={3}>
 					<FormControl componentClass="select" id="microphone" name="audioInDevice" onChange={_this.handleChange} value={_this.state.audioInDevice}>
+						<option key='any' value='any'>{T.translate("Auto")}</option>
+						<option key='none' value='none'>{T.translate("None")}</option>
 						{_this.state.microphones.map(function(obj){
 							return <option key={obj.id} value={obj.id}>{obj.label ? obj.label : obj.id}</option>
 						})}
@@ -265,6 +268,8 @@ class SettingDevice extends React.Component {
 				<Col sm={2}><T.span text="Speaker" /></Col>
 				<Col sm={3}>
 					<FormControl componentClass="select" id="speaker" name="audioOutDevice" onChange={_this.handleChange} value={_this.state.audioOutDevice}>
+							<option key='any' value='any'>{T.translate("Auto")}</option>
+							<option key='none' value='none'>{T.translate("None")}</option>
 						{_this.state.speakers.map(function(obj){
 							return <option key={obj.id} value={obj.id}>{obj.label ? obj.label : obj.id}</option>
 						})}
