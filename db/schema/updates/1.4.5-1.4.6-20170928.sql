@@ -1,4 +1,4 @@
-INSERT INTO dicts (realm, k, o) VALUES ('LAYOUT', 'gred', '1');
+INSERT INTO dicts (realm, k, v, o) VALUES ('LAYOUT', 'group:grid', '自动', '1');
 UPDATE dicts SET o=2 WHERE k='1x1';
 UPDATE dicts SET o=3 WHERE k='2x2';
 UPDATE dicts SET o=4 WHERE k='1up_top_left+5';
