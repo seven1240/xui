@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<!DOCTYPE config SYSTEM "/etc/iwatch/iwatch.dtd" >
+
+<config charset="utf-8">
+  <guard email="iwatch@localhost" name="iWatch"/>
+  <watchlist>
+    <title>Operating System</title>
+    <contactpoint email="root@localhost" name="Administrator"/>
+    <path type="single" syslog="on">/bin</path>
+    <path type="single" syslog="on">/sbin</path>
+    <path type="single">/etc</path>
+    <path type="recursive">/lib</path>
+    <path type="exception">/lib/modules</path>
+  </watchlist>
+
+  <watchlist>
+    <title>FS</title>
+    <contactpoint email="root@localhost" name="Administrator"/>
+    <path type="recursive" events="close" exec="/usr/local/freeswitch/bin/fs_cli -x 'lua xui/conference_cdr.lua %e %f'">/usr/local/freeswitch/log/conference_cdr</path>
+  </watchlist>
+
+</config>
