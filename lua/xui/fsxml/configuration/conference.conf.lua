@@ -32,6 +32,7 @@
 
 presence = params:getHeader("presence")
 action = params:getHeader("Action")
+
 if action == "request-controls" then
 	controls = params:getHeader("Controls")
 	conference_name = params:getHeader("Conf-Name")
@@ -45,11 +46,31 @@ function build_conference_conf(profile_name)
 	local profile = xdb.find_one("conference_profiles", {name = profile_name})
 
 	if profile then
+		local nbr = conference_name:gsub('^([^-]*).*$', '%1')
+		local room = xdb.find_one("conference_rooms", {nbr = nbr})
 		local cond = {realm = 'conference', disabled = 0, ref_id = profile.id}
 
 		xdb.find_by_cond("params", cond, 'id', function (row)
 			settings = settings .. '<param name="' .. row.k .. '" value="' .. row.v .. '"/>\n'
 		end)
+
+		if room then
+			settings = settings .. '<param name="video-canvas-count" value="' .. room.canvas_count .. '"/>\n'
+
+			if room.video_mode == 'CONF_VIDEO_MODE_MUX' then
+				video_mode = "mux"
+			elseif room.video_mode == 'CONF_VIDEO_MODE_TRANSCODE' then
+				video_mode = "transcode"
+			else
+				video_mode = "passthru"
+			end
+
+			settings = settings .. '<param name="video-mode" value="' .. video_mode .. '"/>\n'
+
+			if room.canvas_count > "1" then
+				settings = settings .. '<param name="video-canvas-count" value="' .. room.canvas_count .. '"/>\n'
+			end
+		end
 	end
 
 	return [[<profiles><profile name="]] .. profile_name .. '">' .. settings .. [[</profile></profiles>]]
