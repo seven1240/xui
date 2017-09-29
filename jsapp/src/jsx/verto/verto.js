@@ -868,6 +868,8 @@ class Verto {
 				}
 			}
 
+			if (!has_audio && !has_video) return;
+
 			navigator.getUserMedia({
 					audio: (has_audio > 0 ? true : false),
 					video: (has_video > 0 ? true : false)
