@@ -505,13 +505,13 @@ BEGIN
 END;
 
 CREATE TABLE distributors (
-	id SERIAL PRIMARY Key,
+	id INTEGER PRIMARY Key,
 	name VARCHAR NOT NULL,
 	total_weight VARCHAR NOT NULL,
 
-	created_at TIMESTAMP(0) DEFAULT now(),
-	updated_at TIMESTAMP(0) DEFAULT now(),
-	deleted_at TIMESTAMP(0)
+	created_at DATETIME DEFAULT (DATETIME('now', 'localtime')),
+	updated_at DATETIME DEFAULT (DATETIME('now', 'localtime')),
+	deleted_at DATETIME
 );
 
 CREATE UNIQUE INDEX distributors_name ON distributors(name);
@@ -522,14 +522,14 @@ BEGIN
 END;
 
 CREATE TABLE distributor_nodes (
-	id SERIAL PRIMARY KEY,
+	id INTEGER PRIMARY KEY,
 	k VARCHAR NOT NULL,
 	v VARCHAR,
 	distributor_id INTEGER,
 
-	created_at TIMESTAMP(0) DEFAULT now(),
-	updated_at TIMESTAMP(0) DEFAULT now(),
-	deleted_at TIMESTAMP(0)
+	created_at DATETIME DEFAULT (DATETIME('now', 'localtime')),
+	updated_at DATETIME DEFAULT (DATETIME('now', 'localtime')),
+	deleted_at DATETIME
 );
 
 CREATE TABLE ivr_menus (
