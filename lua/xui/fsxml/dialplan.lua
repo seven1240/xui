@@ -222,7 +222,7 @@ xdb.find_by_sql(sql, function(row)
 		if not matched then
 			if cidNumber == room.moderator then
 				flags = "+flags{join-vid-floor|moderator}"
-			else
+			elseif not string.find(cidNumber, '%.') -- except linked-member
 				flags = "+flags{vmute}"
 			end
 
