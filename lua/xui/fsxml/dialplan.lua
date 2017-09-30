@@ -222,6 +222,8 @@ xdb.find_by_sql(sql, function(row)
 		if not matched then
 			if cidNumber == room.moderator then
 				flags = "+flags{join-vid-floor|moderator}"
+			else
+				flags = "+flags{vmute}"
 			end
 
 			if room.canvas_count > "1" then
