@@ -165,7 +165,7 @@ LANGUAGES["zh"] = {
 	"Select Domain": "选择特定服务器 [*{domain}*]",
 	"Call Linked Members": "呼叫所有连接",
 	"Push Main Canvas": "推送主会场",
-	"Push Sub Canvas": "推送分会场",
+	"Push Sub Canvas": "推送合屏",
 	"Reset": "重置",
 
 	"Video Mode": "视频模式",
