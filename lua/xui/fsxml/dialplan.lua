@@ -186,12 +186,12 @@ xdb.find_by_sql(sql, function(row)
 			matched = true
 		end
 
-		if (not matched) and room.cluster then
+		if (not matched) and room.cluster and (room.cluster:sub(1,1) == "{") then
 			nodes = utils.json_decode(room.cluster)
 
 			if do_debug then
-				-- utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", utils.serialize(nodes))
-				-- utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", utils.serialize(check))
+				utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", utils.serialize(nodes))
+				utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", utils.serialize(check))
 			end
 
 			if check then
