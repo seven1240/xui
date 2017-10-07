@@ -59,6 +59,7 @@ LANGUAGES["zh"] = {
 	"Password confirmation doesn't match": "两次密码确认不匹配",
 	"Password successfully changed": "密码修改成功",
 	"Are you sure?": "确定要这么做吗？",
+	"Not Here": "刷新未参会者列表",
 
 	"Distributors": "集群",
 	"Total Weight": "总权重",
