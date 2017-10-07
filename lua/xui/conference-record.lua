@@ -30,7 +30,7 @@
  */
 ]]
 
-print(event:serialize())
+-- print(event:serialize())
 
 local action = event:getHeader("Action")
 local record_path = event:getHeader("Path")

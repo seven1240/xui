@@ -161,6 +161,12 @@ xdb.find_by_sql(sql, function(row)
 		local check = nil
 		local matched = false
 
+		if true then -- track conference
+			table.insert(actions_table, {app = "set", data = "execute_on_answer=lua xui/conference_tracker.lua " .. room.nbr})
+			table.insert(actions_table, {app = "set", data = "session_in_hangup_hook=true"})
+			table.insert(actions_table, {app = "set", data = "api_hangup_hook=lua xui/conference_tracker.lua " .. room.nbr})
+		end
+
 		check = xdb.find_one("conference_members", {room_id = room.id, num = cidNumber})
 
 		if room.call_perm == "CONF_CP_CHECK_CID" then
