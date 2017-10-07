@@ -60,6 +60,8 @@ LANGUAGES["zh"] = {
 	"Password successfully changed": "密码修改成功",
 	"Are you sure?": "确定要这么做吗？",
 	"Not Here": "刷新未参会者列表",
+	"Start New CDR": "开始新的会议记录",
+	"New CDR Started": "已开始新的会议记录",
 
 	"Distributors": "集群",
 	"Total Weight": "总权重",

@@ -130,3 +130,21 @@ get('/:id/members', function(params)
 		return '[]'
 	end
 end)
+
+post('/', function(params)
+	print(serialize(params))
+	local rec = {}
+	local api = freeswitch.API()
+
+	rec.uuid = api:execute("create_uuid")
+	rec.num = params.request.num
+	rec.name =  params.request.name
+	rec.started_at = os.date('%Y-%m-%d %H:%M:%S')
+	-- rec.completed_at = os.date('%Y-%m-%d %H:%M:%S')
+	rec.hostname  = 'localhost'
+	rec.rate = 0
+	rec.interval = 0
+
+	local cdr_id = xdb.create_return_id("conference_cdrs", rec)
+	return {id = cdr_id}
+end)
