@@ -36,7 +36,7 @@ local globals = {}
 
 -- freeswitch.consoleLog("ERR", "fetching gateway " .. gw_name .. "\n")
 
-function get_globals()
+function get_globals() -- global vars
 	local api = freeswitch.API()
 	local ret = api:execute("global_getvar")
 
@@ -59,6 +59,16 @@ function expand(s)
 	end)
 	return e
 end
+
+function build_globals() -- SOFIA global settings
+	local p = ""
+
+	xdb.find_by_cond("params", {realm = 'SOFIAGLOBALS', ref_id = 0, disabled = 0}, "id", function(row)
+		p = p .. '<param name="' .. row.k .. '"' .. ' value="' .. row.v .. '"/>'
+	end)
+	return p
+end
+
 
 function build_gateways(cond)
 	local gws = ""
@@ -155,13 +165,15 @@ elseif profile_name then
 	if (profile) then
 		get_globals() -- fetch global vars so we can expand them
 
-		XML_STRING = [[<configuration name="sofia.conf" description="sofia Endpoint">
-			<profiles>]] .. build_profile(profile) ..
+		XML_STRING = [[<configuration name="sofia.conf" description="sofia Endpoint">]] ..
+			build_globals() ..
+			[[<profiles>]] .. build_profile(profile) ..
 			[[</profiles></configuration>]]
 	end
 else -- feed everything on module load
 	get_globals() -- fetch global vars so we can expand them
 
-	XML_STRING = [[<configuration name="sofia.conf" description="sofia Endpoint">
-		<profiles>]] .. build_profiles() .. [[</profiles></configuration>]]
+	XML_STRING = [[<configuration name="sofia.conf" description="sofia Endpoint">]] ..
+		build_globals() ..
+		[[<profiles>]] .. build_profiles() .. [[</profiles></configuration>]]
 end

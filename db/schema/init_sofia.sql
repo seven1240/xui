@@ -1,3 +1,12 @@
+INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIAGLOBALS', 'log-level', '0', 0, 0);
+INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIAGLOBALS', 'tracelevel', '0', 0, 1);
+INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIAGLOBALS', 'debug-presence', '0', 0, 1);
+INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIAGLOBALS', 'debug-sla', '0', 0, 1);
+INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIAGLOBALS', 'max-reg-threads', '6', 0, 1);
+INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIAGLOBALS', 'reg-deny-binding-fetch-and-no-lookup', 'false', 0, 1);
+INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIAGLOBALS', 'rewrite-multicasted-fs-path', '[to_host|1|original_server_host|original_hostname]', 0, 1);
+INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIAGLOBALS', 'capture-server', 'udp:10.163.24.254:9060;hep=3;capture_id=100', 0, 1);
+
 INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'rtp-digit-delay', '40', 0, 1);
 INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'media-option', 'resume-media-on-hold', 0, 1);
 INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('SOFIA', 'media-option', 'bypass-media-after-att-xfer', 0, 1);
