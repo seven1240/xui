@@ -132,7 +132,6 @@ get('/:id/members', function(params)
 end)
 
 post('/', function(params)
-	print(serialize(params))
 	local rec = {}
 	local api = freeswitch.API()
 
