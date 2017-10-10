@@ -33,6 +33,7 @@
 import React from 'react';
 import T from 'i18n-react';
 import verto from './verto/verto';
+import {Jumbotron} from 'react-bootstrap';
 
 class OverViewPage extends React.Component {
 	// overview is so special because it must wait the websocket connected before it can get any data
@@ -117,15 +118,16 @@ class OverViewPage extends React.Component {
 		}
 
 		let mess = <div>
-			<T.span text="Session Peak Max"/>:<pre>{this.state.sessionMax}</pre>
-			{/*<T.span text="Idle CPU"/>:<pre>{this.state.idleCPU}</pre>*/}
-			<T.span text="CPU Usage"/>:<pre>{(100-this.state.idleCPU)/100+' %'}</pre>
-			<T.span text="Max Sessions"/>:<pre>{this.state.maxSessions}</pre>
-			<T.span text="Session Count"/>:<pre>{this.state.sessionCount}</pre>
-			<T.span text="Session Per Sec Max"/>:<pre>{this.state.sessionPerSecMax}</pre>
-			<T.span text="Session Since Start"/>:<pre>{this.state.sessionSinceStart}</pre>
-			<T.span text="System Uptime"/>:<pre>{this.state.upTime}</pre>
-			<T.span text="FreeSWITCH Version"/>:<pre>{this.state.version}</pre>
+			<Jumbotron style={{backgroundColor: "#fff"}}>
+				<b><T.span text="Session Peak Max"/></b>: &nbsp;{this.state.sessionMax} <hr/>
+				<b><T.span text="CPU Usage"/></b>: &nbsp; {(100-this.state.idleCPU)+' %'}<hr/>
+				<b><T.span text="Max Sessions"/></b>: &nbsp; {this.state.maxSessions}<hr/>
+				<b><T.span text="Session Count"/></b>: &nbsp; {this.state.sessionCount}<hr/>
+				<b><T.span text="Session Per Sec Max"/></b>: &nbsp; {this.state.sessionPerSecMax}<hr/>
+				<b><T.span text="Session Since Start"/></b>: &nbsp; {this.state.sessionSinceStart}<hr/>
+				<b><T.span text="System Uptime"/></b>: &nbsp; {this.state.upTime}<hr/>
+				<b><T.span text="FreeSWITCH Version"/></b>: &nbsp; {this.state.version}<hr/>
+			</Jumbotron>
 		</div>;
 		this.setState({msg:mess});
 	}
