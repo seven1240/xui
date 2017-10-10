@@ -192,7 +192,7 @@ xdb.find_by_sql(sql, function(row)
 			matched = true
 		end
 
-		if (not matched) and room.cluster and (room.cluster:sub(1,1) == "{") then
+		if (not matched) and room.cluster and (room.cluster:sub(1,1) == "[") then
 			nodes = utils.json_decode(room.cluster)
 
 			if do_debug then
