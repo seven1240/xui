@@ -90,6 +90,10 @@ function extract_ip(host)
 	return host
 end
 
+function isLinkedMember(cidNumber)
+	return string.find(cidNumber, '%.')
+end
+
 xdb.find_by_sql(sql, function(row)
 	found = true
 
@@ -228,14 +232,14 @@ xdb.find_by_sql(sql, function(row)
 		if not matched then
 			if cidNumber == room.moderator then
 				flags = "+flags{join-vid-floor|moderator}"
-			elseif not string.find(cidNumber, '%.') then -- except linked-member
+			elseif not isLinkedMember(cidNumber, '%.') then -- except linked-member
 				flags = "+flags{vmute}"
 			end
 
 			if room.canvas_count > "1" then
 				if cidNumber == room.moderator then
-					-- table.insert(actions_table, {app = "set", data = "video_initial_watching_canvas=2"})
-					-- table.insert(actions_table, {app = "set", data = "video_initial_canvas=1"})
+					table.insert(actions_table, {app = "set", data = "video_initial_watching_canvas=2"})
+					table.insert(actions_table, {app = "set", data = "video_initial_canvas=1"})
 				elseif room.moderator then -- when moderator is set then it's a special conference
 					table.insert(actions_table, {app = "set", data = "video_initial_watching_canvas=1"})
 					table.insert(actions_table, {app = "set", data = "video_initial_canvas=2"})
@@ -251,7 +255,7 @@ xdb.find_by_sql(sql, function(row)
 				end
 			end
 
-			if room.banner and (not string.find(cidNumber, '%.')) then -- no banner for linked member
+			if room.banner and (not isLinkedMember(cidNumber, '%.')) then -- no banner for linked member
 				banner = utils.json_decode(room.banner)
 				if banner then
 					banner_text = "{font_face=" .. banner.fontFace ..
