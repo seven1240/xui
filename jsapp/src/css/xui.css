@@ -121,7 +121,7 @@ div.disabled {
 	text-decoration: underline;
 }
 
-#notification {padding-right: 40px;padding-left: 40px;padding-top:10px;padding-bottom:10px;}
+#notification {padding: 10px 40px;}
 #notification.info  {color:lime !important;border:1px solid #FFF;}
 #notification.error {color:#FFF !important;background-color: #F00;border:1px solid #FFF;}
 

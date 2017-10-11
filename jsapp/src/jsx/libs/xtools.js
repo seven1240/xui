@@ -32,7 +32,7 @@
 
 import React from 'react';
 import T from 'i18n-react';
-import { Modal, NavItem, MenuItem, NavDropdown, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Radio, Checkbox, Col } from 'react-bootstrap';
+import { Nav, Modal, NavItem, MenuItem, NavDropdown, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Radio, Checkbox, Col } from 'react-bootstrap';
 import 'whatwg-fetch';
 
 class EditControl extends FormControl {
@@ -84,7 +84,7 @@ class Notice extends React.Component {
 	constructor(props) {
 		super(props);
 		this.notice = 0;
-		this.state = {msg: null, msgs: [], max: 0}; // if max > 0 then show as dropdown
+		this.state = {msg: null, msgs: [], max: 0, navshow: true}; // if max > 0 then show as dropdown
 		this.handleNotification = this.handleNotification.bind(this);
 	}
 
@@ -97,8 +97,22 @@ class Notice extends React.Component {
 	}
 
 	handleNotification(e) {
+		const _this = this;
+
 		if (e.detail.level == "max") {
 			this.setState({max: parseInt(e.detail.msg)});
+			return;
+		}else if (e.detail.level == "online" || e.detail.level == "offline") {
+			this.setState({navshow: true, max: 0, msg: e.detail.msg, level: e.detail.level});
+			this.state.msgs.unshift({msg: e.detail.msg, level: e.detail.level});
+			if (this.state.msgs.length > 10) {
+				this.state.msgs.pop();
+			}
+			_this.notice++;
+			let clear_notice = function() {
+				if (--_this.notice == 0) _this.setState({msg: null, level: 'none', navshow: false});
+			};
+			setTimeout(clear_notice, e.detail.timeout ? e.detail.timeout : 3000);
 			return;
 		}
 
@@ -107,13 +121,14 @@ class Notice extends React.Component {
 			if (this.state.msgs.length > this.state.max) {
 				this.state.msgs.pop();
 			}
+			this.setState({navshow: false});
+		}else {
+			this.setState({msg: e.detail.msg, level: e.detail.level, navshow: true});
 		}
 
 		console.log("notice", e);
 		this.notice++;
-		this.setState({msg: e.detail.msg, level: e.detail.level});
 
-		const _this = this;
 		const clear_notice = function() {
 			if (--_this.notice == 0) _this.setState({msg: null, level: 'none'});
 		};
@@ -125,19 +140,18 @@ class Notice extends React.Component {
 		let class_name = 'none';
 
 		if (this.state.msg) class_name = 'info';
-		if (this.state.level == 'error') class_name = 'error';
-
-		if (this.state.max > 0 && this.state.msgs.length > 0) {
-			return <NavDropdown id="notifications" key="notifications" eventKey="notifications" title={this.state.msg||""}>
+		if (this.state.level == 'error' || this.state.level == 'offline') class_name = 'error';
+ 
+		return <Nav>
+			<NavItem style={{display: this.state.navshow ? "block" : "none"}}><span className={class_name} id='notification'>{this.state.msg}</span></NavItem>
+			<NavDropdown style={{display: this.state.navshow ? "none" : "block"}} id="notifications" key="notifications" eventKey="notifications" title={this.state.msg||""}>
 				{
 					this.state.msgs.map((msg, i)=> {
 						return <MenuItem key={i} eventKey={i} id={i}>{msg.msg}</MenuItem>
 					})
 				}
 			</NavDropdown>
-		}
-
-		return <NavItem><span className={class_name} id='notification'>{this.state.msg}</span></NavItem>
+		</Nav>
 	}
 }
 
