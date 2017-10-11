@@ -232,9 +232,9 @@ xdb.find_by_sql(sql, function(row)
 		if not matched then
 			if cidNumber == room.moderator then
 				flags = "+flags{join-vid-floor|moderator}"
-			elseif room.video_mode == 'CONF_VIDEO_MODE_MUX' and (not isLinkedMember(cidNumber, '%.')) then -- except linked-member
-				flags = "+flags{vmute}"
-			elseif room.video_mode == 'CONF_VIDEO_MODE_PASSTHROUGH' and (not isLinkedMember(cidNumber, '%.')) then -- except linked-member
+			elseif room.video_mode == 'CONF_VIDEO_MODE_MUX' and (not isLinkedMember(cidNumber)) then -- except linked-member
+				flags = "+flags{mute|vmute}"
+			elseif room.video_mode == 'CONF_VIDEO_MODE_PASSTHROUGH' and (not isLinkedMember(cidNumber)) then -- except linked-member
 				flags = "+flags{mute}"
 			end
 
@@ -257,7 +257,7 @@ xdb.find_by_sql(sql, function(row)
 				end
 			end
 
-			if room.banner and (not isLinkedMember(cidNumber, '%.')) then -- no banner for linked member
+			if room.banner and (not isLinkedMember(cidNumber)) then -- no banner for linked member
 				banner = utils.json_decode(room.banner)
 				if banner then
 					banner_text = "{font_face=" .. banner.fontFace ..
