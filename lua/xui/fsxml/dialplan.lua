@@ -232,8 +232,10 @@ xdb.find_by_sql(sql, function(row)
 		if not matched then
 			if cidNumber == room.moderator then
 				flags = "+flags{join-vid-floor|moderator}"
-			elseif not isLinkedMember(cidNumber, '%.') then -- except linked-member
+			elseif room.video_mode == 'CONF_VIDEO_MODE_MUX' and (not isLinkedMember(cidNumber, '%.')) then -- except linked-member
 				flags = "+flags{vmute}"
+			elseif room.video_mode == 'CONF_VIDEO_MODE_PASSTHROUGH' and (not isLinkedMember(cidNumber, '%.')) then -- except linked-member
+				flags = "+flags{mute}"
 			end
 
 			if room.canvas_count > "1" then
