@@ -25,6 +25,7 @@
  * Contributor(s):
  *
  * Seven Du <dujinfang@x-y-t.cn>
+ * Mariah Yang <yangxiaojin@x-y-t.cn>
  *
  *
  */
@@ -38,6 +39,14 @@ require 'xdb'
 xdb.bind(xtra.dbh)
 require 'm_gateway'
 require 'm_user'
+
+-- action:reg/unreg
+function control_gateway(profile_name, action, gateway_name)
+	local api = freeswitch.API()
+	local args = "profile " .. profile_name .. " " .. action .. " " .. gateway_name
+	freeswitch.consoleLog("debug", "sofia args:" .. args .. "\n")
+	api:execute("sofia", args)
+end
 
 get('/', function(params)
 	if not m_user.has_permission() then
@@ -115,34 +124,6 @@ get('/verify/:username/:number',function(params)
 	end
 end)
 
-
-put('/:id', function(params)
-	print(serialize(params))
-	ret = xdb.update("gateways", params.request)
-	if ret then
-		return 200, "{}"
-	else
-		return 500
-	end
-end)
-
-put('/:id/params/:param_id', function(params)
-	print(serialize(params))
-	ret = nil;
-
-	if params.request.action and params.request.action == "toggle" then
-		ret = m_gateway.toggle_param(params.id, params.param_id)
-	else
-		ret = m_gateway.update_param(params.id, params.param_id, params.request)
-	end
-
-	if ret then
-		return ret
-	else
-		return 404
-	end
-end)
-
 post('/', function(params)
 	ret = m_gateway.create(params.request)
 
@@ -163,6 +144,169 @@ post('/:ref_id/params/', function(params)
 		return {id = ret}
 	else
 		return 500, "{}"
+	end
+end)
+
+put('/verify',function(params)
+	local number = params.request.number
+	local gateway_name = params.request.username
+
+	params.request.name = gateway_name
+	params.request.register = "yes"
+
+	params.request.number = nil
+
+	freeswitch.consoleLog("debug", "verify:" .. serialize(params.request))
+
+	gw_id = m_gateway.create(params.request)
+
+	if gw_id then
+		gateway = xdb.find("gateways", gw_id)
+		if gateway then
+			profile = xdb.find("sip_profiles", gateway.profile_id)
+			profile_name = profile.name or "public"
+
+			api = freeswitch.API()
+			control_gateway(profile_name, "startgw", gateway_name)
+
+			local waiting_startgw = 10
+			local doc = require("xmlSimple").newParser()
+			local reged = false
+
+			while waiting_startgw > 0 do
+				freeswitch.consoleLog("debug", "waiting_reg waiting_reg waiting_reg !!!\n")
+				local data = api:execute("sofia", "xmlstatus gateway " .. gateway_name)
+
+				data = string.gsub(data, "name", "gateway_name")
+
+				local xml = doc:ParseXmlText(data)
+
+				if xml and xml.gateway and xml.gateway.state:value() == "REGED" and xml.gateway.status:value() == "UP" then
+					reged = true
+					freeswitch.consoleLog("debug", "verify id " .. gateway_name .. " reged!!!")
+					break
+				end
+
+				waiting_startgw = waiting_startgw - 1
+				freeswitch.msleep(1000)
+			end
+
+			if not reged then
+				m_gateway.delete(gw_id)
+				return 200, {code = 403, text = "reg failed"}
+			end
+
+			-- call oneself
+			dial_args = "[leg_timeout=10]sofia/gateway/" .. gateway_name .. "/010" .. number .. " " .. "&playback(silence_stream://20000)"
+
+			freeswitch.consoleLog("debug", "verify dial_args:" .. dial_args .. "\n")
+
+			api:execute("originate", dial_args)
+
+			local waiting_call = 10
+			local result = 0
+
+			while waiting_call > 0 do
+				freeswitch.consoleLog("debug", "waiting_call waiting_call waiting_call !!!\n")
+				result = api:execute("hash", "select/qyq/" .. number)
+
+				if result and result ~= "" then
+					break
+				end
+				waiting_call = waiting_call - 1
+				freeswitch.msleep(1000)
+			end
+
+			control_gateway(profile_name, "killgw", gateway_name)
+			freeswitch.msleep(2000)
+
+			m_gateway.delete(gw_id)
+
+			if result == gateway_name then
+				freeswitch.consoleLog("info", "verify number matched!!!")
+				api:execute("hash", "delete/qyq/" .. number)
+				return 200, {code = 200, text = "OK"}
+			else
+				freeswitch.consoleLog("ERR", "verify id:" .. gateway_name .. ",real id:" .. result .. "\n")
+				return 200, {code = 406, text = "verify number not matched"}
+			end
+		else
+			return 200, {code = 404, text = "gateway not found"}
+		end
+	else
+		return 200, {code = 503, text = "create gateway failed"}
+	end
+end)
+
+put('/:id', function(params)
+	print(serialize(params))
+	ret = xdb.update("gateways", params.request)
+	if ret then
+		return 200, "{}"
+	else
+		return 500
+	end
+end)
+
+put('/control/gateways/:name', function(params)
+	gateway = xdb.find_one("gateways", {name = params.name})
+	action = params.request.action
+
+	if gateway then
+
+		profile = xdb.find("sip_profiles", gateway.profile_id)
+		profile_name = profile.name or 'public'
+
+		api = freeswitch.API()
+		args = "profile " .. profile_name .. ' ' .. action .. ' ' .. params.name
+
+		print(args)
+
+		ret = api:execute("sofia", args)
+
+			return "200"
+	else
+		return "404"
+	end
+end)
+
+put('/:id/params/:param_id', function(params)
+	print(serialize(params))
+	ret = nil;
+
+	if params.request.action and params.request.action == "toggle" then
+		ret = m_gateway.toggle_param(params.id, params.param_id)
+	else
+		ret = m_gateway.update_param(params.id, params.param_id, params.request)
+	end
+
+	if ret then
+		return ret
+	else
+		return 404
+	end
+end)
+
+put('/:id/control', function(params)
+	print(utils.serialize(params))
+
+	gateway = xdb.find("gateways", params.id)
+	action = params.request.action
+
+	if gateway then
+		profile = xdb.find("sip_profiles", gateway.profile_id)
+		profile_name = profile.name or 'public'
+
+		api = freeswitch.API()
+		args = "profile " .. profile_name .. ' ' .. action .. ' ' .. gateway.name
+
+		print(args)
+
+		ret = api:execute("sofia", args)
+
+			return "200"
+	else
+		return "404"
 	end
 end)
 
@@ -195,50 +339,3 @@ delete('/:id/param/:param_id', function(params)
 		return 500, "{}"
 	end
 end)
-
-put('/:id/control', function(params)
-	print(utils.serialize(params))
-
-	gateway = xdb.find("gateways", params.id)
-	action = params.request.action
-
-	if gateway then
-		profile = xdb.find("sip_profiles", gateway.profile_id)
-		profile_name = profile.name or 'public'
-
-		api = freeswitch.API()
-		args = "profile " .. profile_name .. ' ' .. action .. ' ' .. gateway.name
-
-		print(args)
-
-		ret = api:execute("sofia", args)
-
-			return "200"
-	else
-		return "404"
-	end
-end)
-
-put('/control/gateways/:name', function(params)
-	
-	gateway = xdb.find_one("gateways", {name = params.name})
-	action = params.request.action
-
-	if gateway then
-	
-		profile = xdb.find("sip_profiles", gateway.profile_id)
-		profile_name = profile.name or 'public'
-	
-		api = freeswitch.API()
-		args = "profile " .. profile_name .. ' ' .. action .. ' ' .. params.name
-
-		print(args)
-
-		ret = api:execute("sofia", args)
-
-			return "200"
-	else
-		return "404"
-	end
-end)
-
