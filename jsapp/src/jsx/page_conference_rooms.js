@@ -632,6 +632,7 @@ class ConferenceRoom extends React.Component {
 
 		console.log("submit...");
 		var room = form2json('#editRoomForm');
+
 		var videoBanner = {fontFace: this.state.room.banner.fontFace, fontScale: room.fontScale,
 			bgColor: room.bg, fgColor: room.fg, text: room.text};
 
@@ -639,6 +640,16 @@ class ConferenceRoom extends React.Component {
 			notify(<T.span text="Mandatory fields left blank"/>, 'error');
 			return;
 		}
+		if(!room.canvas_count) {
+			room.canvas_count = "0";
+		}
+		if(!room.bandwidth) {
+			room.bandwidth = '2mb';
+		}
+		if(!room.fps) {
+			room.fps = '15'
+		}
+
 
 		if (room.cluster) {
 			let cluster = [];
@@ -852,6 +863,13 @@ class ConferenceRoom extends React.Component {
 							text={current_profile} defaultValue={room.profile_id}
 							options={profile_options}></EditControl>
 					</Col>
+				</FormGroup>
+
+				<FormGroup className="xrowb">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Video Fps" /></Col>
+					<Col sm={4}><EditControl edit={this.state.edit} name="fps" defaultValue={room.fps}/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Bandwidth"/></Col>
+					<Col sm={4}><EditControl edit={this.state.edit} name="bandwidth" defaultValue={room.bandwidth}/></Col>
 				</FormGroup>
 
 				<FormGroup className="xrowb">

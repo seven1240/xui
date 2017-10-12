@@ -272,6 +272,8 @@ CREATE TABLE conference_rooms (
 	nbr VARCHAR,  -- conference number
 	capacity integer,
 	realm VARCHAR,
+	fps VARCHAR,
+	bandwidth VARCHAR,
 	pin VARCHAR,
 	profile_id INTEGER,
 	moderator VARCHAR,

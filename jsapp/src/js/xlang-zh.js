@@ -181,6 +181,8 @@ LANGUAGES["zh"] = {
 	CONF_VIDEO_MODE_MUX: "融屏",
 	"Cluster": "集群",
 	"Call Permission": "呼叫权限",
+	"Video Fps": "视频帧率",
+	"Bandwidth": "带宽",
 	CONF_CP_NO_CHECK: "允许任何人呼入",
 	CONF_CP_CHECK_CID: "检查主叫号码",
 	CONF_CP_AUTH_USER: "只允许认证用户呼入",
