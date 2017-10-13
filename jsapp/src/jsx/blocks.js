@@ -147,7 +147,7 @@ var toolbox = `<xml id="toolbox" style="display: none">
 			 <field name="TEXT">Ting-Ting</field>
 		   </shadow>
 		 </value>
-		</block>
+	</block>
 	<block type="fsFilePath"></block>
 	<block type="fsFifo"></block>
 	<block type="fsSessionAnswer"></block>
@@ -158,21 +158,21 @@ var toolbox = `<xml id="toolbox" style="display: none">
 			 <field name="TEXT"></field>
 		   </shadow>
 		 </value>
-		</block>
+	</block>
 	<block type="fsSessionPlay">
 		  <value name="args">
 			<shadow type="text">
 			 <field name="TEXT"></field>
 		   </shadow>
 		 </value>
-		</block>
+	</block>
 	<block type="fsSessionSpeak">
 		  <value name="args">
 		   <shadow type="text">
 			<field name="TEXT"></field>
 		   </shadow>
 		 </value>
-		</block>
+	</block>
 	<block type="fsSessionRead">
 		  <value name="MIN">
 			<shadow type="math_number">
@@ -194,7 +194,44 @@ var toolbox = `<xml id="toolbox" style="display: none">
 			 <field name="TEXT"></field>
 		   </shadow>
 		 </value>
-		</block>
+	</block>
+	<block type="fsSessionPlayandGet">
+		  <value name="MIN">
+			<shadow type="math_number">
+			 <field name="NUM">1</field>
+		   </shadow>
+		 </value>
+		 <value name="MAX">
+			<shadow type="math_number">
+			 <field name="NUM">2</field>
+		   </shadow>
+		 </value>
+		 <value name="MAX_TRIES">
+			<shadow type="math_number">
+			 <field name="NUM">3</field>
+		   </shadow>
+		 </value>
+		 <value name="TIMEOUT">
+			<shadow type="math_number">
+			 <field name="NUM">5000</field>
+		   </shadow>
+		 </value>
+		<value name="Audio_Files">
+			<shadow type="text">
+			 <field name="TEXT"></field>
+		   </shadow>
+		 </value>
+		<value name="Bad_Input_Audio_Files">
+			<shadow type="text">
+			 <field name="TEXT"></field>
+		   </shadow>
+		 </value>
+		<value name="REGEX">
+			<shadow type="text">
+			 <field name="TEXT"></field>
+		   </shadow>
+		 </value>
+	</block>
 	<block type="fsSessionTransfer">
 		<value name="destination">
 			<shadow type="text">

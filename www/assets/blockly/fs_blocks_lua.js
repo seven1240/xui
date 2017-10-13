@@ -125,6 +125,43 @@ Blockly.Lua.fsSessionRead = function(block) {
   return code;
 };
 
+Blockly.Lua.fsSessionPlayandGet = function(block) {
+  var text_min = Blockly.Lua.valueToCode(block, 'MIN', Blockly.Lua.ORDER_ATOMIC);
+  var text_max = Blockly.Lua.valueToCode(block, 'MAX', Blockly.Lua.ORDER_ATOMIC);
+  var text_try = Blockly.Lua.valueToCode(block, 'MAX_TRIES', Blockly.Lua.ORDER_ATOMIC);
+  var text_timeout = Blockly.Lua.valueToCode(block, 'TIMEOUT', Blockly.Lua.ORDER_ATOMIC);
+  var text_terminator = block.getFieldValue('terminator');
+  var text_sound = Blockly.Lua.valueToCode(block, 'Audio_Files', Blockly.Lua.ORDER_ATOMIC);
+  var text_badinput = Blockly.Lua.valueToCode(block, 'Bad_Input_Audio_Files', Blockly.Lua.ORDER_ATOMIC);
+  var text_regex = Blockly.Lua.valueToCode(block, 'REGEX', Blockly.Lua.ORDER_ATOMIC);
+  var variable_digits = Blockly.Lua.variableDB_.getName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+
+  if (!(text_sound.indexOf(".") >= 0 || text_sound.indexOf("/") >= 0 || text_sound.indexOf("\\\\") >= 0)) {
+    if(text_sound.substring(text_sound.length-1)=="\'") {
+      text_sound = text_sound.substr(1,text_sound.length-2)
+    }
+
+    text_sound = 'say:' + text_sound;
+  }
+   if (!(text_badinput.indexOf(".") >= 0 || text_badinput.indexOf("/") >= 0 || text_badinput.indexOf("\\\\") >= 0)) {
+    if(text_badinput.substring(text_badinput.length-1)=="\'") {
+      text_badinput = text_badinput.substr(1,text_badinput.length-2)
+    }
+
+    text_badinput = 'say:' + text_badinput;
+  }
+
+  var code = variable_digits + ' = session:playAndGetDigits(' + text_min + ', ' +
+    text_max + ', ' +
+    text_try + ', ' +
+    text_timeout + ', "' +
+    text_terminator + '", "' +
+    text_sound + '", "' +
+    text_badinput + '", "' +
+    text_regex + '");\n';
+  return code;
+};
+
 Blockly.Lua.fsSessionTransfer = function(block) {
   var text_dest = Blockly.Lua.valueToCode(block, 'destination', Blockly.Lua.ORDER_ATOMIC);
   var text_dialplan = Blockly.Lua.valueToCode(block, 'dialplan', Blockly.Lua.ORDER_ATOMIC);

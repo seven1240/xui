@@ -431,6 +431,10 @@ Blockly.Msg.FS_BLOCK_MUSIC = "Music file";
 Blockly.Msg.FS_BLOCK_RETURN = "Return to previous level";
 Blockly.Msg.FS_BLOCK_READY = "over";
 Blockly.Msg.FS_BLOCK_CURL = "Curl";
+Blockly.Msg.FS_BLOCK_GETDTMF = "Play and Get Digits";
+Blockly.Msg.FS_BLOCK_MAXTRIES = "Max_attempts";
+Blockly.Msg.FS_BLOCK_BADINPUT = "Input_error_audio_file";
+Blockly.Msg.FS_BLOCK_REGEX = "Digit_regex";
 
 Blockly.Msg.tNow = "Now";
 Blockly.Msg.tDate = "Create Time";

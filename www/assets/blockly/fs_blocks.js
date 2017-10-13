@@ -382,6 +382,40 @@ Blockly.Blocks['fsSessionRead'] = {
     }
 };
 
+Blockly.Blocks['fsSessionPlayandGet'] = {
+    init: function() {
+        this.appendValueInput("MIN")
+            .appendField(Blockly.Msg.FS_BLOCK_GETDTMF)
+            .appendField(Blockly.Msg.FS_BLOCK_MIN)
+        this.appendValueInput("MAX")
+            .appendField(Blockly.Msg.FS_BLOCK_MAX)
+        this.appendValueInput("MAX_TRIES")
+            .appendField(Blockly.Msg.FS_BLOCK_MAXTRIES)
+        this.appendValueInput("TIMEOUT")
+            .appendField(Blockly.Msg.FS_BLOCK_TIMEOUT)
+        this.appendDummyInput()
+            .appendField(Blockly.Msg.FS_BLOCK_TERMINATOR)
+            .appendField(new Blockly.FieldTextInput("#"), "terminator");
+        this.appendValueInput("Audio_Files")
+            .setCheck("String")
+            .appendField(Blockly.Msg.FS_BLOCK_SOUND)
+        this.appendValueInput("Bad_Input_Audio_Files")
+            .setCheck("String")
+            .appendField(Blockly.Msg.FS_BLOCK_BADINPUT)
+        this.appendValueInput("REGEX")
+            .appendField(Blockly.Msg.FS_BLOCK_REGEX)
+        this.appendDummyInput()
+            .appendField(Blockly.Msg.FS_BLOCK_VAR)
+            .appendField(new Blockly.FieldVariable(Blockly.Msg.VARIABLES_DEFAULT_NAME),"VAR")
+        this.setInputsInline(true);
+        this.setPreviousStatement(true);
+        this.setNextStatement(true);
+        this.setColour(20);
+        this.setTooltip('');
+        this.setHelpUrl('http://www.example.com/');
+    }
+};
+
 Blockly.Blocks['fsSessionTransfer'] = {
     init: function() {
         this.appendValueInput("destination")
