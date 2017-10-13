@@ -55,7 +55,7 @@ function build_conference_conf(profile_name)
 		end)
 
 		if room then
-			settings = settings .. '<param name="video-canvas-count" value="' .. room.canvas_count .. '"/>\n'
+			settings = settings .. '<param name="video-canvas-count" value="' .. room.canvas_count .. '"/>\n' .. '<param name="video-fps" value="' .. room.fps .. '"/>\n' .. '<param name="video-codec-bandwidth" value="' .. room.bindwidth .. '"/>\n'
 
 			if room.video_mode == 'CONF_VIDEO_MODE_MUX' then
 				video_mode = "mux"
