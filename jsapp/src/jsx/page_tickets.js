@@ -32,7 +32,7 @@
 
 import React from 'react';
 import T from 'i18n-react';
-import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col, Radio, Nav, NavItem, DropdownButton, MenuItem, Label } from 'react-bootstrap';
+import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col, Radio, Nav, NavItem, DropdownButton, MenuItem, Label, Pagination } from 'react-bootstrap';
 import { Link } from 'react-router';
 import { EditControl, xFetchJSON } from './libs/xtools';
 import _ from 'lodash';
@@ -915,7 +915,7 @@ class TicketPage extends React.Component {
 class TicketsPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {rows: [], danger: false, formShow: false, hiddendiv: 'none', loaded: false, activeKey: 0, types: []};
+		this.state = {rows: [], danger: false, formShow: false, t_qs: '', last: 7, ticket_type: 0, showSettings: false, curPage: 1, rowCount: 0, pageCount: 0, rowsPerPage: null, hiddendiv: 'none', loaded: false, activeKey: 0, types: []};
 		this.handleDelete = this.handleDelete.bind(this);
 		this.handleControlClick = this.handleControlClick.bind(this);
 		this.handleQuery = this.handleQuery.bind(this);
@@ -923,6 +923,7 @@ class TicketsPage extends React.Component {
 		this.handleSearch = this.handleSearch.bind(this);
 		this.handleSelect = this.handleSelect.bind(this);
 		this.handleDownload = this.handleDownload.bind(this);
+		this.handlePageTurn = this.handlePageTurn.bind(this);
 	}
 
 	handleMore (e) {
@@ -958,14 +959,35 @@ class TicketsPage extends React.Component {
 
 	componentDidMount () {
 		var _this = this;
-		xFetchJSON("/api/tickets?ticket_type=" + 0).then((data) => {
-			console.log('data', data)
-			this.setState({rows: data, loaded: true});
+		const ticketsRowsPerPage = localStorage.getItem('ticketsRowsPerPage') || 30;
+		_this.setState({ rowsPerPage: ticketsRowsPerPage });
+		
+		xFetchJSON("/api/tickets?ticket_type=" + _this.state.ticket_type + "&ticketsRowsPerPage=" + ticketsRowsPerPage).then((tickets) => {
+			console.log('data', tickets.data)
+			_this.setState({rows: tickets.data, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount,curPage: tickets.curPage});
 		});
 
 		xFetchJSON("/api/dicts?realm=TICKET_TYPE").then((data) => {
 			_this.setState({types: data});
 		});
+	}
+
+	handlePageTurn(pageNum) {
+		var _this = this;
+		const ticketsRowsPerPage = localStorage.getItem('ticketsRowsPerPage') || 30;
+		_this.setState({ rowsPerPage: ticketsRowsPerPage });
+		console.log('llllllllllllllll', _this.state.ticket_type);
+		xFetchJSON("/api/tickets?last=" + _this.state.last + "&ticket_type=" + _this.state.ticket_type + "&ticketsRowsPerPage=" + ticketsRowsPerPage + "&pageNum=" + pageNum + _this.state.t_qs).then((tickets) => {
+			
+			_this.setState({rows: tickets.data, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
+		});
+	}
+
+	handleRowsChange(e) {
+		console.log('rows per page', e.target.value);
+		const ticketsRowsPerPage = parseInt(e.target.value);
+
+		localStorage.setItem("ticketsRowsPerPage", ticketsRowsPerPage);
 	}
 
 	handleTicketAdded(ticket) {
@@ -977,50 +999,62 @@ class TicketsPage extends React.Component {
 	handleControlClick(e) {
 		var data = e.target.getAttribute("data");
 		console.log("data", data);
-
-		if (data == "new") {
-			this.setState({ formShow: true});
+		switch (e) {
+			case "new":
+				this.setState({ formShow: true});
+				break;
+			case "settings":
+				this.setState({ showSettings: !this.state.showSettings });
+				break;
+			default:
+				break;
 		}
 	}
 
 	handleQuery (e) {
 		var data = parseInt(e.target.getAttribute("data"));
-
 		this.days = data;
+		var _this = this;
 		e.preventDefault();
-
-		var type = this.state.activeKey;
-		xFetchJSON("/api/tickets?last=" + data + "&ticket_type=" + type).then((tickets) => {
-			this.setState({rows: tickets});
-		})
+		var type = _this.state.activeKey;
+		const ticketsRowsPerPage = localStorage.getItem('ticketsRowsPerPage') || 30;
+		_this.setState({ rowsPerPage: ticketsRowsPerPage, last: data });
+		xFetchJSON("/api/tickets?last=" + data + "&ticket_type=" + _this.state.ticket_type + "&ticketsRowsPerPage=" + ticketsRowsPerPage).then((tickets) => {
+			_this.setState({rows: tickets.data, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
+		});
 	}
 
 	handleSearch (e) {
-		const qs = "startDate=" + this.startDate.value +
-			"&endDate=" + this.endDate.value +
-			"&cid_number=" + this.cid_number.value +
-			"&status=" + this.status.value +
-			"&serial_number=" + this.serial_number.value;
+		var _this = this;
+		const qs = "startDate=" + _this.startDate.value +
+			"&endDate=" + _this.endDate.value +
+			"&cid_number=" + _this.cid_number.value +
+			"&status=" + _this.status.value +
+			"&ticket_type=" + _this.state.ticket_type +
+			"&serial_number=" + _this.serial_number.value;
 		console.log(qs);
-
-		xFetchJSON("/api/tickets?" + qs).then((tickets) => {
-			this.setState({
-				rows: tickets
-			});
+		const ticketsRowsPerPage = localStorage.getItem('ticketsRowsPerPage') || 30;
+		var ts_qs = "&" + qs
+		_this.setState({ rowsPerPage: ticketsRowsPerPage, t_qs: ts_qs });
+		xFetchJSON("/api/tickets?" + qs + "&ticketsRowsPerPage=" + ticketsRowsPerPage).then((tickets) => {
+			console.log("aaaaaaaa",tickets);
+			_this.setState({rows: tickets.data, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
 		});
 	}
 
 	handleSelect(selectedKey) {
 		let _this = this;
-
+		const ticketsRowsPerPage = localStorage.getItem('ticketsRowsPerPage') || 30;
+		_this.setState({ rowsPerPage: ticketsRowsPerPage});
 		if (selectedKey == 0) {
-			xFetchJSON("/api/tickets?ticket_type=" + 0).then((data) => {
-				this.setState({rows: data, activeKey: selectedKey});
+			xFetchJSON("/api/tickets?ticket_type=" + 0 + "&ticketsRowsPerPage=" + ticketsRowsPerPage).then((tickets) => {
+				
+				_this.setState({rows: tickets.data, ticket_type: selectedKey, activeKey: selectedKey, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
 			});
 		} else {
-			var type = selectedKey;
-			xFetchJSON("/api/tickets?ticket_type=" + selectedKey).then((data) => {
-				_this.setState({rows: data, activeKey: selectedKey});
+			xFetchJSON("/api/tickets?ticket_type=" + selectedKey + "&ticketsRowsPerPage=" + ticketsRowsPerPage).then((tickets) => {
+				console.log('rrrrrrrrrrrrrrrrrr', tickets.pageCount);
+				_this.setState({rows: tickets.data, ticket_type: selectedKey, activeKey: selectedKey, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
 			});
 		}
 	}
@@ -1109,6 +1143,28 @@ class TicketsPage extends React.Component {
 			display : isShow
 		}
 
+		var pagination = function() {
+			var maxButtons = 7;
+			if (_this.state.pageCount == 0) return <div/>
+
+			if (maxButtons > _this.state.pageCount) maxButtons = _this.state.pageCount;
+
+			return (
+				<nav className="pull-right">
+					<Pagination
+						prev={T.translate("Prev Page")}
+						next={T.translate("Next Page")}
+						first={T.translate("First Page")}
+						last={T.translate("Last Page")}
+						ellipsis={false}
+						items={_this.state.pageCount}
+						maxButtons={maxButtons}
+						activePage={_this.state.curPage}
+						onSelect={_this.handlePageTurn} />
+				</nav>
+			);
+		}();
+
 		return <div>
 			<ButtonToolbar className="pull-right">
 				<br/>
@@ -1158,7 +1214,16 @@ class TicketsPage extends React.Component {
 				</select>&nbsp;
 				<T.button text="Search" onClick={this.handleSearch}/>
 			</div>
-
+			{
+				!this.state.showSettings ? null :
+				<div style={{position: "absolute", top: "60px", right: "10px", width: "180px", border: "2px solid grey", padding: "10px", zIndex: 999, backgroundColor: "#EEE", textAlign: "right"}}>
+					<T.span text="Paginate Settings"/>
+					<br/>
+					<T.span text="Per Page"/>
+					&nbsp;<input  onChange={this.handleRowsChange.bind(this)} defaultValue={this.state.rowsPerPage} size={3}/>&nbsp;
+					<T.span text="Row"/>
+				</div>
+			}
 			<table className="table">
 				<tbody>
 					<tr>
@@ -1172,6 +1237,11 @@ class TicketsPage extends React.Component {
 						<th><T.span style={hand} text="Delete" className={danger} onClick={toggleDanger} title={T.translate("Click me to toggle fast delete mode")}/></th>
 					</tr>
 					{rows}
+					<tr>
+						<td colSpan="12">
+							{pagination}
+						</td>
+					</tr>
 				</tbody>
 			</table>
 			<NewTicket show={this.state.formShow} onHide={formClose} handleNewTicketAdded={this.handleTicketAdded.bind(this)}/>
