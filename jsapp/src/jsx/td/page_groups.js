@@ -123,7 +123,6 @@ class GroupMembers extends React.Component {
 		xFetchJSON("/api/groups/members/" + this.props.group_id, {
 			method: "DELETE"
 		}).then((obj) => {
-			console.log("deleted")
 			this.handleGetGroupMembers();
 			this.handleGetReaminMembers();
 
@@ -159,7 +158,7 @@ class GroupMembers extends React.Component {
 		return <div>
 			<h2><T.span text="Group Members"/></h2><br/>
 			<ButtonToolbar>
-				<Select style={{ minWidth:"160px", maxWidth:"300px"}} name="multi-select" multi="true" className="pull-left" value={this.state.select_value} placeholder={T.translate('Please Select')} options={member_options} onChange={this.handleSelectChange.bind(this)}/>
+				<Select style={{ minWidth:"160px", maxWidth:"300px"}} name="multi-select" multi={true} className="pull-left" value={this.state.select_value} placeholder={T.translate('Please Select')} options={member_options} onChange={this.handleSelectChange.bind(this)}/>
 				<Button bsStyle="primary" onClick={this.handleMembersAdded.bind(this)} className="pull-left">{T.translate("Add Member(s)")}</Button>
 				<Button bsStyle="danger" className="pull-right" onClick={this.handleDeleteMembers.bind(this)}>{T.translate("Remove All Member(s)")}</Button>
 			</ButtonToolbar>
@@ -181,20 +180,181 @@ class GroupMembers extends React.Component {
 	}
 }
 
-class NewGroup extends React.Component {
+class PlayLists extends React.Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
 			errmsg: '',
-			remain_music_mcasts: [],
-			remain_realtime_mcasts: []
+			mcast_files: [],
+			remain_files: [],
+			select_value: []
+		};
+
+		// This binding is necessary to make `this` work in the callback
+		this.handleGetReaminMediaFiles = this.handleGetReaminMediaFiles.bind(this);
+		this.handleGetMcastMediaFiles = this.handleGetMcastMediaFiles.bind(this);
+		this.handleAddMcastMediaFiles = this.handleAddMcastMediaFiles.bind(this);
+		this.handleRemoveMediaFiles = this.handleRemoveMediaFiles.bind(this);
+		this.handleRemoveAllMediaFiles = this.handleRemoveAllMediaFiles.bind(this);
+	}
+
+	handleGetReaminMediaFiles() {
+		var _this = this;
+
+		xFetchJSON("/api/mfile_mcasts/" + this.props.group.music_mcast_id + "/remain_files").then((obj) => {
+			_this.setState({remain_files: obj});
+		}).catch((msg) => {
+			console.error("get remain media files ERR", msg);
+		});
+	}
+
+	handleGetMcastMediaFiles() {
+		var _this = this;
+
+		xFetchJSON("/api/mfile_mcasts/" + this.props.group.music_mcast_id).then((data) => {
+			_this.setState({mcast_files: data});
+		}).catch((msg) => {
+			console.log("get mcast_files ERR", msg);
+		});
+	}
+
+	handleSelectChange(value) {
+		this.setState({select_value: value});
+	}
+
+	handleAddMcastMediaFiles(e) {
+		var _this = this;
+
+		const mfiles = this.state.select_value.map(function(select) {
+			return {mcast_id: _this.props.group.music_mcast_id, mfile_id: select.value.id}
+		});
+
+		xFetchJSON("/api/mfile_mcasts", {
+			method: "POST",
+			body: JSON.stringify(mfiles)
+		}).then((data) => {
+			this.handleGetReaminMediaFiles();
+			this.handleGetMcastMediaFiles();
+			this.setState({select_value: []});
+		}).catch((msg) => {
+			console.log("add media files ERR", msg);
+		});
+	}
+
+	handleRemoveAllMediaFiles(e, v) {
+		this.handleRemoveMediaFiles(e);
+	}
+
+	handleRemoveMediaFiles(e, file_id) {
+		var c = confirm(T.translate("Confirm to Delete ?"));
+		var url = "/api/mfile_mcasts/" + this.props.group.music_mcast_id;
+
+		if (!c) return;
+
+		if (file_id) {
+			url = url + "/" + file_id;
+		}
+
+		xFetchJSON(url, {
+			method: "DELETE"
+		}).then((obj) => {
+			var mfiles = [];
+
+			if (file_id) {
+				mfiles = this.state.mcast_files.filter(function(f) {
+					return f.id != file_id;
+				});
+			}
+
+			this.setState({mcast_files: mfiles});
+			this.handleGetReaminMediaFiles();
+		}).catch((msg) => {
+			console.error("remove media files ERR", msg);
+		});
+	}
+
+	componentDidMount() {
+		this.handleGetMcastMediaFiles();
+		this.handleGetReaminMediaFiles();
+	}
+
+	render() {
+		const props = Object.assign({}, this.props);
+		const group = this.props.group;
+		delete props.group;
+
+		var _this = this;
+		var add_files_button_disable = false;
+		var remove_all_button_disable = false;
+		var add_files_select_disable = false;
+		var optional_forms = [];
+		var playlist = [];
+
+		var files = this.state.mcast_files.map(function(f) {
+			return (
+			<tr key={f.id}>
+				<th><Link to={`/settings/media_files/${f.id}`}>{f.name}</Link></th>
+				<th>{f.file_size}</th>
+				<th>
+					<Button bsStyle="danger" bsSize="xsmall" onClick={(e) => _this.handleRemoveMediaFiles(e, f.id)} data-id={f.id}>
+						<T.span text="Remove"/>
+					</Button>
+				</th>
+			</tr>);
+		})
+
+		const remain_file_options = this.state.remain_files.map(function(row){
+			return { value: row, label: row.name };
+		});
+
+		if (remain_file_options.length <= 0) {
+			add_files_select_disable = true;
+		}
+
+		if (this.state.select_value.length <= 0) {
+			add_files_button_disable = true;
+		}
+
+		if (this.state.mcast_files.length <= 0) {
+			remove_all_button_disable = true;
+		}
+
+		return <div>
+			<h1><T.span text="PlayList"/></h1>
+			<br/>
+			<ButtonToolbar>
+				<Select style={{ minWidth:"160px", maxWidth:"300px"}} name="multi-select" multi={true} className="pull-left" disabled={add_files_select_disable} value={this.state.select_value} placeholder={T.translate('Please Select')} options={remain_file_options} onChange={this.handleSelectChange.bind(this)}/>
+				<Button bsStyle="primary" disabled={add_files_button_disable} className="pull-left" onClick={this.handleAddMcastMediaFiles}>{T.translate("Add")}</Button>
+				<Button className="pull-right" bsStyle="danger" disabled={remove_all_button_disable} onClick={this.handleRemoveAllMediaFiles} data="new">{T.translate("Remove All Files")}</Button>
+			</ButtonToolbar>
+			<br/>
+			<table className="table">
+				<tbody>
+					<tr>
+						<th><T.span text="FileName"/></th>
+						<th><T.span text="Size"/></th>
+						<th><T.span text="-"/></th>
+					</tr>
+					{files}
+				</tbody>
+			</table>
+			<br/>
+			<hr/>
+		</div>
+	}
+}
+
+class NewGroup extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			errmsg: ''
 		};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
-		this.handleGetRemainMusicMcasts = this.handleGetRemainMusicMcasts.bind(this);
-		this.handleGetRemainRealtimeMcasts = this.handleGetRemainRealtimeMcasts.bind(this);
 	}
 
 	handleSubmit(e) {
@@ -213,38 +373,10 @@ class NewGroup extends React.Component {
 		}).then((obj) => {
 			group.id = obj.id;
 			this.props.handleNewGroupAdded(group);
-			this.handleGetRemainRealtimeMcasts();
 		}).catch((msg) => {
 			console.error("group", msg);
 			this.setState({errmsg: '' + msg + ''});
 		});
-	}
-
-	handleGetRemainMusicMcasts() {
-		var _this = this;
-
-		xFetchJSON("/api/mcasts/remain_music_mcasts").then((data) => {
-			console.log("remain music mcasts:", data)
-			_this.setState({remain_music_mcasts: data});
-		}).catch((msg) => {
-			console.log("get remain music mcasts ERR", msg);
-		});
-	}
-
-	handleGetRemainRealtimeMcasts() {
-		var _this = this;
-
-		xFetchJSON("/api/mcasts/remain_realtime_mcasts").then((data) => {
-			console.log("remain realtime mcasts:", data)
-			_this.setState({remain_realtime_mcasts: data});
-		}).catch((msg) => {
-			console.log("get remain realtime mcasts ERR", msg);
-		});
-	}
-
-	componentDidMount() {
-		this.handleGetRemainRealtimeMcasts();
-		this.handleGetRemainMusicMcasts();
 	}
 
 	render() {
@@ -259,14 +391,6 @@ class NewGroup extends React.Component {
 		});
 
 		const enable_options = [[1, "Yes"], [0, "No"]];
-
-		var realtime_mcast_options = this.state.remain_realtime_mcasts.map(function(o){
-			return <option key={o.id} value={o.id}><T.span text={o.name}/></option>
-		})
-
-		var music_mcast_options = this.state.remain_music_mcasts.map(function(o){
-			return <option key={o.id} value={o.id}><T.span text={o.name}/></option>
-		})
 
 		return <Modal {...props} aria-labelledby="contained-modal-title-lg">
 			<Modal.Header closeButton>
@@ -294,28 +418,8 @@ class NewGroup extends React.Component {
 					<Col sm={10}>
 						<FormControl componentClass="select" name="unique_attribution">
 							{enable_options.map(function(o) {
-								return <option key={o[0]} value={o[0]}><T.span text={o[1]}/></option>;
+								return <option key={o[0]} value={o[0]}>{T.translate(o[1])}/></option>;
 							})}
-						</FormControl>
-					</Col>
-				</FormGroup>
-
-				<FormGroup controlId="formRealtimeMcast">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Realtime Multicast Channel"/></Col>
-					<Col sm={10}>
-						<FormControl componentClass="select" name="realtime_mcast_id">
-							<option value=""></option>
-							{ realtime_mcast_options }
-						</FormControl>
-					</Col>
-				</FormGroup>
-
-				<FormGroup controlId="formMusicMcast">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Music Multicast Channel"/></Col>
-					<Col sm={10}>
-						<FormControl componentClass="select" name="music_mcast_id">
-							<option value=""></option>
-							{ music_mcast_options }
 						</FormControl>
 					</Col>
 				</FormGroup>
@@ -361,9 +465,7 @@ class GroupPage extends React.Component {
 			edit: false,
 			permissions: [],
 			group_options: [],
-			mcasts: [],
-			remain_music_mcasts: [],
-			remain_realtime_mcasts: []
+			mcasts: []
 		};
 
 		// This binding is necessary to make `this` work in the callback
@@ -378,28 +480,6 @@ class GroupPage extends React.Component {
 			this.setState({group_options: data});
 		}).catch((e) => {
 			console.log("get group_options ERR");
-		});
-	}
-
-	handleGetRemainMusicMcasts() {
-		var _this = this;
-
-		xFetchJSON("/api/mcasts/remain_music_mcasts").then((data) => {
-			console.log("remain music mcasts:", data)
-			_this.setState({remain_music_mcasts: data});
-		}).catch((msg) => {
-			console.log("get remain music mcasts ERR", msg);
-		});
-	}
-
-	handleGetRemainRealtimeMcasts() {
-		var _this = this;
-
-		xFetchJSON("/api/mcasts/remain_realtime_mcasts").then((data) => {
-			console.log("remain realtime mcasts:", data)
-			_this.setState({remain_realtime_mcasts: data});
-		}).catch((msg) => {
-			console.log("get remain realtime mcasts ERR", msg);
 		});
 	}
 
@@ -483,31 +563,9 @@ class GroupPage extends React.Component {
 		const mcasts = this.state.mcasts;
 		const enable_options = [[1, "Yes"], [0, "No"]];
 		var unique_att_dval = enable_options[1];
-		var real_mcast_dval = ["", ""];
-		var music_mcast_dval = ["", ""];
 
 		const group_options = this.state.group_options.map(function(option) {
 			return [option.value, option.name.replace(/ /g, String.fromCharCode(160))];
-		});
-
-		var music_mcast_options = [["", "-- Please Select --"]];
-		var realtime_mcast_options = [["", "-- Please Select --"]];
-
-		this.state.remain_realtime_mcasts.map(function(o){
-			realtime_mcast_options.push([o.id, o.name]);
-		})
-
-		this.state.remain_music_mcasts.map(function(o){
-			music_mcast_options.push([o.id, o.name]);
-		})
-
-		mcasts.map(function(m) {
-			if (m.id == group.realtime_mcast_id) {
-				real_mcast_dval = m;
-				realtime_mcast_options.push([m.id, m.name]);
-			}
-
-			if (m.id == group.music_mcast_id) music_mcast_dval = m;
 		});
 
 		let save_btn = "";
@@ -567,16 +625,6 @@ class GroupPage extends React.Component {
 					<Col sm={10}><EditControl edit={this.state.edit} componentClass="select" options={enable_options} name="unique_attribution" defaultValue={unique_att_dval[0]} text={unique_att_dval[1]}/></Col>
 				</FormGroup>
 
-				<FormGroup controlId="formRealtimeMcast">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Realtime Multicast Channel"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} componentClass="select" options={realtime_mcast_options} name="realtime_mcast_id" defaultValue={real_mcast_dval.id} text={real_mcast_dval.name}/></Col>
-				</FormGroup>
-
-				<FormGroup controlId="formMusicMcast">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Music Multicast Channel"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} componentClass="select" options={music_mcast_options} name="music_mcast_id" defaultValue={music_mcast_dval.id} text={music_mcast_dval.name}/></Col>
-				</FormGroup>
-
 				<FormGroup controlId="formSave">
 					<Col componentClass={ControlLabel} sm={2}></Col>
 					<Col sm={10}>{save_btn}</Col>
@@ -590,6 +638,7 @@ class GroupPage extends React.Component {
 			</FormGroup>
 			<br/>
 			<hr/>
+			{group.music_mcast_id ? <PlayLists group={group} /> : null}
 			{group.id ? <GroupMembers group_id={group.id} /> : null}
 
 		</div>
