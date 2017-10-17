@@ -195,3 +195,4 @@ to dictate the suite list with the rtp_secure_media* variables.
 <X-PRE-PROCESS cmd="set" data="rtp_liberal_dtmf=true"/>
 <!-- Helps with WebRTC Audio -->
 <X-PRE-PROCESS cmd="set" data="zrtp_secure_media=true"/>
+<X-PRE-PROCESS cmd="set" data="api_on_startup=fifo reparse"/>

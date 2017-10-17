@@ -16,7 +16,7 @@
     <!-- <param name="script-directory" value="$${script_dir}/?.lua"/> -->
 
     <param name="xml-handler-script" value="/usr/local/freeswitch/xui/lua/xui/fs_xml_handler.lua"/>
-    <param name="xml-handler-bindings" value="dialplan|result|config|directory|channels|chatplan|languages"/>
+    <param name="xml-handler-bindings" value="dialplan|result|configuration|directory|channels|chatplan|languages"/>
 
     <!--
 	The following options identifies a lua script that is launched

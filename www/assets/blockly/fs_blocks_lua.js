@@ -129,11 +129,14 @@ Blockly.Lua.fsSessionPlayandGet = function(block) {
   var text_min = Blockly.Lua.valueToCode(block, 'MIN', Blockly.Lua.ORDER_ATOMIC);
   var text_max = Blockly.Lua.valueToCode(block, 'MAX', Blockly.Lua.ORDER_ATOMIC);
   var text_try = Blockly.Lua.valueToCode(block, 'MAX_TRIES', Blockly.Lua.ORDER_ATOMIC);
-  var text_timeout = Blockly.Lua.valueToCode(block, 'TIMEOUT', Blockly.Lua.ORDER_ATOMIC);
+  var text_timeout = Blockly.Lua.valueToCode(block, 'TIMEOUT', Blockly.Lua.ORDER_ATOMIC) || '""';
   var text_terminator = block.getFieldValue('terminator');
   var text_sound = Blockly.Lua.valueToCode(block, 'Audio_Files', Blockly.Lua.ORDER_ATOMIC);
   var text_badinput = Blockly.Lua.valueToCode(block, 'Bad_Input_Audio_Files', Blockly.Lua.ORDER_ATOMIC);
   var text_regex = Blockly.Lua.valueToCode(block, 'REGEX', Blockly.Lua.ORDER_ATOMIC);
+  var variable_name = Blockly.Lua.valueToCode(block, 'VAR_NAME', Blockly.Lua.ORDER_ATOMIC) || '""';
+  var text_digits_timeout = Blockly.Lua.valueToCode(block, 'Digits_Timeout', Blockly.Lua.ORDER_ATOMIC) || '""';
+  var transfer_on_failure = Blockly.Lua.valueToCode(block, 'Transfer_On_Failure', Blockly.Lua.ORDER_ATOMIC);
   var variable_digits = Blockly.Lua.variableDB_.getName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
 
   if (!(text_sound.indexOf(".") >= 0 || text_sound.indexOf("/") >= 0 || text_sound.indexOf("\\\\") >= 0)) {
@@ -150,6 +153,26 @@ Blockly.Lua.fsSessionPlayandGet = function(block) {
 
     text_badinput = 'say:' + text_badinput;
   }
+   if (!(text_regex.indexOf(".") >= 0 || text_regex.indexOf("/") >= 0 || text_regex.indexOf("\\\\") >= 0)) {
+    if(text_regex.substring(text_regex.length-1)=="\'") {
+      text_regex = text_regex.substr(1,text_regex.length-2)
+    }
+
+    text_regex =  text_regex;
+  }
+   if (!(transfer_on_failure.indexOf(".") >= 0 || transfer_on_failure.indexOf("/") >= 0 || transfer_on_failure.indexOf("\\\\") >= 0)) {
+    if(transfer_on_failure.substring(transfer_on_failure.length-1)=="\'") {
+      transfer_on_failure = transfer_on_failure.substr(1,transfer_on_failure.length-2)
+    }
+
+  }
+   if (!(variable_name.indexOf(".") >= 0 || variable_name.indexOf("/") >= 0 || variable_name.indexOf("\\\\") >= 0)) {
+    if(variable_name.substring(variable_name.length-1)=="\'") {
+      variable_name = variable_name.substr(1,text_regex.length-2)
+    }
+
+  }
+
 
   var code = variable_digits + ' = session:playAndGetDigits(' + text_min + ', ' +
     text_max + ', ' +
@@ -158,7 +181,11 @@ Blockly.Lua.fsSessionPlayandGet = function(block) {
     text_terminator + '", "' +
     text_sound + '", "' +
     text_badinput + '", "' +
-    text_regex + '");\n';
+    text_regex + '", "' +
+    variable_name + '", "' +
+    variable_digits + '", "' + 
+    text_digits_timeout + '", "' +
+    transfer_on_failure + '");\n';
   return code;
 };
 

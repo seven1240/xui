@@ -196,41 +196,56 @@ var toolbox = `<xml id="toolbox" style="display: none">
 		 </value>
 	</block>
 	<block type="fsSessionPlayandGet">
-		  <value name="MIN">
+		<value name="MIN">
 			<shadow type="math_number">
-			 <field name="NUM">1</field>
-		   </shadow>
-		 </value>
-		 <value name="MAX">
+			<field name="NUM">1</field>
+			</shadow>
+		</value>
+		<value name="MAX">
 			<shadow type="math_number">
-			 <field name="NUM">2</field>
-		   </shadow>
-		 </value>
-		 <value name="MAX_TRIES">
+			<field name="NUM">2</field>
+			</shadow>
+		</value>
+		<value name="MAX_TRIES">
 			<shadow type="math_number">
-			 <field name="NUM">3</field>
-		   </shadow>
-		 </value>
-		 <value name="TIMEOUT">
+			<field name="NUM">3</field>
+			</shadow>
+		</value>
+		<value name="TIMEOUT">
 			<shadow type="math_number">
-			 <field name="NUM">5000</field>
-		   </shadow>
-		 </value>
+			<field name="NUM">5000</field>
+			</shadow>
+		</value>
 		<value name="Audio_Files">
 			<shadow type="text">
-			 <field name="TEXT"></field>
-		   </shadow>
-		 </value>
+			<field name="TEXT"></field>
+			</shadow>
+		</value>
 		<value name="Bad_Input_Audio_Files">
 			<shadow type="text">
-			 <field name="TEXT"></field>
-		   </shadow>
-		 </value>
+			<field name="TEXT"></field>
+			</shadow>
+		</value>
 		<value name="REGEX">
 			<shadow type="text">
-			 <field name="TEXT"></field>
-		   </shadow>
-		 </value>
+			<field name="TEXT"></field>
+			</shadow>
+		</value>
+		<value name="VAR_NAME">
+			<shadow type="text">
+			<field name="TEXT"></field>
+			</shadow>
+		</value>
+		<value name="Digits_Timeout">
+			<shadow type="math_number">
+			<field name="NUM">5000</field>
+			</shadow>
+		</value>
+		<value name="Transfer_On_Failure">
+			<shadow type="text">
+			<field name="TEXT">failed XML dialplan</field>
+			</shadow>
+		</value>
 	</block>
 	<block type="fsSessionTransfer">
 		<value name="destination">

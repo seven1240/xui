@@ -438,6 +438,9 @@ Blockly.Msg.FS_BLOCK_GETDTMF = "获取输入数字";
 Blockly.Msg.FS_BLOCK_MAXTRIES = "尝试次数";
 Blockly.Msg.FS_BLOCK_BADINPUT = "失败提示音";
 Blockly.Msg.FS_BLOCK_REGEX = "正则匹配";
+Blockly.Msg.FS_BLOCK_DIGITS_TIMEOUT = "数字间隔时间";
+Blockly.Msg.FS_BLOCK_TRANSFER_ON_FAILURE = "失败后转移";
+Blockly.Msg.FS_BLOCK_VAR_NAME = "通道变量";
 
 Blockly.Msg.tNow = "当前时间";
 Blockly.Msg.tNowstring = "当前时间戳";
