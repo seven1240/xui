@@ -59,22 +59,14 @@ function update_param(param_id, kvp)
 	return nil;
 end
 
-function createParam(kvp)
+function create(kvp)
 	id = xdb.create_return_id("params", kvp)
-	-- print(id)
-	if id then
-		local realm = 'modules'
-		local sql = "INSERT INTO params (id, realm,  k) values (" .. id .. ", '" .. realm .. "' , '" .. kvp.k .. ")"
-		freeswitch.consoleLog('err',sql)
-		xdb.execute(sql)
-	end
-
 	return id
 end
 
 m_modules.find_all = find_all
 m_modules.toggle_param = toggle_param
 m_modules.update_param = update_param
-m_modules.createParam = createParam
+m_modules.create = create
 
 return m_modules

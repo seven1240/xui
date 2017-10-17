@@ -68,7 +68,7 @@ end)
 post('/', function(params)
 	params.realm = 'modules'
 	params.request.realm = params.realm
-	ret = m_modules.createParam(params.request)
+	ret = m_modules.create(params.request)
 
 	if ret then
 		return {id = ret}
