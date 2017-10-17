@@ -237,6 +237,18 @@ a.conf-control:hover {
 	background-image: url(/assets/img/z-3.jpg);
 }
 
+.conf-link-1 {
+	background-image: url(/assets/img/l-1.jpg);
+}
+
+.conf-link-2 {
+	background-image: url(/assets/img/l-2.jpg);
+}
+
+.conf-link-3 {
+	background-image: url(/assets/img/l-3.jpg);
+}
+
 .conf-member-cidname {
 	max-width: 110px;
 	white-space:nowrap;
