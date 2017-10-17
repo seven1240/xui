@@ -1,0 +1,408 @@
+.preview {
+	width: 280px;
+	height: 200px;
+	border-radius: 6px;
+	box-shadow: 4px 4px 10px 2px #666;
+	text-align: center;
+	background-color: rgba(1, 1, 1, 0.8);
+
+	h4{
+		display: block;
+		padding: 10px 10px 5px;
+		height: 38px;
+		color: #fff;
+	}
+
+	>div {
+		width: 240px;
+		height: 120px;
+		margin: 0 auto;
+		.container {
+			background-color: #ccc;
+			height: 100%;
+			padding: 0;
+			border-radius: 4px;
+			border: 1px solid #fff;
+			box-shadow: 1px 1px 5px #999; 
+		}
+		.col {
+			padding: 0;
+			float: left;
+		}
+
+		.row {
+			padding: 0;
+			margin: 0;
+		}
+	}
+	.layout1x1 {
+		.row{
+			width: 100%;
+			height: 100%;
+			border: 1px solid;
+			background-color: #fff;
+		}
+	}
+
+	.layout1x2 {
+		.row{
+			width: 60%;
+			height: 50%;
+			margin: auto;
+			background-color: #fff;
+			border: 1px solid;
+		}
+	}
+
+	.layout2x1, .layout2x1_presenter_zoom{
+		.col{
+			width: 50%;
+			height: 60%;
+			background-color: #fff;
+			border: 1px solid;
+			position: relative;
+			top: 50%;
+			-webkit-transform: translateY(-50%);
+		}
+	}
+
+	.layout2x2{
+		.col{
+			height: 100%;
+			background-color: #fff;
+			border: 1px solid;
+		}
+		.row{
+			width: 100%;
+			height: 50%;
+		}
+	}
+
+	.layout3x3{
+		.col{
+			height: 100%;
+			background-color: #fff;
+			border: 1px solid;
+		}
+		.row{
+			width: 100%;
+			height: 33.33%;
+		}
+	}
+
+	.layout4x4{
+		.col{
+			height: 100%;
+			background-color: #fff;
+			border: 1px solid;
+		}
+		.row{
+			width: 100%;
+			height: 25%;
+		}
+	}
+
+	.layout5x5{
+		.col{
+			width: 20%;
+			height: 100%;
+			background-color: #fff;
+			border: 1px solid;
+		}
+		.row{
+			width: 100%;
+			height: 20%;
+		}
+	}
+
+	.layout6x6 {
+		.col{
+			height: 100%;
+			background-color: #fff;
+			border: 1px solid;
+		}
+		.row{
+			width: 100%;
+			height: 16.67%;
+		}
+	}
+	.layout8x8 {
+		.col{
+			width: 12.5%;
+			height: 100%;
+			background-color: #fff;
+			border: 1px solid;
+			float: left;
+		}
+		.row{
+			width: 100%;
+			height: 12.5%;
+		}
+	}
+
+	.layout5_grid_zoom, .layout3x2_zoom, .layout7_grid_zoom,
+	.layout4x2_zoom, .layout1x1_2x1 {
+		.row {
+			height: 50%;
+		}
+		.col{
+			background-color: #fff;
+			border: 1px solid;
+			height: 100%;
+		}
+	}
+
+	.layout2x1_zoom, .layout3x1_zoom {
+		.row {
+			height: 100%;
+		}
+		.col {
+			height: 100%;
+			background-color: #fff;
+			border: 1px solid;
+		}
+	}
+
+	.layout2up_top_8, .layout2up_middle_8, .layout2up_bottom_8 {
+		.row {
+			height: 25%;
+		}
+		.two {
+			height: 50%;
+		}
+		.col {
+			height: 100%;
+			background-color: #fff;
+			border: 1px solid;
+		}
+		
+	}
+
+	.layout1up_top_left_5>.container{
+		>.row {
+			width: 100%;
+		}
+
+		>.row:nth-of-type(1) {
+			height: 66%;
+			.col {
+				height: 100%;
+				padding: 0;
+				background-color: #fff;
+				border:1px solid;
+				.row {
+					width: 100%;
+					height: 50%;
+					background-color: #fff;
+					border:1px solid;
+				}
+			}
+		}
+
+		>.row:nth-of-type(2) {
+			background-color: #fff;
+			border:1px solid;
+			height: 34%;
+			.col {
+				height: 100%;
+				border:1px solid;
+			}
+		}
+	}
+
+	.layout1up_top_left_7>.container {
+		>.row {
+			width: 100%;
+		}
+
+		>.row:nth-of-type(1) {
+			height: 75%;
+			.col {
+				height: 100%;
+				background-color: #fff;
+				border: 1px solid;
+				padding: 0;
+				.row {
+					height: 33.33%;
+					width: 100%;
+					background-color: #fff;
+					border: 1px solid;
+				}
+			}
+		}
+
+		>.row:nth-of-type(2) {
+			height: 25%;
+			.col {
+				height: 100%;
+				background-color: #fff;
+				border: 1px solid;
+			}
+		}
+	}
+
+	.layout1up_top_left_9>.container { 
+		>.row {
+			width: 100%;
+		}
+		>.row:nth-of-type(1) {
+			height: 80%;
+			.col:nth-of-type(1){
+				width: 80%;
+				height: 100%;
+				background-color: #fff;
+				border: 1px solid;
+			}
+			.col:nth-of-type(2){
+				width: 20%;
+				height: 100%;
+				.row {
+					width: 100%;
+					height: 25%;
+					background-color: #fff;
+					border: 1px solid;
+				}
+			}
+		}
+
+		>.row:nth-of-type(2) {
+			height: 20%;
+			.col {
+				width: 20%;
+				height: 100%;
+				background-color: #fff;
+				border: 1px solid;
+			}
+		}
+	}
+
+	.layout3up_4>.container {
+		>.row {
+			width: 100%;
+			height: 50%;
+		}
+		.col {
+			height: 100%;
+			background-color: #fff;
+			border: 1px solid;
+			>.row {
+				width: 100%;
+				height: 50%;
+			}
+			.col {
+				height: 100%;
+				border-right: 1px solid;
+				border-left: 0px;
+				border-top: 0px;
+			}
+		}
+	}
+
+	.layout3up_9>.container {
+		>.row{
+			width: 100%;
+			height: 50%;
+		}
+		.col {
+			height: 100%;
+			background-color: #fff;
+			border: 1px solid;
+			.row {
+				width: 100%;
+				height: 33.33%;	
+			}
+			.col {
+				height: 100%;
+				border-right: 1px solid;
+				border-left: 0px;
+				border-top: 0px;
+			}
+		}
+	}
+	.layout_overlap {
+		.container {
+			position: relative;
+		}
+		.row {
+			width: 100%;
+			height: 100%;
+			border: 1px solid;
+			background-color: #fff;
+		}
+		.row:nth-of-type(2) {
+			position: absolute;
+			z-index: 100;
+			height: 16.66%;
+			bottom: 0;
+		}
+		.col{
+			height: 100%;
+			width: 16.66%;
+			float: left;
+			background-color: #fff;
+			border-right: 1px solid;
+		}
+		.col:last-child{
+			border: 0;
+		}
+	}
+
+	.presenter {
+		.row {
+			width: 100%;
+			height: 100%;
+			position: relative;
+			border: 1px solid;
+			background-color: #fff;
+		}
+		.col {
+			position: absolute;
+			background-color: #fff;
+			border: 1px solid;
+		}
+	}
+	.layout_overlap_large_bot_right .col{
+			height: 50%;
+			right: 0;
+			bottom: 0;
+	}
+	.layout_overlap_large_top_right .col {
+		height: 50%;
+		right: 0;
+		top: 0; 
+	}
+	.layout_overlap_small_bot_right .col{
+		height: 17%;
+		width: 17%;
+		right: 0;
+		bottom: 0;
+	}
+	.layout_overlap_small_top_right .col {
+		height: 17%;
+		width: 17%;
+		top: 0;
+		right: 0;
+	}
+	.layout_presenter_dual_horizontal {
+		.row {
+			width: 100%;
+			height: 50%;
+		}
+		.col{
+			height: 100%;
+			background-color: #fff;
+			border: 1px solid;
+		}
+	}
+	.layout_presenter_dual_vertical {
+		.col {
+			height: 100%;
+		}
+		.row {
+			width: 100%;
+			height: 50%;
+			background-color: #fff;
+			border: 1px solid;
+		}
+	}
+}
