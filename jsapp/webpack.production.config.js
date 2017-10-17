@@ -8,15 +8,17 @@ var config = {
         "index": ["./src/jsx/index.js", "./src/css/xui.css", "./src/css/dashboard.css"]
     },
 
-    noresolve: {
+/*
+    resolve: {
         alias: {
             'react': 'react-lite',
             'react-dom': 'react-lite'
         }
     },
+*/
 
     output: {
-        path: '../www/assets',
+        path: __dirname + '../www/assets',
         filename: 'js/jsx/[name].[chunkhash:8].js',
         publicPath: '/assets'
     },
@@ -24,11 +26,11 @@ var config = {
     module: {
         loaders: [{
             test: /\.css$/,
-            loader: ExtractTextPlugin.extract('style-loader', 'css-loader'),
+            loader: ExtractTextPlugin.extract('css-loader'),
             exclude: /node_modules/
         }, {
             test: /\.(js|jsx)$/,
-            loaders: ['react-hot', 'babel?' + JSON.stringify({
+            loaders: ['react-hot-loader', 'babel-loader?' + JSON.stringify({
                 cacheDirectory: true,
                 plugins: [
                     'transform-runtime',
@@ -50,7 +52,7 @@ var config = {
     },
 
     plugins: [
-        new webpack.optimize.CommonsChunkPlugin("react", "js/react.15.4.1.bundle.js"),
+        new webpack.optimize.CommonsChunkPlugin({name: "react", filename: "js/react.15.4.1.bundle.js"}),
 
         new HtmlWebpackPlugin({
             filename: '../index.html',

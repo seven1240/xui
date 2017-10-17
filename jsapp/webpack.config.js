@@ -8,7 +8,7 @@ var config = {
     },
 
     output: {
-        path: '../www/assets',
+        path:  __dirname + '../www/assets',
         filename: 'js/jsx/[name].[chunkhash:8].js',
         publicPath: '/assets'
     },
@@ -16,11 +16,11 @@ var config = {
     module: {
         loaders: [{
             test: /\.css$/,
-            loader: ExtractTextPlugin.extract('style-loader', 'css-loader'),
+            loader: 'css-loader', //ExtractTextPlugin.extract('style-loader', 'css-loader'),
             exclude: /node_modules/
         }, {
             test: /\.(js|jsx)$/,
-            loaders: ['react-hot', 'babel?' + JSON.stringify({
+            loaders: ['react-hot-loader', 'babel-loader?' + JSON.stringify({
                 cacheDirectory: true,
                 plugins: [
                     'transform-runtime',
