@@ -58,15 +58,26 @@ get('/', function(params)
 	last = tonumber(env:getHeader('last'))
 	status = env:getHeader('status')
 	ticket_type = env:getHeader('ticket_type')
+	pageNum = tonumber(env:getHeader('pageNum'))	
+	ticketsRowsPerPage = tonumber(env:getHeader('ticketsRowsPerPage'))
+
+	local tickets = {}
+
+	tickets.pageCount = 0
+	tickets.rowCount = 0
+	tickets.curPage = 0
+	tickets.data = {}
 
 	if not startDate then
 		if not last then last = 7 end
 
 		local sdate = os.time() - last * 24 * 60 * 60
 		startDate = os.date('%Y-%m-%d', sdate)
-		if (not ticket_type) or ticket_type == '0' then
+		if (not ticket_type) or (ticket_type == '0') then
+			freeswitch.consoleLog("err","aaaaaaaaaaaaaaaa")
 			cond = " created_at > '" .. startDate .. "'"
 		else
+			freeswitch.consoleLog("err","bbbbbbbbbbbbbbbbbb")
 			cond = " created_at > '" .. startDate .. "'" .. " AND type = '" .. ticket_type .. "'"
 		end
 		print(cond)
@@ -86,24 +97,52 @@ get('/', function(params)
 					xdb.if_cond("id", id) ..
 					xdb.if_cond("cid_number", cid_number) ..
 					xdb.if_cond("status", status) ..
-					xdb.if_cond("serial_number", serial_number) ..
-					xdb.if_cond("type", ticket_type)
+					xdb.if_cond("serial_number", serial_number)
+		if ticket_type and ticket_type ~= '0' then
+			cond = cond .. xdb.if_cond("type", ticket_type)
+		end
+	end
+	if not pageNum or pageNum < 0 then
+		pageNum = 1
 	end
 
-	if m_user.has_permission() then
-		n, tickets = xdb.find_by_cond("tickets", cond, "id desc")
-	else
+	if not ticketsRowsPerPage then
+		ticketsRowsPerPage = 30
+	end
+
+	if not m_user.has_permission() then
 		cond = cond .. " AND ((privacy = 'TICKET_PRIV_PUBLIC') OR id IN (" ..
 			'SELECT ref_id FROM subscriptions ' ..
 			"WHERE realm = 'TICKET' AND user_id = " .. xtra.session.user_id .. ')) '
-		n, tickets = xdb.find_by_cond("tickets", cond, "id desc")
 	end
+freeswitch.consoleLog("err",cond)
+	local cb = function(row)
+		rowCount = tonumber(row.count)
+	end
+	xdb.find_by_sql("SELECT count(1) as count FROM tickets WHERE "..cond, cb)
 
-	if (n > 0) then
-		return tickets
-	else
-		return "[]"
+	if rowCount > 0 then
+		local offset = 0
+		local pageCount = 0
+
+		pageCount = math.ceil(rowCount / ticketsRowsPerPage);
+
+		if pageNum == 0 then
+			-- It means the last page
+			pageNum = pageCount
+		end
+
+		freeswitch.consoleLog("err",pageCount)
+		offset = (pageNum - 1) * ticketsRowsPerPage
+		n, ticket = xdb.find_by_cond("tickets", cond, "id desc", nil, ticketsRowsPerPage, offset)
+		if (n > 0) then
+			tickets.rowCount = rowCount
+			tickets.data = ticket
+			tickets.curPage = pageNum
+			tickets.pageCount = pageCount
+		end
 	end
+		return tickets
 end)
 
 get('/my_tickets', function()
