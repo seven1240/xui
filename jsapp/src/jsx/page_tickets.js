@@ -1018,7 +1018,7 @@ class TicketsPage extends React.Component {
 		e.preventDefault();
 		var type = _this.state.activeKey;
 		const ticketsRowsPerPage = localStorage.getItem('ticketsRowsPerPage') || 30;
-		_this.setState({ rowsPerPage: ticketsRowsPerPage, last: data });
+		_this.setState({ rowsPerPage: ticketsRowsPerPage, last: data, t_qs: '' });
 		xFetchJSON("/api/tickets?last=" + data + "&ticket_type=" + _this.state.ticket_type + "&ticketsRowsPerPage=" + ticketsRowsPerPage).then((tickets) => {
 			_this.setState({rows: tickets.data, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
 		});
@@ -1045,7 +1045,7 @@ class TicketsPage extends React.Component {
 	handleSelect(selectedKey) {
 		let _this = this;
 		const ticketsRowsPerPage = localStorage.getItem('ticketsRowsPerPage') || 30;
-		_this.setState({ rowsPerPage: ticketsRowsPerPage});
+		_this.setState({ rowsPerPage: ticketsRowsPerPage, t_qs: '', last: 7 });
 		if (selectedKey == 0) {
 			xFetchJSON("/api/tickets?ticket_type=" + 0 + "&ticketsRowsPerPage=" + ticketsRowsPerPage).then((tickets) => {
 				
