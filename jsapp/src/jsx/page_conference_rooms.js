@@ -286,7 +286,9 @@ class RoomMembers extends React.Component {
 
 	clearRoute() {
 		const members = this.state.members.map((m) => {
-			m.route = '';
+			if (m.name.indexOf('.') < 0) {
+				m.route = '';
+			}
 			return m;
 		});
 
