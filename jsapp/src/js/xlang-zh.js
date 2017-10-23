@@ -197,6 +197,8 @@ LANGUAGES["zh"] = {
 	"Sort Online Prefered": "排序在线用户优先",
 	"Sort Unmuted Prefered": "排序未静音用户优先",
 	"Hide Linked Member": "隐藏连接键",
+	"Lock Conference": "锁定会议",
+	"Close Meeting": "结束会议",
 	"Auto Sort": "自动排序",
 	"Auto Switch": "自动轮循",
 	"Max Members On Canvas": "画布成员个数",
