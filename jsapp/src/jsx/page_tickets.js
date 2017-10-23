@@ -998,8 +998,8 @@ class TicketsPage extends React.Component {
 
 	handleControlClick(e) {
 		var data = e.target.getAttribute("data");
-		console.log("data", data);
-		switch (e) {
+		console.log("data", e);
+		switch (data) {
 			case "new":
 				this.setState({ formShow: true});
 				break;
