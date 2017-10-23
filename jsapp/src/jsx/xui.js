@@ -77,6 +77,7 @@ import { ModulePage } from './page_module';
 import { SIPProfilesPage, SIPProfilePage } from './page_sip';
 import { MediaFilesPage, MediaFilePage } from './page_media_files';
 import { Login, LoginBox } from './page_login';
+import { TableBrowserPage, TableBrowsersPage } from './page_table_browsers';
 import Footer from './footer';
 import Terminal from './terminal';
 import verto from './verto/verto';
@@ -208,6 +209,10 @@ class Home extends React.Component{
 						<IndexRoute components={{sidebar: Settings, main: UsersPage}}/>
 						<Route path="password" components={{sidebar: Settings, main: PasswordPage}}/>
 						<Route path=":id" components={{sidebar: Settings, main: UserPage}}/>
+					</Route>
+					<Route path="table_browsers">
+						<IndexRoute components={{sidebar: Settings, main: TableBrowsersPage}}/>
+						<Route path=":name" components={{sidebar: Settings, main: TableBrowserPage}}/>
 					</Route>
 					<Route path="wechat_users">
 						<IndexRoute components={{sidebar: Settings, main: WechatUsersPage}}/>

@@ -462,7 +462,7 @@ class MediaFilePage extends React.Component {
 
 				<FormGroup controlId="formDescription">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="file_size"/></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="file_size" defaultValue={mfile.file_size}/></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} name="file_size"/>{mfile.file_size} <T.span text="Byte"/></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formDescription">

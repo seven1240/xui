@@ -73,6 +73,12 @@ class Settings extends React.Component {
 					<T.span text="ACLs"/>
 				</NavItem>
 			</LinkContainer>
+			<LinkContainer to="/settings/table_browsers" key="M_BROWSER">
+				<NavItem eventKey="M_BROWSER">
+					<i className="fa fa-list" aria-hidden="true"></i>&nbsp;
+					<T.span text="Databases"/>
+				</NavItem>
+			</LinkContainer>
 			<LinkContainer to="/settings/sip_profiles" key="M_SIP">
 				<NavItem eventKey="M_SIP">
 					<i className="fa fa-file-text" aria-hidden="true"></i>&nbsp;
