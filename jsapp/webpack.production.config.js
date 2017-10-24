@@ -1,7 +1,6 @@
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require("html-webpack-plugin");
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var WebpackMd5Hash = require('webpack-md5-hash');
 var config = {
     entry: {
         "react": ["react", "react-dom", "react-router", "react-bootstrap", "i18n-react"],
@@ -24,27 +23,29 @@ var config = {
     },
 
     module: {
-        loaders: [{
-            test: /\.css$/,
-            loader: ExtractTextPlugin.extract('css-loader'),
-            exclude: /node_modules/
-        }, {
-            test: /\.(js|jsx)$/,
-            loaders: ['react-hot-loader', 'babel-loader?' + JSON.stringify({
-                cacheDirectory: true,
-                plugins: [
-                    'transform-runtime',
-                    'transform-decorators-legacy'
-                ],
-                presets: ['es2015', 'react', 'stage-0'],
-                env: {
-                    production: {
-                        presets: ['react-optimize']
+        rules: [
+            {
+                test: /\.css$/,
+                use: ExtractTextPlugin.extract(['css-loader'])
+            }, {
+                test: /\.(js|jsx)$/,
+                exclude: /(node_modules)/,
+                use: [{loader: "react-hot-loader"}, {loader: 'babel-loader?' + JSON.stringify({
+                        plugins: [
+                            'transform-runtime',
+                            'transform-decorators-legacy'
+                        ],
+                        presets: ['es2015', 'react', 'stage-0'],
+                        env: {
+                                production: {
+                                    presets: ['react-optimize']
+                                }
+                        }
                     }
-                }
-            })],
-            exclude: /node_modules/
-        }]
+                )}
+                ]
+            }
+        ]
     },
 
     performance: {
@@ -58,10 +59,13 @@ var config = {
             filename: '../index.html',
             template: './index.html',
             inject: true,
-            chunks: ['react', 'index']
+            chunks: ['react', 'index'],
+            minify: {
+                removeComments: true,
+                collapseWhitespace: true
+            }
         }),
 
-        new WebpackMd5Hash(),
 
         new ExtractTextPlugin("./css/xui.[chunkhash:8].css"),
 

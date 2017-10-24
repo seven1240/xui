@@ -12,27 +12,29 @@ var config = {
         filename: 'js/jsx/[name].[githash].js'
     },
     module: {
-        loaders: [{
-            test: /\.css$/,
-            loader: ExtractTextPlugin.extract('style-loader', 'css-loader'),
-            exclude: /node_modules/
-        }, {
-            test: /\.(js|jsx)$/,
-            loaders: ['react-hot', 'babel?' + JSON.stringify({
-                cacheDirectory: true,
-                plugins: [
-                    'transform-runtime',
-                    'transform-decorators-legacy'
-                ],
-                presets: ['es2015', 'react', 'stage-0'],
-                env: {
-                    production: {
-                        presets: ['react-optimize']
+        rules: [
+            {
+                test: /\.css$/,
+                use: ExtractTextPlugin.extract(['css-loader'])
+            }, {
+                test: /\.(js|jsx)$/,
+                exclude: /(node_modules)/,
+                use: [{loader: "react-hot-loader"}, {loader: 'babel-loader?' + JSON.stringify({
+                        plugins: [
+                            'transform-runtime',
+                            'transform-decorators-legacy'
+                        ],
+                        presets: ['es2015', 'react', 'stage-0'],
+                        env: {
+                                production: {
+                                    presets: ['react-optimize']
+                                }
+                        }
                     }
-                }
-            })],
-            exclude: /node_modules/
-        }]
+                )}
+                ]
+            }
+        ]
     },
     performance: {
         hints: false
