@@ -1,6 +1,7 @@
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require("html-webpack-plugin");
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
+__dirname=__dirname+'/';
 var config = {
     entry: {
         "react": ["react", "react-dom", "react-router", "react-bootstrap", "i18n-react"],
