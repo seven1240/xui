@@ -17,7 +17,7 @@ var config = {
 */
 
     output: {
-        path: __dirname + '../www/assets',
+        path: __dirname + '/../www/assets',
         filename: 'js/jsx/[name].[chunkhash:8].js',
         publicPath: '/assets'
     },
