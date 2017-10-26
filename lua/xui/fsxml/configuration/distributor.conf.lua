@@ -30,6 +30,19 @@
  */
 ]]
 
+local api = freeswitch.API()
+local local_ip_v4 = api:execute("global_getvar", "local_ip_v4")
+
+function extract_ip(host)
+	local c = string.find(host, ":")
+
+	if (c) then
+		return host:sub(1, c - 1)
+	end
+
+	return host
+end
+
 build_lists = function()
 	local last_realm = ""
 	local lists = [[<list name="test">
@@ -51,6 +64,24 @@ build_lists = function()
 
 	lists = lists .. "</list>"
 
+	if true then -- if config.auto_parse_conference_room_cluster == true
+		xdb.find_all("conference_rooms", "nbr", function(row)
+			if row.cluster and (row.cluster:sub(1,1) == "[") then
+				cluster = utils.json_decode(row.cluster)
+				nodes = ""
+
+				for k, v in pairs(cluster) do
+					if (extract_ip(v.host) ~= local_ip_v4) then
+						nodes = nodes .. [[    <node name="]] .. v.host .. [[" weight="]] .. v.weight .. '"/>\n'
+					end
+				end
+
+				lists = lists .. "\n" .. [[<list name="]] .. row.nbr .. '">\n' ..
+					nodes .. [[</list>]]
+			end
+		end)
+	end
+
 	return lists
 end
 
@@ -58,3 +89,5 @@ XML_STRING=[[<configuration name="distributor.conf" description="Distributor Con
   <lists>]] .. build_lists() .. [[
   </lists>
 </configuration>]]
+
+-- print(XML_STRING)
