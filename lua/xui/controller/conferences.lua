@@ -58,7 +58,6 @@ function build_dialstr(destNumber, context)
 	end
 
 	return m_dialstring.build(destNumber, context)
-
 	-- return "user/" .. destNumber
 end
 

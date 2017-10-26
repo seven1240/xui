@@ -171,7 +171,11 @@ xdb.find_by_sql(sql, function(row)
 			table.insert(actions_table, {app = "set", data = "api_hangup_hook=lua xui/conference_tracker.lua " .. room.nbr})
 		end
 
-		check = xdb.find_one("conference_members", {room_id = room.id, num = cidNumber})
+		if isLinkedMember(cidNumber) then
+			check = {route = local_ipv4} -- link member always route to myself
+		else
+			check = xdb.find_one("conference_members", {room_id = room.id, num = cidNumber})
+		end
 
 		if room.call_perm == "CONF_CP_CHECK_CID" then
 			if not check then
@@ -240,11 +244,11 @@ xdb.find_by_sql(sql, function(row)
 
 			if room.canvas_count > "1" then
 				if cidNumber == room.moderator then
-					-- table.insert(actions_table, {app = "set", data = "video_initial_watching_canvas=2"})
+					table.insert(actions_table, {app = "set", data = "video_initial_watching_canvas=2"})
 					table.insert(actions_table, {app = "set", data = "video_initial_canvas=1"})
 				elseif room.moderator then -- when moderator is set then it's a special conference
 					table.insert(actions_table, {app = "set", data = "video_initial_watching_canvas=1"})
-					-- table.insert(actions_table, {app = "set", data = "video_initial_canvas=2"})
+					table.insert(actions_table, {app = "set", data = "video_initial_canvas=2"})
 				end
 			end
 
@@ -343,9 +347,9 @@ xdb.find_by_sql(sql, function(row)
 					flags = "+flags{join-vid-floor|moderator}"
 
 					table.insert(actions_table, {app = "set", data = "video_initial_watching_canvas=1"})
-					-- table.insert(actions_table, {app = "set", data = "video_initial_canvas=2"})
+					table.insert(actions_table, {app = "set", data = "video_initial_canvas=2"})
 				elseif room.moderator then -- when moderator is set then it's a special conference
-					-- table.insert(actions_table, {app = "set", data = "video_initial_watching_canvas=2"})
+					table.insert(actions_table, {app = "set", data = "video_initial_watching_canvas=2"})
 					table.insert(actions_table, {app = "set", data = "video_initial_canvas=1"})
 				end
 

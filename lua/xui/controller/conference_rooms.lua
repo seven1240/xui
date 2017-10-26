@@ -33,7 +33,16 @@
 xtra.start_session()
 xtra.require_login()
 
-local prefix = config.block_path .. "/blocks-"
+function extract_ip(host)
+	local c = string.find(host, ":")
+
+	if (c) then
+		return host:sub(1, c - 1)
+	end
+
+	return host
+end
+
 require 'xdb'
 require 'm_conference_profile'
 require 'm_user'
@@ -99,7 +108,24 @@ get('/:id/params', function(params)
 end)
 
 get('/:id/members', function(params)
+	local api = freeswitch.API()
+	local local_ip_v4 = api:execute("global_getvar", "local_ip_v4")
+
 	n, members = xdb.find_by_cond("conference_members", {room_id = params.id }, 'num')
+
+	room = xdb.find("conference_rooms", params.id)
+
+	if room and room.cluster and room.cluster:sub(1,1) == "[" then -- turn JSON string to a JSON Object
+		cluster = utils.json_decode(room.cluster)
+		for k, node in pairs(cluster) do
+			local host = extract_ip(node.host)
+			if host ~= local_ip_v4 then
+				table.insert(members, {id = 0 - n, name = host, description = "Node", num = host, route = 'None'})
+				n = n + 1
+			end
+		end
+	end
+
 	if n > 0 then
 		return members
 	else
