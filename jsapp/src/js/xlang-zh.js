@@ -536,6 +536,7 @@ LANGUAGES["zh"] = {
 	Yes: "是",
 	No: "否",
 	"Module reloaded": "模块重新加载成功",
+	"Distributor reloaded": "集群重新加载成功",
 
 	"Download Log": "下载日志",
 
