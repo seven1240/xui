@@ -96,7 +96,7 @@ class App extends React.Component{
 	}
 
 	componentDidMount() {
-		if (!isAdmin()) return;
+		// if (!isAdmin()) return;
 
 		const _this = this;
 		xFetchJSON("/api/menus?realm=MENUS").then((data) => {
