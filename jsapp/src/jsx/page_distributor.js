@@ -311,12 +311,6 @@ class DistributorPage extends React.Component {
 		this.setState({nodes: nodes, formShow: false});
 	}
 
-	hanldeReload() {
-		verto.fsAPI("reload", "mod_distributor", function(r) {
-			notify(<T.span text="Distributor reloaded"/>);
-		});
-	}
-
 	render() {
 		const distributor = this.state.distributor;
 		var _this = this;
@@ -363,11 +357,6 @@ class DistributorPage extends React.Component {
 		return <div>
 			<ButtonToolbar className="pull-right">
 			<ButtonGroup>
-				<Button onClick={this.hanldeReload.bind(this)}>
-					<i className="fa fa-refresh" aria-hidden="true"></i>&nbsp;
-					<T.span text="Reload"/>
-				</Button>
-
 				{err_msg} { save_btn }
 				<Button onClick={this.handleControlClick} data="edit">
 					<i data="edit" className="fa fa-edit" aria-hidden="true"></i>&nbsp;
@@ -376,7 +365,7 @@ class DistributorPage extends React.Component {
 			</ButtonGroup>
 			</ButtonToolbar>
 
-			<h1><T.span text="Distributor"/> <small>{distributor.name}</small></h1>
+			<h1><T.span text="Distributors"/> <small>{distributor.name}</small></h1>
 			<hr/>
 
 			<Form horizontal id="newDistributor">
@@ -477,6 +466,12 @@ class DistributorsPage extends React.Component {
 		this.setState({rows: rows, formShow: false});
 	}
 
+	hanldeReload() {
+		verto.fsAPI("reload", "mod_distributor", function(r) {
+			notify(<T.span text="Distributor reloaded"/>);
+		});
+	}
+
 	render() {
 		let formClose = () => this.setState({ formShow: false });
 		let toggleDanger = () => this.setState({ danger: !this.state.danger });
@@ -497,6 +492,11 @@ class DistributorsPage extends React.Component {
 		return <div>
 			<ButtonToolbar className="pull-right">
 				<ButtonGroup>
+				<Button onClick={this.hanldeReload.bind(this)}>
+					<i className="fa fa-refresh" aria-hidden="true"></i>&nbsp;
+					<T.span text="Reload"/>
+				</Button>
+
 				<Button onClick={this.handleControlClick} data="new">
 					<i className="fa fa-plus" aria-hidden="true" onClick={this.handleControlClick} data="new"></i>&nbsp;
 					<T.span onClick={this.handleControlClick} data="new" text="New" />
