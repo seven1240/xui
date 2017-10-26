@@ -2,15 +2,13 @@ var webpack = require('webpack');
 var HtmlWebpackPlugin = require("html-webpack-plugin");
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var path = require('path');
-
-__dirname=__dirname+'/';
 var config = {
     entry: {
         "index": ["./src/jsx/index.js", "./src/css/xui.css", "./src/css/dashboard.css"]
     },
 
     output: {
-        path: path.resolve(__dirname+'/', '../www/assets'),
+        path: path.resolve(__dirname, '../www/assets'),
         filename: 'js/jsx/[name].[chunkhash:8].js',
         publicPath: '/assets'
     },

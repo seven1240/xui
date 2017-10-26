@@ -1,7 +1,7 @@
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require("html-webpack-plugin");
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
-__dirname=__dirname+'/';
+var path = require('path');
 var config = {
     entry: {
         "react": ["react", "react-dom", "react-router", "react-bootstrap", "i18n-react"],
@@ -18,7 +18,7 @@ var config = {
 */
 
     output: {
-        path: __dirname + '/../www/assets',
+        path: path.resolve(__dirname, '../www/assets'),
         filename: 'js/jsx/[name].[chunkhash:8].js',
         publicPath: '/assets'
     },
