@@ -57,7 +57,9 @@ build_lists = function()
 			lists = lists .. [[</list><list name="]] .. realm .. '">\n'
 		end
 
-		lists = lists .. [[    <node name="]] .. row.k .. [[" weight="]] .. row.v .. '"/>\n'
+		if row.v > '0' then
+			lists = lists .. [[    <node name="]] .. row.k .. [[" weight="]] .. row.v .. '"/>\n'
+		end
 
 		last_realm = realm
 	end)
@@ -71,7 +73,7 @@ build_lists = function()
 				nodes = ""
 
 				for k, v in pairs(cluster) do
-					if (extract_ip(v.host) ~= local_ip_v4) then
+					if (v.weight > '0') and ((extract_ip(v.host) ~= local_ip_v4)) then
 						nodes = nodes .. [[    <node name="]] .. v.host .. [[" weight="]] .. v.weight .. '"/>\n'
 					end
 				end
