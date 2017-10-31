@@ -25,6 +25,6 @@ local wechat = m_dict.get_obj('WECHAT/' .. realm)
 if (not wechat.APPID) or (not wechat.APPSEC) then
 	stream:write("APPID/APPSEC NOT CONFIGURED!")
 else
-	token = xwechat.access_token(realm, wechat.APPID, wechat.APPSEC)
+	token = xwechat.get_token(realm, wechat.APPID, wechat.APPSEC)
 	stream:write(os.date("%Y-%m-%d %H:%M:%S") .. " token: " .. token .. "\n")
 end
