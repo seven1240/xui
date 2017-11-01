@@ -111,8 +111,10 @@ get('/:id/members', function(params)
 	local api = freeswitch.API()
 	local local_ip_v4 = api:execute("global_getvar", "local_ip_v4")
 
-	n, members = xdb.find_by_cond("conference_members", {room_id = params.id }, 'num')
-
+	n,members = xdb.find_by_sql("SELECT cm.*, g.name AS group_name " .. 
+		" FROM conference_members cm LEFT JOIN groups g " ..
+		" ON cm.group_id = g.id WHERE cm.room_id = " .. params.id ..
+		" ORDER BY group_id asc, sort asc;");
 	room = xdb.find("conference_rooms", params.id)
 
 	if room and room.cluster and room.cluster:sub(1,1) == "[" then -- turn JSON string to a JSON Object
@@ -128,6 +130,31 @@ get('/:id/members', function(params)
 
 	if n > 0 then
 		return members
+	else
+		return '[]'
+	end
+end)
+
+get('/:id/members/:group_id/max', function(params)
+	 n, max = xdb.find_by_sql("SELECT sort FROM conference_members WHERE group_id= " .. params.group_id .. " ORDER BY sort DESC LIMIT 1;")
+
+	 print(serialize(max))
+	 if max then
+	 	return max
+	 else
+	 	return 0
+	 end
+end)
+
+
+get('/:id/remain_members', function(params)
+	sql = "SELECT ug.id, ug.user_id, ug.group_id, u.name, u.extn, u.domain".. 
+	" FROM user_groups ug LEFT JOIN users u ON ug.user_id = u.id "..
+	" WHERE ug.group_id = " .. params.id .." AND user_id NOT IN "..
+	" (SELECT user_id FROM conference_members WHERE user_id is not null);"
+	n, users = xdb.find_by_sql(sql)
+	if n > 0 then
+		return users
 	else
 		return '[]'
 	end
@@ -156,6 +183,7 @@ end)
 post('/:id/members', function(params)
 	print(serialize(params))
 	local member = params.request
+
 	member.room_id = params.id
 	ret = xdb.create_return_id('conference_members', member)
 
@@ -239,7 +267,7 @@ end)
 
 delete('/:id/members/:member_id', function(params)
 	ret = xdb.delete("conference_members", {id = params.member_id, room_id = params.id});
-
+	print(serialize(ret))
 	if ret == 1 then
 		return 200, "{}"
 	else

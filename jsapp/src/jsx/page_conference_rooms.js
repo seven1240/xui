@@ -60,7 +60,6 @@ class NewMember extends React.Component {
 			_this.setState({ errmsg: "Mandatory fields left blank" });
 			return;
 		}
-		console.log("pick2", member);
 		xFetchJSON("/api/conference_rooms/" + this.props.room_id + '/members', {
 			method: "POST",
 			body: JSON.stringify(member)
@@ -125,22 +124,14 @@ class NewMember extends React.Component {
 class GroupBox extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {groups: [], users: []}
-	}
-
-	handleGroupChange(e) {
-		const _this = this;
-
-		xFetchJSON("/api/groups/" + e.value + '/members').then((users) => {
-			_this.setState({users: users});
-		}).catch((msg) => {
-			console.error("get group users err", msg);
-		});
+		this.state = {
+			groups: [], users: [], sortmember: [],
+			group_id: -1, max: 0
+		}
 	}
 
 	componentDidMount() {
 		const _this = this;
-
 		xFetchJSON("/api/groups").then((groups) => {
 			_this.setState({groups: groups});
 		}).catch((msg) => {
@@ -148,76 +139,167 @@ class GroupBox extends React.Component {
 		});
 	}
 
-	handleCheckGroup(e) {
-		const rows = this.state.users.map((user) => {
-			user.checked = e.target.checked;
-			return user;
+	handleGroupChange(e) {
+		const _this = this;
+		this.setState({sortmember: []});
+		let group_id = -1;
+		let group_name = '';
+
+		xFetchJSON("/api/conference_rooms/" + e.value + '/remain_members').then((users) => {
+			if(users.length) {
+				group_id = users[0].group_id;
+			};
+			_this.setState({users: users, group_id: group_id, group_name: e.label});
+			xFetchJSON("/api/conference_rooms/" + e.value + '/members/'+ group_id +'/max').then((obj) => {
+				if(!obj.length) return;
+				let max = obj[0].sort;
+				this.setState({max: max})
+			});
+		}).catch((msg) => {
+			console.error("get group users err", msg);
 		});
 
-		this.setState({users: rows});
+	}
+
+	handleCheckGroup(e) {
+		let users = [];
+		let sortmember = [];
+		this.state.users.map((user) => {
+			user.checked = e.target.checked;
+			users.push(user);
+			if(e.target.checked) {
+				sortmember.push(user);
+			} else {
+				sortmember = [];
+			}
+		});
+		this.setState({users: users, sortmember: sortmember});
 	}
 
 	handleCheckUser(e) {
-		const rows = this.state.users.map((user) => {
-			if (user.id == e.target.value) user.checked = e.target.checked;
-			return user;
-		});
+		let sortmember = this.state.sortmember;
+		let users = [];
+		this.state.users.map((user) => {
+			if(user.id == e.target.value) {
+				user.checked = e.target.checked;
+			}
+			users.push(user);
+		})
 
-		this.setState({users: rows});
+		if(e.target.checked) {
+			this.state.users.map((user) => {
+				if(user.id == e.target.value) {
+					sortmember.push(user);
+				}
+			});
+		} else {
+			sortmember.map((member, index) => {
+				if(member.id == e.target.value){
+					sortmember.splice(index, 1);
+				}
+			})
+		}
+		this.setState({sortmember: sortmember, users: users});
 	}
 
-	batchAddMember() {
+	handleAddGroup(e) {
 		const _this = this;
-		this.state.users.forEach((user) => {
-			if (user.checked) {
-				const member = {
-					name: user.name,
-					description: '',
-					num: user.extn,
-					route: ''
-				};
-				console.log("pick1", member)
+		let group_id = this.state.group_id;
+		let max = parseInt(this.state.max);
+		let route = form2json('#editRouteForm');
 
-				xFetchJSON("/api/conference_rooms/" + this.props.room_id + '/members', {
-					method: "POST",
-					body: JSON.stringify(member)
-				}).then((obj) => {
-					console.log(obj);
-					member.id = obj.id;
-					_this.props.onNewMemberAdded(member);
-				}).catch((msg) => {
-					console.error("member", msg);
-				});
+
+		this.state.sortmember.map((member, index) => {
+			const user = {
+				name: member.name,
+				description: '',
+				num: member.extn,
+				route: '',
+				group_id: group_id,
+				sort: index + max + 1,
+				user_id: member.user_id,
+				route: route.route,
 			}
+			xFetchJSON("/api/conference_rooms/" + this.props.room_id + '/members', {
+					method: "POST",
+					body: JSON.stringify(user)
+				}).then((obj) => {
+					user.id = obj.id;
+					user.group_name = this.state.group_name;
+					_this.props.onNewGroupAdded(user);
+					let e = {value: group_id};
+					_this.setState({sortmember: [], users: []});
+				}).catch((msg) => {
+					console.error("user", msg);
+				});
 		});
+		this.setState({users: []});
+
 	}
 
 	render() {
 		const groups_options = this.state.groups.map(function(group) {
-			return {label: group.id + "-" + group.name, value: group.id, key: group.id}
+			return {label: group.name, value: group.id, key: group.id}
 		});
+		let sortmember = this.state.sortmember;
+		let max = parseInt(this.state.max);
+
 		return <div style={{padding: "20px", border: "1px solid #ddd", borderRadius: "4px"}}>
-			<h4><T.span text="Select Groups"/></h4>
+			<h4 style={{display: "inline-block"}}><T.span text="Select Groups"/></h4>
+			<a style={{marginLeft: "10px"}}><T.span text="Add"/><T.span text="Route"/></a>
+			<Form style={{marginLeft: "10px", display: "inline-block"}} id="editRouteForm">
+				<input type="text" name="route"/>
+			</Form>
 			<hr/>
-			<Select style={{ minWidth:"130px", maxWidth:"200px"}}
-				placeholder={T.translate('Please Select')}
-				options={groups_options}
-				onChange={this.handleGroupChange.bind(this)}/>
-			<ul style={{listStyle: "none"}}>
-				<Checkbox onClick={this.handleCheckGroup.bind(this)} inline><T.span text="Select All"/></Checkbox>
-				{
-					this.state.users.map((user) => {
-						return <li key={user.id}>
-							<Checkbox checked={user.checked} onClick={this.handleCheckUser.bind(this)} value={user.id}>
-								{user.extn} - {user.name}
-							</Checkbox>
-						</li>
-					})
-				}
-			</ul>
+			<div style={{width: "200px", display: "inline-block"}}>
+				<Select style={{ minWidth:"130px", maxWidth:"200px"}}
+					placeholder={T.translate('Please Select')}
+					options={groups_options}
+					onChange={this.handleGroupChange.bind(this)}/>
+				<a style={{fontSize: "12px", color: "#ddd"}}><T.span text="In order to add group members" /></a>
+				<ul style={{listStyle: "none"}}>
+					<li style={{display: this.state.users.length > 0 ? "block": "none"}}>
+						<Checkbox onClick={this.handleCheckGroup.bind(this)}>
+							<b><T.span text="Select All"/></b>
+						</Checkbox>
+					</li>
+					{
+						this.state.users.map((user) => {
+							return <li key={user.id}>
+								<Checkbox checked={user.checked} onClick={this.handleCheckUser.bind(this)} value={user.id}>
+									{user.extn} - {user.name}
+								</Checkbox>
+							</li>
+						})
+					}
+				</ul>
+			</div>
+			{
+				!(sortmember.length > 0) ? null: 
+					<table className="table" style={{float: "right", width: "50%"}}>
+						<thead>
+							<tr>
+								<th><T.span text="Sort"/></th>
+								<th><T.span text="Name"/></th>
+								<th><T.span text="Number"/></th>
+							</tr>
+						</thead>
+						<tbody>
+							{
+								this.state.sortmember.map((member, index) => {
+									return <tr key={index}>
+										<td style={{border: "0px"}}>{index+max+1}</td>
+										<td style={{border: "0px"}}>{member.name}</td>
+										<td style={{border: "0px"}}>{member.extn}</td>
+									</tr>
+								})
+							}
+						</tbody>
+					</table>
+			}
 
 			<br/>
-			<Button onClick={this.batchAddMember.bind(this)} bsStyle="primary"><T.span text="Add Member(s)"/></Button>
+			<Button onClick={this.handleAddGroup.bind(this)} bsStyle="primary"><T.span text="Add Group"/></Button>
 		</div>
 	}
 
@@ -227,13 +309,21 @@ class RoomMembers extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {members: [], memberFormShow: false, danger: false,
-			highlight: false, batchAddmemberShow: false, groups: []}
+			highlight: false, groups: [], addGroupShow: false}
+			// batchAddmemberShow: false, 
+	}
+
+	componentDidMount() {
+		const _this = this;
+
+		xFetchJSON("/api/conference_rooms/" + _this.props.room.id + "/members").then((data) => {
+			_this.setState({members: data});
+		});
 	}
 
 	handleMemberAdded(member) {
 		var members = this.state.members;
 		members.unshift(member);
-		console.log("mmmmmmm", members);
 		this.setState({members: members, memberFormShow: false});
 	}
 
@@ -276,7 +366,6 @@ class RoomMembers extends React.Component {
 			var members = _this.state.members.filter(function(m) {
 				return m.id != id;
 			});
-
 			_this.setState({members: members});
 			
 		}).catch((msg) => {
@@ -312,8 +401,6 @@ class RoomMembers extends React.Component {
 
 		let i = 0;
 		let count = 0;
-
-		console.log("x", x);
 
 		const members = this.state.members.map((m) => {
 			if (m.name.indexOf('.') == -1) {
@@ -355,14 +442,6 @@ class RoomMembers extends React.Component {
 		});
 	}
 
-	componentDidMount() {
-		const _this = this;
-
-		xFetchJSON("/api/conference_rooms/" + _this.props.room.id + "/members").then((data) => {
-			_this.setState({members: data});
-		});
-	}
-
 	handleChange(id, obj) {
 		const _this = this;
 
@@ -377,6 +456,12 @@ class RoomMembers extends React.Component {
 			})
 			_this.setState({members: members});
 		});
+	}
+
+	handleGroupAdded(member) {
+		var members = this.state.members;
+		members.unshift(member);
+		this.setState({members: members, memberFormShow: false});
 	}
 
 	render() {
@@ -418,26 +503,32 @@ class RoomMembers extends React.Component {
 					<T.span text="Add Member" />
 				</Button>
 
-				<Button onClick={() => this.setState({ batchAddmemberShow: !this.state.batchAddmemberShow })}>
+				{/*<Button onClick={() => this.setState({ batchAddmemberShow: !this.state.batchAddmemberShow })}>
 					<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
 					<T.span text="Batch" />
 					<T.span text="Add Member" />
-				</Button>
+				</Button>*/}
 
+				<Button onClick={() => this.setState({ addGroupShow: !this.state.addGroupShow })}>
+					<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
+					<T.span text="Add Group" />
+				</Button>
 			</ButtonGroup>
 			</ButtonToolbar>
 			<h2><T.span text="Members"/></h2>
-
 			{
-				!this.state.batchAddmemberShow ? null :
-				<GroupBox room_id={this.props.room.id} onNewMemberAdded={this.handleMemberAdded.bind(this)}/>
+				!this.state.addGroupShow ? null:
+					<GroupBox room_id={this.props.room.id} onNewGroupAdded={this.handleGroupAdded.bind(this)}/>
 			}
 
 			<table className="table">
 				<tbody>
 				<tr>
+					<th><T.span text="Line Num"/></th>
 					<th><T.span text="Name" data="k"/></th>
 					<th><T.span text="Number"/></th>
+					<th><T.span text="Belong To Group"/></th>
+					<th><T.span text="Sort"/></th>
 					<th><T.span text="Description"/></th>
 					<th><T.span text="Route"/></th>
 					<th style={{textAlign: "right"}}>
@@ -445,8 +536,9 @@ class RoomMembers extends React.Component {
 					</th>
 				</tr>
 				{
-					this.state.members.map(function (m){
+					this.state.members.map(function (m, index){
 						return <tr key={m.id}>
+							<td>{index+1}</td>
 							<td><RIEInput value={_this.state.highlight ? (m.name ? m.name : T.translate("Click to Change")) : m.name} change={(obj) => _this.handleChange(m.id, obj)}
 								propName="name"
 								className={_this.state.highlight ? "editable" : ""}
@@ -456,6 +548,14 @@ class RoomMembers extends React.Component {
 							</td>
 							<td><RIEInput value={m.num} change={(obj) => _this.handleChange(m.id, obj)}
 								propName="num"
+								className={_this.state.highlight ? "editable" : ""}
+								validate={_this.isStringAcceptable}
+								classLoading="loading"
+								classInvalid="invalid"/>
+							</td>
+							<td>{m.group_name}</td>
+							<td><RIEInput value={m.sort ? m.sort : ''} change={(obj) => _this.handleChange(m.id, obj)}
+								propName="sort"
 								className={_this.state.highlight ? "editable" : ""}
 								validate={_this.isStringAcceptable}
 								classLoading="loading"
