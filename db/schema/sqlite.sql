@@ -301,6 +301,8 @@ CREATE TABLE conference_members (
 	description VARCHAR,
 	num VARCHAR,
 	route VARCHAR,
+	sort INTEGER,
+	group_id INTEGER,
 
 	created_at DATETIME DEFAULT (DATETIME('now', 'localtime')),
 	updated_at DATETIME DEFAULT (DATETIME('now', 'localtime')),

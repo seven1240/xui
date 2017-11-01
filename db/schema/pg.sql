@@ -240,6 +240,8 @@ CREATE TABLE conference_members (
 	description VARCHAR,
 	num VARCHAR,  -- conference number
 	route VARCHAR,
+	sort INTEGER,
+	group_id INTEGER,
 
 	created_at TIMESTAMP(0) DEFAULT now(),
 	updated_at TIMESTAMP(0) DEFAULT now(),
