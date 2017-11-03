@@ -173,6 +173,8 @@ LANGUAGES["zh"] = {
 	"Call Linked Members": "呼叫所有连接",
 	"Push Main Canvas": "推送主会场",
 	"Push Sub Canvas": "推送合屏",
+	"Main Room Watching": "主会场单看",
+
 	"Reset": "重置",
 
 	"Video Mode": "视频模式",
