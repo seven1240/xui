@@ -120,7 +120,7 @@ class OverViewPage extends React.Component {
 		let mess = <div>
 			<Jumbotron style={{backgroundColor: "#fff"}}>
 				<b><T.span text="Session Peak Max"/></b>: &nbsp;{this.state.sessionMax} <hr/>
-				<b><T.span text="CPU Usage"/></b>: &nbsp; {(100-this.state.idleCPU)+' %'}<hr/>
+				<b><T.span text="CPU Usage"/></b>: &nbsp; {((100-this.state.idleCPU).toFixed(2))+' %'}<hr/>
 				<b><T.span text="Max Sessions"/></b>: &nbsp; {this.state.maxSessions}<hr/>
 				<b><T.span text="Session Count"/></b>: &nbsp; {this.state.sessionCount}<hr/>
 				<b><T.span text="Session Per Sec Max"/></b>: &nbsp; {this.state.sessionPerSecMax}<hr/>
