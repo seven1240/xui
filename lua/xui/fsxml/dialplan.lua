@@ -165,6 +165,8 @@ xdb.find_by_sql(sql, function(row)
 		local check = nil
 		local matched = false
 
+		table.insert(actions_table, {app = "info", data = ""})
+
 		if true then -- track conference
 			table.insert(actions_table, {app = "set", data = "execute_on_answer=lua xui/conference_tracker.lua " .. room.nbr})
 			table.insert(actions_table, {app = "set", data = "session_in_hangup_hook=true"})
@@ -177,7 +179,15 @@ xdb.find_by_sql(sql, function(row)
 			check = xdb.find_one("conference_members", {room_id = room.id, num = cidNumber})
 			if check and check.sort then
 				table.insert(actions_table, {app = "export", data = "xui_conference_order=" .. check.sort})
+				table.insert(actions_table, {app = "export", data = "nolocal:sip_h_X-xui_conference_order=" .. check.sort})
 			end
+		end
+
+		x_conference_order = params:getHeader("variable_sip_h_X-xui_conference_order")
+
+		if conference_order then
+			freeswitch.consoleLog("ERR", "conference_order: " .. x_conference_order);
+			table.insert(actions_table, {app = "set", data = "xui_conference_order=" .. x_conference_order})
 		end
 
 		if room.call_perm == "CONF_CP_CHECK_CID" then
