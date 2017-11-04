@@ -175,6 +175,9 @@ xdb.find_by_sql(sql, function(row)
 			check = {route = local_ipv4} -- link member always route to myself
 		else
 			check = xdb.find_one("conference_members", {room_id = room.id, num = cidNumber})
+			if check and check.sort then
+				table.insert(actions_table, {app = "export", data = "xui_conference_order=" .. check.sort})
+			end
 		end
 
 		if room.call_perm == "CONF_CP_CHECK_CID" then
