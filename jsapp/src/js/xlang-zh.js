@@ -265,6 +265,7 @@ LANGUAGES["zh"] = {
 	"Confirm to Delete ?": "确认删除？",
 	"Confirm to Close?": "确认关闭？",
 	"Confirm to hang up chosen members?": "该操作会挂掉您选择的成员，是否继续？",
+	"Can't Delete Because The Child Group Exist!": "不能删除因为子组还在!",
 	"Click me to toggle fast delete mode": "点击以切换快速删除模式",
 	"Local User": "本地用户",
 	System: "系统",

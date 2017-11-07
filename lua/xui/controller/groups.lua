@@ -117,7 +117,7 @@ end)
 get('/build_group_tree', function(params)
 	parent_groups = {}
 	groups_tab  = {}
-	n, parent_groups = xdb.find_by_cond("groups", "group_id IS NULL")
+	n, parent_groups = xdb.find_by_cond("groups", "group_id IS NULL", "sort")
 
 	if n > 0 then
 		build_group_tree(parent_groups, groups_tab)
@@ -163,7 +163,7 @@ get('/:id/remain_members', function(params)
 end)
 
 get('/:id/members', function(params)
-	sql = "SELECT ug.id, ug.user_id, ug.group_id, u.name, u.extn, u.domain from user_groups ug LEFT JOIN users u ON ug.user_id = u.id WHERE ug.group_id = " .. params.id
+	sql = "SELECT ug.id, ug.user_id, ug.group_id, ug.sort, u.name, u.extn, u.domain from user_groups ug LEFT JOIN users u ON ug.user_id = u.id WHERE ug.group_id = " .. params.id .. "ORDER BY sort"
 	n, members = xdb.find_by_sql(sql)
 	if n > 0 then
 		return members
@@ -218,13 +218,73 @@ put('/:id', function(params)
 	end
 end)
 
-post('/', function(params)
+put('/:id/members', function(params)
 	print(serialize(params))
+
+	ret = xdb.update("groups", params.request)
+	if ret then
+		return 200, "{}"
+	else
+		return 500
+	end
+end)
+
+put('/drag/:start_id/:end_id', function(params)
+	print(serialize(params))
+	dragstart = {}
+	dragend = {}
+	n, start_sort = xdb.find_by_sql("SELECT sort FROM user_groups WHERE id = " .. params.start_id);
+	m, end_sort = xdb.find_by_sql("SELECT sort FROM user_groups WHERE id = " .. params.end_id);
+	start_num = start_sort[1].sort
+	end_num = end_sort[1].sort
+	print("99000", start_num)
+	print("99000", end_num)
+
+
+	if start_num < end_num then
+		for i = start_num, end_num, 1 do
+			n, rows = xdb.find_by_sql("SELECT id, sort FROM user_groups WHERE sort = " .. i);
+			row = rows[1]
+			row.sort = tostring(row.sort - 1)
+			xdb.update("user_groups", row)
+		end
+	else
+		for j = start_num, end_num, -1 do
+			m, rows = xdb.find_by_sql("SELECT id, sort FROM user_groups WHERE sort = " .. j);
+			row = rows[1]
+			row.sort = tostring(row.sort + 1)
+			xdb.update("user_groups", row)
+		end
+	end
+
+	dragstart.id = params.start_id
+	dragstart.sort = end_num
+	ret = xdb.update("user_groups", dragstart)
+
+	if ret then
+		return 200, "{}"
+	else
+		return 500
+	end
+
+end)
+
+post('/', function(params)
+	-- print(serialize(params))
 
 	local group = params.request
 
 	if group.group_id == "" then
 		group.group_id = nil
+	else
+		n, level = xdb.find_by_sql("SELECT level FROM groups WHERE id = " .. group.group_id)
+		n, sort = xdb.find_by_sql("SELECT sort FROM groups WHERE group_id = " .. group.group_id .. "ORDER BY sort DESC LIMIT 1;")
+		group.level = tonumber(level[1].level) + 1
+		if next(sort) == nil then
+			group.sort = 1
+		else 
+			group.sort = tonumber(sort[1].sort + 1)
+		end
 	end
 
 	ret = xdb.create_return_id('groups', group)
@@ -283,7 +343,7 @@ delete('/:id', function(params)
 	n, child_groups = xdb.find_by_cond("groups", {group_id = params.id})
 
 	if (n > 0) then
-		return 400, "{ERR: group is being deleted has " .. n .. " children}"
+		return 400, "{group is being deleted has " .. n .. " children}"
 	else
 		ret = xdb.delete("groups", params.id);
 		if ret == 1 then
