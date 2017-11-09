@@ -162,7 +162,7 @@ class GroupMembers extends React.Component {
 		e.preventDefault();
 		const _this = this;
 		let row = e.target.parentNode;
-		row.setAttribute('style', 'border: 0; background-color: #fff');
+		row.setAttribute('style', 'border-top: 1px solid #ddd; background-color: #fff');
 		let startsort = parseInt(this.state.startsort);
 		let dropsort = parseInt(row.getAttribute("value"));
 
