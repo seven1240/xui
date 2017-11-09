@@ -95,10 +95,7 @@ get('/:id', function(params)
 end)
 
 get('/:id/params', function(params)
-	print(serialize(params))
 	n, conference_params = m_conference_profile.params_font(params.id)
-	print(n)
-	print(serialize(conference_params))
 
 	if n > 0 then
 		return conference_params
@@ -136,9 +133,9 @@ get('/:id/members', function(params)
 end)
 
 get('/:id/members/:group_id/max', function(params)
+	print("3366", serialize(params))
 	 n, max = xdb.find_by_sql("SELECT sort FROM conference_members WHERE group_id= " .. params.group_id .. " ORDER BY sort DESC LIMIT 1;")
 
-	 print(serialize(max))
 	 if max then
 	 	return max
 	 else
@@ -147,11 +144,12 @@ get('/:id/members/:group_id/max', function(params)
 end)
 
 
-get('/:id/remain_members', function(params)
+get('/:id/remain_members/:group_id', function(params)
+	print("998877", serialize(params))
 	sql = "SELECT ug.id, ug.user_id, ug.group_id, u.name, u.extn, u.domain".. 
 	" FROM user_groups ug LEFT JOIN users u ON ug.user_id = u.id "..
-	" WHERE ug.group_id = " .. params.id .." AND user_id NOT IN "..
-	" (SELECT user_id FROM conference_members WHERE user_id is not null);"
+	" WHERE ug.group_id = " .. params.group_id .." AND user_id NOT IN "..
+	" (SELECT user_id FROM conference_members WHERE user_id is not null AND room_id = " .. params.id .. ");"
 	n, users = xdb.find_by_sql(sql)
 	if n > 0 then
 		return users

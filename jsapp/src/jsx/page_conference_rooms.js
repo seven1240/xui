@@ -145,12 +145,12 @@ class GroupBox extends React.Component {
 		let group_id = -1;
 		let group_name = '';
 
-		xFetchJSON("/api/conference_rooms/" + e.value + '/remain_members').then((users) => {
+		xFetchJSON("/api/conference_rooms/" + this.props.room_id + '/remain_members/' + e.value).then((users) => {
 			if(users.length) {
 				group_id = users[0].group_id;
 			};
 			_this.setState({users: users, group_id: group_id, group_name: e.label});
-			xFetchJSON("/api/conference_rooms/" + e.value + '/members/'+ group_id +'/max').then((obj) => {
+			xFetchJSON("/api/conference_rooms/" + this.props.room_id + '/members/'+ group_id +'/max').then((obj) => {
 				if(!obj.length) return;
 				let max = obj[0].sort;
 				this.setState({max: max})
