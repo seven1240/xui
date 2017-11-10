@@ -649,7 +649,7 @@ CREATE TABLE conference_cdrs (
 	completed_at TIMESTAMP(0) NOT NULL,
 	hostname VARCHAR,
 	rate INTEGER,
-	interval INTEGER,
+	interval INTEGER
 );
 
 CREATE TABLE conference_cdr_members (

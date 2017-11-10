@@ -120,7 +120,6 @@ INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Conference', '/conferences');
 INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Tickets', '/tickets');
 INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'CDR', '/cdrs');
 INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'CCDR', '/conference_cdrs');
-INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'About', '/about');
 -- INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Traffic Dicts', '/traffic_dicts');
 -- INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Dropdown', 'DROPDOWN'); -- v = 'DROPDOWN' for drop menus
 -- INSERT INTO dicts (realm, k, v) VALUES ('MENUS_Dropdown', 'About', '/about');
@@ -128,6 +127,7 @@ INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'About', '/about');
 INSERT INTO dicts (realm, k, v) VALUES ('RMENUS', 'Settings', '/settings');
 -- INSERT INTO dicts (realm, k, v) VALUES ('Profiles', 'Settings', '/profiles');
 INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Server Monitor', '/server_monitor');
+INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'About', '/about');
 
 INSERT INTO dicts (realm, k, v) VALUES ('CONF_VIDEO_MODE', 'CONF_VIDEO_MODE_PASSTHROUGH', 'passthrough');
 INSERT INTO dicts (realm, k, v) VALUES ('CONF_VIDEO_MODE', 'CONF_VIDEO_MODE_TRANSCODE', 'transcode');
