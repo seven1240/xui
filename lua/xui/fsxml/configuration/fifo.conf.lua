@@ -30,6 +30,32 @@
  */
 ]]
 
+local globals = {}
+
+function get_globals() -- global vars
+	local api = freeswitch.API()
+	local ret = api:execute("global_getvar")
+
+	for line in ret:gmatch("[^\n]+") do
+		local k, v = line:match("([^=]+)=([^=]*)")
+		-- print("================= k: " .. k .. " v: " .. v)
+		globals[k] = v
+	end
+end
+
+function expand(s)
+	e = s:gsub("%$%${[^}]+}", function(token)
+		local k = token:sub(4, -2)
+		-- freeswitch.consoleLog('INFO', token .. '\n')
+		r = globals[k]
+		if not r then
+			r = token
+		end
+		return r
+	end)
+	return e
+end
+
 function build_members(fifo)
 	member = ""
 	xdb.find_by_cond("fifo_members", {fifo_id = fifo.id}, id, function(row)
@@ -77,8 +103,10 @@ end
 
 fifo_params = ""
 
+get_globals()
+
 xdb.find_by_cond("dicts", {realm = 'FIFO'}, nil, function(row)
-	fifo_params = fifo_params .. [[<param name="]] .. row.k .. [[" value="]] .. row.v .. [["/>]] .. "\n"
+	fifo_params = fifo_params .. [[<param name="]] .. row.k .. [[" value="]] .. expand(row.v) .. [["/>]] .. "\n"
 end)
 
 
