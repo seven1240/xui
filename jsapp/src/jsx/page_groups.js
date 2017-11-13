@@ -200,31 +200,31 @@ class GroupMembers extends React.Component {
 		const _this = this;
 		var members = this.state.members.map(function(member) {
 			return <tr key={member.id} value={member.id}>
-					<td draggable={"true"}
+					<td draggable={"true"} style={{cursor: "pointer"}}
 						onDragStart={_this.handleDragSortStart}
 						onDragEnter={_this.handleDragSortEnter.bind(this)}
 						onDragLeave={_this.handleDragSortLeave.bind(this)}
 						onDragOver={_this.handleDragSortOver.bind(this)} 
 						onDrop={_this.handleDragSortDrop}>{member.sort}</td>
-					<td draggable={"true"}
+					<td draggable={"true"} style={{cursor: "pointer"}}
 						onDragStart={_this.handleDragSortStart}
 						onDragEnter={_this.handleDragSortEnter.bind(this)}
 						onDragLeave={_this.handleDragSortLeave.bind(this)}
 						onDragOver={_this.handleDragSortOver.bind(this)} 
 						onDrop={_this.handleDragSortDrop}><Link to={`/settings/users/${member.user_id}`}>{member.extn}</Link></td>
-					<td draggable={"true"}
+					<td draggable={"true"} style={{cursor: "pointer"}}
 						onDragStart={_this.handleDragSortStart}
 						onDragEnter={_this.handleDragSortEnter.bind(this)}
 						onDragLeave={_this.handleDragSortLeave.bind(this)}
 						onDragOver={_this.handleDragSortOver.bind(this)} 
 						onDrop={_this.handleDragSortDrop}>{member.name}</td>
-					<td draggable={"true"}
+					<td draggable={"true"} style={{cursor: "pointer"}}
 						onDragStart={_this.handleDragSortStart}
 						onDragEnter={_this.handleDragSortEnter.bind(this)}
 						onDragLeave={_this.handleDragSortLeave.bind(this)}
 						onDragOver={_this.handleDragSortOver.bind(this)} 
 						onDrop={_this.handleDragSortDrop}>{member.domain}</td>
-					<td draggable={"true"}
+					<td draggable={"true"} style={{cursor: "pointer"}}
 						onDragStart={_this.handleDragSortStart}
 						onDragEnter={_this.handleDragSortEnter.bind(this)}
 						onDragLeave={_this.handleDragSortLeave.bind(this)}
