@@ -193,6 +193,8 @@ LANGUAGES["zh"] = {
 	"Save Route": "保存路由",
 	"Auto Calc Route": "自动计算路由",
 	"Clear Route": "清除路由",
+	"Click to set the group route": "点击设置该组路由",
+	"Choose A Node": "选择一个路由节点",
 	Total: "总数",
 	"Move to canvas": "移动到画布",
 	"Watching canvas": "观看画布",
@@ -579,6 +581,9 @@ LANGUAGES["zh"] = {
 	ACL: "访问控制列表",
 	Default: "默认",
 	node: "节点",
+	Node: "节点",
+	"No Group": "未分组成员",
+
 	Cidr: "无类域间路由",
 
 	"Server Mac Address": "服务器Mac地址",

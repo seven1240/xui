@@ -51,7 +51,6 @@ class EditControl extends FormControl {
 				const options = props.options;
 				delete props.options;
 				// delete props.defaultValue;
-
 				let options_tag = options.map(function(opt) {
 					return <option key={opt[0]} value={opt[0]}>{T.translate(opt[1])}</option>
 				});
@@ -75,7 +74,7 @@ class EditControl extends FormControl {
 			text = "**********";
 		}
 
-		return <FormControl.Static><T.span text={text ? text : props.defaultValue}/></FormControl.Static>
+		return <FormControl.Static style={this.props.style}><T.span text={text ? text : props.defaultValue}/></FormControl.Static>
 	}
 
 }

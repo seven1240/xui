@@ -60,6 +60,7 @@ class NewMember extends React.Component {
 			_this.setState({ errmsg: "Mandatory fields left blank" });
 			return;
 		}
+		member.room_id = this.props.room_id;
 		xFetchJSON("/api/conference_rooms/" + this.props.room_id + '/members', {
 			method: "POST",
 			body: JSON.stringify(member)
@@ -209,29 +210,26 @@ class GroupBox extends React.Component {
 		let route = form2json('#editRouteForm');
 
 
-		this.state.sortmember.map((member, index) => {
-			const user = {
+		const users = this.state.sortmember.map((member, index) => {
+			return {
 				name: member.name,
 				description: '',
 				num: member.extn,
-				route: '',
-				group_id: group_id,
-				sort: index + max + 1,
-				user_id: member.user_id,
 				route: route.route,
+				group_id: group_id,
+				user_id: member.user_id,
+				room_id: _this.props.room_id
 			}
-			xFetchJSON("/api/conference_rooms/" + this.props.room_id + '/members', {
-					method: "POST",
-					body: JSON.stringify(user)
-				}).then((obj) => {
-					user.id = obj.id;
-					user.group_name = this.state.group_name;
-					_this.props.onNewGroupAdded(user);
-					let e = {value: group_id};
-					_this.setState({sortmember: [], users: []});
-				}).catch((msg) => {
-					console.error("user", msg);
-				});
+		});
+
+		xFetchJSON("/api/conference_rooms/" + this.props.room_id + '/members', {
+			method: "POST",
+			body: JSON.stringify(users)
+		}).then((obj) => {
+			_this.props.onNewGroupAdded();
+			_this.setState({sortmember: [], users: []});
+		}).catch((msg) => {
+			console.error("user", msg);
 		});
 		this.setState({users: []});
 
@@ -309,22 +307,27 @@ class RoomMembers extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {members: [], memberFormShow: false, danger: false,
-			highlight: false, groups: [], addGroupShow: false}
+			highlight: false, groups: [], addGroupShow: false,
+			startsort: 0, clusterstate: false, controllgroupid: ""
+		}
 			// batchAddmemberShow: false, 
+		this.handleUnfoldMember = this.handleUnfoldMember.bind(this);
+		this.handleSetGroupRoute = this.handleSetGroupRoute.bind(this);
+		this.handleDragSortStart = this.handleDragSortStart.bind(this);
+		this.handleDragSortDrop = this.handleDragSortDrop.bind(this);
 	}
 
 	componentDidMount() {
 		const _this = this;
-
 		xFetchJSON("/api/conference_rooms/" + _this.props.room.id + "/members").then((data) => {
 			_this.setState({members: data});
 		});
 	}
 
 	handleMemberAdded(member) {
-		var members = this.state.members;
-		members.unshift(member);
-		this.setState({members: members, memberFormShow: false});
+		xFetchJSON("/api/conference_rooms/" + this.props.room.id + "/members").then((data) => {
+			this.setState({members: data, memberFormShow: false});
+		});
 	}
 
 	handleSetAsModerator(e, num) {
@@ -363,11 +366,9 @@ class RoomMembers extends React.Component {
 			method: "DELETE"
 		}).then((obj) => {
 			console.log("deleted")
-			var members = _this.state.members.filter(function(m) {
-				return m.id != id;
+			xFetchJSON("/api/conference_rooms/" + _this.props.room.id + "/members").then((data) => {
+				_this.setState({members: data});
 			});
-			_this.setState({members: members});
-			
 		}).catch((msg) => {
 			console.error("conference membe", msg);
 		});
@@ -423,7 +424,8 @@ class RoomMembers extends React.Component {
 		const _this = this;
 
 		this.state.members.forEach((member) => {
-			// if (!member.route) return;
+			if (!member.route) return;
+			if (member.id < 0) return;
 
 			xFetchJSON("/api/conference_rooms/" + this.props.room.id + "/members/" + member.id, {
 				method: 'PUT',
@@ -443,25 +445,104 @@ class RoomMembers extends React.Component {
 	}
 
 	handleChange(id, obj) {
-		const _this = this;
-
+ 		const _this = this;
 		xFetchJSON("/api/conference_rooms/" + _this.props.room.id + "/members/" + id, {
-			method: 'PUT',
+ 			method: 'PUT',
 			body: JSON.stringify(obj)
-		}).then((data) => {
-			const members = this.state.members.map((m) => {
+		}).then((ret) => {
+ 			const members = this.state.members.map((m) => {
 				if (m.id == id) m = Object.assign(m, obj);
-
-				return m;
+				m.unsaved = false;
+ 				return m;
 			})
-			_this.setState({members: members});
+			this.setState({members: members});
+			notify(<T.span text={{key:"Saved at", time: Date()}}/>);
+		}).catch((err) => {
+			console.error("Save route ERR");
+ 		});
+ 	}
+
+	handleGroupAdded(member) {
+		xFetchJSON("/api/conference_rooms/" + this.props.room.id + "/members").then((data) => {
+			this.setState({members: data, memberFormShow: false});
 		});
 	}
 
-	handleGroupAdded(member) {
-		var members = this.state.members;
-		members.unshift(member);
-		this.setState({members: members, memberFormShow: false});
+	handleUnfoldMember(e) {
+		let control = e.currentTarget;
+		let table = e.currentTarget.parentNode.nextElementSibling;
+		control.className = control.className == "fa fa-minus-square-o" ? "fa fa-plus-square-o" : "fa fa-minus-square-o";
+		table.style.display = table.style.display=='table' ? 'none' : 'table';
+	}
+
+	handleSetGroupRoute(e) {
+		let group_id = e.currentTarget.getAttribute("data-group");
+		if(this.state.controllgroupid != '') {
+			let members = this.state.members;
+			let cluster = e.currentTarget.previousSibling.value;
+			let data = members.filter((member) => {
+				member.route = cluster;
+				return member.group_id == group_id
+			})
+			data.forEach((member) => {
+				if (!member.route) return;
+				xFetchJSON("/api/conference_rooms/" + this.props.room.id + "/members/" + member.id, {
+					method: 'PUT',
+					body: JSON.stringify({route: member.route})
+				}).then((ret) => {
+					xFetchJSON("/api/conference_rooms/" + this.props.room.id + "/members").then((data) => {
+						this.setState({members: data, clusterstate: false});
+					});
+					notify(<T.span text={{key:"Saved at", time: Date()}}/>);
+				}).catch((err) => {
+					console.error("Save route ERR");
+				});
+			});
+			this.setState({controllgroupid: '', clusterstate: false});
+			return;
+		}
+		this.setState({clusterstate: true, controllgroupid: group_id });
+	}
+
+	handleDragSortStart (e) {
+		let startsort = e.currentTarget.getAttribute("value");
+		this.state.startsort = startsort;
+	}
+
+	handleDragSortDrop (e) {
+		e.preventDefault();
+		const _this = this;
+		let row = e.currentTarget;
+		row.setAttribute('style', 'border-top: 1px solid #ddd; background-color: #fff');
+		let startsort = parseInt(this.state.startsort);
+		let dropsort = parseInt(row.getAttribute("value"));
+
+		if(startsort > 0 && dropsort > 0) {
+			xFetchJSON("/api/conference_rooms/drag/" + startsort + "/" + dropsort, {
+				method: "PUT"
+			}).then((obj) => {
+				xFetchJSON("/api/conference_rooms/" + _this.props.room.id + "/members").then((data) => {
+					_this.setState({members: data});
+				});
+			}).catch((msg) => {
+				console.error("group", msg);
+				this.setState({errmsg: '' + msg + ''});
+			})
+		}
+	}
+
+	handleDragSortEnter(e) {
+		let row = e.currentTarget;
+		row.setAttribute('style', 'border: 2px dashed #3f3f3f; background-color: #f5f5f5');
+	}
+
+	handleDragSortOver(e) {
+		e.preventDefault();
+	}
+
+	handleDragSortLeave (e) {
+		let row = e.currentTarget;
+		row.setAttribute('style', 'border: 0; background-color: #fff');
 	}
 
 	render() {
@@ -469,6 +550,126 @@ class RoomMembers extends React.Component {
 		const toggleDanger = () => this.setState({ danger: !this.state.danger });
 		const danger = this.state.danger ? "danger" : null
 		const _this = this;
+		let controllgroupid = this.state.controllgroupid;
+		let members = this.state.members;
+		let rows = <div></div>;
+		if(members.length > 0){
+			let arr = [];
+			let arr_group = [];
+			let group_members = {};
+			members.map(function (member, index){
+				if(group_members[member.group_id]) {
+					group_members[member.group_id].push(member);
+				} else {
+					group_members[member.group_id] = [member];
+				}
+			});
+
+			let group_id_arr = [];
+			let g_member = {};
+
+			for(let group_id in group_members) {
+				group_id_arr.push(group_id);
+			}
+
+			rows = group_id_arr.map((group_id, index) => {
+				if(group_members[group_id] instanceof Array) {
+					g_member = group_members[group_id].map((m, index) => {
+						return <tr key={index} value={m.id}
+							draggable={"true"} style={{cursor: "pointer"}}
+							onDragStart={_this.handleDragSortStart}
+							onDragEnter={_this.handleDragSortEnter.bind(this)}
+							onDragLeave={_this.handleDragSortLeave.bind(this)}
+							onDragOver={_this.handleDragSortOver.bind(this)} 
+							onDrop={_this.handleDragSortDrop}>
+							<td style={{cursor: "pointer"}}>{m.sort ? m.sort : 'null'}</td>
+							<td style={{cursor: "pointer"}}><RIEInput value={_this.state.highlight ? (m.name ? m.name : T.translate("Click to Change")) : m.name} change={(obj) => _this.handleChange(m.id, obj)}
+								propName="name"
+								className={_this.state.highlight ? "editable" : ""}
+								validate={_this.isStringAcceptable}
+								classLoading="loading"
+								classInvalid="invalid"/>
+							</td>
+							<td style={{cursor: "pointer"}}><RIEInput value={m.num} change={(obj) => _this.handleChange(m.id, obj)}
+								propName="num"
+								className={_this.state.highlight ? "editable" : ""}
+								validate={_this.isStringAcceptable}
+								classLoading="loading"
+								classInvalid="invalid"/>
+							</td>
+							<td style={{cursor: "pointer"}}><RIEInput value={_this.state.highlight ? (m.description ? m.description : T.translate("Click to Change")) : m.description} change={(obj) => _this.handleChange(m.id, obj)}
+								propName="description"
+								className={_this.state.highlight ? "editable" : ""}
+								validate={_this.isStringAcceptable}
+								classLoading="loading"
+								classInvalid="invalid"/>
+							</td>
+							<td style={m.unsaved ? {color: "red"} : {}}><RIEInput value={_this.state.highlight ? (m.route ? m.route : T.translate("Click to Change")) : m.route} change={(obj) => _this.handleChange(m.id, obj)}
+								propName="route"
+								className={_this.state.highlight ? "editable" : ""}
+								validate={_this.isStringAcceptable}
+								classLoading="loading"
+								classInvalid="invalid"/>
+							</td>
+							<td style={{textAlign: "right", cursor: "pointer"}}>
+								<T.a onClick={(e) => _this.handleSetAsModerator(e, m.num)} text="Set As Moderator" href="#"/> |&nbsp;
+								<T.a onClick={_this.handleDelete.bind(_this)} data-id={m.id} text="Delete" className={danger} href="#"/>
+							</td>
+						</tr>
+					})
+				}
+
+				let group_name = '';
+				if(group_id == -1) {
+					group_name = 'No Group';
+				} else if (group_id == 'undefined') {
+					group_name = 'Node';
+				} else {
+					group_name = group_members[group_id][0].group_name;
+				}
+
+				let cluster_options = this.props.room.cluster.map((opt, index) => {
+					return [opt.host, opt.host];
+				});
+
+				return <div key={index}>
+					<div style={{width: "100%"}}>
+						<h5 style={{padding: "0 25px 0 35px", backgroundColor: "#f2f2f2",
+							lineHeight: "42px", border: "1px solid #e2e2e2", margin: "0"}}>
+							<i onClick={_this.handleUnfoldMember} style={{cursor: "pointer"}} className="fa fa-minus-square-o"></i>&nbsp;&nbsp;
+							<T.span text={group_name}/>
+							<div style={{width: "260px", float: "right"}}>
+								<EditControl edit={controllgroupid == group_id ? true : false} componentClass="select" id="formVideoMode" name="video_mode"
+									style={{width: "140px", display: "inline-block", lineHeight: "22px"}}
+									text={''} data-group={group_id}
+									options={cluster_options}>
+								</EditControl>
+								<a data-group={group_id} onClick={_this.handleSetGroupRoute} style={{float: "right", cursor: "pointer", fontSize: "12px", marginLeft: "5px"}}>
+									<T.span text={ controllgroupid == group_id ? "Save Route" : "Click to set the group route" }/>
+								</a>
+							</div>
+						</h5>
+						<table className="table" style={{marginLeft: "35px", width: "92%", display: "table"}}>
+							<thead>
+								<tr>
+									<th><T.span text="Sort"/></th>
+									<th><T.span text="Name" data="k"/></th>
+									<th><T.span text="Number"/></th>
+									<th><T.span text="Description"/></th>
+									<th><T.span text="Route"/></th>
+									<th style={{textAlign: "right"}}>
+										<T.span style={{cursor: "pointer"}} text="Delete" className={danger} onClick={toggleDanger} title={T.translate("Click me to toggle fast delete mode")}/>
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								{g_member}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			})
+		}
 
 		return <div>
 			<ButtonToolbar className="pull-right">
@@ -503,12 +704,6 @@ class RoomMembers extends React.Component {
 					<T.span text="Add Member" />
 				</Button>
 
-				{/*<Button onClick={() => this.setState({ batchAddmemberShow: !this.state.batchAddmemberShow })}>
-					<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
-					<T.span text="Batch" />
-					<T.span text="Add Member" />
-				</Button>*/}
-
 				<Button onClick={() => this.setState({ addGroupShow: !this.state.addGroupShow })}>
 					<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
 					<T.span text="Add Group" />
@@ -520,70 +715,7 @@ class RoomMembers extends React.Component {
 				!this.state.addGroupShow ? null:
 					<GroupBox room_id={this.props.room.id} onNewGroupAdded={this.handleGroupAdded.bind(this)}/>
 			}
-
-			<table className="table">
-				<tbody>
-				<tr>
-					<th><T.span text="Line Num"/></th>
-					<th><T.span text="Name" data="k"/></th>
-					<th><T.span text="Number"/></th>
-					<th><T.span text="Belong To Group"/></th>
-					<th><T.span text="Sort"/></th>
-					<th><T.span text="Description"/></th>
-					<th><T.span text="Route"/></th>
-					<th style={{textAlign: "right"}}>
-						<T.span style={{cursor: "pointer"}} text="Delete" className={danger} onClick={toggleDanger} title={T.translate("Click me to toggle fast delete mode")}/>
-					</th>
-				</tr>
-				{
-					this.state.members.map(function (m, index){
-						return <tr key={m.id}>
-							<td>{index+1}</td>
-							<td><RIEInput value={_this.state.highlight ? (m.name ? m.name : T.translate("Click to Change")) : m.name} change={(obj) => _this.handleChange(m.id, obj)}
-								propName="name"
-								className={_this.state.highlight ? "editable" : ""}
-								validate={_this.isStringAcceptable}
-								classLoading="loading"
-								classInvalid="invalid"/>
-							</td>
-							<td><RIEInput value={m.num} change={(obj) => _this.handleChange(m.id, obj)}
-								propName="num"
-								className={_this.state.highlight ? "editable" : ""}
-								validate={_this.isStringAcceptable}
-								classLoading="loading"
-								classInvalid="invalid"/>
-							</td>
-							<td>{m.group_name}</td>
-							<td><RIEInput value={m.sort ? m.sort : ''} change={(obj) => _this.handleChange(m.id, obj)}
-								propName="sort"
-								className={_this.state.highlight ? "editable" : ""}
-								validate={_this.isStringAcceptable}
-								classLoading="loading"
-								classInvalid="invalid"/>
-							</td>
-							<td><RIEInput value={_this.state.highlight ? (m.description ? m.description : T.translate("Click to Change")) : m.description} change={(obj) => _this.handleChange(m.id, obj)}
-								propName="description"
-								className={_this.state.highlight ? "editable" : ""}
-								validate={_this.isStringAcceptable}
-								classLoading="loading"
-								classInvalid="invalid"/>
-							</td>
-							<td style={m.unsaved ? {color: "red"} : {}}><RIEInput value={_this.state.highlight ? (m.route ? m.route : T.translate("Click to Change")) : m.route} change={(obj) => _this.handleChange(m.id, obj)}
-								propName="route"
-								className={_this.state.highlight ? "editable" : ""}
-								validate={_this.isStringAcceptable}
-								classLoading="loading"
-								classInvalid="invalid"/>
-							</td>
-							<td style={{textAlign: "right"}}>
-								<T.a onClick={(e) => _this.handleSetAsModerator(e, m.num)} text="Set As Moderator" href="#"/> |&nbsp;
-								<T.a onClick={_this.handleDelete.bind(_this)} data-id={m.id} text="Delete" className={danger} href="#"/>
-							</td>
-						</tr>
-					})
-				}
-				</tbody>
-			</table>
+			{ rows }
 
 			<NewMember room_id = {this.props.room.id}
 				show={this.state.memberFormShow} onHide={memberFormClose}
@@ -1094,15 +1226,6 @@ class ConferenceRooms extends React.Component {
 
 			this.setState({rows: rows});
 		};
-	}
-
-	handleClick(x) {
-	}
-
-	componentWillMount() {
-	}
-
-	componentWillUnmount() {
 	}
 
 	componentDidMount() {
