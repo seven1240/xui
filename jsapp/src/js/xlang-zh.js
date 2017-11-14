@@ -1,4 +1,5 @@
 LANGUAGES["zh"] = {
+	"Click to watch next":"观看下一组",
 
 	"New Call": "新来电",
 	"Answer Call": "接听",
