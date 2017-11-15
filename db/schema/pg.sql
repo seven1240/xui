@@ -97,6 +97,7 @@ CREATE UNIQUE INDEX dicts_realm_k ON dicts(realm, k);
 
 CREATE TABLE groups (
 	id SERIAL PRIMARY KEY,
+	sort INTEGER,
 	realm VARCHAR NOT NULL,           -- a key in dicts
 	name VARCHAR NOT NULL,
 	level integer DEFAULT 0,
@@ -111,6 +112,7 @@ CREATE INDEX groups_deleted_at ON groups(deleted_at);
 
 CREATE TABLE user_groups (
 	id SERIAL PRIMARY KEY,
+	sort INTEGER,
 	user_id SERIAL NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 	group_id SERIAL NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
 	created_at TIMESTAMP(0) DEFAULT now(),

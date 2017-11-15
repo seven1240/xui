@@ -103,6 +103,7 @@ END;
 
 CREATE TABLE groups (
 	id INTEGER PRIMARY KEY,
+	sort INTEGER,
 	realm VARCHAR NOT NULL,           -- a key in dicts
 	name VARCHAR NOT NULL,
 	level integer DEFAULT 0,
@@ -136,6 +137,7 @@ END;
 
 CREATE TABLE user_groups (
 	id INTEGER PRIMARY KEY,
+	sort INTEGER,
 	user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 	group_id INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
 	created_at DATETIME DEFAULT (DATETIME('now', 'localtime')),
