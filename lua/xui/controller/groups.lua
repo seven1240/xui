@@ -163,7 +163,7 @@ get('/:id/remain_members', function(params)
 end)
 
 get('/:id/members', function(params)
-	sql = "SELECT ug.id, ug.user_id, ug.group_id, ug.sort, u.name, u.extn, u.domain from user_groups ug LEFT JOIN users u ON ug.user_id = u.id WHERE ug.group_id = " .. params.id .. "ORDER BY sort"
+	sql = "SELECT ug.id, ug.user_id, ug.group_id, ug.sort, u.name, u.extn, u.domain from user_groups ug LEFT JOIN users u ON ug.user_id = u.id WHERE ug.group_id = " .. params.id .. " ORDER BY sort"
 	n, members = xdb.find_by_sql(sql)
 	if n > 0 then
 		return members
@@ -278,7 +278,7 @@ post('/', function(params)
 		group.group_id = nil
 	else
 		n, level = xdb.find_by_sql("SELECT level FROM groups WHERE id = " .. group.group_id)
-		n, sort = xdb.find_by_sql("SELECT sort FROM groups WHERE group_id = " .. group.group_id .. "ORDER BY sort DESC LIMIT 1;")
+		n, sort = xdb.find_by_sql("SELECT sort FROM groups WHERE group_id = " .. group.group_id .. " ORDER BY sort DESC LIMIT 1;")
 		group.level = tonumber(level[1].level) + 1
 		if next(sort) == nil then
 			group.sort = 1
