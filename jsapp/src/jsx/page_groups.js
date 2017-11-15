@@ -165,6 +165,7 @@ class GroupMembers extends React.Component {
 		row.setAttribute('style', 'border-top: 1px solid #ddd; background-color: #fff');
 		let startsort = parseInt(this.state.startsort);
 		let dropsort = parseInt(row.getAttribute("value"));
+		console.log('pppppp', row);
 
 		xFetchJSON("/api/groups/drag/" + startsort + "/" + dropsort, {
 			method: "PUT"

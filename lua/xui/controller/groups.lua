@@ -233,32 +233,30 @@ put('/drag/:start_id/:end_id', function(params)
 	print(serialize(params))
 	dragstart = {}
 	dragend = {}
+	n, group_id = xdb.find_by_sql("SELECT group_id FROM user_groups WHERE id = " .. params.start_id);
 	n, start_sort = xdb.find_by_sql("SELECT sort FROM user_groups WHERE id = " .. params.start_id);
 	m, end_sort = xdb.find_by_sql("SELECT sort FROM user_groups WHERE id = " .. params.end_id);
-	start_num = start_sort[1].sort
-	end_num = end_sort[1].sort
-	print("99000", start_num)
-	print("99000", end_num)
 
+	dragstart = { id = params.start_id, sort = start_sort[1].sort, group_id = group_id[1].group_id }
+	dragend = {id = params.end_id, sort = end_sort[1].sort, group_id = group_id[1].group_id }
 
-	if start_num < end_num then
-		for i = start_num, end_num, 1 do
-			n, rows = xdb.find_by_sql("SELECT id, sort FROM user_groups WHERE sort = " .. i);
+	if dragstart.sort < dragend.sort then
+		for i = dragstart.sort + 1, dragend.sort, 1 do
+			n, rows = xdb.find_by_sql("SELECT id, sort FROM user_groups WHERE sort = " .. i .. " AND group_id = " .. dragstart.group_id .. " ;")
 			row = rows[1]
 			row.sort = tostring(row.sort - 1)
 			xdb.update("user_groups", row)
 		end
 	else
-		for j = start_num, end_num, -1 do
-			m, rows = xdb.find_by_sql("SELECT id, sort FROM user_groups WHERE sort = " .. j);
+		for j = dragstart.sort - 1, dragend.sort, -1 do
+			m, rows = xdb.find_by_sql("SELECT id, sort FROM user_groups WHERE sort = " .. j .. " AND group_id = " .. dragstart.group_id .. " ;")
 			row = rows[1]
 			row.sort = tostring(row.sort + 1)
 			xdb.update("user_groups", row)
 		end
 	end
 
-	dragstart.id = params.start_id
-	dragstart.sort = end_num
+	dragstart.sort = dragend.sort
 	ret = xdb.update("user_groups", dragstart)
 
 	if ret then
@@ -266,7 +264,6 @@ put('/drag/:start_id/:end_id', function(params)
 	else
 		return 500
 	end
-
 end)
 
 post('/', function(params)
