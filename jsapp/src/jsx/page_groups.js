@@ -165,7 +165,6 @@ class GroupMembers extends React.Component {
 		row.setAttribute('style', 'border-top: 1px solid #ddd; background-color: #fff');
 		let startsort = parseInt(this.state.startsort);
 		let dropsort = parseInt(row.getAttribute("value"));
-		console.log('pppppp', row);
 
 		xFetchJSON("/api/groups/drag/" + startsort + "/" + dropsort, {
 			method: "PUT"
@@ -273,10 +272,7 @@ class NewGroup extends React.Component {
 	}
 
 	handleSubmit(e) {
-
-		console.log("submit...");
 		var group = form2json('#newGroupForm');
-		console.log("group", group);
 		let max = this.props.max;
 
 		if (!group.name || !group.realm) {
@@ -377,7 +373,6 @@ class GroupPage extends React.Component {
 
 	handleGetGroupOptionsTree() {
 		xFetchJSON("/api/groups/build_group_options_tree/" + this.props.params.id).then((data) => {
-			console.log("group_options", data);
 			this.setState({group_options: data});
 		}).catch((e) => {
 			console.log("get group_options ERR");
@@ -385,10 +380,7 @@ class GroupPage extends React.Component {
 	}
 
 	handleSubmit(e) {
-
-		console.log("submit...");
 		var group = form2json('#newGroupForm');
-		console.log("group", group);
 
 		if (!group.name || !group.realm) {
 			this.setState({errmsg: "Mandatory fields left blank"});
@@ -435,14 +427,12 @@ class GroupPage extends React.Component {
 
 	componentDidMount() {
 		xFetchJSON("/api/groups/" + this.props.params.id).then((data) => {
-			console.log("group", data);
 			this.setState({group: data});
 		}).catch((e) => {
 			console.log("get group ERR");
 		});
 
 		xFetchJSON("/api/permissions/" + this.props.params.id).then((data) => {
-			console.log("permissions", data);
 			this.setState({permissions: data});
 		}).catch((e) => {
 			console.log("get permissions ERR");
@@ -536,8 +526,6 @@ class GroupsPage extends React.Component {
 	}
 
 	handleControlClick(data) {
-		console.log("data", data);
-
 		if (data == "new") {
 			this.setState({ formShow: true});
 		} else if (data == "import") {
