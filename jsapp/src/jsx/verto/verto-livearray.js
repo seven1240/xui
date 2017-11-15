@@ -120,15 +120,15 @@ export class VertoHashArray {
 	}
 
 	get(name) {
-		return hash[name];
+		return this.hash[name];
 	}
 
 	order() {
-		return array;
+		return this.array;
 	}
 
 	hash() {
-		return hash;
+		return this.hash;
 	}
 
 	indexOf(name) {
@@ -162,7 +162,7 @@ export class VertoHashArray {
 		var len = this.array.length;
 
 		for (var i = 0; i < len; i++) {
-			cb(this.array[i], hash[this.array[i]]);
+			cb(this.array[i], this.hash[this.array[i]]);
 		}
 	}
 
@@ -170,7 +170,7 @@ export class VertoHashArray {
 		var str = "";
 
 		vha.each(function(name, val) {
-			str += "name: " + name + " val: " + JSON.stringify(val) + (html ? "<br>" : "\n");
+			str += "name: " + name + "val: " + JSON.stringify(val) + (html ? "<br>" : "\n");
 		});
 
 		return str;
