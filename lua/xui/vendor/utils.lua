@@ -351,4 +351,11 @@ utils.date_diff = function(d, diff)
 	return os.date('%Y-%m-%d', endTime)
 end
 
+utils.tab_merge = function(from, to)
+	for k, v in pairs(from) do
+		to[k] = v
+	end
+	return to
+end
+
 return utils

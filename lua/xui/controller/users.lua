@@ -38,9 +38,57 @@ require 'xdb'
 xdb.bind(xtra.dbh)
 require 'm_user'
 
+function xml2tab(data, _all_)
+	local users = string.gsub(data:gsub("-", "_"), "(</?)name(>)", "%1user_name%2")
+	local doc = require("xmlSimple").newParser()
+	local xml = doc:ParseXmlText(users)
+	if not xml.profile then return {} end
+	if not xml.profile.registrations then return {} end
+
+	local xml_registrations = xml.profile.registrations
+	if _all_ == "all" then
+		local users = {}
+		if #xml_registrations.registration == 0 and xml_registrations.registration then
+			local tuser = {}
+			tuser.user =  xml_registrations.registration.user:value()
+			tuser.status = xml_registrations.registration.status:value()
+			table.insert(users, tuser)
+		elseif #xml_registrations.registration > 0 then
+			for i = 1, #xml_registrations.registration do
+				local tuser = {}
+				tuser.user = xml_registrations.registration[i].user:value()
+				tuser.status = xml_registrations.registration[i].status:value()
+
+				table.insert(users, tuser)
+			end
+		end
+		return users
+	else
+		local tuser = {}
+
+		if xml and xml_registrations.registration then
+			local user = {}
+			tuser.call_id = xml_registrations.registration.call_id:value()
+			tuser.user = xml_registrations.registration.user:value()
+			tuser.contact = xml_registrations.registration.contact:value()
+			tuser.agent = xml_registrations.registration.agent:value()
+			tuser.status = xml_registrations.registration.status:value()
+			tuser.ping_status = xml_registrations.registration.ping_status:value()
+			tuser.ping_time = xml_registrations.registration.ping_time:value()
+			tuser.host = xml_registrations.registration.host:value()
+			tuser.network_ip = xml_registrations.registration.network_ip:value()
+			tuser.network_port = xml_registrations.registration.network_port:value()
+			tuser.sip_auth_user = xml_registrations.registration.sip_auth_user:value()
+			tuser.sip_auth_realm = xml_registrations.registration.sip_auth_realm:value()
+			tuser.mwi_account = xml_registrations.registration.mwi_account:value()
+		end
+		return tuser
+	end
+end
+
 get('/', function(params)
 	last = tonumber(env:getHeader('last'))
-	pageNum = tonumber(env:getHeader('pageNum'))	
+	pageNum = tonumber(env:getHeader('pageNum'))
 	usersRowsPerPage = tonumber(env:getHeader('usersRowsPerPage'))
 
 	local users = {}
@@ -105,6 +153,44 @@ get('/wechat', function(params)
 		return users
 	else
 		return "[]"
+	end
+end)
+
+get('/list',function(params)
+	api = freeswitch.API()
+	profile_name = "internal"
+
+	if params.request then
+		profile_name = params.request.profile_name or "internal"
+	end
+
+	if params.request and params.request.extn then
+		user = xdb.find_one("users", {extn = params.request.extn})
+		if user then
+			args = "xmlstatus profile " ..  profile_name .. " reg " .. user.extn
+			print(args)
+
+			ret = api:execute("sofia", args)
+			if ret then
+				local data = xml2tab(ret, nil)
+				if next(data) then
+					utils.tab_merge(user, data)
+					return 200, {code = 200, text = data}
+				else
+					return 200, {code = 484, text = ret}
+				end
+			else
+				return 200, {code = 404, text="User Not Found"}
+			end
+		else
+			return 200, {code = 404, text="User Not Found"}
+		end
+	else
+		args = "xmlstatus profile " .. profile_name .. " reg"
+		print(args)
+		ret = api:execute("sofia", args)
+		local data = xml2tab(ret, "all")
+		return 200, {code = 200, text = data}
 	end
 end)
 
