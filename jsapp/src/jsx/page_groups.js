@@ -75,11 +75,6 @@ class GroupMembers extends React.Component {
 		let members = this.state.select_value.map(function(select) {
 			return {group_id: group_id, user_id: select.value}
 		});
-		let max = this.state.max;
-
-		members.map((member, index) => {
-			member.sort = parseInt(max) + parseInt(index) + 1;
-		});
 
 		members = JSON.stringify(members);
 

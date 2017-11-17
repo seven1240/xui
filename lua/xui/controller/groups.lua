@@ -230,7 +230,6 @@ put('/:id/members', function(params)
 end)
 
 put('/drag/:start_id/:end_id', function(params)
-	print(serialize(params))
 	dragstart = {}
 	dragend = {}
 	n, group_id = xdb.find_by_sql("SELECT group_id FROM user_groups WHERE id = " .. params.start_id);
@@ -240,29 +239,22 @@ put('/drag/:start_id/:end_id', function(params)
 	dragstart = { id = params.start_id, sort = start_sort[1].sort, group_id = group_id[1].group_id }
 	dragend = {id = params.end_id, sort = end_sort[1].sort, group_id = group_id[1].group_id }
 
-	if dragstart.sort < dragend.sort then
-		for i = dragstart.sort + 1, dragend.sort, 1 do
-			n, rows = xdb.find_by_sql("SELECT id, sort FROM user_groups WHERE sort = " .. i .. " AND group_id = " .. dragstart.group_id .. " ;")
-			row = rows[1]
-			row.sort = tostring(row.sort - 1)
-			xdb.update("user_groups", row)
-		end
+	if tonumber(dragstart.sort) < tonumber(dragend.sort) then
+		where = 'group_id =' .. dragstart.group_id .. ' AND sort < ' .. dragend.sort + 1 .. ' AND sort > ' .. dragstart.sort
+		set = 'sort = sort - 1'
+		num = tonumber(dragend.sort) - tonumber(dragstart.sort)
 	else
-		for j = dragstart.sort - 1, dragend.sort, -1 do
-			m, rows = xdb.find_by_sql("SELECT id, sort FROM user_groups WHERE sort = " .. j .. " AND group_id = " .. dragstart.group_id .. " ;")
-			row = rows[1]
-			row.sort = tostring(row.sort + 1)
-			xdb.update("user_groups", row)
-		end
+		where = 'group_id =' .. dragstart.group_id .. ' AND sort < ' .. dragstart.sort .. ' AND sort > ' .. dragend.sort - 1
+		set = 'sort = sort + 1'
+		num = tonumber(dragstart.sort) - tonumber(dragend.sort)
 	end
 
-	dragstart.sort = dragend.sort
-	ret = xdb.update("user_groups", dragstart)
-
-	if ret then
+	ret = xdb.update_by_cond('user_groups', where, set)
+	ret2 = xdb.update("user_groups", {id = dragstart.id, sort = dragend.sort})
+	if ret == num and ret2 then
 		return 200, "{}"
 	else
-		return 500
+		return 500, "{}"
 	end
 end)
 
@@ -295,8 +287,17 @@ end)
 
 post('/members', function(params)
 	local members = params.request
+	n, max = xdb.find_by_sql("SELECT sort FROM user_groups WHERE group_id = " .. members[1].group_id .. " ORDER BY sort DESC LIMIT 1;")
+
+	if n == 0 then
+		max = 0
+	else
+		max = max[1].sort		
+	end
+
 	for k, v in pairs(members) do
 		if type(v) == "table" then
+			v.sort = max + k
 			xdb.create('user_groups', v)
 		end
 	end
