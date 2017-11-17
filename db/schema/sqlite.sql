@@ -516,7 +516,7 @@ CREATE TABLE distributors (
 
 CREATE UNIQUE INDEX distributors_name ON distributors(name);
 
-CREATE TRIGGER t_distributor AFTER UPDATE ON distributor
+CREATE TRIGGER t_distributor AFTER UPDATE ON distributors
 BEGIN
 	UPDATE distributor set updated_at = DATETIME('now', 'localtime') WHERE id = NEW.id;
 END;
