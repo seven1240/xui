@@ -38,6 +38,59 @@ require 'xdb'
 xdb.bind(xtra.dbh)
 require 'm_user'
 
+function user_reg_data(uxml)
+	local user = {}
+	tuser.call_id = uxml.call_id:value()
+	tuser.user = uxml.user:value()
+	tuser.contact = uxml.contact:value()
+	tuser.agent = uxml.agent:value()
+	tuser.status = uxml.status:value()
+	tuser.ping_status =uxml.ping_status:value()
+	tuser.ping_time = uxml.ping_time:value()
+	tuser.host = uxml.host:value()
+	tuser.network_ip = uxml.network_ip:value()
+	tuser.network_port = uxml.network_port:value()
+	tuser.sip_auth_user = uxml.sip_auth_user:value()
+	tuser.sip_auth_realm = uxml.sip_auth_realm:value()
+	tuser.mwi_account = uxml.mwi_account:value()
+	return user
+end
+
+function list_reg_user(sip_profiles, extn)
+	api = freeswitch.API()
+	doc = require("xmlSimple").newParser()
+	local users = {}
+
+	for _, profile in pairs(sip_profiles) then
+		ret = api:execute("sofia", "xmlstatus profile " .. profile.name .. " reg " .. extn)
+		data = string.gsub(ret:gsub("-", "_"), "(</?)name(>)", "%1user_name%2")
+		xml = doc:ParseXmlText(data)
+
+		if not xml.profile then return {} end
+		if not xml.profile.registrations then return {} end
+
+		local xml_registrations = xml.profile.registrations
+
+		if #xml_registrations.registration == 0 and xml_registrations.registration then
+			local tuser = {}
+			tuser = user_reg_data(xml_registrations.registration)
+			if next(tuser) then
+				tuser.reg_profile = profile.name
+			end
+			table.insert(users, tuser)
+		elseif #xml_registrations.registration > 0 then
+			for i = 1, #xml_registrations.registration do
+				local tuser = {}
+				tuser = user_reg_data(xml_registrations.registration[i])
+				if next(tuser) then
+					tuser.reg_profile = profile.name
+					table.insert(users, tuser)
+				end
+			end
+		end
+	end
+end
+
 function xml2tab(data, _all_)
 	local users = string.gsub(data:gsub("-", "_"), "(</?)name(>)", "%1user_name%2")
 	local doc = require("xmlSimple").newParser()
@@ -156,7 +209,46 @@ get('/wechat', function(params)
 	end
 end)
 
-get('/list',function(params)
+get('/list', function(params)
+	local lists = {}
+	if params.request then
+		exten = params.request.extn
+	else
+		exten = env:getHeader("extn")
+	end
+
+	profile_count, sip_profiles = xdb.find_all("sip_profiles")
+
+	if not exten then
+		user_count, users = xdb.find_all("users")
+		if user_count <= 0 then return 200, {code = 0, message = "success", data = {}}
+		if profile_count <= 0 then return 200, {code = 0, message = "success", data = users`}
+		for _, user in pairs(users) then
+			local list = {extn = user.extn, status = "offline"}
+			local data = list_reg_user(sip_profiles, user.extn)
+			if next(data) then
+				list.status = "online"
+			end
+			table.insert(lists, list)
+			return 200, {code = 0, message = "success", data = list}
+		end
+	else
+		user = xdb.find_one("users", {extn = exten})
+		if user then
+			local list = list_reg_user(sip_profiles, exten)
+			if next(list)  then
+				utils.tab_merge(user, list)
+				return 200, {code = 0, message = "success", data = list}
+			else
+				return 200, {code = 0, message = "success", data = user}
+			end
+		else
+			return 200, {code = 904, message = "user not exists"}
+		end
+	end
+end)
+
+get('/list1',function(params)
 	api = freeswitch.API()
 	profile_name = "internal"
 
@@ -273,6 +365,33 @@ get('/:id/wechat_users', function(params)
 	end
 end)
 
+put("/chgpwd", function(params)
+	if params.request then
+		extn = params.request.extn
+		newpwd = params.request.newpwd
+	else
+		extn = env:getHeader("extn")
+		newpwd = env:getHeader("newpwd")
+	end
+
+	if not extn or not newpwd then
+		return 200, {code = 901, message = "err param"}
+	end
+
+	user = xdb.find_one("users", {extn = extn})
+
+	if user then
+		ret = xdb.update("users", {id = user.id, password = newpwd})
+		if ret >= 1 then
+			return 200, {code = 0, message = "success"}
+		else
+			return 200, {code = 999, message = "unknown"}
+		end
+	else
+		return 200, {code = 904, message = "extn not exists"}
+	end
+end)
+
 put("/change_password", function(params)
 	req = params.request
 	user = xdb.find_one("users", {id = xtra.session.user_id, password = req.old_password})
@@ -359,6 +478,67 @@ post('/', function(params)
 		else
 			return 500
 		end
+	end
+end)
+
+post('/create', function(params)
+	local user = {}
+	if params.request then
+		user.extn = params.request.extn
+		user.password = params.request.password
+		user.name = params.request.name
+		user.vm_password = params.request.vm_password or "1234"
+		user.context = params.request.context or "default"
+		user.cid_name = params.request.cid_name
+		user.cid_number = params.request.cid_number
+		user.disabled = params.request.disabled or 0
+	else
+		user.extn = env:getHeader("extn")
+		user.password = env:getHeader("password")
+		user.name = env:getHeader("name")
+		user.vm_password = env:getHeader("vm_password") or "1234"
+		user.context = env:getHeader("context") or "default"
+		user.cid_name = env:getHeader("cid_name")
+		user.cid_number = env:getHeader("cid_number")
+		user.disabled = env:getHeader("disabled") or 0
+	end
+
+
+	if not user.extn or not user.password or not user.name then
+		return 200, {code = 901, message = "err param"}
+	end
+
+	n, ur = xdb.find_by_cond("users", {extn = user.extn})
+
+	if n >= 1 then return 200, {code = 905, message = "user exists"} end
+
+	ret = xdb.create('users', user)
+
+	if ret then
+		return 200, {code = 0, message = "success"}
+	else
+		return 200, {code = 999, message = "unknown"}
+	end
+
+end)
+
+delete('/delete', function(params)
+	if params.request then
+		extn = params.extn
+	else
+		extn = env:getHeader("extn")
+	end
+
+	if not extn then
+		return 200, {code = 901, message = "err param"}
+	end
+
+	ret = xdb.delete("users", extn)
+
+	if ret >= 1 then
+		return 200, {code = 0, message = "success"}
+	else
+		return return 200, {code = 904, message = "extn not exists"}
 	end
 end)
 

@@ -59,6 +59,33 @@ post('/', function(params)
 	end
 end)
 
+post('/create', function(params)
+
+	if params.request then
+		username = params.request.username
+		pass = params.request.password
+	else
+		username = env:getHeader("username")
+		pass = env:getHeader("password")
+	end
+
+	if not username or not password then
+		return 200, {code = 901, message = "err param"}
+	end
+
+	local user = xdb.find_one("users", {extn = username})
+
+	if user then
+		if user.password == pass then
+			return 200, {code = 0, message = "sucess", data = {session_id = xtra.session_uuid}}
+		else
+			return 200, {code = 903, message = "err password"}
+		end
+	else
+		return 200, {code = 904, message = "user not exist"}
+	end
+end)
+
 delete('/', function(params)
 	if not xtra.session.user_id then
 		-- hack me?
