@@ -251,6 +251,7 @@ class ServerMonitorPage extends React.Component {
 						</div>
 				})
 			}
+			<div style={{'clear': 'both'}}></div>
 		</div>
 	}
 }
