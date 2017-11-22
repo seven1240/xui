@@ -328,8 +328,11 @@ delete('/members/:group_id', function(params)
 end)
 
 delete('/members/:group_id/:member_id', function(params)
-	ret = xdb.delete("user_groups", {group_id=params.group_id, user_id=params.member_id});
+	n, sort = xdb.find_by_cond("user_groups", { group_id = params.group_id, user_id = params.member_id});
+	sort = sort[1].sort
+	ret = xdb.delete("user_groups", {group_id=params.group_id, user_id=params.member_id})
 	if ret == 1 then
+		m, ret2 = xdb.update_by_cond("user_groups", "group_id = " ..params.group_id .. " AND sort > " .. sort, "sort = sort - 1")
 		return 200, "{}"
 	else
 		return 500, "{}"
