@@ -63,10 +63,10 @@ post('/create', function(params)
 
 	if params.request then
 		username = params.request.username
-		pass = params.request.password
+		password = params.request.password
 	else
 		username = env:getHeader("username")
-		pass = env:getHeader("password")
+		password = env:getHeader("password")
 	end
 
 	if not username or not password then
@@ -76,7 +76,8 @@ post('/create', function(params)
 	local user = xdb.find_one("users", {extn = username})
 
 	if user then
-		if user.password == pass then
+		if user.password == password then
+			xtra.save_session("user_id", user.id)
 			return 200, {code = 0, message = "sucess", data = {session_id = xtra.session_uuid}}
 		else
 			return 200, {code = 903, message = "err password"}

@@ -40,8 +40,19 @@ xdb.bind(xtra.dbh)
 require 'm_gateway'
 require 'm_user'
 
+function has_space(table)
+	for k, v in pairs(table) do
+		if string.find(v, " ") then
+			utils.log("ERR", "gateway " .. k .. "\'s value " .. v .. " has space")
+			return true
+		end
+	end
+	return false
+end
+
 --unreg must before reg
 function get_gateway_action(action)
+	action = string.lower(action)
 	if string.find(action, "start") then
 		return "startgw"
 	elseif string.find(action, "stop") then
@@ -50,6 +61,10 @@ function get_gateway_action(action)
 		return "unregister"
 	elseif string.find(action, "reg") then
 		return "register"
+	elseif string.find(action, "startgw") then
+		return "startgw"
+	elseif string.find(action, "killgw") then
+		return "killgw"
 	end
 
 	return "err"
@@ -177,7 +192,7 @@ function control_gateway(profile_name, action, gateway_name)
 	action = get_gateway_action(action)
 	local api = freeswitch.API()
 	local args = "profile " .. profile_name .. " " .. action .. " " .. gateway_name
-	freeswitch.consoleLog("debug", "sofia args:" .. args .. "\n")
+	utils.log("debug", "sofia args:" .. args .. "\n")
 	api:execute("sofia", args)
 end
 
@@ -209,8 +224,8 @@ get('/list',function(params)
 
 	if not gwname then
 		gw_count, gateways = xdb.find_all("gateways")
-		if gw_count <= 0 then return 200, {code = 0, message = "success", data = {}}
-		for _, gw in pairs(gateways) then
+		if gw_count <= 0 then return 200, {code = 0, message = "success", data = {}} end
+		for _, gw in pairs(gateways) do
 			local list = {gwname = gw.name, gwstatus = "UNREG"}
 			local data = list_reg_gateway(gw.name)
 			if next(data) then
@@ -354,43 +369,53 @@ end)
 post('/create', function(params)
 	local gateway = {}
 	if params.request then
-		gateway.name = params.request.extn
+		gateway.name = params.request.name
 		gateway.password = params.request.password
 		gateway.username = params.request.username
 		gateway.realm = params.request.realm
 		gateway.description = params.request.description
-		gateway.profile_name = params.request.profile_name
+		profile_name = params.request.profile_name
 		gateway.register = params.request.register
-		gateway.template_gwname = params.request.template_gwname
+		template_gwname = params.request.template_gwname
 	else
 		gateway.name = env:getHeader("name")
 		gateway.password = env:getHeader("password")
 		gateway.username = env:getHeader("username")
 		gateway.realm = env:getHeader("realm")
 		gateway.description = env:getHeader("description")
-		gateway.profile_name = env:getHeader("profile_name")
+		profile_name = env:getHeader("profile_name")
 		gateway.register = env:getHeader("register")
-		gateway.template_gwname = env:getHeader("template_gwname")
+		template_gwname = env:getHeader("template_gwname")
 	end
 
-	if not gateway.name or not gateway.username or not gateway.password or not gateway.template_gwname then
+	if not gateway.name or not gateway.username or not gateway.password or not template_gwname then
 		return 200, {code = 901, message = "err param"}
 	end
 
-	n, gw = xdb.find_one("gateways", {name = gateway.name})
+	if has_space(gateway) then
+		return 200, {code = 901, message = "err param"}
+	end
 
-	if n >= 1 then return 200, {code = 905, message = "gwname exists"} end
+	gw = xdb.find_one("gateways", {name = gateway.name})
 
-	n, template_gw = xdb.find_one("gateways", {name = gateway.template_gwname})
+	if gw then return 200, {code = 905, message = "gwname exists"} end
 
-	if n <= 0 then return 200, {code = 904, message = "template gateway not exists"}
+	template_gw = xdb.find_one("gateways", {name = template_gwname})
+
+	if not template_gw then return 200, {code = 904, message = "template gateway not exists"} end
 
 	gateway.template = template_gw.id
 
-	if not gateway.realm then gateway.realm = template_gw.realm
-	if not gateway.description then gateway.description = template_gw.description
-	if not gateway.profile_id then gateway.profile_name = template_gw.profile_id
-	if not gateway.register then gateway.register = template_gw.register
+	if not gateway.realm then gateway.realm = template_gw.realm end
+	if not gateway.description then gateway.description = template_gw.description end
+	if not gateway.profile_name then
+		gateway.profile_id = template_gw.profile_id
+	else
+		sip_profile = xdb.find_one("sip_profiles", {name = profile_name})
+		if not sip_profile then gateway.profile_id = sip_profile.id end
+	end
+
+	if not gateway.register then gateway.register = template_gw.register end
 
 	ret = m_gateway.create(gateway)
 
@@ -432,14 +457,14 @@ put('/verify',function(params)
 		return 200, {code = 901, message = "err param"}
 	end
 
-	n, template_gw = xdb.find_one("gateways", {name = template_gwname})
+	template_gw = xdb.find_one("gateways", {name = template_gwname})
 
-	if n <= 0 then return 200, {code = 904, message = "template gateway not exists"}
+	if not template_gw then return 200, {code = 904, message = "template gateway not exists"} end
 
 	gateway.realm = template_gw.realm
 	gateway.description = template_gw.description
 	gateway.profile_id = template_gw.profile_id
-	gateway.register = template_gw.register
+	gateway.register = "yes"
 	gateway.name = "tmp_" .. gateway.username
 
 	freeswitch.consoleLog("debug", "verify:" .. gateway.username)
@@ -467,7 +492,7 @@ put('/verify',function(params)
 
 			if xml and xml.gateway and xml.gateway.state:value() == "REGED" and xml.gateway.status:value() == "UP" then
 				reged = true
-				freeswitch.consoleLog("debug", "verify id " .. gateway_name .. " reged!!!")
+				freeswitch.consoleLog("debug", "verify id " .. gateway.name .. " reged!!!")
 				break
 			end
 
@@ -485,13 +510,13 @@ put('/verify',function(params)
 
 		ret = m_gateway.delete(gw_id)
 
-		if ret >=1 then
+		if ret >= 0 then
 			return 200, {code = 0, message = "success"}
 		else
 			return 200, {code = 999, message = "unknown"}
 		end
 	else
-		return 200, {code = 999, message = "unknown"}
+		return 200, {code = 999, message = "create temp verify gateway failed"}
 	end
 end)
 
@@ -600,6 +625,7 @@ put('/control', function(params)
 		return 200, {code = 901, message = "err param"}
 	end
 
+	action = string.lower(action)
 	gateway = xdb.find_one("gateways", {name = gwname})
 	if gateway then
 		sip_profile = xdb.find("sip_profiles", gateway.profile_id)
@@ -683,10 +709,14 @@ put('/chgpwd', function(params)
 				gateway_state = "REGED"
 			end
 		end
+		utils.log("debug", "chgpwd gateway:gateway_status" .. ":" .. gateway_status .. " gateway_state:" .. gateway_state)
+		sip_profile = xdb.find("sip_profiles", gateway.profile_id)
+		profile_name = sip_profile.name or "public"
+		control_gateway(profile_name, "killgw", gwname)
+		freeswitch.msleep(500)
 		ret = xdb.update("gateways", {id = gateway.id, password = newpwd})
 		if ret >= 1 then
-			sip_profile = xdb.find("sip_profiles", gateway.profile_id)
-			profile_name = sip_profile.name or "public"
+			control_gateway(profile_name, "startgw", gwname)
 			if gateway_status == "UP" then
 				api = freeswitch.API()
 				control_gateway(profile_name, "startgw", gwname)
@@ -694,6 +724,9 @@ put('/chgpwd', function(params)
 				if gateway_state == "UNREG" then
 					control_gateway(profile_name, "unregister", gwname)
 				end
+			else
+				control_gateway(profile_name, "killgw", gwname)
+				freeswitch.msleep(500)
 			end
 			return 200, {code = 0, message = "success"}
 		else
@@ -779,7 +812,7 @@ end)
 
 delete('/delete', function(params)
 	if params.request then
-		gwname = params.gwname
+		gwname = params.request.gwname
 	else
 		gwname = env:getHeader("gwname")
 	end
@@ -789,26 +822,27 @@ delete('/delete', function(params)
 	end
 
 	gateway = xdb.find_one("gateways", {name = gwname})
-	n, sip_profile = xdb.find_by_cond("sip_profiles", {gateway.profile_id})
+	sip_profile = xdb.find("sip_profiles", gateway.profile_id)
 
-	if n < 1 then return 200, {code = 906, message = "err profile_id"}
+	if not sip_profile then return 200, {code = 906, message = "err profile_id"} end
 
-	if not gateway then return 200, {code = 906, message = "err gwname"}
+	if not gateway then return 200, {code = 906, message = "err gwname"} end
 
 	api = freeswitch.API()
 	gw_status = api:execute("sofia", "xmlstatus gateway " .. gwname)
 
 	if not gw_status:find("Invalid Gateway") then
 		api:execute("sofia", "profile " .. sip_profile.name .. " killgw " .. gwname)
+		utils.log("debug", "gateway " .. gwname .. " is stopping!!!")
 		freeswitch.msleep(1500)
 	end
 
-	ret = xdb.delete("gateways", gwname)
+	ret = xdb.delete("gateways", gateway.id)
 
 	if ret >= 1 then
 		return 200, {code = 0, message = "success"}
 	else
-		return return 200, {code = 904, message = "gateway not exists"}
+		return 200, {code = 999, message = "unknown"}
 	end
 end)
 

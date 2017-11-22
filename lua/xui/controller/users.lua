@@ -39,7 +39,7 @@ xdb.bind(xtra.dbh)
 require 'm_user'
 
 function user_reg_data(uxml)
-	local user = {}
+	local tuser = {}
 	tuser.call_id = uxml.call_id:value()
 	tuser.user = uxml.user:value()
 	tuser.contact = uxml.contact:value()
@@ -53,42 +53,45 @@ function user_reg_data(uxml)
 	tuser.sip_auth_user = uxml.sip_auth_user:value()
 	tuser.sip_auth_realm = uxml.sip_auth_realm:value()
 	tuser.mwi_account = uxml.mwi_account:value()
-	return user
+
+	return tuser
 end
 
 function list_reg_user(sip_profiles, extn)
 	api = freeswitch.API()
 	doc = require("xmlSimple").newParser()
-	local users = {}
+	local users = {regs = {}}
 
-	for _, profile in pairs(sip_profiles) then
+	for _, profile in pairs(sip_profiles) do
 		ret = api:execute("sofia", "xmlstatus profile " .. profile.name .. " reg " .. extn)
 		data = string.gsub(ret:gsub("-", "_"), "(</?)name(>)", "%1user_name%2")
 		xml = doc:ParseXmlText(data)
 
-		if not xml.profile then return {} end
-		if not xml.profile.registrations then return {} end
+		if not xml.profile then break end
+		if not xml.profile.registrations then break end
 
 		local xml_registrations = xml.profile.registrations
 
-		if #xml_registrations.registration == 0 and xml_registrations.registration then
+		if xml_registrations.registration and #xml_registrations.registration == 0 then
 			local tuser = {}
 			tuser = user_reg_data(xml_registrations.registration)
+
 			if next(tuser) then
 				tuser.reg_profile = profile.name
 			end
-			table.insert(users, tuser)
-		elseif #xml_registrations.registration > 0 then
+			table.insert(users.regs, tuser)
+		elseif xml_registrations.registration and #xml_registrations.registration > 0 then
 			for i = 1, #xml_registrations.registration do
 				local tuser = {}
 				tuser = user_reg_data(xml_registrations.registration[i])
 				if next(tuser) then
 					tuser.reg_profile = profile.name
-					table.insert(users, tuser)
+					table.insert(users.regs, tuser)
 				end
 			end
 		end
 	end
+	return users
 end
 
 function xml2tab(data, _all_)
@@ -221,23 +224,27 @@ get('/list', function(params)
 
 	if not exten then
 		user_count, users = xdb.find_all("users")
-		if user_count <= 0 then return 200, {code = 0, message = "success", data = {}}
-		if profile_count <= 0 then return 200, {code = 0, message = "success", data = users`}
-		for _, user in pairs(users) then
+		if user_count <= 0 then return 200, {code = 0, message = "success", data = {}} end
+		if profile_count <= 0 then return 200, {code = 0, message = "success", data = users} end
+		-- freeswitch.consoleLog("ERR", "iiiii" .. serialize(users))
+		for _, user in pairs(users) do
+			-- freeswitch.consoleLog("ERR", "iiiii" .. user.extn)
 			local list = {extn = user.extn, status = "offline"}
 			local data = list_reg_user(sip_profiles, user.extn)
-			if next(data) then
+			if next(data.regs) then
 				list.status = "online"
 			end
 			table.insert(lists, list)
-			return 200, {code = 0, message = "success", data = list}
 		end
+		return 200, {code = 0, message = "success", data = lists}
 	else
 		user = xdb.find_one("users", {extn = exten})
 		if user then
 			local list = list_reg_user(sip_profiles, exten)
 			if next(list)  then
-				utils.tab_merge(user, list)
+				for k, v in pairs(user) do
+					list[k] = v
+				end
 				return 200, {code = 0, message = "success", data = list}
 			else
 				return 200, {code = 0, message = "success", data = user}
@@ -524,21 +531,27 @@ end)
 
 delete('/delete', function(params)
 	if params.request then
-		extn = params.extn
+		exten = params.request.extn
 	else
-		extn = env:getHeader("extn")
+		exten = env:getHeader("extn")
 	end
 
-	if not extn then
+	if not exten then
 		return 200, {code = 901, message = "err param"}
 	end
 
-	ret = xdb.delete("users", extn)
+	ur = xdb.find_one("users", {extn = exten})
+
+	if not ur then return 200, {code = 904, message = "extn not exists"} end
+
+	ret = xdb.delete("users", ur.id)
+
+	xdb.update_by_cond("wechat_users", {user_id = ur.id}, {user_id = ""})
 
 	if ret >= 1 then
 		return 200, {code = 0, message = "success"}
 	else
-		return return 200, {code = 904, message = "extn not exists"}
+		return 200, {code = 999, message = "unknown"}
 	end
 end)
 
