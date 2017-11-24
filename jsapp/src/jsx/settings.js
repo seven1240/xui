@@ -9,7 +9,7 @@
  * the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * Software distributed under the License is distributed on an "AS IS" basis,
+ * Software distributed under the Lic </LinkContainer>ense is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
  * for the specific language governing rights and limitations under the
  * License.
@@ -33,8 +33,6 @@
 import React from 'react';
 import T from 'i18n-react';
 import { Tab, Row, Col, Nav, NavItem } from 'react-bootstrap';
-import UsersPage from "./page_users";
-import RoutesPage from "./page_routes";
 import { LinkContainer } from 'react-router-bootstrap';
 
 class Settings extends React.Component {
@@ -45,6 +43,12 @@ class Settings extends React.Component {
 				<NavItem eventKey="M_USER">
 					<i className="fa fa-user" aria-hidden="true"></i>&nbsp;
 					<T.span text="Users"/>
+				</NavItem>
+			</LinkContainer>
+			<LinkContainer to="/settings/system_normal" key="M_SYSTEM_NORMAL">
+				<NavItem eventKey="M_SYSTEM_NORMAL">
+					<i className="fa fa-gear" aria-hidden="true"></i>&nbsp;
+					<T.span text="System"/>
 				</NavItem>
 			</LinkContainer>
 		</Nav>
