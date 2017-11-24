@@ -84,7 +84,12 @@ if purpose == "network-list" then
 end
 
 if user then
-	xdb.find_by_cond("users", {extn = user, disabled = 0}, nil, function(row)
+	if domain and not utils.is_ip_address(domain) then
+		cond = {['extn'] = user, ['domain'] = domain, ['disabled'] = 0}
+	else
+		cond = {['extn'] = user, ['disabled'] = 0}
+	end
+	xdb.find_by_cond("users", cond, nil, function(row)
 		if action == "jsonrpc-authenticate" and row.weblogin_disabled == '1' then
 			return
 		end

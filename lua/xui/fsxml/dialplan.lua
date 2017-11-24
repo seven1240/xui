@@ -48,6 +48,7 @@ local escape = sqlescape.EscapeFunction()
 local actions = ""
 local dest = params:getHeader("Hunt-Destination-Number")
 local context = params:getHeader("Hunt-Context")
+local domain_name = params:getHeader("variable_domain_name")
 local actions_table = {}
 local sql = "SELECT * FROM routes WHERE context = '" .. context .. "' AND max_length >= " .. string.len(dest) .. " AND " .. escape(dest) .. " LIKE prefix || '%' ORDER BY max_length, length(prefix) DESC LIMIT 1"
 local found = false
@@ -144,7 +145,11 @@ xdb.find_by_sql(sql, function(row)
 			end
 		end
 	elseif (row.dest_type == 'FS_DEST_USER') then
-		table.insert(actions_table, {app = "bridge", data = "user/" .. dest})
+		if domain_name and not utils.is_ip_address(domain) then
+			table.insert(actions_table, {app = "bridge", data = "user/" .. dest .. "@" .. domain_name})
+		else
+			table.insert(actions_table, {app = "bridge", data = "user/" .. dest})
+		end
 	elseif (row.dest_type == 'FS_DEST_GATEWAY') then
 		table.insert(actions_table, {app = "bridge", data = "sofia/gateway/" .. row.body .. "/" .. dest})
 	elseif (row.dest_type == 'FS_DEST_IP') then
