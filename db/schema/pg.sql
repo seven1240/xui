@@ -62,6 +62,19 @@ CREATE TABLE users (
 CREATE UNIQUE INDEX users_extn ON users(domain, extn);
 CREATE INDEX users_deleted_at ON users(deleted_at);
 
+CREATE TABLE user_dev_key (
+	id SERIAL PRIMARY KEY,
+	user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+	key VARCHAR,
+	created_at TIMESTAMP(0) DEFAULT now(),
+	updated_at TIMESTAMP(0) DEFAULT now(),
+	deleted_at TIMESTAMP(0)
+);
+
+
+CREATE UNIQUE INDEX user_dev_key_index ON user_dev_key(key);
+CREATE UNIQUE INDEX user_dev_key_user_id ON user_dev_key(user_id);
+
 CREATE TABLE blocks (
 	id SERIAL PRIMARY KEY,
 	name VARCHAR NOT NULL,

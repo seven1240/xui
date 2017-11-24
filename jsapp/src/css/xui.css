@@ -351,3 +351,7 @@ span.log0 {color: black;}
 .xmodal {
   top: 100px;
 }
+
+.btn:focus {
+  outline: none;
+}

@@ -36,6 +36,136 @@ import { Modal, ButtonToolbar, ButtonGroup, Button, Form, FormGroup, FormControl
 import { Link } from 'react-router';
 import { EditControl, xFetchJSON } from './libs/xtools'
 
+class UserDevKey extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {danger: false, reset: false, errmsg: "", newKey: "new", delKey: ""};
+
+		// This binding is necessary to make `this` work in the callback
+		this.handleKey = this.handleKey.bind(this);
+	}
+
+	handleKey(data) {
+		var user_id = this.props.user_id;
+		if (data == "new") {
+			xFetchJSON("/api/user_dev_key", {
+				method: "POST",
+				body: JSON.stringify({"user_id": user_id})
+			}).then((obj) => {
+				this.setState({newKey: "reset", delKey: "del", key: obj.key});
+			}).catch((msg) => {
+				console.error("user dev key:", msg);
+				this.setState({errmsg: msg});
+			});
+		} else if (data == "reset"){
+			if (!this.state.reset) {
+				var c = confirm(T.translate("Confirm to reset ?"));
+
+				if (!c) return;
+			}
+			xFetchJSON("/api/user_dev_key/reset2", {
+				method: "POST",
+				body: JSON.stringify({"user_id": user_id})
+			}).then((obj) => {
+				this.setState({newKey: "reset", delKey: "del", key: obj.key});
+			}).catch((msg) => {
+				console.error("user dev key:", msg);
+				this.setState({errmsg: msg});
+			});
+		} else if (data == "del") {
+			console.log("deleting user_dev_key:", user_id);
+			if (!this.state.danger) {
+				var c = confirm(T.translate("Confirm to Delete ?"));
+
+				if (!c) return;
+			}
+
+			xFetchJSON("/api/user_dev_key/", {
+				method: "DELETE",
+				body: JSON.stringify({"user_id": user_id})
+			}).then((data) => {
+				this.setState({newKey: "new", delKey: "", key: ""});
+			}).catch((msg) => {
+				console.error("user dev key:", msg);
+			});
+		}
+	}
+
+	componentDidMount() {
+		var _this = this;
+		const extn = _this.props.extn;
+		xFetchJSON("/api/user_dev_key/").then((data) => {
+			 data.map(function(d) {
+				if (d.user_id == _this.props.user_id) {
+					_this.setState({key: d.key, newKey: "reset", delKey: "del"});
+					return;
+				}
+				return d;
+			});
+		}).catch((msg) => {
+			console.log("get user dev key ERR");
+			notify(<T.span text={{key: "Internal Error", msg: msg}}/>, "error");
+		});
+	}
+
+	render() {
+		console.log(this.props);
+		const props = Object.assign({}, this.props);
+		const user_id = props.user_id;
+		const newKey = this.state.newKey;
+		const delKey = this.state.delKey;
+		var danger = this.state.danger ? "danger" : "";
+		var reset = this.state.reset ? "danger" : "";
+		var newButton = "";
+		var delButton = "";
+		var _this = this;
+		delete props.user_id;
+
+		if (newKey == "new") {
+			newButton =
+				<Button onClick={() => _this.handleKey("new")}>
+					<i className="fa fa-plus" aria-hidden="true"></i>&nbsp;
+					<T.span text= {T.translate("New Key")}/>
+				</Button>
+		} else if (newKey == "reset") {
+			newButton =
+				<Button onClick={() => _this.handleKey("reset")} className={reset}>
+					<i className="fa fa-undo" aria-hidden="true"></i>&nbsp;
+					<T.span text= {T.translate("Reset Key")}/>
+				</Button>
+		}
+
+		if (delKey == "del") {
+			delButton =
+				<Button onClick={() => _this.handleKey("del")} className={danger}>
+					<i className="fa fa-trash-o" aria-hidden="true"></i>&nbsp;
+					<T.span text= {T.translate("Delete Key")}/>
+				</Button>
+
+		}
+
+		return <div>
+			<hr/>
+			<ButtonToolbar className="pull-right">
+				<ButtonGroup>
+					{newButton}&nbsp;&nbsp;
+				</ButtonGroup>
+				<ButtonGroup>
+					{delButton}
+				</ButtonGroup>
+			</ButtonToolbar>
+			<br/><br/>
+			<Form horizontal>
+				<FormGroup>
+					<Col componentClass={ControlLabel} sm={2}>{T.translate("Key ID")}</Col>
+					<Col sm={10}><FormControl.Static><T.span text={this.state.key}/></FormControl.Static></Col>
+				</FormGroup>
+			</Form>
+		</div>
+	}
+}
+
 class NewUser extends React.Component {
 	constructor(props) {
 		super(props);
@@ -367,6 +497,7 @@ class UserPage extends React.Component {
 
 	render() {
 		const user = this.state.user;
+		const username = localStorage.getItem('xui.username');
 		let save_btn = "";
 		let err_msg = "";
 
@@ -503,7 +634,7 @@ class UserPage extends React.Component {
 					return <WeUser key={weuser.id} wechat_user={weuser}/>
 				})
 			}
-
+			{user.id && username == user.extn ? <UserDevKey user_id={user.id}/> : null}
 		</div>
 	}
 }

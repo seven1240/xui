@@ -58,6 +58,22 @@ BEGIN
 	UPDATE users set updated_at = DATETIME('now', 'localtime') WHERE id = NEW.id;
 END;
 
+CREATE TABLE user_dev_key (
+	id INTEGER PRIMARY KEY,
+	user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+	key VARCHAR,
+	created_at DATETIME DEFAULT (DATETIME('now', 'localtime')),
+	updated_at DATETIME DEFAULT (DATETIME('now', 'localtime')),
+	deleted_at DATETIME
+);
+
+CREATE UNIQUE INDEX user_dev_key_index ON user_dev_key(key);
+CREATE UNIQUE INDEX user_dev_key_user_id ON user_dev_key(user_id);
+CREATE TRIGGER tg_user_dev_key AFTER UPDATE ON user_dev_key
+BEGIN
+	UPDATE user_dev_key set updated_at = DATETIME('now', 'localtime') WHERE id = NEW.id;
+END;
+
 CREATE TABLE blocks (
 	id INTEGER PRIMARY KEY,
 	name VARCHAR NOT NULL,
