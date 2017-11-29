@@ -445,6 +445,7 @@ CREATE TABLE acl_nodes (
 	k VARCHAR NOT NULL,
 	v VARCHAR,
 	acl_id INTEGER,
+	node_type VARCHAR,
 
 	created_at TIMESTAMP(0) DEFAULT now(),
 	updated_at TIMESTAMP(0) DEFAULT now(),

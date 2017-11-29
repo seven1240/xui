@@ -158,14 +158,29 @@ class AddNewNode extends React.Component {
 			</Modal.Header>
 			<Modal.Body>
 			<Form horizontal id="newParamAddForm">
-				<FormGroup controlId="formName">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Type" className="mandatory"/></Col>
-					<Col sm={10}><FormControl type="input" name="k" placeholder="Type" /></Col>
+				<FormGroup controlId="formNodeType">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Node Type"  className="mandatory"/></Col>
+					<Col sm={10}>
+						<FormControl componentClass="select" name="node_type" placeholder="select">
+							[
+								<option key="domain" value="domain"><T.span text="domain"/></option>,
+								<option key="cidr" value="cidr"><T.span text="cidr"/></option>,
+							]
+						</FormControl>
+					</Col>
 				</FormGroup>
 
 				<FormGroup controlId="formRealm">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Cidr" className="mandatory"/></Col>
-					<Col sm={10}><FormControl type="input" name="v" placeholder="Cidr" /></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Value" className="mandatory"/></Col>
+					<Col sm={10}><FormControl type="input" name="v" placeholder="Value" /></Col>
+				</FormGroup>
+
+				<FormGroup controlId="formDefault">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Allow Or Deny"/></Col>
+					<Col sm={10}>
+						<Radio name="k" value="allow" inline><T.span text="allow"/></Radio>
+						<Radio name="k" value="deny" inline><T.span text="deny"/></Radio>
+					</Col>
 				</FormGroup>
 
 				<FormGroup>
@@ -193,15 +208,17 @@ class ACLPage extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {acl: {}, edit: false, danger: false, nodes: {}, formShow: false};
+		this.state = {acl: {}, edit: false, danger: false, nodes: {}, formShow: false,
+		selectOptions : [{id: "domain", text: "domain"}, {id: "cidr", text: "cidr"}]};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleControlClick = this.handleControlClick.bind(this);
 		this.toggleHighlight = this.toggleHighlight.bind(this);
 		this.handleToggleParam = this.handleToggleParam.bind(this);
-		this.handleChange = this.handleChange.bind(this);
-		this.handleChangeValueK = this.handleChangeValueK.bind(this);
+		this.handleChangeKey = this.handleChangeKey.bind(this);
+		this.handleChangeValue = this.handleChangeValue.bind(this);
+		this.handleChangeNodeType = this.handleChangeNodeType.bind(this);
 		this.handleDelete = this.handleDelete.bind(this);
 	}
 
@@ -214,7 +231,7 @@ class ACLPage extends React.Component {
 
 			if (!c) return;
 		}
-		xFetchJSON( "/api/acls?id=" + id, {
+		xFetchJSON( "/api/acls/" + _this.state.acl.id + "/node/" + id, {
 			method: "DELETE"
 		}).then((obj) => {
 			console.log("deleted")
@@ -229,7 +246,29 @@ class ACLPage extends React.Component {
 		});
 	}
 
-	handleChange(obj) {
+	handleChangeKey(obj) {
+		const _this = this;
+		const id = Object.keys(obj)[0];
+		console.log("change", obj);
+
+		xFetchJSON( "/api/acls/" + _this.state.acl.id + "/nodes/" + id, {
+			method: "PUT",
+			body: JSON.stringify({k: obj[id]})
+		}).then((node) => {
+			console.log("success!!!!", node);
+			_this.state.nodes = _this.state.nodes.map(function(p) {
+				if (p.id == id) {
+					return node;
+				}
+				return p;
+			});
+			_this.setState({nodes: _this.state.nodes});
+		}).catch((msg) => {
+			console.log("update nodes", msg)
+		});
+	}
+
+	handleChangeValue(obj) {
 		const _this = this;
 		const id = Object.keys(obj)[0];
 		console.log("change", obj);
@@ -251,14 +290,14 @@ class ACLPage extends React.Component {
 		});
 	}
 
-	handleChangeValueK(obj) {
+	handleChangeNodeType(obj) {
 		const _this = this;
 		const id = Object.keys(obj)[0];
 		console.log("change", obj);
 
 		xFetchJSON( "/api/acls/" + _this.state.acl.id + "/nodes/" + id, {
 			method: "PUT",
-			body: JSON.stringify({k: obj[id]})
+			body: JSON.stringify({node_type: obj[id].text})
 		}).then((node) => {
 			console.log("success!!!!", node);
 			_this.state.nodes = _this.state.nodes.map(function(p) {
@@ -367,14 +406,22 @@ class ACLPage extends React.Component {
 				const disabled_class = dbfalse(node.disabled) ? null : "disabled";
 
 				return <tr key={node.id} className={disabled_class}>
-					<td><RIEInput value={_this.state.highlight ? (node.k ? node.k : T.translate("Click to Change")) : node.k} change={_this.handleChangeValueK}
+					<td><RIEInput value={_this.state.highlight ? (node.k ? node.k : T.translate("Click to Change")) : node.k} change={_this.handleChangeKey}
 						propName={node.id}
 						className={_this.state.highlight ? "editable long-input" : "long-input"}
 						validate={_this.isStringAcceptable}
 						classLoading="loading"
 						classInvalid="invalid"/>
 					</td>
-					<td><RIEInput value={_this.state.highlight ? (node.v ? node.v : T.translate("Click to Change")) : node.v} change={_this.handleChange}
+					<td><RIESelect value={_this.state.highlight ? (node.node_type ? {id:node.node_type, text:node.node_type} : T.translate("Click to Change")) : {id:node.node_type, text:node.node_type}} change={_this.handleChangeNodeType}
+						propName={node.id}
+						options={_this.state.selectOptions}
+						className={_this.state.highlight ? "editable long-input" : "long-input"}
+						validate={_this.isStringAcceptable}
+						classLoading="loading"
+						classInvalid="invalid"/>
+					</td>
+					<td><RIEInput value={_this.state.highlight ? (node.v ? node.v : T.translate("Click to Change")) : node.v} change={_this.handleChangeValue}
 						propName={node.id}
 						className={_this.state.highlight ? "editable long-input" : "long-input"}
 						validate={_this.isStringAcceptable}
@@ -435,8 +482,9 @@ class ACLPage extends React.Component {
 			<table className="table">
 				<tbody>
 				<tr>
-					<th><T.span text="Type"/></th>
-					<th><T.span text="Cidr"/></th>
+					<th><T.span text="Allow Or Deny"/></th>
+					<th><T.span text="Node Type"/></th>
+					<th><T.span text="Value"/></th>
 					<th><T.span style={hand} text="Delete" className={danger} onClick={toggleDanger} title={T.translate("Click me to toggle fast delete mode")}/></th>
 				</tr>
 				{nodes}

@@ -40,7 +40,7 @@ require 'm_acl'
 
 get('/', function(params)
 	n, acls = xdb.find_all("acls")
-	if (n > 0)	then
+	if (n > 0) then
 		return acls
 	else
 		return "[]"
@@ -79,32 +79,12 @@ put('/:id', function(params)
 	end
 end)
 
-delete('/:id', function(params)
-	ret = m_acl.delete(params.id)
-
-	if ret >= 0 then
-		return 200, "{}"
-	else
-		return 500, "{}"
-	end
-end)
-
 post('/:acl_id/nodes/', function(params)
 	params.request.acl_id = params.acl_id
 	ret = m_acl.createParam(params.request)
 	if ret then
+		utils.reload_acl()
 		return {id = ret}
-	else
-		return 500, "{}"
-	end
-end)
-
-delete('/', function(params)
-	id = tonumber(env:getHeader('id'))
-	ret = m_acl.delete(id)
-	
-	if ret >= 0 then
-		return 200, "{}"
 	else
 		return 500, "{}"
 	end
@@ -118,11 +98,36 @@ put('/:id/nodes/:param_id', function(params)
 		ret = m_acl.toggle_param(params.id, params.param_id)
 	else
 		ret = m_acl.update_param(params.id, params.param_id, params.request)
+		utils.reload_acl()
 	end
 
 	if ret then
 		return ret
 	else
 		return 404
+	end
+end)
+
+
+delete('/:id', function(params)
+	ret = m_acl.delete(params.id)
+
+	if ret >= 0 then
+		return 200, "{}"
+	else
+		return 500, "{}"
+	end
+end)
+
+delete('/:id/node/:node_id', function(params)
+	id = params.id
+	node_id = params.node_id
+	ret = m_acl.delete_node(id, node_id)
+	utils.reload_acl()
+
+	if ret >= 0 then
+		return 200, "{}"
+	else
+		return 500, "{}"
 	end
 end)

@@ -61,14 +61,6 @@ end
 
 function createParam(kvp)
 	id = xdb.create_return_id("acl_nodes", kvp)
-	-- print(id)
-	if id then
-		local acl_id = kvp.acl_id
-		local sql = "INSERT INTO acl_nodes (id, k, v, acl_id) values (" .. id .. ", '" .. kvp.k .. "' , '" .. kvp.v .. "', " .. acl_id .. ")"
-		freeswitch.consoleLog('err',sql)
-		xdb.execute(sql)
-	end
-
 	return id
 end
 
@@ -105,6 +97,12 @@ end
 m_acl.delete = function(rt_id)
 	xdb.delete("acls", rt_id);
 	local sql = "DELETE FROM acl_nodes " .. xdb.cond({acl_id = rt_id})
+	xdb.execute(sql)
+	return xdb.affected_rows()
+end
+
+m_acl.delete_node = function(id, node_id)
+	local sql = "DELETE FROM acl_nodes WHERE acl_id = " .. id .. " AND id = " .. node_id
 	xdb.execute(sql)
 	return xdb.affected_rows()
 end

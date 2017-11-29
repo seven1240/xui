@@ -589,6 +589,7 @@ CREATE TABLE acl_nodes (
 	id INTEGER PRIMARY KEY,
 	k VARCHAR NOT NULL,
 	v VARCHAR,
+	node_type VARCHAR,
 	acl_id INTEGER,
 
 	created_at DATETIME DEFAULT (DATETIME('now', 'localtime')),

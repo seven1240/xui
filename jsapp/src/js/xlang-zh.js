@@ -565,6 +565,8 @@ LANGUAGES["zh"] = {
 	Default: "默认",
 	node: "节点",
 	Cidr: "无类域间路由",
+	"Allow Or Deny": "允许否",
+	"Node Type": "数据类型",
 
 	"Server Mac Address": "服务器Mac地址",
 	"Upload done": "上传完毕",

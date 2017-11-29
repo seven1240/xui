@@ -35,9 +35,15 @@ function build_lists(acl)
 	local cond = {acl_id = acl.id}
 
 	xdb.find_by_cond("acl_nodes", cond , id, function(row)
-		acls = acls .. [[<node type="]] .. row.k ..
+		if row.node_type == "domain" then
+			acls = acls .. [[<node type="]] .. row.k ..
+				[[" domain="]] .. row.v ..
+				[["/>]]
+		else
+			acls = acls .. [[<node type="]] .. row.k ..
 			[[" cidr="]] .. row.v ..
 			[["/>]]
+		end
 	end)
 
 	return acls
@@ -55,7 +61,7 @@ end
 
 
 
-xXML_STRING=[[
+XML_STRING=[[
 <configuration name="acl.conf" description="Network Lists">
 <network-lists>]] ..
 	build() ..
