@@ -51,11 +51,13 @@ class MainMenu extends React.Component {
 		var _this = this;
 		var username = localStorage.getItem('xui.username');
 
-		xFetchJSON("/api/users/getID?username=" + username).then((data) => {
-			_this.setState({ user_id: data.id, headimgurl: data.headimgurl });
-		}).catch((msg) => {
-			console.log("get userID ERR");
-		});
+		if (username) {
+			xFetchJSON("/api/users/getID?username=" + username).then((data) => {
+				_this.setState({ user_id: data.id, headimgurl: data.headimgurl });
+			}).catch((msg) => {
+				console.log("get userID ERR");
+			});
+		}
 	}
 
 	render() {
