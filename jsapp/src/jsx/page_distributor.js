@@ -417,11 +417,14 @@ class DistributorPage extends React.Component {
 class DistributorsPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { formShow: false, rows: [], danger: false};
+		this.state = { formShow: false, rows: [], danger: false,
+			distributorDetails: [], detailsFormShow: false, detailsMsg: []
+	};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleControlClick = this.handleControlClick.bind(this);
 		this.handleDelete = this.handleDelete.bind(this);
+		this.handleShowDistributors = this.handleShowDistributors.bind(this);
 	}
 
 	handleControlClick(e) {
@@ -472,10 +475,41 @@ class DistributorsPage extends React.Component {
 		});
 	}
 
+	handleShowDistributors() {
+		let detailsFormShow = !this.state.detailsFormShow;
+		this.setState({detailsFormShow: detailsFormShow});
+		if(detailsFormShow == false) {
+			return;
+		}
+		var _this = this;
+		let msg_data = [];
+		let str = '';
+		this.state.rows.map((row) => {
+			verto.fsAPI("distributor_ctl", "dump " + row.name, (data) => {
+				msg_data.push({name: row.name, msg: data.message});
+				this.setState({detailsMsg: msg_data})
+			})
+		})
+	}
+
 	render() {
 		let formClose = () => this.setState({ formShow: false });
 		let toggleDanger = () => this.setState({ danger: !this.state.danger });
 		let hand = { cursor: "pointer"};
+		let detailsMsg = this.state.detailsMsg;
+
+		let dis_params = this.state.distributorDetails.map(function(p) {
+			return <li key={p.k}>{p.k}: {p.v}</li>;
+		})
+
+		let distributors = <ul>{dis_params}</ul>;
+
+		let details_params = detailsMsg.map((msg, index) => {
+			return <li key={index}>{msg.msg}</li>
+		})
+		let detail_rows = <ul>{details_params}</ul>
+
+
 	    var danger = this.state.danger ? "danger" : "";
 
 		var _this = this;
@@ -496,15 +530,23 @@ class DistributorsPage extends React.Component {
 					<i className="fa fa-refresh" aria-hidden="true"></i>&nbsp;
 					<T.span text="Reload"/>
 				</Button>
-
 				<Button onClick={this.handleControlClick} data="new">
 					<i className="fa fa-plus" aria-hidden="true" onClick={this.handleControlClick} data="new"></i>&nbsp;
 					<T.span onClick={this.handleControlClick} data="new" text="New" />
 				</Button>
 				</ButtonGroup>
+				<ButtonGroup>
+					<Button onClick={_this.handleShowDistributors}><i className="fa fa-list-ul" aria-hidden="true"></i>&nbsp;<T.span text={this.state.detailsFormShow ? "Hide Details" : "Show Details"}/></Button>
+				</ButtonGroup>
 			</ButtonToolbar>
-
 			<h1><T.span text="Distributors"/></h1>
+
+			<Form horizontal id="DetailsForm" style={{display: this.state.detailsFormShow ? "block" : "none"}}>
+				<FormGroup controlId="formDetails">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Details"/></Col>
+					<Col sm={10}>{detail_rows}</Col>
+				</FormGroup>
+			</Form>
 			<div>
 				<table className="table">
 				<tbody>
