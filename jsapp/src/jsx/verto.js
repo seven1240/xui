@@ -52,7 +52,9 @@ export const verto_callbacks = {
 		verto.domain = domain;
 
 		if (!success) {
+			verto_loginState = false;
 			fire_event("verto-login-error", v);
+			verto.logout();
 			return;
 		}
 
