@@ -60,15 +60,6 @@ end
 
 function createParam(kvp)
 	id = xdb.create_return_id("params", kvp)
-	-- print(id)
-	if id then
-		local ref_id = kvp.ref_id
-		local realm = 'sip_profile'
-		local sql = "INSERT INTO params (id, realm, k, v, ref_id) values (" .. id .. ", '" .. realm .. "', '" .. kvp.k .. "' , '" .. kvp.v .. "', " .. ref_id .. ")"
-		freeswitch.consoleLog('err',sql)
-		xdb.execute(sql)
-	end
-
 	return id
 end
 
