@@ -111,13 +111,18 @@ end)
 get('/getID', function(params)
 	local username = env:getHeader('username')
 	user = xdb.find_one("users", {extn = username})
-	wechat_user = xdb.find_one("wechat_users", {user_id = user.id})
-	if wechat_user then
-		user.headimgurl = wechat_user.headimgurl
-	end
-	freeswitch.consoleLog("err",serialize(user))
+
 	if user then
-		return user
+		wechat_user = xdb.find_one("wechat_users", {user_id = user.id})
+		if wechat_user then
+			user.headimgurl = wechat_user.headimgurl
+		end
+		freeswitch.consoleLog("err",serialize(user))
+		if user then
+			return user
+		else
+			return 404
+		end
 	else
 		return 404
 	end
