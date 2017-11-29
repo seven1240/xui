@@ -44,6 +44,7 @@ LANGUAGES["zh"] = {
 	Phone: "电话",
 	"Incoming Call": "新来电",
 	"Socket Connected": "Socket已连接",
+	"Socket DisConnected": "Socket未连接",
 	Settings: "设置",
 	Profiles: "Profiles",
 	Help: "帮助",

@@ -406,9 +406,15 @@ class Phone extends React.Component {
 		var ishttps = 'https:' == document.location.protocol ? true: false;
 
 		if (!ishttps) {
-			return <NavItem eventKey="phone">
-				<T.span id="phone-static" className={state} text="Socket Connected" onClick={this.handleMenuClick} />
-			</NavItem>
+			if (this.state.loginState) {
+				return <NavItem eventKey="phone">
+					<T.span id="phone-static" className={state} text="Socket Connected" onClick={this.handleMenuClick} />
+				</NavItem>
+			} else {
+				return <NavItem eventKey="phone">
+					<T.span id="phone-static" className={state} text="Socket DisConnected" onClick={this.handleMenuClick} />
+				</NavItem>
+			}
 		}
 
 		var DTMFs = <div style={{display: this.state.dtmfVisible ? "block" : "none"}}>
