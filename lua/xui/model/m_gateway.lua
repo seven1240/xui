@@ -41,7 +41,6 @@ function create(kvp)
 
 	id = xdb.create_return_id("gateways", kvp)
 	freeswitch.consoleLog('err',id)
-	-- print(id)
 	if id and template then
 		local realm = 'gateway'
 		local ref_id = 0
@@ -55,6 +54,44 @@ function create(kvp)
 			id .. ", disabled From params" ..
 			xdb.cond({realm = realm, ref_id = ref_id})
 
+		xdb.execute(sql)
+	end
+	return id
+end
+
+function create_with_params(kvp, params)
+	template = kvp.template
+	kvp.template = nil
+
+	id = xdb.create_return_id("gateways", kvp)
+	freeswitch.consoleLog('debug',id)
+
+	if id and template then
+		local ref_id = 0
+		cond = " WHERE realm = 'gateway' "
+
+		if template and template ~= "default" then
+			realm = 'gateway'
+			ref_id = template
+			cond = cond .. " and ref_id = " .. ref_id
+		end
+
+		if params and next(params) then
+			for k, v in pairs(params) do
+				request = {}
+				request.realm = 'gateway'
+				request.k = k
+				request.v = v
+				request.ref_id = id
+				request.disabled = 0
+				xdb.create("params", request)
+
+				cond = cond .. " and k <> '" .. k .. "'"
+			end
+		end
+
+		local sql = "INSERT INTO params (realm, k, v, ref_id, disabled) SELECT 'gateway', k, v, " ..
+			id .. ", disabled From params" .. cond
 		xdb.execute(sql)
 	end
 	return id
@@ -119,6 +156,7 @@ function delete_param(id, param_id)
 end
 
 m_gateway.create = create
+m_gateway.create_with_params = create_with_params
 m_gateway.params = params
 m_gateway.toggle_param = toggle_param
 m_gateway.update_param = update_param
