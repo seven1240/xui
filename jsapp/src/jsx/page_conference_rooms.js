@@ -313,6 +313,7 @@ class RoomMembers extends React.Component {
 			// batchAddmemberShow: false, 
 		this.handleUnfoldMember = this.handleUnfoldMember.bind(this);
 		this.handleSetGroupRoute = this.handleSetGroupRoute.bind(this);
+		this.handleClearGroupRoute = this.handleClearGroupRoute.bind(this);
 		this.handleDragSortStart = this.handleDragSortStart.bind(this);
 		this.handleDragSortDrop = this.handleDragSortDrop.bind(this);
 	}
@@ -375,6 +376,8 @@ class RoomMembers extends React.Component {
 	}
 
 	clearRoute() {
+		var c = confirm(T.translate("Confirm to clear ALL route ?"));
+		if (!c) return;
 		const members = this.state.members.map((m) => {
 			if (m.name.indexOf('.') < 0) {
 				m.route = '';
@@ -502,6 +505,20 @@ class RoomMembers extends React.Component {
 			return;
 		}
 		this.setState({clusterstate: true, controllgroupid: group_id });
+	}
+
+	handleClearGroupRoute(e) {
+		var c = confirm(T.translate("Confirm to clear the group member's route?"));
+		if (!c) return;
+		let group_id = e.currentTarget.getAttribute("data-group");
+		const members = this.state.members.map((m) => {
+			if ((m.name.indexOf('.') < 0) && m.group_id == group_id) {
+				m.route = '';
+			}
+			return m;
+		});
+
+		this.setState({members: members});
 	}
 
 	handleDragSortStart (e) {
@@ -638,14 +655,18 @@ class RoomMembers extends React.Component {
 							lineHeight: "42px", border: "1px solid #e2e2e2", margin: "0"}}>
 							<i onClick={_this.handleUnfoldMember} style={{cursor: "pointer"}} className="fa fa-minus-square-o"></i>&nbsp;&nbsp;
 							<T.span text={group_name}/>
-							<div style={{width: "260px", float: "right"}}>
+							<div style={{float: "right"}}>
 								<EditControl edit={controllgroupid == group_id ? true : false} componentClass="select" id="formVideoMode" name="video_mode"
-									style={{width: "140px", display: "inline-block", lineHeight: "22px"}}
+									style={{width: "140px", display: this.state.clusterstate ? "inline-block" : "none", lineHeight: "22px"}}
 									text={''} data-group={group_id}
 									options={cluster_options}>
 								</EditControl>
-								<a data-group={group_id} onClick={_this.handleSetGroupRoute} style={{float: "right", cursor: "pointer", fontSize: "12px", marginLeft: "5px"}}>
+								<a data-group={group_id} onClick={_this.handleSetGroupRoute} style={{cursor: "pointer", fontSize: "12px", marginLeft: "5px"}}>
 									<T.span text={ controllgroupid == group_id ? "Save Route" : "Click to set the group route" }/>
+								</a>
+								&nbsp;
+								<a data-group={group_id} onClick={_this.handleClearGroupRoute} style={{cursor: "pointer", fontSize: "12px", marginLeft: "5px", color: "#666"}}>
+									<T.span text={"Clear the group route"}/>
 								</a>
 							</div>
 						</h5>
