@@ -170,10 +170,17 @@ class NewUser extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {errmsg: ''};
+		this.state = {errmsg: '', contexts: []};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
+	}
+
+	componentDidMount() {
+
+		xFetchJSON("/api/dicts?realm=CONTEXT").then((data) => {
+			this.setState({contexts: data});
+		});
 	}
 
 	handleSubmit(e) {
@@ -229,8 +236,14 @@ class NewUser extends React.Component {
 				</FormGroup>
 
 				<FormGroup controlId="formContext">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Context" /></Col>
-					<Col sm={10}><FormControl type="input" name="context" defaultValue="default"/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Context"  className="mandatory"/></Col>
+					<Col sm={10}>
+						<FormControl componentClass="select" name="context" placeholder="select">
+							{this.state.contexts.map(function(c) {
+								return <option key={c.id}>{c.k}</option>;
+							})}
+						</FormControl>
+					</Col>
 				</FormGroup>
 
 				<FormGroup controlId="formDomain">
@@ -378,7 +391,7 @@ class UserPage extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {user: {}, edit: false, groups: [], wechat_users: [], formShow: '', style1: 'none'};
+		this.state = {user: {}, edit: false, groups: [], wechat_users: [], formShow: '', style1: 'none', contexts: []};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -475,6 +488,10 @@ class UserPage extends React.Component {
 		}).catch((e) => {
 			console.log("get groups ERR");
 		});
+
+		xFetchJSON("/api/dicts?realm=CONTEXT").then((data) => {
+			this.setState({contexts: data});
+		});
 	}
 
 	handleChangePassword() {
@@ -513,6 +530,10 @@ class UserPage extends React.Component {
 
 		const groups = this.state.groups.map(function(row) {
 			return <Checkbox name="group" key={row.id} defaultChecked={row.checkshow} value={row.id}>{row.name}</Checkbox>
+		});
+
+		const context_options = this.state.contexts.map(function(row) {
+			return [row.k, row.k];
 		});
 
 		return <div>
@@ -580,8 +601,10 @@ class UserPage extends React.Component {
 				</FormGroup>
 
 				<FormGroup controlId="formContext">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Context" /></Col>
-					<Col sm={10}><EditControl edit={this.state.edit} name="context" defaultValue={user.context}/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Context"  className="mandatory"/></Col>
+					<Col sm={10}>
+						<EditControl edit={this.state.edit} componentClass="select" name="context" options={context_options} defaultValue={user.context}/>
+					</Col>
 				</FormGroup>
 
 				<FormGroup controlId="formDomain">
