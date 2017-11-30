@@ -233,6 +233,11 @@ class NewUser extends React.Component {
 					<Col sm={10}><FormControl type="input" name="context" defaultValue="default"/></Col>
 				</FormGroup>
 
+				<FormGroup controlId="formDomain">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Domain"/></Col>
+					<Col sm={10}><FormControl type="input" name="domain" placeholder="domain for user" /></Col>
+				</FormGroup>
+
 				<FormGroup controlId="formCidName">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="CID Name"/></Col>
 					<Col sm={10}><FormControl type="input" name="cid_name" placeholder="1000" /></Col>
@@ -298,9 +303,10 @@ class ImportUser extends React.Component {
 			user.name = inputInfoI[1];
 			user.password = inputInfoI[2];
 			user.context = inputInfoI[3] || 'default';
-			user.cid_name = inputInfoI[4];
-			user.cid_number = inputInfoI[5];
-			user.vm_password = inputInfoI[6];
+			user.domain = inputInfoI[4] || 'default';
+			user.cid_name = inputInfoI[5];
+			user.cid_number = inputInfoI[6];
+			user.vm_password = inputInfoI[7];
 			users.push(user);
 		}
 
@@ -327,8 +333,7 @@ class ImportUser extends React.Component {
 			<Modal.Body>
 			<Form horizontal id="importUserForm">
 				<FormGroup controlId="formExtn">
-					<Col sm={12}><FormControl componentClass="textarea" name="info" rows="5"
-					placeholder={"1000\tSeven\t1234\n1001\t杜金房\t1234\tdefault\n1002\tMike\t1234\tdefault\t1002\tMike\t1002"} />
+					<Col sm={12}><FormControl componentClass="textarea" name="info" rows="5" placeholder={"1000\tSeven\t1234\n1001\t杜金房\t1234\tdefault\n1002\tDavid\t1234\tdefault\txyt.cn\n1003\tMike\t1234\tdefault\thnxyt.com\t1003\tMike\t1002"} />
 					</Col>
 				</FormGroup>
 
@@ -351,6 +356,7 @@ class ImportUser extends React.Component {
 						&lt;<T.span className="mandatory" text="Name"/>&gt;&nbsp;
 						&lt;<T.span className="mandatory" text="Password"/>&gt;&nbsp;
 						[<T.span text="Context"/>]&nbsp;
+						[<T.span text="Domain"/>]&nbsp;
 						[<T.span text="CID Number"/>]&nbsp;
 						[<T.span text="CID Name"/>]&nbsp;
 						[<T.span text="VM Password"/>]&nbsp;
@@ -576,6 +582,11 @@ class UserPage extends React.Component {
 				<FormGroup controlId="formContext">
 					<Col componentClass={ControlLabel} sm={2}><T.span text="Context" /></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} name="context" defaultValue={user.context}/></Col>
+				</FormGroup>
+
+				<FormGroup controlId="formDomain">
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Domain" /></Col>
+					<Col sm={10}><EditControl edit={this.state.edit} name="domain" defaultValue={user.domain}/></Col>
 				</FormGroup>
 
 				<FormGroup controlId="formCidName">
