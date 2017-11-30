@@ -22,6 +22,7 @@ xui: init
 
 init:
 	cd jsapp/src/jsx && ln -sf xui.js index.js
+	ln -sf /usr/local/freeswitch/xui/lua/xui /usr/local/freeswitch/scripts/
 
 setup: init
 	cd jsapp && \
