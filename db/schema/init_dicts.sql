@@ -126,7 +126,7 @@ INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'CCDR', '/conference_cdrs');
 
 INSERT INTO dicts (realm, k, v) VALUES ('RMENUS', 'Settings', '/settings');
 -- INSERT INTO dicts (realm, k, v) VALUES ('Profiles', 'Settings', '/profiles');
-INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Server Monitor', '/server_monitor');
+-- INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'Server Monitor', '/server_monitor');
 INSERT INTO dicts (realm, k, v) VALUES ('MENUS', 'About', '/about');
 
 INSERT INTO dicts (realm, k, v) VALUES ('CONF_VIDEO_MODE', 'CONF_VIDEO_MODE_PASSTHROUGH', 'passthrough');
