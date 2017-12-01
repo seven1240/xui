@@ -84,7 +84,7 @@ if purpose == "network-list" then
 end
 
 if user then
-	if user.extn ~= 'admin' and domain and not utils.is_ip_address(domain) then
+	if user ~= 'admin' and domain and not utils.is_ip_address(domain) then
 		cond = {['extn'] = user, ['domain'] = domain, ['disabled'] = 0}
 	else
 		cond = {['extn'] = user, ['disabled'] = 0}
