@@ -98,7 +98,7 @@ else
 		freeswitch.consoleLog("ERR", e .. "\n")
 	end
 
-	local params_xml_string = ""
+	local params_xml_string = nil
 	local index = string.find(key_value, '.conf')
 	local realm = string.sub(key_value, 1, index - 1)
 
