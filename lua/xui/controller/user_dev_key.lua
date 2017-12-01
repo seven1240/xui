@@ -194,8 +194,6 @@ post('/reset2', function(params)
 
 	user_key = xdb.find_one("user_dev_key", {user_id = user_idx})
 
-	utils.log("ERR", serialize(user_key))
-
 	if not user_key then return 500, "{}" end
 
 	ret = xdb.delete("user_dev_key", {user_id = user_key.user_id})
