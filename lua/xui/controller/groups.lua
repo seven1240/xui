@@ -46,7 +46,7 @@ function build_group_options_tree(groups, options_tab)
 				option_tab = {}
 
 				if (tonumber(v.level) ~= 0 ) then
-					spaces = string.rep("  ", tonumber(v.level) *2) .. "|" .. "---"
+					spaces = string.rep("  ", tonumber(v.level) *2) .. " " .. "  "
 				end
 
 				option_tab["name"] = spaces .. v.name
@@ -69,7 +69,7 @@ function build_group_options_tree_t(groups, options_tab, id)
 				option_tab = {}
 
 				if (tonumber(v.level) ~= 0 ) then
-					spaces = string.rep("  ", tonumber(v.level) *2) .. "|" .. "---"
+					spaces = string.rep("  ", tonumber(v.level) *2) .. " " .. "  "
 				end
 
 				option_tab["name"] = spaces .. v.name
@@ -91,13 +91,13 @@ function build_group_tree(groups, groups_tab)
 				child_groups = {}
 
 				if (tonumber(v.level) ~= 0 ) then
-					spaces = string.rep("  ", tonumber(v.level) *2) .. "|" .. "---"
+					spaces = string.rep("  ", tonumber(v.level) *2) .. " " .. "  "
 				end
 
 				v["spaces"] = spaces
 
 				table.insert(groups_tab, v)
-				n, child_groups = xdb.find_by_cond("groups", {group_id = v.id})
+				n, child_groups = xdb.find_by_cond("groups", {group_id = v.id}, "sort")
 				build_group_tree(child_groups, groups_tab)
 			end
 		end
@@ -209,7 +209,19 @@ get('/:id', function(params)
 end)
 
 put('/:id', function(params)
-	print(serialize(params))
+	group_id = params.request.group_id
+	if group_id then
+		m,level = xdb.find_by_sql("SELECT level FROM groups WHERE id = " .. group_id)
+		level = level[1].level + 1
+		n, sort = xdb.find_by_sql("SELECT sort FROM groups WHERE group_id = " .. group_id .. " ORDER BY sort DESC LIMIT 1;")
+	else
+		level = 0
+		n, sort = xdb.find_by_sql("SELECT sort FROM groups WHERE group_id is NULL ORDER BY sort DESC LIMIT 1;")
+	end
+
+	params.request.level = tostring(level)
+	params.request.sort = tostring(sort[1].sort + 1)
+	print("6666", sort[1].sort)
 	ret = xdb.update("groups", params.request)
 	if ret then
 		return 200, "{}"

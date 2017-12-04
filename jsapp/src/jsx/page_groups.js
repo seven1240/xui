@@ -390,7 +390,11 @@ class GroupPage extends React.Component {
 			method: "PUT",
 			body: JSON.stringify(group)
 		}).then(() => {
-			this.setState({group: group, edit: false});
+			xFetchJSON("/api/groups/" + this.props.params.id).then((data) => {
+				this.setState({group: data, edit: false});
+			}).catch((e) => {
+				console.log("get group ERR");
+			});
 			this.handleGetGroupOptionsTree();
 			notify(<T.span text={{key:"Saved at", time: Date()}}/>);
 		}).catch(() => {
@@ -481,7 +485,7 @@ class GroupPage extends React.Component {
 				</FormGroup>
 
 				<FormGroup controlId="formParentGroup">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Parent Group" className="mandatory"/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Parent Group"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} componentClass="select" name="group_id" options={group_options} defaultValue={group.parent_name}/></Col>
 				</FormGroup>
 
@@ -513,11 +517,14 @@ class GroupsPage extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = { formShow: false, rows: [], danger: false,
-				formShow1: false, group_options: [], max: 0};
+				formShow1: false, group_options: [], max: 0,
+				floder_gid: {}, child_id_arr: []
+			};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleControlClick = this.handleControlClick.bind(this);
 		this.handleDelete = this.handleDelete.bind(this);
+		this.handleUnFolder = this.handleUnFolder.bind(this);
 	}
 
 	handleControlClick(data) {
@@ -586,18 +593,56 @@ class GroupsPage extends React.Component {
 		this.handleGetGroupOptionsTree();
 	}
 
+	handleUnFolder(e) {
+		let icon = e.currentTarget;
+		let level = e.currentTarget.getAttribute("data-level");
+		let tid = e.currentTarget.getAttribute("data-id");
+		let floder_gid = this.state.floder_gid;
+		this.state.child_id_arr = [];
+		this.pickChildGroup([tid]);
+		floder_gid[tid] = floder_gid[tid] == "undefined" ? false : !floder_gid[tid];
+		icon.className = floder_gid[tid] ? "fa fa-minus-square-o" : "fa fa-plus-square-o";
+		this.state.child_id_arr.map((id) => {
+			floder_gid[id] = floder_gid[tid];
+		})
+
+		this.setState({floder_gid: floder_gid})
+		this.state.floder_gid = floder_gid;	
+	}
+
+	pickChildGroup(arr) {
+		let _this = this;
+		if(!arr.length) return;
+		let id_arr = [];
+		if(arr.length > 0) {
+			this.state.rows.map(function(row) {
+				arr.map((id) => {
+					if(row.group_id == id) {
+						_this.state.child_id_arr.push(row.id);
+						id_arr.push(row.id);
+					}
+				})
+			})
+			this.pickChildGroup(id_arr);
+		}
+	}
+
 	render() {
 		let formClose = () => this.setState({ formShow: false });
 		let formClose1 = () => this.setState({ formShow1: false });
 		let toggleDanger = () => this.setState({ danger: !this.state.danger });
 	    var danger = this.state.danger ? "danger" : "";
+	    let floder_gid = this.state.floder_gid;
 
 		var _this = this;
-
-		var rows = this.state.rows.map(function(row) {
-			return <tr key={row.id}>
-					<td>{row.sort}</td>
-					<td>{row.spaces.replace(/ /g, String.fromCharCode(160))}<Link to={`/settings/groups/${row.id}`}>{row.name}</Link></td>
+		var rows = this.state.rows.map((row) => {
+			if(floder_gid[row.group_id] == undefined) floder_gid[row.group_id] = true;
+			return <tr key={row.id} style={{display: floder_gid[row.group_id] ? "table-row" : "none"}}>
+					<td>{row.spaces.replace(/ /g, String.fromCharCode(160))}
+						<i data-id={row.id} data-level={row.level} className="fa fa-minus-square-o" aria-hidden="true" style={{cursor: "pointer"}} onClick={_this.handleUnFolder}></i>&nbsp;&nbsp;&nbsp;
+						<Link to={`/settings/groups/${row.id}`}>{row.name}</Link>
+					</td>
+					<td>{parseInt(row.level)+1}-<span>{row.sort}</span></td>
 					<td>{row.realm}</td>
 					<td>{row.description}</td>
 					<td><T.a onClick={() => _this.handleDelete(row.id, row)} text="Delete" className={danger} style={{cursor: 'pointer'}}/></td>
@@ -619,8 +664,8 @@ class GroupsPage extends React.Component {
 				<table className="table">
 				<tbody>
 				<tr>
-					<th><T.span text="Sort"/></th>
 					<th><T.span text="Name"/></th>
+					<th><T.span text="Sort"/></th>
 					<th><T.span text="Realm"/></th>
 					<th><T.span text="Description"/></th>
 					<th><T.span text="Delete" className={danger} onClick={toggleDanger} style={{cursor: 'pointer'}} title={T.translate("Click me to toggle fast delete mode")}/></th>
