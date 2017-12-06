@@ -65,7 +65,6 @@ function createParam(kvp)
 	if id then
 		local realm = 'modules'
 		local sql = "INSERT INTO params (id, realm,  k) values (" .. id .. ", '" .. realm .. "' , '" .. kvp.k .. "')"
-		freeswitch.consoleLog('err',sql)
 		xdb.execute(sql)
 	end
 
