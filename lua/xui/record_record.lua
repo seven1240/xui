@@ -60,6 +60,8 @@ if auto_record == "true" and record_path then
 		local size = assert(f:seek("end"))
 		local cidNumber = env:getHeader("Caller-Caller-ID-Number") or "UNKNOWN"
 		local destNumber = env:getHeader("Caller-Destination-Number") or "UNKNOWN"
+		local record_samples = env:getHeader("variable_record_samples") or "0"
+		local record_seconds = env:getHeader("variable_record_seconds") or "0"
 
 		rec = {}
 		rec.name = 'record-' .. cidNumber .. '-' .. destNumber
@@ -82,6 +84,8 @@ if auto_record == "true" and record_path then
 		rec.channel_uuid = uuid
 		rec.original_file_name = filename
 		rec.rel_path = filename
+		rec.duration = record_seconds
+		rec.sample_rate = record_samples
 
 		media_file_id = xdb.create_return_id('media_files', rec)
 		-- todo hook to cdrs ?
