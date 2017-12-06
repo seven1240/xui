@@ -302,7 +302,6 @@ get('/getID', function(params)
 		if wechat_user then
 			user.headimgurl = wechat_user.headimgurl
 		end
-		freeswitch.consoleLog("err",serialize(user))
 		if user then
 			return user
 		else
