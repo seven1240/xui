@@ -104,12 +104,13 @@ class ModulePage extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {edit: false, rows:[], formShow: false};
+		this.state = {edit: false, rows:[], formShow: false, danger: false};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleToggleParam = this.handleToggleParam.bind(this);
 		this.handleSort = this.handleSort.bind(this);
 		this.handleControlClick = this.handleControlClick.bind(this);
+		this.handleDelete = this.handleDelete.bind(this);
 		this.handleFSEvent = this.handleFSEvent.bind(this);
 	}
 
@@ -241,11 +242,39 @@ class ModulePage extends React.Component {
 		this.setState({rows: rows, formShow: false});
 	}
 
+	handleDelete(e) {
+		var id = e.target.getAttribute("data-id");
+		console.log("deleting id", id);
+
+		if (!this.state.danger) {
+			var c = confirm(T.translate("Confirm to Delete ?"));
+
+			if (!c) return;
+		}
+
+		xFetchJSON("/api/modules/" + id, {
+			method: "DELETE"
+		}).then((data) => {
+			console.log("deleted")
+			var rows = this.state.rows.filter(function(row) {
+				return row.id != id;
+			});
+
+			this.setState({rows: rows});
+		}).catch((msg) => {
+			console.error("module", msg);
+		});
+	}
+
 	render() {
 		const _this = this;
 		let save_btn = "";
 		let err_msg = "";
+		let toggleDanger = () => _this.setState({ danger: !_this.state.danger });
 		let formClose = () => _this.setState({ formShow: false });
+
+		let hand = { cursor: "pointer"};
+		var danger = _this.state.danger ? "danger" : "";
 
 		var rows = _this.state.rows.map(function(row) {
 				const enabled_style = dbfalse(row.disabled) ? "success" : "default";
@@ -264,6 +293,8 @@ class ModulePage extends React.Component {
 						<T.a onClick={_this.handleControlClick} data-k={row.k} data="reload" text="Reload" className="cursor-hand"/> |&nbsp;
 						<span>{row.class_name}</span>
 					</td>
+					<td></td><td></td><td></td>
+					<td><T.a style={hand} onClick={_this.handleDelete} data-id={row.id} text="Delete" className={danger}/></td>
 				</tr>
 			});
 
@@ -281,6 +312,8 @@ class ModulePage extends React.Component {
 					<th onClick={() => this.handleSort("k")} className="cursor-hand"><T.span text="Name" /></th>
 					<th onClick={() => this.handleSort("disabled")} className="cursor-hand"><T.span text="Enabled" /></th>
 					<th><T.span text="Control"/></th>
+					<th></th><th></th><th></th>
+					<th><T.span style={hand} text="Delete" className={danger} onClick={toggleDanger} title={T.translate("Click me to toggle fast delete mode")}/></th>
 				</tr>
 				{rows}
 				</tbody>

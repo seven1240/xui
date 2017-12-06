@@ -76,3 +76,13 @@ post('/', function(params)
 		return 500, "{}"
 	end
 end)
+
+delete('/:id', function(params)
+	ret = xdb.delete("params", params.id);
+
+	if ret == 1 then
+		return 200, "{}"
+	else
+		return 500, "{}"
+	end
+end)
