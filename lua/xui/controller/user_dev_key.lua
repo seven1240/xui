@@ -33,6 +33,7 @@
 
 content_type("application/json")
 require 'xdb'
+require 'm_user_dev_key'
 xdb.bind(xtra.dbh)
 
 xtra.ignore_login('/list')
@@ -41,13 +42,6 @@ xtra.ignore_login('/reset')
 xtra.ignore_login('/delete')
 xtra.start_session()
 xtra.require_login()
-
-function generate_key()
-	local now_epoch = os.time()
-	local api = freeswitch.API()
-	local uuid = api:execute("create_uuid")
-	return now_epoch .. uuid
-end
 
 get('/', function(params)
 	n, keys = xdb.find_by_cond("user_dev_key")
@@ -91,13 +85,17 @@ get('/list', function(params)
 end)
 
 post('/', function(params)
-	params.request.key = generate_key()
-	obj = xdb.create_return_object("user_dev_key", params.request)
-	if obj then
-		api:execute("hash", "insert/xui/" .. obj.key .. "/" .. obj.user_id)
-		return obj
+	user_key = xdb.find_one("user_dev_key", {user_id =  params.request.user_id})
+
+	if user_key and user_key.key then
+		return 200, {code = 200, message = "success", data = {key = user_key.key}}
 	else
-		return 500, "{}"
+		obj = m_user_dev_key.create(params.request.user_id)
+		if obj then
+			return obj
+		else
+			return 500, "{}"
+		end
 	end
 end)
 
@@ -124,15 +122,17 @@ post('/create', function(params)
 		return 200, {code = 906, message = "err password"}
 	end
 
-	local data = {}
-	data.key = generate_key()
-	data.user_id = user.id
-	obj = xdb.create_return_object("user_dev_key", data)
-	if obj then
-		api:execute("hash", "insert/xui/" .. obj.key .. "/" .. obj.user_id)
-		return 200, {code = 200, message = "success", data = {key = obj.key}}
+	user_key = xdb.find_one("user_dev_key", {user_id = user.id})
+
+	if user_key and user_key.key then
+		return 200, {code = 200, message = "success", data = {key = user_key.key}}
 	else
-		return 200, {code = 999, message = "unknown"}
+		obj = m_user_dev_key.create(user.id)
+		if obj then
+			return 200, {code = 200, message = "success", data = {key = obj.key}}
+		else
+			return 200, {code = 999, message = "unknown"}
+		end
 	end
 end)
 
@@ -171,12 +171,9 @@ post('/reset', function(params)
 		local data = {}
 		local api = freeswitch.API()
 		api:execute("hash", "delete/xui/" .. user_key.key)
-		data.key = generate_key()
-		data.user_id = user.id
-		obj = xdb.create_return_object("user_dev_key", data)
+		obj = m_user_dev_key.create(user.id)
 		if obj then
-			api:execute("hash", "insert/xui/" .. obj.key .. "/" .. obj.user_id)
-			return 200, {code = 200, message = "success", data = {key = obj.key}} 
+			return 200, {code = 200, message = "success", data = {key = obj.key}}
 		else
 			return 200, {code = 999, message = "unknown"}
 		end
@@ -201,11 +198,9 @@ post('/reset2', function(params)
 	if ret == 1 then
 		local api = freeswitch.API()
 		api:execute("hash", "delete/xui/" .. user_key.key)
-		params.request.key = generate_key()
-		obj = xdb.create_return_object("user_dev_key", params.request)
+		obj = m_user_dev_key.create(params.request.user_id)
 		if obj then
-			api:execute("hash", "insert/xui/" .. obj.key .. "/" .. obj.user_id)
-			return params.request
+			return obj
 		else
 			return 500, "{}"
 		end
