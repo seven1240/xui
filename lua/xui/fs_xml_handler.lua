@@ -98,25 +98,30 @@ else
 		freeswitch.consoleLog("ERR", e .. "\n")
 	end
 
-	local params_xml_string = nil
-	local index = string.find(key_value, '.conf')
-	local realm = string.sub(key_value, 1, index - 1)
-
-	xdb.find_by_cond("params", {realm = realm, disabled = 0}, 'id', function (row)
-		params_xml_string = params_xml_string .. '<param name ="' .. row.k .. '" value="' .. row.v .. '"/>'
-	end)
-
-	if params_xml_string then
-		XML_STRING = [[<configuration name="]] .. key_value .. [[" description="]].. key_value .. [[">]]
-			.. params_xml_string .. [[</configuration>]]
-
-		XML_STRING = [[<document type="freeswitch/xml">
-			<section name="]] .. section .. [[">]] ..
-				XML_STRING .. [[
-			</section>
-		</document>]]
-	else
+	if not key_value or not string.find(key_value, '.conf') then
 		XML_STRING = "<xml></xml>"
+	else
+
+		local params_xml_string = nil
+		local index = string.find(key_value, '.conf')
+		local realm = string.sub(key_value, 1, index - 1)
+
+		xdb.find_by_cond("params", {realm = realm, disabled = 0}, 'id', function (row)
+			params_xml_string = params_xml_string .. '<param name ="' .. row.k .. '" value="' .. row.v .. '"/>'
+		end)
+
+		if params_xml_string then
+			XML_STRING = [[<configuration name="]] .. key_value .. [[" description="]].. key_value .. [[">]]
+				.. params_xml_string .. [[</configuration>]]
+
+			XML_STRING = [[<document type="freeswitch/xml">
+				<section name="]] .. section .. [[">]] ..
+					XML_STRING .. [[
+				</section>
+			</document>]]
+		else
+			XML_STRING = "<xml></xml>"
+		end
 	end
 end
 
