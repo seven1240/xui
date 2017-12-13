@@ -645,9 +645,15 @@ class RoomMembers extends React.Component {
 					group_name = group_members[group_id][0].group_name;
 				}
 
-				let cluster_options = this.props.room.cluster.map((opt, index) => {
-					return [opt.host, opt.host];
-				});
+				let cluster_options = [];
+				let clusterr = this.props.room.cluster;
+				if(clusterr == '' || clusterr == undefined) {
+					cluster_options = [['', '']];
+				} else {
+					cluster_options = clusterr.map((opt, index) => {
+						return [opt.host, opt.host];
+					});
+				}
 
 				return <div key={index}>
 					<div style={{width: "100%"}}>
