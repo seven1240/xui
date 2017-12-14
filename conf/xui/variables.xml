@@ -8,8 +8,7 @@
 <X-PRE-PROCESS cmd="set" data="console_level=debug"/>
 <!-- Did you change it yet? -->
 <X-PRE-PROCESS cmd="set" data="default_password=1234"/>
-<X-PRE-PROCESS cmd="set" data="api_on_startup1=lua xui/init_dev_key.lua"/>
-<X-PRE-PROCESS cmd="set" data="api_on_startup2=fifo reparse"/>
+<X-PRE-PROCESS cmd="set" data="api_on_startup=lua xui/api_on_startup.lua"/>
 <!-- Did you change it yet? -->
 <include>
   <!--
