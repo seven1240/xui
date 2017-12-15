@@ -61,6 +61,7 @@ LANGUAGES["zh"] = {
 	"Password confirmation doesn't match": "两次密码确认不匹配",
 	"Password successfully changed": "密码修改成功",
 	"Are you sure?": "确定要这么做吗？",
+	"Node List": "节点列表",
 	"Not Here": "刷新未参会者列表",
 	"Start New CDR": "开始新的会议记录",
 	"New CDR Started": "已开始新的会议记录",
