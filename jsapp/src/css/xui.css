@@ -84,6 +84,10 @@ tr.disabled {
 	color: #CCC !important;
 }
 
+tr.offline {
+	color: #ccc !important;
+}
+
 div.disabled {
 	color: #CCC !important;
 }
@@ -154,6 +158,10 @@ td.running {background-color: lime;}
 
 .td_active {
   background: #ed1941 !important;
+}
+
+.td_offline {
+	color: #ccc !important;
 }
 
 .td_held {

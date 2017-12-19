@@ -104,6 +104,21 @@ get('/:id/params', function(params)
 	end
 end)
 
+get('/:id/member_groups', function(params)
+
+	n,members = xdb.find_by_sql("SELECT * FROM groups" ..
+		" WHERE exists (SELECT group_id FROM conference_members " ..
+		"   WHERE group_id = groups.id AND" ..
+		"   room_id = " .. xdb.escape(params.id) ..
+		")")
+
+	if n > 0 then
+		return members
+	else
+		return '[]'
+	end
+end)
+
 get('/:id/members', function(params)
 	local api = freeswitch.API()
 	local local_ip_v4 = api:execute("global_getvar", "local_ip_v4")
