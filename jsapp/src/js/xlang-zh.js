@@ -195,7 +195,7 @@ LANGUAGES["zh"] = {
 	"Save Route": "保存路由",
 	"Auto Calc Route": "自动计算路由",
 	"Clear Route": "清除路由",
-	"Click to set the group route": "点击设置该组路由",
+	"Set the group route": "设置该组路由",
 	"Clear the group route": "清除该组成员路由",
 	"Confirm to clear ALL route ?": "确认清除所有成员的路由吗？",
 	"Confirm to clear the group member's route?": "确认清除该组路由？",

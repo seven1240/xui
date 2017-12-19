@@ -668,7 +668,7 @@ class RoomMembers extends React.Component {
 									options={cluster_options}>
 								</EditControl>
 								<a data-group={group_id} onClick={_this.handleSetGroupRoute} style={{cursor: "pointer", fontSize: "12px", marginLeft: "5px"}}>
-									<T.span text={ controllgroupid == group_id ? "Save Route" : "Click to set the group route" }/>
+									<T.span text={ controllgroupid == group_id ? "Save Route" : "Set the group route" }/>
 								</a>
 								&nbsp;
 								<a data-group={group_id} onClick={_this.handleClearGroupRoute} style={{cursor: "pointer", fontSize: "12px", marginLeft: "5px", color: "#666"}}>
