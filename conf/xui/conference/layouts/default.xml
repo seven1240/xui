@@ -350,4 +350,9 @@
   <image x="60" y="300" scale="60" overlap="true"/>
   <image x="0" y="300" scale="60" overlap="true"/>
 </layout>
-
+<layout name="2x2-r" auto-3d-position="true" bgimg="/usr/local/freeswitch/images/default-4x4.png">
+  <image x="0" y="0" scale="180" reservation_id="1"/>
+  <image x="180" y="0" scale="180" reservation_id="2"/>
+  <image x="0" y="180" scale="180" reservation_id="3"/>
+  <image x="180" y="180" scale="180" reservation_id="4"/>
+</layout>
