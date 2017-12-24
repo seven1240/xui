@@ -350,9 +350,41 @@
   <image x="60" y="300" scale="60" overlap="true"/>
   <image x="0" y="300" scale="60" overlap="true"/>
 </layout>
+<layout name="1x1-r" auto-3d-position="true" bgimg="/usr/local/freeswitch/images/default-4x4.png">
+  <image x="0" y="0" scale="360" floor="true" reservation_id="1"/>
+</layout>
 <layout name="2x2-r" auto-3d-position="true" bgimg="/usr/local/freeswitch/images/default-4x4.png">
   <image x="0" y="0" scale="180" reservation_id="1"/>
   <image x="180" y="0" scale="180" reservation_id="2"/>
   <image x="0" y="180" scale="180" reservation_id="3"/>
   <image x="180" y="180" scale="180" reservation_id="4"/>
+</layout>
+<layout name="3x3-r" auto-3d-position="true" bgimg="/usr/local/freeswitch/images/default-4x4.png">
+  <image x="0" y="0" scale="120" reservation_id="1"/>
+  <image x="120" y="0" scale="120" reservation_id="2"/>
+  <image x="240" y="0" scale="120" reservation_id="3"/>
+  <image x="0" y="120" scale="120" reservation_id="4"/>
+  <image x="120" y="120" scale="120" reservation_id="5"/>
+  <image x="240" y="120" scale="120" reservation_id="6"/>
+  <image x="0" y="240" scale="120" reservation_id="7"/>
+  <image x="120" y="240" scale="120" reservation_id="8"/>
+  <image x="240" y="240" scale="120" reservation_id="9"/>
+</layout>
+<layout name="4x4-r" auto-3d-position="true" bgimg="/usr/local/freeswitch/images/default-4x4.png">
+  <image x="0" y="0" scale="90" reservation_id="1"/>
+  <image x="90" y="0" scale="90" reservation_id="2"/>
+  <image x="180" y="0" scale="90" reservation_id="3"/>
+  <image x="270" y="0" scale="90" reservation_id="4"/>
+  <image x="0" y="90" scale="90" reservation_id="5"/>
+  <image x="90" y="90" scale="90" reservation_id="6"/>
+  <image x="180" y="90" scale="90" reservation_id="7"/>
+  <image x="270" y="90" scale="90" reservation_id="8"/>
+  <image x="0" y="180" scale="90" reservation_id="9"/>
+  <image x="90" y="180" scale="90" reservation_id="10"/>
+  <image x="180" y="180" scale="90" reservation_id="11"/>
+  <image x="270" y="180" scale="90" reservation_id="12"/>
+  <image x="0" y="270" scale="90" reservation_id="13"/>
+  <image x="90" y="270" scale="90" reservation_id="14"/>
+  <image x="180" y="270" scale="90" reservation_id="15"/>
+  <image x="270" y="270" scale="90" reservation_id="16"/>
 </layout>
