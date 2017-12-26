@@ -91,6 +91,10 @@ function extract_ip(host)
 	return host
 end
 
+function isLinkedMember(cidNumber)
+	return string.find(cidNumber, '%.')
+end
+
 xdb.find_by_sql(sql, function(row)
 	found = true
 
@@ -166,13 +170,30 @@ xdb.find_by_sql(sql, function(row)
 		local check = nil
 		local matched = false
 
+		table.insert(actions_table, {app = "info", data = ""})
+
 		if true then -- track conference
 			table.insert(actions_table, {app = "set", data = "execute_on_answer=lua xui/conference_tracker.lua " .. room.nbr})
 			table.insert(actions_table, {app = "set", data = "session_in_hangup_hook=true"})
 			table.insert(actions_table, {app = "set", data = "api_hangup_hook=lua xui/conference_tracker.lua " .. room.nbr})
 		end
 
-		check = xdb.find_one("conference_members", {room_id = room.id, num = cidNumber})
+		if isLinkedMember(cidNumber) then
+			check = {route = local_ipv4} -- link member always route to myself
+		else
+			check = xdb.find_one("conference_members", {room_id = room.id, num = cidNumber})
+			if check and check.sort then
+				table.insert(actions_table, {app = "export", data = "xui_conference_order=" .. check.sort})
+				table.insert(actions_table, {app = "export", data = "nolocal:sip_h_X-xui_conference_order=" .. check.sort})
+			end
+		end
+
+		x_conference_order = params:getHeader("variable_sip_h_X-xui_conference_order")
+
+		if conference_order then
+			freeswitch.consoleLog("ERR", "conference_order: " .. x_conference_order);
+			table.insert(actions_table, {app = "set", data = "xui_conference_order=" .. x_conference_order})
+		end
 
 		if room.call_perm == "CONF_CP_CHECK_CID" then
 			if not check then
@@ -197,7 +218,7 @@ xdb.find_by_sql(sql, function(row)
 			matched = true
 		end
 
-		if (not matched) and room.cluster and (room.cluster:sub(1,1) == "{") then
+		if (not matched) and room.cluster and (room.cluster:sub(1,1) == "[") then
 			nodes = utils.json_decode(room.cluster)
 
 			if do_debug then
@@ -233,8 +254,10 @@ xdb.find_by_sql(sql, function(row)
 		if not matched then
 			if cidNumber == room.moderator then
 				flags = "+flags{join-vid-floor|moderator}"
-			elseif not string.find(cidNumber, '%.') then -- except linked-member
-				flags = "+flags{vmute}"
+			elseif room.video_mode == 'CONF_VIDEO_MODE_MUX' and (not isLinkedMember(cidNumber)) then -- except linked-member
+				flags = "+flags{mute|vmute}"
+			elseif room.video_mode == 'CONF_VIDEO_MODE_PASSTHROUGH' and (not isLinkedMember(cidNumber)) then -- except linked-member
+				flags = "+flags{mute}"
 			end
 
 			if room.canvas_count > "1" then
@@ -256,7 +279,7 @@ xdb.find_by_sql(sql, function(row)
 				end
 			end
 
-			if room.banner and (not string.find(cidNumber, '%.')) then -- no banner for linked member
+			if room.banner and (not isLinkedMember(cidNumber)) then -- no banner for linked member
 				banner = utils.json_decode(room.banner)
 				if banner then
 					banner_text = "{font_face=" .. banner.fontFace ..

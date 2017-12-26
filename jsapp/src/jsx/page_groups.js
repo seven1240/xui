@@ -41,18 +41,29 @@ import { EditControl, xFetchJSON } from './libs/xtools'
 class GroupMembers extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {members: [], danger: false, select_value: [], users: []};
+		this.state = {members: [], danger: false, select_value: [], users: [], max: 0, startsort: 0};
+		this.handleDragSortStart = this.handleDragSortStart.bind(this);
+		this.handleDragSortDrop = this.handleDragSortDrop.bind(this);
 	}
 
 	handleGetGroupMembers() {
 		xFetchJSON("/api/groups/" + this.props.group_id + "/members").then((data) => {
-			this.setState({members: data});
+			let max = this.state.max;
+			if(data.length) {
+				max = data[0].sort;
+				data.map((d) => {
+					max = max < d.sort ? d.sort : max;
+				})
+			} else {
+				max = 0;
+			}
+
+			this.setState({members: data, max: max});
 		});
 	}
 
 	handleGetReaminMembers() {
 		xFetchJSON("/api/groups/" + this.props.group_id + "/remain_members").then((data) => {
-			console.log("remain users:", data)
 			this.setState({users: data});
 		}).catch((msg) => {
 			console.log("get remain users ERR", msg);
@@ -61,9 +72,11 @@ class GroupMembers extends React.Component {
 
 	handleMembersAdded() {
 		const group_id = this.props.group_id;
-		const members = JSON.stringify(this.state.select_value.map(function(select) {
+		let members = this.state.select_value.map(function(select) {
 			return {group_id: group_id, user_id: select.value}
-		}));
+		});
+
+		members = JSON.stringify(members);
 
 		xFetchJSON("/api/groups/members", {
 			method: "POST",
@@ -79,9 +92,7 @@ class GroupMembers extends React.Component {
 
 	handleSelectChange(value) {
 		this.setState({select_value: value});
-		console.log('select_value', value);
 	}
-
 
 	handleDelete(e) {
 		e.preventDefault();
@@ -105,6 +116,7 @@ class GroupMembers extends React.Component {
 
 			this.setState({members: members});
 			this.handleGetReaminMembers();
+			this.handleGetGroupMembers();
 
 		}).catch((msg) => {
 			console.error("groups member ", msg);
@@ -136,6 +148,43 @@ class GroupMembers extends React.Component {
 		this.handleGetReaminMembers();
 	}
 
+	handleDragSortStart (e) {
+		let startsort = e.target.parentNode.getAttribute("value");
+		this.state.startsort = startsort;
+	}
+
+	handleDragSortDrop (e) {
+		e.preventDefault();
+		const _this = this;
+		let row = e.target.parentNode;
+		row.setAttribute('style', 'border-top: 1px solid #ddd; background-color: #fff');
+		let startsort = parseInt(this.state.startsort);
+		let dropsort = parseInt(row.getAttribute("value"));
+
+		xFetchJSON("/api/groups/drag/" + startsort + "/" + dropsort, {
+			method: "PUT"
+		}).then((obj) => {
+			_this.handleGetGroupMembers();
+		}).catch((msg) => {
+			console.error("group", msg);
+			this.setState({errmsg: '' + msg + ''});
+		}); 
+	}
+
+	handleDragSortEnter(e) {
+		let row = e.target.parentNode;
+		row.setAttribute('style', 'border: 2px dashed #3f3f3f; background-color: #f5f5f5');
+	}
+
+	handleDragSortOver(e) {
+		e.preventDefault();
+	}
+
+	handleDragSortLeave (e) {
+		let row = e.target.parentNode;
+		row.setAttribute('style', 'border: 0; background-color: #fff');
+	}
+
 	render() {
 		const toggleDanger = () => this.setState({ danger: !this.state.danger });
 		const danger = this.state.danger ? "danger" : null;
@@ -145,11 +194,37 @@ class GroupMembers extends React.Component {
 
 		const _this = this;
 		var members = this.state.members.map(function(member) {
-			return <tr key={member.id}>
-					<td><Link to={`/settings/users/${member.user_id}`}>{member.extn}</Link></td>
-					<td>{member.name}</td>
-					<td>{member.domain}</td>
-					<td style={{textAlign: "right"}}>
+			return <tr key={member.id} value={member.id}>
+					<td draggable={"true"} style={{cursor: "pointer"}}
+						onDragStart={_this.handleDragSortStart}
+						onDragEnter={_this.handleDragSortEnter.bind(this)}
+						onDragLeave={_this.handleDragSortLeave.bind(this)}
+						onDragOver={_this.handleDragSortOver.bind(this)} 
+						onDrop={_this.handleDragSortDrop}>{member.sort}</td>
+					<td draggable={"true"} style={{cursor: "pointer"}}
+						onDragStart={_this.handleDragSortStart}
+						onDragEnter={_this.handleDragSortEnter.bind(this)}
+						onDragLeave={_this.handleDragSortLeave.bind(this)}
+						onDragOver={_this.handleDragSortOver.bind(this)} 
+						onDrop={_this.handleDragSortDrop}><Link to={`/settings/users/${member.user_id}`}>{member.extn}</Link></td>
+					<td draggable={"true"} style={{cursor: "pointer"}}
+						onDragStart={_this.handleDragSortStart}
+						onDragEnter={_this.handleDragSortEnter.bind(this)}
+						onDragLeave={_this.handleDragSortLeave.bind(this)}
+						onDragOver={_this.handleDragSortOver.bind(this)} 
+						onDrop={_this.handleDragSortDrop}>{member.name}</td>
+					<td draggable={"true"} style={{cursor: "pointer"}}
+						onDragStart={_this.handleDragSortStart}
+						onDragEnter={_this.handleDragSortEnter.bind(this)}
+						onDragLeave={_this.handleDragSortLeave.bind(this)}
+						onDragOver={_this.handleDragSortOver.bind(this)} 
+						onDrop={_this.handleDragSortDrop}>{member.domain}</td>
+					<td draggable={"true"} style={{cursor: "pointer"}}
+						onDragStart={_this.handleDragSortStart}
+						onDragEnter={_this.handleDragSortEnter.bind(this)}
+						onDragLeave={_this.handleDragSortLeave.bind(this)}
+						onDragOver={_this.handleDragSortOver.bind(this)} 
+						onDrop={_this.handleDragSortDrop} style={{textAlign: "right"}}>
 						<T.a onClick={_this.handleDelete.bind(_this)} data-id={member.user_id} text="Delete" className={danger} href="#"/>
 					</td>
 			</tr>;
@@ -166,6 +241,7 @@ class GroupMembers extends React.Component {
 			<table className="table">
 				<tbody>
 				<tr>
+					<th><T.span text="Sort"/></th>
 					<th><T.span text="Number" data="k"/></th>
 					<th><T.span text="Name"/></th>
 					<th><T.span text="Domain"/></th>
@@ -191,15 +267,18 @@ class NewGroup extends React.Component {
 	}
 
 	handleSubmit(e) {
-
-		console.log("submit...");
 		var group = form2json('#newGroupForm');
-		console.log("group", group);
+		let max = this.props.max;
 
 		if (!group.name || !group.realm) {
 			this.setState({errmsg: "Mandatory fields left blank"});
 			return;
 		}
+
+		if(group.group_id == ''){
+			group.sort = parseInt(max) + 1;
+		}
+
 		xFetchJSON("/api/groups", {
 			method: "POST",
 			body: JSON.stringify(group)
@@ -289,7 +368,6 @@ class GroupPage extends React.Component {
 
 	handleGetGroupOptionsTree() {
 		xFetchJSON("/api/groups/build_group_options_tree/" + this.props.params.id).then((data) => {
-			console.log("group_options", data);
 			this.setState({group_options: data});
 		}).catch((e) => {
 			console.log("get group_options ERR");
@@ -297,10 +375,7 @@ class GroupPage extends React.Component {
 	}
 
 	handleSubmit(e) {
-
-		console.log("submit...");
 		var group = form2json('#newGroupForm');
-		console.log("group", group);
 
 		if (!group.name || !group.realm) {
 			this.setState({errmsg: "Mandatory fields left blank"});
@@ -315,7 +390,11 @@ class GroupPage extends React.Component {
 			method: "PUT",
 			body: JSON.stringify(group)
 		}).then(() => {
-			this.setState({group: group, edit: false});
+			xFetchJSON("/api/groups/" + this.props.params.id).then((data) => {
+				this.setState({group: data, edit: false});
+			}).catch((e) => {
+				console.log("get group ERR");
+			});
 			this.handleGetGroupOptionsTree();
 			notify(<T.span text={{key:"Saved at", time: Date()}}/>);
 		}).catch(() => {
@@ -347,14 +426,12 @@ class GroupPage extends React.Component {
 
 	componentDidMount() {
 		xFetchJSON("/api/groups/" + this.props.params.id).then((data) => {
-			console.log("group", data);
 			this.setState({group: data});
 		}).catch((e) => {
 			console.log("get group ERR");
 		});
 
 		xFetchJSON("/api/permissions/" + this.props.params.id).then((data) => {
-			console.log("permissions", data);
 			this.setState({permissions: data});
 		}).catch((e) => {
 			console.log("get permissions ERR");
@@ -408,7 +485,7 @@ class GroupPage extends React.Component {
 				</FormGroup>
 
 				<FormGroup controlId="formParentGroup">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="Parent Group" className="mandatory"/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Parent Group"/></Col>
 					<Col sm={10}><EditControl edit={this.state.edit} componentClass="select" name="group_id" options={group_options} defaultValue={group.parent_name}/></Col>
 				</FormGroup>
 
@@ -439,16 +516,18 @@ class GroupPage extends React.Component {
 class GroupsPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { formShow: false, rows: [], danger: false, formShow1: false, group_options: []};
+		this.state = { formShow: false, rows: [], danger: false,
+				formShow1: false, group_options: [], max: 0,
+				floder_gid: {}, child_id_arr: []
+			};
 
 		// This binding is necessary to make `this` work in the callback
 		this.handleControlClick = this.handleControlClick.bind(this);
 		this.handleDelete = this.handleDelete.bind(this);
+		this.handleUnFolder = this.handleUnFolder.bind(this);
 	}
 
 	handleControlClick(data) {
-		console.log("data", data);
-
 		if (data == "new") {
 			this.setState({ formShow: true});
 		} else if (data == "import") {
@@ -457,11 +536,9 @@ class GroupsPage extends React.Component {
 	}
 
 	handleDelete(id) {
-		console.log("deleting id ", id);
 
 		if (!this.state.danger) {
 			var c = confirm(T.translate("Confirm to Delete ?"));
-
 			if (!c) return;
 		}
 
@@ -472,16 +549,13 @@ class GroupsPage extends React.Component {
 				this.handleGetGroupsTree();
 				this.handleGetGroupOptionsTree();
 			}).catch((msg) => {
-				console.error("group", msg);
+				var c = confirm(T.translate("Can't Delete Because The Child Group Exist!"));
+				if (!c) return;
 			});
-	}
-
-	handleClick(x) {
 	}
 
 	handleGetGroupOptionsTree() {
 		xFetchJSON("/api/groups/build_group_options_tree").then((data) => {
-			console.log("group_options", data);
 			this.setState({group_options: data});
 		}).catch((e) => {
 			console.log("get group_options ERR");
@@ -490,17 +564,22 @@ class GroupsPage extends React.Component {
 
 	handleGetGroupsTree() {
 		xFetchJSON("/api/groups/build_group_tree").then((data) => {
-			console.log("group_tree", data);
-			this.setState({rows: data});
+			let max = this.state.max;
+			if(data.length) {
+				max = data[0].sort;
+				data.map((d) => {
+					if(d.level == 0) {
+						max = max < d.sort ? d.sort : max;
+					}
+				})
+			} else {
+				max = 0;
+			}
+
+			this.setState({rows: data, max: max});
 		}).catch((e) => {
 			console.log("get group_tree ERR");
 		});
-	}
-
-	componentWillMount() {
-	}
-
-	componentWillUnmount() {
 	}
 
 	componentDidMount() {
@@ -508,15 +587,44 @@ class GroupsPage extends React.Component {
 		this.handleGetGroupOptionsTree();
 	}
 
-	handleFSEvent(v, e) {
-	}
-
-
 	handleGroupAdded(group) {
 		this.handleGetGroupsTree();
 		this.setState({formShow: false});
 		this.handleGetGroupOptionsTree();
+	}
 
+	handleUnFolder(e) {
+		let icon = e.currentTarget;
+		let level = e.currentTarget.getAttribute("data-level");
+		let tid = e.currentTarget.getAttribute("data-id");
+		let floder_gid = this.state.floder_gid;
+		this.state.child_id_arr = [];
+		this.pickChildGroup([tid]);
+		floder_gid[tid] = floder_gid[tid] == "undefined" ? false : !floder_gid[tid];
+		icon.className = floder_gid[tid] ? "fa fa-minus-square-o" : "fa fa-plus-square-o";
+		this.state.child_id_arr.map((id) => {
+			floder_gid[id] = floder_gid[tid];
+		})
+
+		this.setState({floder_gid: floder_gid})
+		this.state.floder_gid = floder_gid;	
+	}
+
+	pickChildGroup(arr) {
+		let _this = this;
+		if(!arr.length) return;
+		let id_arr = [];
+		if(arr.length > 0) {
+			this.state.rows.map(function(row) {
+				arr.map((id) => {
+					if(row.group_id == id) {
+						_this.state.child_id_arr.push(row.id);
+						id_arr.push(row.id);
+					}
+				})
+			})
+			this.pickChildGroup(id_arr);
+		}
 	}
 
 	render() {
@@ -524,16 +632,20 @@ class GroupsPage extends React.Component {
 		let formClose1 = () => this.setState({ formShow1: false });
 		let toggleDanger = () => this.setState({ danger: !this.state.danger });
 	    var danger = this.state.danger ? "danger" : "";
+	    let floder_gid = this.state.floder_gid;
 
 		var _this = this;
-
-		var rows = this.state.rows.map(function(row) {
-			return <tr key={row.id}>
-					<td>{row.id}</td>
-					<td>{row.spaces.replace(/ /g, String.fromCharCode(160))}<Link to={`/settings/groups/${row.id}`}>{row.name}</Link></td>
+		var rows = this.state.rows.map((row) => {
+			if(floder_gid[row.group_id] == undefined) floder_gid[row.group_id] = true;
+			return <tr key={row.id} style={{display: floder_gid[row.group_id] ? "table-row" : "none"}}>
+					<td>{row.spaces.replace(/ /g, String.fromCharCode(160))}
+						<i data-id={row.id} data-level={row.level} className="fa fa-minus-square-o" aria-hidden="true" style={{cursor: "pointer"}} onClick={_this.handleUnFolder}></i>&nbsp;&nbsp;&nbsp;
+						<Link to={`/settings/groups/${row.id}`}>{row.name}</Link>
+					</td>
+					<td>{parseInt(row.level)+1}-<span>{row.sort}</span></td>
 					<td>{row.realm}</td>
 					<td>{row.description}</td>
-					<td><T.a onClick={() => _this.handleDelete(row.id)} text="Delete" className={danger} style={{cursor: 'pointer'}}/></td>
+					<td><T.a onClick={() => _this.handleDelete(row.id, row)} text="Delete" className={danger} style={{cursor: 'pointer'}}/></td>
 			</tr>;
 		})
 
@@ -552,8 +664,8 @@ class GroupsPage extends React.Component {
 				<table className="table">
 				<tbody>
 				<tr>
-					<th><T.span text="ID"/></th>
 					<th><T.span text="Name"/></th>
+					<th><T.span text="Sort"/></th>
 					<th><T.span text="Realm"/></th>
 					<th><T.span text="Description"/></th>
 					<th><T.span text="Delete" className={danger} onClick={toggleDanger} style={{cursor: 'pointer'}} title={T.translate("Click me to toggle fast delete mode")}/></th>
@@ -563,7 +675,7 @@ class GroupsPage extends React.Component {
 				</table>
 			</div>
 
-			<NewGroup show={this.state.formShow} onHide={formClose} handleNewGroupAdded={this.handleGroupAdded.bind(this)} group_options={this.state.group_options}/>
+			<NewGroup show={this.state.formShow} max={this.state.max} onHide={formClose} handleNewGroupAdded={this.handleGroupAdded.bind(this)} group_options={this.state.group_options}/>
 		</div>
 	}
 }

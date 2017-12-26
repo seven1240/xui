@@ -46,7 +46,7 @@ function build_group_options_tree(groups, options_tab)
 				option_tab = {}
 
 				if (tonumber(v.level) ~= 0 ) then
-					spaces = string.rep("  ", tonumber(v.level) *2) .. "|" .. "---"
+					spaces = string.rep("  ", tonumber(v.level) *2) .. " " .. "  "
 				end
 
 				option_tab["name"] = spaces .. v.name
@@ -69,7 +69,7 @@ function build_group_options_tree_t(groups, options_tab, id)
 				option_tab = {}
 
 				if (tonumber(v.level) ~= 0 ) then
-					spaces = string.rep("  ", tonumber(v.level) *2) .. "|" .. "---"
+					spaces = string.rep("  ", tonumber(v.level) *2) .. " " .. "  "
 				end
 
 				option_tab["name"] = spaces .. v.name
@@ -91,13 +91,13 @@ function build_group_tree(groups, groups_tab)
 				child_groups = {}
 
 				if (tonumber(v.level) ~= 0 ) then
-					spaces = string.rep("  ", tonumber(v.level) *2) .. "|" .. "---"
+					spaces = string.rep("  ", tonumber(v.level) *2) .. " " .. "  "
 				end
 
 				v["spaces"] = spaces
 
 				table.insert(groups_tab, v)
-				n, child_groups = xdb.find_by_cond("groups", {group_id = v.id})
+				n, child_groups = xdb.find_by_cond("groups", {group_id = v.id}, "sort")
 				build_group_tree(child_groups, groups_tab)
 			end
 		end
@@ -117,7 +117,7 @@ end)
 get('/build_group_tree', function(params)
 	parent_groups = {}
 	groups_tab  = {}
-	n, parent_groups = xdb.find_by_cond("groups", "group_id IS NULL")
+	n, parent_groups = xdb.find_by_cond("groups", "group_id IS NULL", "sort")
 
 	if n > 0 then
 		build_group_tree(parent_groups, groups_tab)
@@ -163,7 +163,7 @@ get('/:id/remain_members', function(params)
 end)
 
 get('/:id/members', function(params)
-	sql = "SELECT ug.id, ug.user_id, ug.group_id, u.name, u.extn, u.domain from user_groups ug LEFT JOIN users u ON ug.user_id = u.id WHERE ug.group_id = " .. params.id
+	sql = "SELECT ug.id, ug.user_id, ug.group_id, ug.sort, u.name, u.extn, u.domain from user_groups ug LEFT JOIN users u ON ug.user_id = u.id WHERE ug.group_id = " .. params.id .. " ORDER BY sort"
 	n, members = xdb.find_by_sql(sql)
 	if n > 0 then
 		return members
@@ -209,7 +209,19 @@ get('/:id', function(params)
 end)
 
 put('/:id', function(params)
-	print(serialize(params))
+	group_id = params.request.group_id
+	if group_id then
+		m,level = xdb.find_by_sql("SELECT level FROM groups WHERE id = " .. group_id)
+		level = level[1].level + 1
+		n, sort = xdb.find_by_sql("SELECT sort FROM groups WHERE group_id = " .. group_id .. " ORDER BY sort DESC LIMIT 1;")
+	else
+		level = 0
+		n, sort = xdb.find_by_sql("SELECT sort FROM groups WHERE group_id is NULL ORDER BY sort DESC LIMIT 1;")
+	end
+
+	params.request.level = tostring(level)
+	params.request.sort = tostring(sort[1].sort + 1)
+	print("6666", sort[1].sort)
 	ret = xdb.update("groups", params.request)
 	if ret then
 		return 200, "{}"
@@ -218,13 +230,62 @@ put('/:id', function(params)
 	end
 end)
 
-post('/', function(params)
+put('/:id/members', function(params)
 	print(serialize(params))
+
+	ret = xdb.update("groups", params.request)
+	if ret then
+		return 200, "{}"
+	else
+		return 500
+	end
+end)
+
+put('/drag/:start_id/:end_id', function(params)
+	dragstart = {}
+	dragend = {}
+	n, group_id = xdb.find_by_sql("SELECT group_id FROM user_groups WHERE id = " .. params.start_id);
+	n, start_sort = xdb.find_by_sql("SELECT sort FROM user_groups WHERE id = " .. params.start_id);
+	m, end_sort = xdb.find_by_sql("SELECT sort FROM user_groups WHERE id = " .. params.end_id);
+
+	dragstart = { id = params.start_id, sort = start_sort[1].sort, group_id = group_id[1].group_id }
+	dragend = {id = params.end_id, sort = end_sort[1].sort, group_id = group_id[1].group_id }
+
+	if tonumber(dragstart.sort) < tonumber(dragend.sort) then
+		where = 'group_id =' .. dragstart.group_id .. ' AND sort < ' .. dragend.sort + 1 .. ' AND sort > ' .. dragstart.sort
+		set = 'sort = sort - 1'
+		num = tonumber(dragend.sort) - tonumber(dragstart.sort)
+	else
+		where = 'group_id =' .. dragstart.group_id .. ' AND sort < ' .. dragstart.sort .. ' AND sort > ' .. dragend.sort - 1
+		set = 'sort = sort + 1'
+		num = tonumber(dragstart.sort) - tonumber(dragend.sort)
+	end
+
+	ret = xdb.update_by_cond('user_groups', where, set)
+	ret2 = xdb.update("user_groups", {id = dragstart.id, sort = dragend.sort})
+	if ret == num and ret2 then
+		return 200, "{}"
+	else
+		return 500, "{}"
+	end
+end)
+
+post('/', function(params)
+	-- print(serialize(params))
 
 	local group = params.request
 
 	if group.group_id == "" then
 		group.group_id = nil
+	else
+		n, level = xdb.find_by_sql("SELECT level FROM groups WHERE id = " .. group.group_id)
+		n, sort = xdb.find_by_sql("SELECT sort FROM groups WHERE group_id = " .. group.group_id .. " ORDER BY sort DESC LIMIT 1;")
+		group.level = tonumber(level[1].level) + 1
+		if next(sort) == nil then
+			group.sort = 1
+		else 
+			group.sort = tonumber(sort[1].sort + 1)
+		end
 	end
 
 	ret = xdb.create_return_id('groups', group)
@@ -238,8 +299,17 @@ end)
 
 post('/members', function(params)
 	local members = params.request
+	n, max = xdb.find_by_sql("SELECT sort FROM user_groups WHERE group_id = " .. members[1].group_id .. " ORDER BY sort DESC LIMIT 1;")
+
+	if n == 0 then
+		max = 0
+	else
+		max = max[1].sort		
+	end
+
 	for k, v in pairs(members) do
 		if type(v) == "table" then
+			v.sort = max + k
 			xdb.create('user_groups', v)
 		end
 	end
@@ -270,8 +340,11 @@ delete('/members/:group_id', function(params)
 end)
 
 delete('/members/:group_id/:member_id', function(params)
-	ret = xdb.delete("user_groups", {group_id=params.group_id, user_id=params.member_id});
+	n, sort = xdb.find_by_cond("user_groups", { group_id = params.group_id, user_id = params.member_id});
+	sort = sort[1].sort
+	ret = xdb.delete("user_groups", {group_id=params.group_id, user_id=params.member_id})
 	if ret == 1 then
+		m, ret2 = xdb.update_by_cond("user_groups", "group_id = " ..params.group_id .. " AND sort > " .. sort, "sort = sort - 1")
 		return 200, "{}"
 	else
 		return 500, "{}"
@@ -283,7 +356,7 @@ delete('/:id', function(params)
 	n, child_groups = xdb.find_by_cond("groups", {group_id = params.id})
 
 	if (n > 0) then
-		return 400, "{ERR: group is being deleted has " .. n .. " children}"
+		return 400, "{group is being deleted has " .. n .. " children}"
 	else
 		ret = xdb.delete("groups", params.id);
 		if ret == 1 then

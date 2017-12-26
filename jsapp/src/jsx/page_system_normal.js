@@ -1,4 +1,3 @@
---[[
 /*
  * HTML5 GUI Framework for FreeSWITCH - XUI
  * Copyright (C) 2015-2017, Seven Du <dujinfang@x-y-t.cn>
@@ -28,45 +27,37 @@
  *
  *
  */
-]]
 
-require 'xdb'
-xdb.bind(xtra.dbh)
+'use strict';
 
-m_modules = {}
+import React from 'react';
+import T from 'i18n-react';
+import { Modal, ButtonGroup, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col } from 'react-bootstrap';
+import { RIEToggle, RIEInput, RIETextArea, RIENumber, RIETags, RIESelect } from 'riek';
+import SettingBaiduTTS from './system/baidu_tts';
+import SettingEventSocket from './system/event_socket';
+import SettingDevice from './system/device';
+import ChangeIpPage from './page_change_ip';
+
+class SystemNormalPage extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {rows:[]};
+	}
 
 
-function find_all()
-	return xdb.find_by_cond('params', {realm = 'modules'})
-end
+	render() {
+		const _this = this;
 
-function toggle_param(param_id)
-	sql = "UPDATE params SET disabled = 1 - disabled" ..
-		xdb.cond({realm = 'modules', id = param_id})
-	print(sql)
-	xdb.execute(sql)
-	if xdb.affected_rows() == 1 then
-		return xdb.find("params", param_id)
-	end
-	return nil
-end
+		return <div>
+			<h1><T.span text="System Settings"/></h1>
 
-function update_param(param_id, kvp)
-	xdb.update_by_cond("params", {realm = 'modules',id = param_id}, kvp)
-	if xdb.affected_rows() == 1 then
-		return xdb.find("params", param_id)
-	end
-	return nil;
-end
+			<hr/>
+			<SettingDevice/>
 
-function create(kvp)
-	id = xdb.create_return_id("params", kvp)
-	return id
-end
+		</div>
+	}
+}
 
-m_modules.find_all = find_all
-m_modules.toggle_param = toggle_param
-m_modules.update_param = update_param
-m_modules.create = create
-
-return m_modules
+export default SystemNormalPage;

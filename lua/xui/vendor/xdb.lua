@@ -88,6 +88,8 @@ end
 
 -- generate update string from table in kv pairs
 local function _update_string(kvp)
+	if (type(kvp) == "string") then return kvp end
+
 	local comma = ""
 	local str = ""
 	for k, v in pairs(kvp) do

@@ -84,6 +84,10 @@ tr.disabled {
 	color: #CCC !important;
 }
 
+tr.offline {
+	color: #ccc !important;
+}
+
 div.disabled {
 	color: #CCC !important;
 }
@@ -121,9 +125,12 @@ div.disabled {
 	text-decoration: underline;
 }
 
-#notification {padding-right: 40px;padding-left: 40px;padding-top:10px;padding-bottom:10px;}
-#notification.info  {color:lime !important;border:1px solid #FFF;}
+#notification {padding: 10px 40px;}
+#notification.info {color:lime !important;border:1px solid #FFF;}
 #notification.error {color:#FFF !important;background-color: #F00;border:1px solid #FFF;}
+
+#notifications .info {padding: 10px 40px;color:lime !important;border:1px solid #FFF;}
+#notifications .error {padding: 10px 40px;color:#FFF !important;background-color: #F00;border:1px solid #FFF;}
 
 tr.NONE {color: #DDD !important;}
 tr.REGED {color: green !important;}
@@ -151,6 +158,10 @@ td.running {background-color: lime;}
 
 .td_active {
   background: #ed1941 !important;
+}
+
+.td_offline {
+	color: #ccc !important;
 }
 
 .td_held {
@@ -235,6 +246,18 @@ a.conf-control:hover {
 
 .conf-avatar-3 {
 	background-image: url(/assets/img/z-3.jpg);
+}
+
+.conf-link-1 {
+	background-image: url(/assets/img/l-1.jpg);
+}
+
+.conf-link-2 {
+	background-image: url(/assets/img/l-2.jpg);
+}
+
+.conf-link-3 {
+	background-image: url(/assets/img/l-3.jpg);
 }
 
 .conf-member-cidname {

@@ -58,6 +58,7 @@ import MonitorPage from './page_monitor';
 import ServerMonitorPage from './page_server_monitor';
 import Conferences from './conferences';
 import SystemPage from './page_system';
+import SystemNormalPage from './page_system_normal';
 import { FifoPage, FifoInfo, FifoMemberPage } from './page_fifos';
 import { IvrPage, IvrInfo, IvrActionPage } from './page_ivrs';
 import { DistributorPage, DistributorsPage } from './page_distributor';
@@ -289,6 +290,7 @@ class Home extends React.Component{
 						<Route path=":id" components={{sidebar: Settings, main: McastPage}}/>
 					</Route>
 					<Route path="system" components={{sidebar: Settings, main: SystemPage}} onEnter={ensureVisible}/>
+					<Route path="system_normal" components={{sidebar: Settings, main: SystemNormalPage}} onEnter={ensureVisible}/>
 					<Route path="term" components={{sidebar: Settings, main: Terminal}}/>
 				</Route>
 			</Route>

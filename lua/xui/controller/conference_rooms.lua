@@ -33,7 +33,16 @@
 xtra.start_session()
 xtra.require_login()
 
-local prefix = config.block_path .. "/blocks-"
+function extract_ip(host)
+	local c = string.find(host, ":")
+
+	if (c) then
+		return host:sub(1, c - 1)
+	end
+
+	return host
+end
+
 require 'xdb'
 require 'm_conference_profile'
 require 'm_user'
@@ -86,10 +95,7 @@ get('/:id', function(params)
 end)
 
 get('/:id/params', function(params)
-	print(serialize(params))
 	n, conference_params = m_conference_profile.params_font(params.id)
-	print(n)
-	print(serialize(conference_params))
 
 	if n > 0 then
 		return conference_params
@@ -98,10 +104,69 @@ get('/:id/params', function(params)
 	end
 end)
 
-get('/:id/members', function(params)
-	n, members = xdb.find_by_cond("conference_members", {room_id = params.id }, 'num')
+get('/:id/member_groups', function(params)
+
+	n,members = xdb.find_by_sql("SELECT * FROM groups" ..
+		" WHERE exists (SELECT group_id FROM conference_members " ..
+		"   WHERE group_id = groups.id AND" ..
+		"   room_id = " .. xdb.escape(params.id) ..
+		")")
+
 	if n > 0 then
 		return members
+	else
+		return '[]'
+	end
+end)
+
+get('/:id/members', function(params)
+	local api = freeswitch.API()
+	local local_ip_v4 = api:execute("global_getvar", "local_ip_v4")
+
+	n,members = xdb.find_by_sql("SELECT cm.*, g.name AS group_name " .. 
+		" FROM conference_members cm LEFT JOIN groups g " ..
+		" ON cm.group_id = g.id WHERE cm.room_id = " .. params.id ..
+		" ORDER BY group_id asc, sort asc;")
+	room = xdb.find("conference_rooms", params.id)
+
+	if room and room.cluster and room.cluster:sub(1,1) == "[" then -- turn JSON string to a JSON Object
+		cluster = utils.json_decode(room.cluster)
+		for k, node in pairs(cluster) do
+			local host = extract_ip(node.host)
+			if host ~= local_ip_v4 then
+				table.insert(members, {id = 0 - n, name = host, description = "Node", num = host, route = 'None'})
+				n = n + 1
+			end
+		end
+	end
+
+	if n > 0 then
+		return members
+	else
+		return '[]'
+	end
+end)
+
+get('/:id/members/:group_id/max', function(params)
+	print("3366", serialize(params))
+	 n, max = xdb.find_by_sql("SELECT sort FROM conference_members WHERE group_id= " .. params.group_id .. " ORDER BY sort DESC LIMIT 1;")
+
+	 if max then
+	 	return max
+	 else
+	 	return 0
+	 end
+end)
+
+
+get('/:id/remain_members/:group_id', function(params)
+	sql = "SELECT ug.id, ug.user_id, ug.group_id, u.name, u.extn, u.domain".. 
+	" FROM user_groups ug LEFT JOIN users u ON ug.user_id = u.id "..
+	" WHERE ug.group_id = " .. params.group_id .." AND user_id NOT IN "..
+	" (SELECT user_id FROM conference_members WHERE user_id is not null AND room_id = " .. params.id .. ");"
+	n, users = xdb.find_by_sql(sql)
+	if n > 0 then
+		return users
 	else
 		return '[]'
 	end
@@ -128,16 +193,34 @@ post('/', function(params)
 end)
 
 post('/:id/members', function(params)
-	print(serialize(params))
-	local member = params.request
-	member.room_id = params.id
-	ret = xdb.create_return_id('conference_members', member)
-
-	if ret then
-		return {id = ret}
+	local members = params.request
+	if members[1] then 
+		g_id = members[1].group_id
 	else
-		return 500, "{}"
+		g_id = -1
 	end
+
+	n, max = xdb.find_by_sql("SELECT sort FROM conference_members WHERE group_id = " .. g_id .. " ORDER BY sort DESC LIMIT 1;")
+
+	if n == 0 then
+		max = 0
+	else
+		max = max[1].sort		
+	end
+
+	if members[1] then
+		for k, v in pairs(members) do
+			if type(v) == "table" then
+				v.sort = max + k
+				ret = xdb.create('conference_members', v)
+			end
+		end
+	else
+		members.group_id = g_id
+		members.sort = max + 1
+		ret = xdb.create('conference_members', members)
+	end
+	return "{}"
 end)
 
 post('/:ref_id/params/', function(params)
@@ -201,6 +284,35 @@ put('/:id/params/:param_id', function(params)
 	end
 end)
 
+put('/drag/:start_id/:end_id', function(params)
+	dragstart = {}
+	dragend = {}
+	n, group_id = xdb.find_by_sql("SELECT group_id FROM conference_members WHERE id = " .. params.start_id);
+	n, start_sort = xdb.find_by_sql("SELECT sort FROM conference_members WHERE id = " .. params.start_id);
+	m, end_sort = xdb.find_by_sql("SELECT sort FROM conference_members WHERE id = " .. params.end_id);
+
+	dragstart = { id = params.start_id, sort = start_sort[1].sort, group_id = group_id[1].group_id }
+	dragend = {id = params.end_id, sort = end_sort[1].sort, group_id = group_id[1].group_id }
+
+	if tonumber(dragstart.sort) < tonumber(dragend.sort) then
+		where = 'group_id =' .. dragstart.group_id .. ' AND sort < ' .. dragend.sort + 1 .. ' AND sort > ' .. dragstart.sort
+		set = 'sort = sort - 1'
+		num = tonumber(dragend.sort) - tonumber(dragstart.sort)
+	else
+		where = 'group_id =' .. dragstart.group_id .. ' AND sort < ' .. dragstart.sort .. ' AND sort > ' .. dragend.sort - 1
+		set = 'sort = sort + 1'
+		num = tonumber(dragstart.sort) - tonumber(dragend.sort)
+	end
+
+	ret = xdb.update_by_cond('conference_members', where, set)
+	ret2 = xdb.update("conference_members", {id = dragstart.id, sort = dragend.sort})
+	if ret == num and ret2 then
+		return 200, "{}"
+	else
+		return 500, "{}"
+	end
+end)
+
 delete('/:id', function(params)
 	ret = xdb.delete("conference_rooms", params.id);
 
@@ -212,8 +324,9 @@ delete('/:id', function(params)
 end)
 
 delete('/:id/members/:member_id', function(params)
-	ret = xdb.delete("conference_members", {id = params.member_id, room_id = params.id});
-
+	n, value = xdb.find_by_sql("SELECT sort, group_id FROM conference_members WHERE id = " .. params.member_id)
+	m, ret2 = xdb.update_by_cond("conference_members", "group_id = " .. value[1].group_id .. " AND sort > " .. value[1].sort, "sort = sort - 1")
+	ret = xdb.delete("conference_members", {id = params.member_id})
 	if ret == 1 then
 		return 200, "{}"
 	else
