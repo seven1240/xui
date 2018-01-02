@@ -512,10 +512,21 @@ class RoomMembers extends React.Component {
 		if (!c) return;
 		let group_id = e.currentTarget.getAttribute("data-group");
 		const members = this.state.members.map((m) => {
-			if ((m.name.indexOf('.') < 0) && m.group_id == group_id) {
+			if (!(m.name.indexOf('.') > 0) && m.group_id == group_id) {
 				m.route = '';
 			}
 			return m;
+		});
+		members.forEach((member) => {
+			if(member.id < 0) return;
+			xFetchJSON("/api/conference_rooms/" + this.props.room.id + "/members/" + member.id, {
+				method: 'PUT',
+				body: JSON.stringify({route: member.route})
+			}).then((ret) => {
+				notify(<T.span text="Clear the group route" />);
+			}).catch((err) => {
+				console.error("Save route ERR");
+			});
 		});
 
 		this.setState({members: members});
