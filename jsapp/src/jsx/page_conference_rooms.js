@@ -670,7 +670,7 @@ class RoomMembers extends React.Component {
 					<div style={{width: "100%"}}>
 						<h5 style={{padding: "0 25px 0 35px", backgroundColor: "#f2f2f2",
 							lineHeight: "42px", border: "1px solid #e2e2e2", margin: "0"}}>
-							<i onClick={_this.handleUnfoldMember} style={{cursor: "pointer"}} className="fa fa-minus-square-o"></i>&nbsp;&nbsp;
+							<i onClick={_this.handleUnfoldMember} style={{cursor: "pointer"}} className="fa fa-plus-square-o"></i>&nbsp;&nbsp;
 							<T.span text={group_name}/>
 							<div style={{float: "right"}}>
 								<EditControl edit={controllgroupid == group_id ? true : false} componentClass="select" id="formVideoMode" name="video_mode"
@@ -687,7 +687,7 @@ class RoomMembers extends React.Component {
 								</a>
 							</div>
 						</h5>
-						<table className="table" style={{marginLeft: "35px", width: "92%", display: "table"}}>
+						<table className="table" style={{marginLeft: "35px", width: "92%", display: "none"}}>
 							<thead>
 								<tr>
 									<th><T.span text="Sort"/></th>
