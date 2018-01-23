@@ -194,6 +194,8 @@ class CDRsPage extends React.Component {
 		const cdrsRowsPerPage = localStorage.getItem('cdrsRowsPerPage') || 1000;
 		const qs = "startDate=" + this.startDate.value +
 			"&endDate=" + this.endDate.value +
+			"&startbillsec=" + this.startbillsec.value +
+			"&endbillsec=" + this.endbillsec.value +
 			"&cidNumber=" + this.cidNumber.value +
 			"&destNumber=" + this.destNumber.value +
 			"&cdrsRowsPerPage=" + cdrsRowsPerPage;
@@ -216,6 +218,8 @@ class CDRsPage extends React.Component {
 		if (this.state.hiddendiv == "block") {
 			qs = "startDate=" + this.startDate.value +
 				"&endDate=" + this.endDate.value +
+				"&startbillsec=" + this.startbillsec.value +
+				"&endbillsec=" + this.endbillsec.value +
 				"&cidNumber=" + this.cidNumber.value +
 				"&destNumber=" + this.destNumber.value;
 		} else {
@@ -419,6 +423,8 @@ class CDRsPage extends React.Component {
 				<div style={{padding: "5px", display: _this.state.hiddendiv}} className="pull-right">
 					<input type="date" defaultValue={sevenDaysBeforeToday} ref={(input) => { _this.startDate = input; }}/> -&nbsp;
 					<input type="date" defaultValue={today} ref={(input) => { _this.endDate = input; }}/> &nbsp;
+					<T.span text="Bill Sec"/><input ref={(input) => { _this.startbillsec = input; }}/> -&nbsp;
+					<input ref={(input) => { _this.endbillsec = input; }}/> &nbsp;
 					<T.span text="CID Number"/><input ref={(input) => { _this.cidNumber = input; }}/> &nbsp;
 					<T.span text="Dest Number"/><input ref={(input) => { _this.destNumber = input; }}/> &nbsp;
 					<T.button text="Search" onClick={this.handleSearch}/>
