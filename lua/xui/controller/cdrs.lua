@@ -75,17 +75,22 @@ get('/', function(params)
 		startDate = os.date('%Y-%m-%d', sdate)
 		cond = " start_stamp > '" .. startDate .. "'"
 	else
-			local endDate = env:getHeader('endDate')
-			local cidNumber = env:getHeader('cidNumber')
-			local destNumber = env:getHeader('destNumber')
+		local endDate = env:getHeader('endDate')
+		local cidNumber = env:getHeader('cidNumber')
+		local destNumber = env:getHeader('destNumber')
+		endDate = utils.date_diff(endDate, 1)
 
-			-- endDate + 1 day so we never missing records in the current day
-			endDate = utils.date_diff(endDate, 1)
-
+		if not (startbillsec == nil or startbillsec == '') then
 			cond = xdb.date_cond("start_stamp", startDate, endDate) .. " and " ..
 						xdb.date_cond("billsec", startbillsec, endbillsec) ..
 						xdb.if_cond("caller_id_number", cidNumber) ..
 						xdb.if_cond("destination_number", destNumber)
+		else
+			cond = xdb.date_cond("start_stamp", startDate, endDate) ..
+						xdb.if_cond("caller_id_number", cidNumber) ..
+						xdb.if_cond("destination_number", destNumber)
+		end
+
 	end
 
 	local cb = function(row)
@@ -107,9 +112,7 @@ get('/', function(params)
 
 		offset = (pageNum - 1) * cdrsRowsPerPage
 
-
 		local found, cdrsData = xdb.find_by_cond("cdrs", cond, "start_stamp,billsec DESC", nil, cdrsRowsPerPage, offset)
-
 
 		if (found > 0) then
 			cdrs.rowCount = rowCount
