@@ -49,7 +49,7 @@ end)
 
 put('/manual_sync', function(params)
 	print(serialize(params))
-	--local t = io.popen('sudo date -s ' .. params.request.datetime)
+	local t = io.popen('sudo date -s "' .. params.request.datetime .. '"')
 	local a = t:read("*all")
 	io.close(t)
 	print(a)
