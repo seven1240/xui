@@ -504,7 +504,6 @@ class GroupPage extends React.Component {
 				edit: false
 			});
 			this.handleGetGroupOptionsTree();
-			this.handleGetRemainRealtimeMcasts();
 		}).catch(() => {
 			console.error("submit group error", msg);
 		});
@@ -512,8 +511,6 @@ class GroupPage extends React.Component {
 
 	handleControlClick(e) {
 		this.setState({edit: !this.state.edit});
-		this.handleGetRemainRealtimeMcasts();
-		this.handleGetRemainMusicMcasts();
 	}
 
 	handlePermissions(e) {
