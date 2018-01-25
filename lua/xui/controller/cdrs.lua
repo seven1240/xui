@@ -81,6 +81,9 @@ get('/', function(params)
 		endDate = utils.date_diff(endDate, 1)
 
 		if not (startbillsec == nil or startbillsec == '') then
+			startbillsec = tostring(startbillsec * 60)
+			endbillsec = tostring(endbillsec * 60)
+
 			cond = xdb.date_cond("start_stamp", startDate, endDate) .. " and " ..
 						xdb.date_cond("billsec", startbillsec, endbillsec) ..
 						xdb.if_cond("caller_id_number", cidNumber) ..
