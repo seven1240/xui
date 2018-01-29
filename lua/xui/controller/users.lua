@@ -188,7 +188,7 @@ get('/', function(params)
 		if m_user.has_permission() then
 			found, usersData = xdb.find_by_cond("users", nil, 'id', nil, usersRowsPerPage, offset)
 		else
-			found, usersData = xdb.find_by_cond("users", {id = xtra.session.user_id}, 'id', nil, usersRowsPerPage, offset)
+			found, usersData = xdb.find_by_sql("SELECT * FROM users WHERE domain = (SELECT domain FROM users WHERE id = " .. xtra.session.user_id .. ")")
 		end
 		if (found) then
 			users.rowCount = rowCount
