@@ -153,7 +153,19 @@ get('/build_group_options_tree/:id', function(params)
 end)
 
 get('/:id/remain_members', function(params)
-	sql = " SELECT * from users WHERE id NOT IN (SELECT user_id from user_groups WHERE user_id is not null AND group_id = " .. params.id .. ");"
+
+	if params.request then
+		realm = params.request.realm
+	else
+		realm = env:getHeader("realm")
+	end
+
+	if not realm then
+		sql = " SELECT * from users WHERE id NOT IN (SELECT user_id from user_groups WHERE user_id is not null AND group_id = " .. params.id .. ");"
+	else
+		sql = " SELECT * from users WHERE id NOT IN (SELECT user_id from user_groups WHERE user_id is not null AND group_id = " .. params.id .. ") AND domain = '" .. realm .. "';"
+	end
+
 	n, members = xdb.find_by_sql(sql)
 	if n > 0 then
 		return members

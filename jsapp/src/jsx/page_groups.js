@@ -63,7 +63,7 @@ class GroupMembers extends React.Component {
 	}
 
 	handleGetReaminMembers() {
-		xFetchJSON("/api/groups/" + this.props.group_id + "/remain_members").then((data) => {
+		xFetchJSON("/api/groups/" + this.props.group_id + "/remain_members?realm=" + this.props.realm).then((data) => {
 			this.setState({users: data});
 		}).catch((msg) => {
 			console.log("get remain users ERR", msg);
@@ -507,7 +507,7 @@ class GroupPage extends React.Component {
 			</FormGroup>
 			<br/>
 			<hr/>
-			{group.id ? <GroupMembers group_id={group.id} /> : null}
+			{group.id ? <GroupMembers group_id={group.id} realm={group.realm}/> : null}
 
 		</div>
 	}
