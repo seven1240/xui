@@ -610,7 +610,14 @@ class RoomMembers extends React.Component {
 							onDragLeave={_this.handleDragSortLeave.bind(this)}
 							onDragOver={_this.handleDragSortOver.bind(this)} 
 							onDrop={_this.handleDragSortDrop}>
-							<td style={{cursor: "pointer"}}>{m.sort ? m.sort : 'null'}</td>
+							{/*<td style={{cursor: "pointer"}}>{m.sort ? m.sort : 'null'}</td>*/}
+							<td style={{cursor: "pointer"}}><RIEInput value={_this.state.highlight ? (m.sort ? m.sort : T.translate("Click to Change")) : (m.sort ? m.sort : 'null')} change={(obj) => _this.handleChange(m.id, obj)}
+								propName="sort"
+								className={_this.state.highlight ? "editable" : ""}
+								validate={_this.isStringAcceptable}
+								classLoading="loading"
+								classInvalid="invalid"/>
+							</td>
 							<td style={{cursor: "pointer"}}><RIEInput value={_this.state.highlight ? (m.name ? m.name : T.translate("Click to Change")) : m.name} change={(obj) => _this.handleChange(m.id, obj)}
 								propName="name"
 								className={_this.state.highlight ? "editable" : ""}
