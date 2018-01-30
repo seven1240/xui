@@ -1043,6 +1043,7 @@ class ConferenceRoom extends React.Component {
 		let current_call_perm = null;
 		let cluster = '';
 		let current_user = null;
+		let div_display = null;
 
 		const conference_user_options = this.state.users.map(function(row) {
 			if (row.id == room.user_id) {
@@ -1072,6 +1073,11 @@ class ConferenceRoom extends React.Component {
 			return [row.k, T.translate(row.k)];
 		});
 
+
+		if (localStorage.getItem('xui.username') != "admin") {
+			div_display = { display: "none" }
+		}
+
 		if (this.state.edit) {
 			save_btn = <Button onClick={this.handleSubmit.bind(this)}>
 				<i className="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;
@@ -1086,6 +1092,7 @@ class ConferenceRoom extends React.Component {
 		}
 
 		return <div>
+			<div style={ div_display }>
 			<ButtonToolbar className="pull-right">
 			<ButtonGroup>
 				{ save_btn }
@@ -1186,6 +1193,8 @@ class ConferenceRoom extends React.Component {
 				</FormGroup>
 			</Form>
 			<br/>
+
+			</div>
 
 			{room.id ? <RoomMembers room={this.state.room} handleModeratorSet={this.handleModeratorSet.bind(this)}/> : null}
 		</div>
