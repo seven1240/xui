@@ -35,6 +35,7 @@ xtra.require_login()
 
 content_type("application/json")
 require 'xdb'
+require 'm_user'
 xdb.bind(xtra.dbh)
 
 function build_group_options_tree(groups, options_tab)
@@ -117,7 +118,12 @@ end)
 get('/build_group_tree', function(params)
 	parent_groups = {}
 	groups_tab  = {}
-	n, parent_groups = xdb.find_by_cond("groups", "group_id IS NULL", "sort")
+
+	if m_user.has_permission() then
+		n, parent_groups = xdb.find_by_cond("groups", "group_id IS NULL", "sort")
+	else
+		n, parent_groups = xdb.find_by_sql("SELECT * FROM groups WHERE realm = (SELECT domain FROM users WHERE id = " .. xtra.session.user_id .. ") AND group_id IS NULL")
+	end
 
 	if n > 0 then
 		build_group_tree(parent_groups, groups_tab)
