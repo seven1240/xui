@@ -1073,8 +1073,7 @@ class ConferenceRoom extends React.Component {
 			return [row.k, T.translate(row.k)];
 		});
 
-
-		if (localStorage.getItem('xui.username') != "admin") {
+		if (!isAdmin()) {
 			div_display = { display: "none" }
 		}
 

@@ -39,12 +39,21 @@ import { LinkContainer, IndexLinkContainer } from 'react-router-bootstrap';
 class DashBoard extends React.Component {
 	render() {
 		if (!isAdmin()) {
-			return <Nav bsStyle="pills" stacked>
-				<IndexLinkContainer to="/" key="M_OVERVIEW">
-					<NavItem eventKey="M_OVERVIEW"><T.span text={{ key: "Overview"}}/></NavItem>
-				</IndexLinkContainer>
-				<li><a href="/conference.html"><T.span text="Conference"/></a></li>
-			</Nav>
+			if (!isConfMan()) {
+				return <Nav bsStyle="pills" stacked>
+					<IndexLinkContainer to="/" key="M_OVERVIEW">
+						<NavItem eventKey="M_OVERVIEW"><T.span text={{ key: "Overview"}}/></NavItem>
+					</IndexLinkContainer>
+				</Nav>
+
+			} else {
+				return <Nav bsStyle="pills" stacked>
+					<IndexLinkContainer to="/" key="M_OVERVIEW">
+						<NavItem eventKey="M_OVERVIEW"><T.span text={{ key: "Overview"}}/></NavItem>
+					</IndexLinkContainer>
+					<li><a href="/conference.html"><T.span text="Conference"/></a></li>
+				</Nav>
+			}
 		}
 
 		return <Nav bsStyle="pills" stacked>

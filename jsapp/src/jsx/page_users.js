@@ -803,6 +803,8 @@ class UsersPage extends React.Component {
 	}
 
 	render() {
+		let admin_button = null;
+		let total_button = null;
 		let formClose = () => this.setState({ formShow: false });
 		let formClose1 = () => this.setState({ formShow1: false });
 		let toggleDanger = () => this.setState({ danger: !this.state.danger });
@@ -847,8 +849,8 @@ class UsersPage extends React.Component {
 			);
 		}();
 
-		return <div>
-			<ButtonToolbar className="pull-right">
+		if (isAdmin() || isConfMan()) {
+			admin_button = <ButtonToolbar className="pull-right">
 				<ButtonGroup>
 					<Link to={`/settings/wechat_users`} className="btn btn-default">
 						<img src="/assets/img/wechat.png" style={{width: "20px"}}/>&nbsp;
@@ -882,6 +884,11 @@ class UsersPage extends React.Component {
 				</ButtonGroup>
 			</ButtonToolbar>
 
+			total_button = <span className="pull-right"> <T.span text="Total"/> : {this.state.rowCount}</span>
+		}
+		return <div>
+			{ admin_button }
+
 			{
 				!this.state.showSettings ? null :
 				<div style={{position: "absolute", top: "60px", right: "10px", width: "180px", border: "2px solid grey", padding: "10px", zIndex: 999, backgroundColor: "#EEE", textAlign: "right"}}>
@@ -894,7 +901,9 @@ class UsersPage extends React.Component {
 			}
 
 			<h1><T.span text="Users"/></h1>
-			<span className="pull-right"> <T.span text="Total"/> : {this.state.rowCount}</span>
+
+			{ total_button }
+
 			<div>
 				<table className="table">
 				<tbody>

@@ -38,6 +38,38 @@ import { LinkContainer } from 'react-router-bootstrap';
 class Settings extends React.Component {
 
 	render() {
+		if (!isAdmin()) {
+			if (isConfMan()) {
+				return <Nav bsStyle="pills" stacked>
+					<LinkContainer to="/settings/users" key="M_USERS">
+						<NavItem eventKey="M_USER">
+							<i className="fa fa-user" aria-hidden="true"></i>&nbsp;
+							<T.span text="Users"/>
+						</NavItem>
+					</LinkContainer>
+					<LinkContainer to="/settings/groups" key="M_GROUPS">
+						<NavItem eventKey="M_GROUP">
+							<i className="fa fa-group" aria-hidden="true"></i>&nbsp;
+							<T.span text="Groups"/></NavItem>
+					</LinkContainer>
+					<LinkContainer to="/settings/conference_rooms" key="M_CONFERECE_ROOMS">
+						<NavItem eventKey="M_CONFERECE_ROOMS">
+							<i className="fa fa-users" aria-hidden="true"></i>&nbsp;
+							<T.span text="Conference Rooms"/>
+						</NavItem>
+					</LinkContainer>
+				</Nav>
+			} else {
+				return <Nav bsStyle="pills" stacked>
+					<LinkContainer to="/settings/users" key="M_USERS">
+						<NavItem eventKey="M_USER">
+							<i className="fa fa-user" aria-hidden="true"></i>&nbsp;
+							<T.span text="Users"/>
+						</NavItem>
+					</LinkContainer>
+				</Nav>
+			}
+		}
 		if (!isAdmin()) return <Nav bsStyle="pills" stacked>
 			<LinkContainer to="/settings/users" key="M_USERS">
 				<NavItem eventKey="M_USER">

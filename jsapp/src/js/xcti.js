@@ -277,8 +277,13 @@ function agoraCall(destNumber, options) {
 	verto.fsAPI("agora", "call " + key + " " + channel + " " + destNumber);
 }
 
-function isAdmin () {
+function isAdmin() {
 	const user = localStorage.getItem("xui.username")
-	// return user == "admin";
-	return true;
+	return user == "admin";
+	// return true;
+}
+
+function isConfMan() {
+	const user_type = localStorage.getItem("xui.user_type")
+	return user_type == "CONFMAN"
 }

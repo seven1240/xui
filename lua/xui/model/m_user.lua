@@ -41,6 +41,20 @@ m_user.is_admin = function(user_id)
 	return user_id == 1 or user_id == "1"
 end
 
+m_user.is_conf_man = function(user_id)
+	if not user_id then
+		user_id = user_id or xtra.session.user_id
+	end
+
+	user = xdb.find("users", user_id)
+	if user and user.type == "CONFMAN" then
+		return true
+	else
+		return false
+	end
+
+end
+
 m_user.has_permission = function(user_id, action, method, param)
 	user_id = user_id or xtra.session.user_id
 

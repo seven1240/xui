@@ -35,6 +35,7 @@ xtra.start_session()
 
 content_type("application/json")
 require 'xdb'
+require 'm_user'
 xdb.bind(xtra.dbh)
 
 get('/', function(params)
@@ -42,6 +43,7 @@ get('/', function(params)
 
 	local n, dicts = xdb.find_by_cond("dicts", {realm = realm})
 	local menus = {}
+	local is_conf_man = m_user.is_conf_man
 
 	if (n > 0) then
 		for k,v in pairs(dicts) do
@@ -51,7 +53,9 @@ get('/', function(params)
 				if n > 0 then
 					menu.items = {}
 					for i,d in pairs(drops) do
-						table.insert(menu.items, {id = d.id, description = d.k, data = d.v})
+						if is_conf_man then
+							table.insert(menu.items, {id = d.id, description = d.k, data = d.v})
+						end
 					end
 				end
 			end

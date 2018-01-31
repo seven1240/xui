@@ -39,6 +39,7 @@ import Footer from "./footer";
 import { Home } from "./index.js";
 import verto from "./verto/verto";
 import {verto_params, verto_callbacks} from "./verto";
+import { xFetchJSON } from './libs/xtools';
 
 class LoginPage extends React.Component {
 	render() {
@@ -65,6 +66,16 @@ class LoginBox extends React.Component {
 		let password = this.refs.password.value;
 		localStorage.setItem('xui.username', username);
 		localStorage.setItem('xui.password', password);
+
+		if (username) {
+			xFetchJSON("/api/users/getID?username=" + username).then((data) => {
+				if (data.type == "CONFMAN") {
+					localStorage.setItem('xui.user_type', "CONFMAN");
+				}
+			}).catch((msg) => {
+				console.log("ERR", msg)
+			});
+		}
 		// verto.loginData(verto_params());
 
 		verto.connect(verto_params());

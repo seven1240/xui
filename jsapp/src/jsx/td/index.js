@@ -128,6 +128,7 @@ class Home extends React.Component{
 			console.log(params, replace);
 			localStorage.removeItem("xui.username");
 			localStorage.removeItem("xui.password");
+			localStorage.removeItem("xui.user_type");
 			if (verto) verto.logout();
 			ReactDOM.render(<Login/>, document.getElementById('body'));
 		}
