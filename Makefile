@@ -70,7 +70,7 @@ tar: out
 	cd .. && tar cvzf xui/out/`cat xui/VERSION`.tar.gz --exclude xui/lua/xui/xtra_config.lua xui/www xui/lua xui/db xui/VERSION
 	ls out
 
-ready: clean plugins-release release tar
+ready: clean plugins-init plugins-release release tar
 	echo "Done"
 
 sync:
