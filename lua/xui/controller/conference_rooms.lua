@@ -55,7 +55,8 @@ get('/', function(params)
 		n, rooms = xdb.find_all("conference_rooms")
 	else
 		-- n, rooms = xdb.find_by_cond("conference_rooms", {user_id = xtra.session.user_id}, 'id')
-		n, rooms = xdb.find_by_sql("SELECT * FROM conference_rooms WHERE realm = (SELECT domain FROM users WHERE id = " .. xtra.session.user_id .. ")")
+		-- n, rooms = xdb.find_by_sql("SELECT * FROM conference_rooms WHERE realm = (SELECT domain FROM users WHERE id = " .. xtra.session.user_id .. ")")
+		n, rooms = xdb.find_by_sql("SELECT * FROM conference_rooms WHERE moderator = (SELECT extn FROM users WHERE id = " .. xtra.session.user_id .. ")")
 	end
 
 	if (n > 0) then

@@ -36,6 +36,7 @@ xtra.require_login()
 content_type("application/json")
 
 require 'xdb'
+require 'm_user'
 xdb.bind(xtra.dbh)
 
 -- freeswitch.consoleLog("INFO", xtra.session.user_id .. "\n")
@@ -68,13 +69,34 @@ get('/', function(params)
 		cdrsRowsPerPage = 1000
 	end
 
+	if m_user.has_permission() then
+		realm = nil
+	else
+		login_user = xdb.find("users", xtra.session.user_id)
+		if next(login_user) then
+			if m_user.is_conf_man() then
+				realm = login_user.domain
+			else
+				realm = login_user.domain
+				account_code = login_user.extn
+			end
+		else
+			return cdrs
+		end
+	end
+
+	utils.log("ERR", "realm " .. realm .. "\n")
+
 	if not startDate then
 		if not last then last = 7 end
 
 		local sdate = os.time() - last * 24 * 60 * 60
 		startDate = os.date('%Y-%m-%d', sdate)
-		cond = " start_stamp > '" .. startDate .. "'"
+		cond = " start_stamp > '" .. startDate .. "'" ..
+			xdb.if_cond("realm", realm) ..
+			xdb.if_cond("account_code", account_code)
 	else
+
 		local endDate = env:getHeader('endDate')
 		local cidNumber = env:getHeader('cidNumber')
 		local destNumber = env:getHeader('destNumber')
@@ -87,11 +109,19 @@ get('/', function(params)
 			cond = xdb.date_cond("start_stamp", startDate, endDate) .. " and " ..
 						xdb.date_cond("billsec", startbillsec, endbillsec) ..
 						xdb.if_cond("caller_id_number", cidNumber) ..
-						xdb.if_cond("destination_number", destNumber)
+						xdb.if_cond("destination_number", destNumber) ..
+						xdb.if_cond("realm", realm) ..
+						xdb.if_cond("account_code", account_code)
 		else
 			cond = xdb.date_cond("start_stamp", startDate, endDate) ..
 						xdb.if_cond("caller_id_number", cidNumber) ..
-						xdb.if_cond("destination_number", destNumber)
+						xdb.if_cond("destination_number", destNumber) ..
+						xdb.if_cond("realm", realm) ..
+						xdb.if_cond("account_code", account_code)
+		end
+
+		if cond then
+			utils.log("DEBUG", "cdrs query cond:" .. cond .. "\n")
 		end
 
 	end
@@ -115,7 +145,7 @@ get('/', function(params)
 
 		offset = (pageNum - 1) * cdrsRowsPerPage
 
-		local found, cdrsData = xdb.find_by_cond("cdrs", cond, "start_stamp,billsec DESC", nil, cdrsRowsPerPage, offset)
+		local found, cdrsData = xdb.find_by_cond("cdrs", cond, "start_stamp, billsec DESC", nil, cdrsRowsPerPage, offset)
 
 		if (found > 0) then
 			cdrs.rowCount = rowCount
