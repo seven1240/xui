@@ -85,7 +85,6 @@ get('/', function(params)
 		end
 	end
 
-	utils.log("ERR", "realm " .. realm .. "\n")
 
 	if not startDate then
 		if not last then last = 7 end
