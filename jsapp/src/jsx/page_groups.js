@@ -41,9 +41,14 @@ import { EditControl, xFetchJSON } from './libs/xtools'
 class GroupMembers extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {members: [], danger: false, select_value: [], users: [], max: 0, startsort: 0};
+		this.state = {members: [], danger: false, select_value: [],
+			select_users: [], users: [], max: 0, startsort: 0, userlist: false
+		};
 		this.handleDragSortStart = this.handleDragSortStart.bind(this);
 		this.handleDragSortDrop = this.handleDragSortDrop.bind(this);
+		this.setChooseValue = this.setChooseValue.bind(this);
+		this.handleClearSelect = this.handleClearSelect.bind(this);
+		this.handleShowUserList = this.handleShowUserList.bind(this);
 	}
 
 	handleGetGroupMembers() {
@@ -72,11 +77,13 @@ class GroupMembers extends React.Component {
 
 	handleMembersAdded() {
 		const group_id = this.props.group_id;
-		let members = this.state.select_value.map(function(select) {
-			return {group_id: group_id, user_id: select.value}
+
+		let members = this.state.select_users.map(function(select) {
+			return {group_id: group_id, user_id: select.id}
 		});
 
 		members = JSON.stringify(members);
+		console.log("xxx members", members);
 
 		xFetchJSON("/api/groups/members", {
 			method: "POST",
@@ -84,13 +91,14 @@ class GroupMembers extends React.Component {
 		}).then((obj) => {
 			this.handleGetGroupMembers();
 			this.handleGetReaminMembers();
-			this.setState({select_value: []});
+			this.setState({select_value: [], select_users: []});
 		}).catch((msg) => {
 			console.error("member", msg);
 		});
 	}
 
 	handleSelectChange(value) {
+		console.log("xxx select_value", value);
 		this.setState({select_value: value});
 	}
 
@@ -185,6 +193,39 @@ class GroupMembers extends React.Component {
 		row.setAttribute('style', 'border: 0; background-color: #fff');
 	}
 
+	setChooseValue (e, user) {
+		const _this = this;
+		console.log("xxx target", e.target);
+		console.log("xxx target", e.target.checked);
+		let select_users = this.state.select_users;
+		if(user == "all") {
+			select_users = [];
+			if(e.target.checked) {
+				_this.state.users.map((u) => {
+					select_users.push({id: u.id, name: u.name, extn: u.extn});
+				})
+			}
+		} else {
+			if(e.target.checked) {
+				select_users.push({id: user.id, name: user.name, extn: user.extn});
+			} else {
+				select_users = select_users.filter((suser) => {
+					return suser.id != user.id;
+				})
+			}
+		}
+		console.log("xxxx select_users", select_users);
+		this.setState({select_users: select_users})
+	}
+
+	handleClearSelect () {
+		this.setState({select_users: []});
+	}
+
+	handleShowUserList () {
+		this.setState({userlist: !this.state.userlist})
+	}
+
 	render() {
 		const toggleDanger = () => this.setState({ danger: !this.state.danger });
 		const danger = this.state.danger ? "danger" : null;
@@ -233,8 +274,51 @@ class GroupMembers extends React.Component {
 		return <div>
 			<h2><T.span text="Group Members"/></h2><br/>
 			<ButtonToolbar>
-				<Select style={{ minWidth:"160px", maxWidth:"300px"}} name="multi-select" multi={true} className="pull-left" value={this.state.select_value} placeholder={T.translate('Please Select')} options={member_options} onChange={this.handleSelectChange.bind(this)}/>
-				<Button bsStyle="primary" onClick={this.handleMembersAdded.bind(this)} className="pull-left">{T.translate("Add Member(s)")}</Button>
+				<div style={{position: "relative"}}>
+					<div>
+						<div style={{border: "1px solid #ccc", maxWidth: "350px", minWidth: "160px", borderRadius: "4px", color: "#333", display: "inline-table", height: "36px", margin: "5px"}}>
+							<div style={{maxWidth: "300px", minWidth: "160px", lineHeight: "34px"}}>
+							{
+								this.state.select_users.length == 0 ? <span style={{fontSize: "14px", color: "#999", padding: "3px"}}>请选择用户</span> :
+									_this.state.select_users.map((user, index) => {
+										return <div key={index} style={{borderRadius: "2px", border: "1px solid #b9d9ff", backgroundColor: "#edf5ff", color: "#007eff", display: "inline-block", fontSize: "0.9em", lineHeight: "1.4", marginLeft: "5px", marginTop: "5px", verticalTop: "top"}}>
+											<span style={{padding: "2px 5px"}}>{user.name}|{user.extn}</span>
+										</div>
+									})
+							}
+							</div>
+							<span style={{cursor: "pointer", width: "17px", fontSize: "16px", color: "#999", display: "table-cell", verticalAlign: "middle", textAlign: "center"}}
+								onMouseOver={(e) => {e.target.style.color = "red"}}
+								onMouseLeave={(e) => {e.target.style.color = "#999"}}
+								onClick={_this.handleClearSelect}>x</span>
+							<div style={{cursor: "pointer", width: "25px", fontSize: "18px", color: "#999", display: "table-cell", verticalAlign: "middle", textAlign: "center", paddingRight: "5px"}}
+								onClick={_this.handleShowUserList}>
+								<i className="fa fa-caret-down"></i>
+							</div>
+						</div>
+						<Button bsStyle="primary" onClick={this.handleMembersAdded.bind(this)}>{T.translate("Add Member(s)")}</Button>
+					</div>
+					<div style={{display: _this.state.userlist ? "block" : "none",height: "188px", width: "175px", border: "1px solid #ccc", overflowY: "auto", padding: "0 10px", position: "relative", top: "-5px", left: "5px", borderTop: 0, width: "200px"}}>
+						<Checkbox onClick={(e) => {_this.setChooseValue(e, "all")}}>全选</Checkbox>
+						{
+							this.state.users.map((user, index) => {
+								let tmp= "";
+								_this.state.select_users.map((val, inde) => {
+									if(val.id == user.id) tmp = val.id;
+								})
+								return <Checkbox checked={user.id == tmp} key={user.id} onClick={(e) => {_this.setChooseValue(e, user)}}>
+									<div>{user.name} | {user.extn}</div>
+							    </Checkbox>
+							})
+						}
+					</div>
+				</div>
+
+			{/*	<Select style={{ minWidth:"160px", maxWidth:"300px"}} name="multi-select"
+					multi={true} className="pull-left" value={this.state.select_value}
+					placeholder={T.translate('Please Select')} options={member_options}
+					onChange={this.handleSelectChange.bind(this)}/>*/}
+
 				<Button bsStyle="danger" className="pull-right" onClick={this.handleDeleteMembers.bind(this)}>{T.translate("Remove All Member(s)")}</Button>
 			</ButtonToolbar>
 			<br/>

@@ -326,7 +326,7 @@ class CDRsPage extends React.Component {
 				<td><T.span text={row.hangup_cause} title={row.hangup_cause}/></td>
 				<td>{row.account_code}</td>
 				<td>{row.sip_hangup_disposition}</td>
-				<td><a onClick={()=>{_this.setState({formShow: true, cdr: row})}} style={{cursor: "pointer"}}>{T.translate("Detail")}</a></td>
+				<td><a onClick={() =>{_this.setState({formShow: true, cdr: row})}} style={{cursor: "pointer"}}>{T.translate("Detail")}</a></td>
 			</tr>
 		})
 
