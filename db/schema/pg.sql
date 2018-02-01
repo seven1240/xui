@@ -610,7 +610,8 @@ CREATE TABLE cdrs (
 	hangup_cause VARCHAR,
 	uuid VARCHAR,
 	bleg_uuid VARCHAR,
-	account_code VARCHAR
+	account_code VARCHAR,
+	realm VARCHAR
 );
 
 ALTER TABLE cdrs ADD sip_hangup_disposition VARCHAR;
