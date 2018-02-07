@@ -197,3 +197,7 @@ end)
 get("/", function(params)
 	return execute("conference", "list")
 end)
+
+get("/:name", function(params)
+	return execute("conference", params.name .. " list")
+end)
