@@ -316,6 +316,7 @@ class RoomMembers extends React.Component {
 		this.handleClearGroupRoute = this.handleClearGroupRoute.bind(this);
 		this.handleDragSortStart = this.handleDragSortStart.bind(this);
 		this.handleDragSortDrop = this.handleDragSortDrop.bind(this);
+		this.handleClearGroup = this.handleClearGroup.bind(this);
 	}
 
 	componentDidMount() {
@@ -532,6 +533,28 @@ class RoomMembers extends React.Component {
 		this.setState({members: members});
 	}
 
+	handleClearGroup(e) {
+		var c = confirm(T.translate("Confirm to clear the group members?"));
+		if (!c) return;
+		let group_id = e.currentTarget.getAttribute("data-group");
+		const members = this.state.members.map((m) => {
+			if (m.group_id == group_id) {
+			return m;
+			}
+		});
+		members.forEach((member) => {
+			if(member.id < 0) return;
+			xFetchJSON("/api/conference_rooms/" + this.props.room.id + "/members/" + member.id, {
+				method: 'DELETE',
+			}).then((ret) => {
+				notify(<T.span text="Clear the group" />);
+			}).catch((err) => {
+				console.error("delete members ERR");
+			});
+		});
+		this.setState({members: members});
+	}
+
 	handleDragSortStart (e) {
 		let startsort = e.currentTarget.getAttribute("value");
 		this.state.startsort = startsort;
@@ -691,6 +714,11 @@ class RoomMembers extends React.Component {
 								&nbsp;
 								<a data-group={group_id} onClick={_this.handleClearGroupRoute} style={{cursor: "pointer", fontSize: "12px", marginLeft: "5px", color: "#666"}}>
 									<T.span text={"Clear the group route"}/>
+								</a>
+								&nbsp;
+								&nbsp;
+								<a data-group={group_id} onClick={_this.handleClearGroup} style={{cursor: "pointer", fontSize: "12px", marginLeft: "5px", color: "#990033"}}>
+									<T.span text={"Delete the group members"}/>
 								</a>
 							</div>
 						</h5>
