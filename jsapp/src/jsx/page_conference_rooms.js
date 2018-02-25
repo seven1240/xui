@@ -537,11 +537,14 @@ class RoomMembers extends React.Component {
 		var c = confirm(T.translate("Confirm to clear the group members?"));
 		if (!c) return;
 		let group_id = e.currentTarget.getAttribute("data-group");
-		const members = this.state.members.map((m) => {
-			if (m.group_id == group_id) {
-			return m;
-			}
+
+		const members = this.state.members.filter((m) => {
+			return m.group_id == group_id;
 		});
+		const othermembers = this.state.members.filter((m) => {
+			return m.group_id != group_id;
+		});
+
 		members.forEach((member) => {
 			if(member.id < 0) return;
 			xFetchJSON("/api/conference_rooms/" + this.props.room.id + "/members/" + member.id, {
@@ -552,7 +555,7 @@ class RoomMembers extends React.Component {
 				console.error("delete members ERR");
 			});
 		});
-		this.setState({members: members});
+		this.setState({members: othermembers});
 	}
 
 	handleDragSortStart (e) {
