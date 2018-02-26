@@ -374,8 +374,8 @@ utils.is_ip_address = function(ip)
 end
 
 utils.reload_acl = function()
-        api = freeswitch.API()
-        api:execute("reloadacl")
+	api = freeswitch.API()
+	api:execute("reloadacl")
 end
 
 return utils
