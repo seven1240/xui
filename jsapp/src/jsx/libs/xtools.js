@@ -158,6 +158,48 @@ class Notice extends React.Component {
 	}
 }
 
+class Languages extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {lang: current_lang()};
+
+	    this.handleClick = this.handleClick.bind(this);
+	}
+
+	handleClick() {
+		var lang;
+
+		if (this.state.lang == "zh-CN") {
+			lang = "en-US"
+		} else {
+			lang = "zh-CN"
+		}
+
+		console.log("lang", lang);
+		this.setState({lang : lang});
+		localStorage.setItem("xui.lang", lang);
+		location.reload();
+	}
+
+	render() {
+		var img = "/assets/img/" + this.state.lang + ".png";
+		return <div className="pull-right"><img src={img} onClick={this.handleClick}/></div>
+	}
+
+}
+
+class Footer extends React.Component {
+	render() {
+		return <div id="footer">
+			<br/><br/><br/>
+			<Languages className="pull-ight"/>
+			&copy; <T.span text="Copyright"/>
+			<br/><br/>
+		</div>
+	}
+};
+
 function xFetch(path, options) {
 	if (!options) options = {};
 
@@ -188,4 +230,4 @@ function xFetchJSON(path, options) {
 	});
 }
 
-export {EditControl, xFetch, xFetchJSON, Notice};
+export {EditControl, xFetch, xFetchJSON, Notice, Footer, Languages};

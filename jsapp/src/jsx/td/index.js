@@ -37,7 +37,6 @@ import T from 'i18n-react';
 import { Row, Col, Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Router, Route, IndexRoute, Link, hashHistory, Redirect } from 'react-router'
-import Languages from "../languages";
 import MainMenu from './main-menu';
 import FSShow from "../fs_show";
 import { CDRsPage, CDRPage } from "../page_cdrs";
@@ -68,11 +67,10 @@ import { ModulePage } from '../page_module';
 import { SIPProfilesPage, SIPProfilePage } from '../page_sip';
 import { MediaFilesPage, MediaFilePage } from '../page_media_files';
 import { Login, LoginBox } from '../page_login';
-import Footer from '../footer';
 import Terminal from '../terminal';
 import verto from '../verto/verto';
 import PasswordPage from '../page_password';
-import { xFetchJSON } from '../libs/xtools';
+import { xFetchJSON, Footer } from '../libs/xtools';
 
 const lang_map = detect_language();
 if (lang_map) T.setTexts(lang_map);

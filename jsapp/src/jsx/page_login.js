@@ -34,12 +34,10 @@ import ReactDOM from 'react-dom';
 import { Row, Col, Button } from 'react-bootstrap';
 import { Router, Route, IndexRoute, Link, hashHistory, Redirect } from 'react-router'
 import MainMenu from './main-menu';
-import Languages from "./languages";
-import Footer from "./footer";
 import { Home } from "./index.js";
 import verto from "./verto/verto";
 import {verto_params, verto_callbacks} from "./verto";
-import { xFetchJSON } from './libs/xtools';
+import { xFetchJSON, Footer } from './libs/xtools';
 
 class LoginPage extends React.Component {
 	render() {
