@@ -66,6 +66,7 @@ Optionally use the taobao mirror would be faster if you are in China
     npm install -g watchify
     npm install -g babel-cli
     npm install -g uglifyjs
+    npm install -g uglify-js
 
     cd jsapp
     npm install
