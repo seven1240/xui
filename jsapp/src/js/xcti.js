@@ -213,7 +213,7 @@ function xdatetime(dt) {
 		return r;
 	}
 
-	let date = new Date(dt * 1000);
+	var date = new Date(dt * 1000);
 
 	return date.getUTCFullYear()
 		+ '-' + pad(date.getUTCMonth() + 1)
@@ -278,12 +278,12 @@ function agoraCall(destNumber, options) {
 }
 
 function isAdmin() {
-	const user = localStorage.getItem("xui.username")
+	var user = localStorage.getItem("xui.username")
 	return user == "admin";
 	// return true;
 }
 
 function isConfMan() {
-	const user_type = localStorage.getItem("xui.user_type")
+	var user_type = localStorage.getItem("xui.user_type")
 	return user_type == "CONFMAN"
 }
