@@ -924,11 +924,17 @@ class TicketsPage extends React.Component {
 		this.handleSelect = this.handleSelect.bind(this);
 		this.handleDownload = this.handleDownload.bind(this);
 		this.handlePageTurn = this.handlePageTurn.bind(this);
+		this.handleOnClickSerial = this.handleOnClickSerial.bind(this);
 	}
 
 	handleMore (e) {
 		e.preventDefault();
 		this.setState({hiddendiv: this.state.hiddendiv == 'none' ? 'block' : 'none'});
+	}
+
+
+	handleOnClickSerial(e) {
+		console.log("debug", "this is click, TODO...")
 	}
 
 	handleDelete(e) {
@@ -976,7 +982,7 @@ class TicketsPage extends React.Component {
 		var _this = this;
 		const ticketsRowsPerPage = localStorage.getItem('ticketsRowsPerPage') || 30;
 		_this.setState({ rowsPerPage: ticketsRowsPerPage });
-		console.log('llllllllllllllll', _this.state.ticket_type);
+		console.log('ticket_type:', _this.state.ticket_type);
 		xFetchJSON("/api/tickets?last=" + _this.state.last + "&ticket_type=" + _this.state.ticket_type + "&ticketsRowsPerPage=" + ticketsRowsPerPage + "&pageNum=" + pageNum + _this.state.t_qs).then((tickets) => {
 			
 			_this.setState({rows: tickets.data, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
@@ -1102,7 +1108,8 @@ class TicketsPage extends React.Component {
 							};
 			return <tr key={row.id}>
 				<td><div style={star_six}></div></td>
-				<td><Link to={`/tickets/${row.id}`}>{row.serial_number}</Link></td>
+				<td>{row.id}</td>
+				<td><Link to={`/tickets/${row.id}`} onClick={_this.handleOnClickSerial}>{row.serial_number}</Link></td>
 				<td>{row.cid_number}</td>
 				<td>{row.subject}</td>
 				<td>{row.created_at}</td>
@@ -1228,6 +1235,7 @@ class TicketsPage extends React.Component {
 				<tbody>
 					<tr>
 						<th></th>
+						<th><T.span text="ID"/></th>
 						<th><T.span text="Serial Number"/></th>
 						<th><T.span text="CID Number"/></th>
 						<th><T.span text="Subject"/></th>
