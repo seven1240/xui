@@ -37,6 +37,7 @@ import { Link } from 'react-router';
 import { EditControl, xFetchJSON } from './libs/xtools';
 import _ from 'lodash';
 import Dropzone from 'react-dropzone';
+import PubSub from 'pubsub-js';
 
 class NewTicket extends React.Component {
 	constructor(props) {
@@ -211,7 +212,8 @@ class TicketPage extends React.Component {
 			comment: '',
 			hiddendiv: 'none',
 			showSelect: false,
-			picWidth: "50%"
+			picWidth: "50%",
+			ticket_data: {}
 		};
 
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -226,6 +228,7 @@ class TicketPage extends React.Component {
 		this.onDrop = this.onDrop.bind(this);
 		this.handleCommitUpload = this.handleCommitUpload.bind(this);
 		this.handleShowPic = this.handleShowPic.bind(this);
+		this.handleOnClickBack = this.handleOnClickBack.bind(this);
 	}
 
 	handleCommitUpload() {
@@ -437,6 +440,22 @@ class TicketPage extends React.Component {
 		}
 	}
 
+	handleOnClickBack(e) {
+		PubSub.publish('ticket_back_topic', this.state.ticket_data);
+	}
+
+	componentWillMount() {
+		this.ticket_back_token = PubSub.subscribe('ticket_back_topic', function (topic, data) {
+			console.log("debug", "this is no use in fact!!!")
+		}.bind(this));
+
+	}
+
+	componentWillUnmount () {
+		PubSub.unsubscribe(this.ticket_back_token);
+		PubSub.unsubscribe(this.ticket_search_token);
+	}
+
 	componentDidMount() {
 		var _this = this;
 		xFetchJSON("/api/tickets/" + _this.props.params.id).then((data) => {
@@ -465,7 +484,12 @@ class TicketPage extends React.Component {
 		xFetchJSON("/api/tickets/" + _this.props.params.id + "/comments/media_files").then((media_files) => {
 			console.log("media_files", media_files);
 			_this.setState({media_files: media_files});
-		})
+		});
+
+		this.ticket_search_token = PubSub.subscribe('ticket_search_topic', function (topic, data) {
+			console.log("subscriber topic:", topic)
+			this.setState({ticket_data: data})
+		}.bind(this));
 	}
 
 	callBack(e) {
@@ -789,8 +813,8 @@ class TicketPage extends React.Component {
 			</ButtonGroup>
 
 			<ButtonGroup>
-				<Link to={`/tickets`} className="btn btn-default">
-						<i className="fa fa-chevron-circle-left" aria-hidden="true"></i>&nbsp;<T.span text="Back"/>
+				<Link to={`/tickets`} className="btn btn-default" onClick={this.handleOnClickBack}>
+					<i className="fa fa-chevron-circle-left" aria-hidden="true"></i>&nbsp;<T.span text="Back"/>
 				</Link>
 				<Button onClick={this.handleDownload}><i className="fa fa-download" aria-hidden="true"></i>&nbsp;<T.span text="Download"/></Button>
 			</ButtonGroup>
@@ -915,7 +939,49 @@ class TicketPage extends React.Component {
 class TicketsPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {rows: [], danger: false, formShow: false, t_qs: '', last: 7, ticket_type: 0, showSettings: false, curPage: 1, rowCount: 0, pageCount: 0, rowsPerPage: null, hiddendiv: 'none', loaded: false, activeKey: 0, types: []};
+
+		function getTime(time){
+			var month = (time.getMonth() + 1);
+			var day = time.getDate();
+			if (month < 10)
+				month = "0" + month;
+			if (day < 10)
+				day = "0" + day;
+			return time.getFullYear() + '-' + month + '-' + day;
+		}
+
+		let now = new Date();
+		let nowdate = Date.parse(now);
+		let sevenDaysBeforenowtime = nowdate - 7*24*60*60*1000;
+		let sevenDaysBeforenowdate = new Date(sevenDaysBeforenowtime);
+		let today = getTime(now);
+		let sevenDaysBeforeToday = getTime(sevenDaysBeforenowdate);
+
+		this.state = {
+			rows: [],
+			danger: false,
+			formShow: false,
+			t_qs: '',
+			last: 7,
+			ticket_type: 0,
+			curPage: 1,
+			rowCount: 0,
+			pageCount: 0,
+			rowsPerPage: null,
+			hiddendiv: 'none',
+			loaded: false,
+			activeKey: 0,
+			types: [],
+			init_start_date: sevenDaysBeforeToday,
+			init_end_date: today,
+			search_settings_show: false,
+			search_start_date: sevenDaysBeforeToday,
+			search_end_date: today,
+			search_serial_number: '',
+			search_cid_number: '',
+			search_status: 0
+		};
+
 		this.handleDelete = this.handleDelete.bind(this);
 		this.handleControlClick = this.handleControlClick.bind(this);
 		this.handleQuery = this.handleQuery.bind(this);
@@ -927,14 +993,47 @@ class TicketsPage extends React.Component {
 		this.handleOnClickSerial = this.handleOnClickSerial.bind(this);
 	}
 
-	handleMore (e) {
-		e.preventDefault();
+	handleMore(e) {
+		e.preventDefault()
+
+		if (this.state.hiddendiv == 'block') {
+			this.setState({
+				search_settings_show: false,
+				search_start_date: this.state.init_start_date,
+				search_end_date: this.state.init_end_date,
+				search_serial_number: '',
+				search_cid_number: '',
+				search_status: 0
+			})
+		}
 		this.setState({hiddendiv: this.state.hiddendiv == 'none' ? 'block' : 'none'});
 	}
 
-
 	handleOnClickSerial(e) {
-		console.log("debug", "this is click, TODO...")
+		let ticket_data = {
+			rows: this.state.rows,
+			danger: this.state.danger,
+			formShow: this.state.formShow,
+			t_qs: this.state.t_qs,
+			last: this.state.last,
+			ticket_type: this.state.ticket_type,
+			curPage: this.state.curPage,
+			rowCount: this.state.rowCount,
+			pageCount: this.state.pageCount,
+			rowsPerPage: this.state.rowsPerPage,
+			hiddendiv: this.state.hiddendiv,
+			loaded: this.state.loaded,
+			activeKey: this.state.activeKey,
+			types: this.state.types,
+			search_settings_show: this.state.search_settings_show,
+			search_start_date: this.state.search_start_date,
+			search_end_date: this.state.search_end_date,
+			search_serial_number: this.state.search_serial_number,
+			search_cid_number: this.state.search_cid_number,
+			search_status: this.state.search_status,
+		}
+		PubSub.publish('ticket_search_topic', ticket_data);
+
 	}
 
 	handleDelete(e) {
@@ -957,10 +1056,16 @@ class TicketsPage extends React.Component {
 			notify(msg, 'error');
 		});
 	}
-	componentWillMount () {
+
+	componentWillMount() {
+		this.ticket_search_token = PubSub.subscribe('ticket_search_topic', function (topic, data) {
+			console.log("debug", "this is no use in fact!!!")
+		}.bind(this));
 	}
 
 	componentWillUnmount () {
+		PubSub.unsubscribe(this.ticket_search_token);
+		PubSub.unsubscribe(this.ticket_back_token);
 	}
 
 	componentDidMount () {
@@ -976,6 +1081,33 @@ class TicketsPage extends React.Component {
 		xFetchJSON("/api/dicts?realm=TICKET_TYPE").then((data) => {
 			_this.setState({types: data});
 		});
+
+		this.ticket_back_token = PubSub.subscribe('ticket_back_topic', function (topic, data) {
+			console.log("subscriber topic:", topic)
+
+			this.setState({
+				rows: data.rows,
+				danger: data.danger,
+				formShow: data.formShow,
+				t_qs: data.t_qs,
+				last: data.last,
+				ticket_type: data.ticket_type,
+				curPage: data.curPage,
+				rowCount: data.rowCount,
+				pageCount: data.pageCount,
+				rowsPerPage: data.rowsPerPage,
+				hiddendiv: data.hiddendiv,
+				loaded: data.loaded,
+				activeKey: data.activeKey,
+				types: data.types,
+				search_settings_show: data.search_settings_show,
+				search_start_date: data.search_start_date,
+				search_end_date: data.search_end_date,
+				search_cid_number: data.search_cid_number,
+				search_serial_number: data.search_serial_number,
+				search_status: data.search_status
+			})
+		}.bind(this));
 	}
 
 	handlePageTurn(pageNum) {
@@ -984,7 +1116,6 @@ class TicketsPage extends React.Component {
 		_this.setState({ rowsPerPage: ticketsRowsPerPage });
 		console.log('ticket_type:', _this.state.ticket_type);
 		xFetchJSON("/api/tickets?last=" + _this.state.last + "&ticket_type=" + _this.state.ticket_type + "&ticketsRowsPerPage=" + ticketsRowsPerPage + "&pageNum=" + pageNum + _this.state.t_qs).then((tickets) => {
-			
 			_this.setState({rows: tickets.data, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
 		});
 	}
@@ -1010,7 +1141,7 @@ class TicketsPage extends React.Component {
 				this.setState({ formShow: true});
 				break;
 			case "settings":
-				this.setState({ showSettings: !this.state.showSettings });
+				this.setState({ search_settings_show: !this.state.search_settings_show });
 				break;
 			default:
 				break;
@@ -1032,18 +1163,28 @@ class TicketsPage extends React.Component {
 
 	handleSearch (e) {
 		var _this = this;
-		const qs = "startDate=" + _this.startDate.value +
-			"&endDate=" + _this.endDate.value +
+		const qs = "start_date=" + _this.start_date.value +
+			"&end_date=" + _this.end_date.value +
 			"&cid_number=" + _this.cid_number.value +
 			"&status=" + _this.status.value +
 			"&ticket_type=" + _this.state.ticket_type +
 			"&serial_number=" + _this.serial_number.value;
-		console.log(qs);
+
+		_this.setState({
+			search_start_date: _this.start_date.value,
+			search_end_date: _this.end_date.value,
+			search_cid_number: _this.cid_number.value,
+			search_status: _this.status.value,
+			search_ticket_type: _this.state.ticket_type,
+			search_serial_number: _this.serial_number.value
+		})
+
+		console.log("qs:", qs);
 		const ticketsRowsPerPage = localStorage.getItem('ticketsRowsPerPage') || 30;
 		var ts_qs = "&" + qs
 		_this.setState({ rowsPerPage: ticketsRowsPerPage, t_qs: ts_qs });
 		xFetchJSON("/api/tickets?" + qs + "&ticketsRowsPerPage=" + ticketsRowsPerPage).then((tickets) => {
-			console.log("aaaaaaaa",tickets);
+			console.log("tickets:",tickets);
 			_this.setState({rows: tickets.data, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
 		});
 	}
@@ -1059,7 +1200,7 @@ class TicketsPage extends React.Component {
 			});
 		} else {
 			xFetchJSON("/api/tickets?ticket_type=" + selectedKey + "&ticketsRowsPerPage=" + ticketsRowsPerPage).then((tickets) => {
-				console.log('rrrrrrrrrrrrrrrrrr', tickets.pageCount);
+				console.log('ticket_page_count:', tickets.pageCount);
 				_this.setState({rows: tickets.data, ticket_type: selectedKey, activeKey: selectedKey, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
 			});
 		}
@@ -1073,6 +1214,36 @@ class TicketsPage extends React.Component {
 		document.body.appendChild(downloadLink);
 		downloadLink.click();
 		document.body.removeChild(downloadLink);
+	}
+
+	handleChangeSerialNumber(e) {
+		this.setState({
+			search_serial_number:e.target.value
+		})
+	}
+
+	handleChangeCidNumber(e) {
+		this.setState({
+			search_cid_number:e.target.value
+		})
+	}
+
+	handleChangeStartDate(e) {
+		this.setState({
+			search_start_date:e.target.value
+		})
+	}
+
+	handleChangeEndDate(e) {
+		this.setState({
+			search_end_date:e.target.value
+		})
+	}
+
+	handleChangeSelctStatus(e) {
+		this.setState({
+			search_status:e.target.value
+		})
 	}
 
 	render () {
@@ -1118,23 +1289,6 @@ class TicketsPage extends React.Component {
 				<td><T.a style={hand} onClick={_this.handleDelete} data-id={row.id} text="Delete" className={danger}/></td>
 			</tr>
 		})
-				var now = new Date();
-		var nowdate = Date.parse(now);
-		var sevenDaysBeforenowtime = nowdate - 7*24*60*60*1000;
-		var sevenDaysBeforenowdate = new Date(sevenDaysBeforenowtime);
-
-		function getTime(time){
-			var month = (time.getMonth() + 1);
-			var day = time.getDate();
-			if (month < 10) 
-				month = "0" + month;
-			if (day < 10)
-				day = "0" + day;
-			return time.getFullYear() + '-' + month + '-' + day;
-		}
-
-		var today = getTime(now);
-		var sevenDaysBeforeToday = getTime(sevenDaysBeforenowdate);
 
 		let isShow;
 		if(this.state.loaded){
@@ -1175,13 +1329,16 @@ class TicketsPage extends React.Component {
 		return <div>
 			<ButtonToolbar className="pull-right">
 				<br/>
+				<Button onClick={this.handleControlClick} className="pull-right" data="settings" title={T.translate("Settings")}>
+					<i className="fa fa-gear" aria-hidden="true" data="settings"></i>
+				</Button>
 				<Button onClick={this.handleDownload} className="pull-right">
 					<i className="fa fa-download" aria-hidden="true"></i>&nbsp;
 					<T.span text="Export" />
 				</Button>&nbsp;
 				<Button onClick={this.handleControlClick} data="new" className="pull-right">
 					<i className="fa fa-plus" aria-hidden="true" onClick={this.handleControlClick} data="new"></i>&nbsp;
-					<T.span onClick={this.handleControlClick} data="new" text="New" />
+					<T.span onClick={this.handleControlClick} data="new" text="New"/>
 				</Button>
 				<br/><br/>
 				<div style={{display: 'inline'}}>
@@ -1193,7 +1350,23 @@ class TicketsPage extends React.Component {
 					<T.a onClick={this.handleQuery} text={{key:"days", day: 90}} data="90" href="#"/>&nbsp;|&nbsp;
 					<T.a onClick={this.handleMore} text="More" data="more" href="#"/>...
 				</div>
+				<br/>
+				<div className="pull-right">
+					<T.span text="Total Rows"/>: {this.state.rowCount} &nbsp;&nbsp;
+					<T.span text="Current Page/Total Page"/>: {this.state.curPage}/{this.state.pageCount}
+				</div>
 			</ButtonToolbar>
+
+			{
+				!this.state.search_settings_show ? null :
+				<div style={{position: "absolute", top: "120px", right: "10px", width: "180px", border: "2px solid grey", padding: "10px", zIndex: 999, backgroundColor: "#EEE", textAlign: "right"}}>
+					<T.span text="Paginate Settings"/>
+					<br/>
+					<T.span text="Per Page"/>
+					&nbsp;<input  onChange={this.handleRowsChange.bind(this)} defaultValue={this.state.rowsPerPage} size={3}/>&nbsp;
+					<T.span text="Row"/>
+				</div>
+			}
 
 			<h1 style={{float: "left"}}><T.span text="Tickets" />&nbsp;&nbsp;&nbsp;&nbsp;</h1>
 
@@ -1208,12 +1381,12 @@ class TicketsPage extends React.Component {
 			</Nav>
 
 			<div style={{padding: "5px", display: _this.state.hiddendiv}} className="pull-right">
-				<input type="date" defaultValue={sevenDaysBeforeToday} ref={(input) => { _this.startDate = input; }}/> -&nbsp;
-				<input type="date" defaultValue={today} ref={(input) => { _this.endDate = input; }}/> &nbsp;
-				<T.span text="Serial Number"/><input ref={(input) => { _this.serial_number = input; }}/> &nbsp;
-				<T.span text="CID Number"/><input ref={(input) => { _this.cid_number = input; }}/> &nbsp;
+				<input type="date" ref={(input) => { _this.start_date = input; }} value={_this.state.search_start_date} onChange={this.handleChangeStartDate.bind(this)}/> -&nbsp;
+				<input type="date" ref={(input) => { _this.end_date = input; }} value={_this.state.search_end_date} onChange={this.handleChangeEndDate.bind(this)}/> &nbsp;
+				<T.span text="Serial Number"/><input style={{'text-align':'center'}} ref={(input) => { _this.serial_number = input;}} value={_this.state.search_serial_number} onChange={this.handleChangeSerialNumber.bind(this)}/> &nbsp;
+				<T.span text="CID Number"/><input style={{'text-align':'center'}} ref={(input) => { _this.cid_number = input; }} value={_this.state.search_cid_number} onChange={this.handleChangeCidNumber.bind(this)}/> &nbsp;
 				<T.span text="Status"/>
-				<select ref={(input) => { _this.status = input; }}>
+				<select ref={(input) => { _this.status = input; }} value={_this.state.search_status} onChange={this.handleChangeSelctStatus.bind(this)}>
 					<option value ="">{T.translate("ALL")}</option>
 					<option value ="TICKET_ST_NEW">{T.translate("TICKET_ST_NEW")}</option>
 					<option value ="TICKET_ST_PROCESSING">{T.translate("TICKET_ST_PROCESSING")}</option>
@@ -1221,16 +1394,7 @@ class TicketsPage extends React.Component {
 				</select>&nbsp;
 				<T.button text="Search" onClick={this.handleSearch}/>
 			</div>
-			{
-				!this.state.showSettings ? null :
-				<div style={{position: "absolute", top: "60px", right: "10px", width: "180px", border: "2px solid grey", padding: "10px", zIndex: 999, backgroundColor: "#EEE", textAlign: "right"}}>
-					<T.span text="Paginate Settings"/>
-					<br/>
-					<T.span text="Per Page"/>
-					&nbsp;<input  onChange={this.handleRowsChange.bind(this)} defaultValue={this.state.rowsPerPage} size={3}/>&nbsp;
-					<T.span text="Row"/>
-				</div>
-			}
+
 			<table className="table">
 				<tbody>
 					<tr>

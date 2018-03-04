@@ -47,7 +47,8 @@
     "webpack": "^3.8.1",
     "webpack-git-hash": "^1.0.2",
     "webpack-md5-hash": "0.0.5",
-    "whatwg-fetch": "^2.0.3"
+    "whatwg-fetch": "^2.0.3",
+    "pubsub-js": "^1.6.0"
   },
   "dependencies": {},
   "scripts": {
