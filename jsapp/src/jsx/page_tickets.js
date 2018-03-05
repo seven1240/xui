@@ -1072,7 +1072,7 @@ class TicketsPage extends React.Component {
 		var _this = this;
 		const ticketsRowsPerPage = localStorage.getItem('ticketsRowsPerPage') || 30;
 		_this.setState({ rowsPerPage: ticketsRowsPerPage });
-		
+
 		xFetchJSON("/api/tickets?ticket_type=" + _this.state.ticket_type + "&ticketsRowsPerPage=" + ticketsRowsPerPage).then((tickets) => {
 			console.log('data', tickets.data)
 			_this.setState({rows: tickets.data, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount,curPage: tickets.curPage});
@@ -1084,30 +1084,33 @@ class TicketsPage extends React.Component {
 
 		this.ticket_back_token = PubSub.subscribe('ticket_back_topic', function (topic, data) {
 			console.log("subscriber topic:", topic)
+			_this.setState({ rowsPerPage: data.rowsPerPage });
+			xFetchJSON("/api/tickets?last=" + data.last + "&ticket_type=" + data.ticket_type + "&ticketsRowsPerPage=" + data.rowsPerPage + "&pageNum=" + data.curPage + data.t_qs).then((tickets) => {
+				_this.setState({
+					rows: tickets.data,
+					loaded: true,
+					pageCount: tickets.pageCount,
+					rowCount: tickets.rowCount,
+					curPage: tickets.curPage,
+					danger: data.danger,
+					formShow: data.formShow,
+					t_qs: data.t_qs,
+					last: data.last,
+					ticket_type: data.ticket_type,
+					rowsPerPage: data.rowsPerPage,
+					hiddendiv: data.hiddendiv,
+					activeKey: data.activeKey,
+					types: data.types,
+					search_settings_show: data.search_settings_show,
+					search_start_date: data.search_start_date,
+					search_end_date: data.search_end_date,
+					search_cid_number: data.search_cid_number,
+					search_serial_number: data.search_serial_number,
+					search_status: data.search_status
+				});
+			});
+		})
 
-			this.setState({
-				rows: data.rows,
-				danger: data.danger,
-				formShow: data.formShow,
-				t_qs: data.t_qs,
-				last: data.last,
-				ticket_type: data.ticket_type,
-				curPage: data.curPage,
-				rowCount: data.rowCount,
-				pageCount: data.pageCount,
-				rowsPerPage: data.rowsPerPage,
-				hiddendiv: data.hiddendiv,
-				loaded: data.loaded,
-				activeKey: data.activeKey,
-				types: data.types,
-				search_settings_show: data.search_settings_show,
-				search_start_date: data.search_start_date,
-				search_end_date: data.search_end_date,
-				search_cid_number: data.search_cid_number,
-				search_serial_number: data.search_serial_number,
-				search_status: data.search_status
-			})
-		}.bind(this));
 	}
 
 	handlePageTurn(pageNum) {
