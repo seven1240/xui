@@ -461,9 +461,13 @@ class TicketPage extends React.Component {
 		xFetchJSON("/api/tickets/" + _this.props.params.id).then((data) => {
 			console.log("ticket", data);
 			_this.setState({ticket: data});
-			xFetchJSON("/api/tickets/" + _this.props.params.id + '/record?file_id=' + _this.state.ticket.media_file_id).then((data) => {
-				this.setState({record_src: data.rel_path});
-			});
+			if( _this.state.ticket.media_file_id){
+				xFetchJSON("/api/tickets/" + _this.props.params.id + '/record?file_id=' + _this.state.ticket.media_file_id).then((data) => {
+					this.setState({record_src: data.rel_path});
+				}).catch((e) => {
+					console.error("get ticket record", e);
+				});
+			}
 		}).catch((e) => {
 			console.error("get ticket", e);
 		});
