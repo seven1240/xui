@@ -70,7 +70,7 @@ class NewTicket extends React.Component {
 			method:"POST",
 			body: JSON.stringify(ticket)
 		}).then((obj) => {
-			const w= _window.open('/#/tickets/' + obj.id);
+			window.location = "#/tickets/" + obj.id
 			_this.props.handleNewTicketAdded(obj);
 		}).catch((msg) => {
 			console.error("ticket", msg);
@@ -441,7 +441,8 @@ class TicketPage extends React.Component {
 	}
 
 	handleOnClickBack(e) {
-		PubSub.publish('ticket_back_topic', this.state.ticket_data);
+		/*PubSub.publish('ticket_back_topic', this.state.ticket_data);*/
+		history.back()
 	}
 
 	componentWillMount() {
@@ -563,6 +564,12 @@ class TicketPage extends React.Component {
 
 	handleMore(e) {
 		e.preventDefault();
+
+
+		if (this.state.hiddendiv == 'block') {
+			window.location = "#/tickets"
+		}
+
 		this.setState({hiddendiv: this.state.hiddendiv == 'none' ? 'block' : 'none'});
 	}
 
@@ -817,7 +824,7 @@ class TicketPage extends React.Component {
 			</ButtonGroup>
 
 			<ButtonGroup>
-				<Link to={`/tickets`} className="btn btn-default" onClick={this.handleOnClickBack}>
+				<Link className="btn btn-default" onClick={this.handleOnClickBack}>
 					<i className="fa fa-chevron-circle-left" aria-hidden="true"></i>&nbsp;<T.span text="Back"/>
 				</Link>
 				<Button onClick={this.handleDownload}><i className="fa fa-download" aria-hidden="true"></i>&nbsp;<T.span text="Download"/></Button>
@@ -1013,7 +1020,7 @@ class TicketsPage extends React.Component {
 		this.setState({hiddendiv: this.state.hiddendiv == 'none' ? 'block' : 'none'});
 	}
 
-	handleOnClickSerial(e) {
+	/*handleOnClickSerial(e) {
 		let ticket_data = {
 			rows: this.state.rows,
 			danger: this.state.danger,
@@ -1038,6 +1045,11 @@ class TicketsPage extends React.Component {
 		}
 		PubSub.publish('ticket_search_topic', ticket_data);
 
+	}*/
+
+
+	handleOnClickSerial(e) {
+		console.log("history:", this.props.location.query)
 	}
 
 	handleDelete(e) {
@@ -1073,65 +1085,103 @@ class TicketsPage extends React.Component {
 	}
 
 	componentDidMount () {
-		var _this = this;
-		const ticketsRowsPerPage = localStorage.getItem('ticketsRowsPerPage') || 30;
-		_this.setState({ rowsPerPage: ticketsRowsPerPage });
+		var _this = this
+		let url_params_obj = this.props.location.query
+		let urlParameters = Object.entries(url_params_obj).map(e => encodeURIComponent(e[0])+"="+encodeURIComponent(e[1])).join('&');
+		const rowsPerPage = localStorage.getItem('rowsPerPage') || 30;
+		_this.setState({ rowsPerPage: rowsPerPage });
 
-		xFetchJSON("/api/tickets?ticket_type=" + _this.state.ticket_type + "&ticketsRowsPerPage=" + ticketsRowsPerPage).then((tickets) => {
-			console.log('data', tickets.data)
-			_this.setState({rows: tickets.data, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount,curPage: tickets.curPage});
-		});
+		if (url_params_obj.curPage) {
+			xFetchJSON("/api/tickets?" + urlParameters).then((tickets) => {
+				console.log('data', tickets.data)
+				_this.setState({rows: tickets.data, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
+
+				{
+					for (var key in url_params_obj) {
+						var state_key = key
+
+						if (url_params_obj[key]) {
+							if (key == "start_date" || key == "end_date" ||
+								key == "cid_number" || key == "status" ||
+								key == "ticket_type" || key == "serial_number") {
+
+								state_key = "search_" + key
+								url_params_obj[state_key] = url_params_obj[key]
+								delete url_params_obj[key]
+							} else if (key == "rowsPerPage") {
+								delete url_params_obj[key]
+							}
+						} else {
+							delete url_params_obj[key]
+						}
+					}
+					_this.setState(url_params_obj)
+				}
+			});
+		} else {
+			xFetchJSON("/api/tickets?ticket_type=" + _this.state.ticket_type + "&rowsPerPage=" + rowsPerPage).then((tickets) => {
+				console.log('data', tickets.data)
+				_this.setState({rows: tickets.data, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
+			});
+		}
 
 		xFetchJSON("/api/dicts?realm=TICKET_TYPE").then((data) => {
 			_this.setState({types: data});
 		});
 
-		this.ticket_back_token = PubSub.subscribe('ticket_back_topic', function (topic, data) {
-			console.log("subscriber topic:", topic)
-			_this.setState({ rowsPerPage: data.rowsPerPage });
-			xFetchJSON("/api/tickets?last=" + data.last + "&ticket_type=" + data.ticket_type + "&ticketsRowsPerPage=" + data.rowsPerPage + "&pageNum=" + data.curPage + data.t_qs).then((tickets) => {
-				_this.setState({
-					rows: tickets.data,
-					loaded: true,
-					pageCount: tickets.pageCount,
-					rowCount: tickets.rowCount,
-					curPage: tickets.curPage,
-					danger: data.danger,
-					formShow: data.formShow,
-					t_qs: data.t_qs,
-					last: data.last,
-					ticket_type: data.ticket_type,
-					rowsPerPage: data.rowsPerPage,
-					hiddendiv: data.hiddendiv,
-					activeKey: data.activeKey,
-					types: data.types,
-					search_settings_show: data.search_settings_show,
-					search_start_date: data.search_start_date,
-					search_end_date: data.search_end_date,
-					search_cid_number: data.search_cid_number,
-					search_serial_number: data.search_serial_number,
-					search_status: data.search_status
+		{/*
+			this.ticket_back_token = PubSub.subscribe('ticket_back_topic', function (topic, data) {
+				console.log("subscriber topic:", topic)
+				_this.setState({ rowsPerPage: data.rowsPerPage });
+				xFetchJSON("/api/tickets?last=" + data.last + "&ticket_type=" + data.ticket_type + "&rowsPerPage=" + data.rowsPerPage + "&pageNum=" + data.curPage + data.t_qs).then((tickets) => {
+					_this.setState({
+						rows: tickets.data,
+						loaded: true,
+						pageCount: tickets.pageCount,
+						rowCount: tickets.rowCount,
+						curPage: tickets.curPage,
+						danger: data.danger,
+						formShow: data.formShow,
+						t_qs: data.t_qs,
+						last: data.last,
+						ticket_type: data.ticket_type,
+						rowsPerPage: data.rowsPerPage,
+						hiddendiv: data.hiddendiv,
+						activeKey: data.activeKey,
+						types: data.types,
+						search_settings_show: data.search_settings_show,
+						search_start_date: data.search_start_date,
+						search_end_date: data.search_end_date,
+						search_cid_number: data.search_cid_number,
+						search_serial_number: data.search_serial_number,
+						search_status: data.search_status
+					});
 				});
-			});
-		})
+			})
+		*/}
 
 	}
 
 	handlePageTurn(pageNum) {
 		var _this = this;
-		const ticketsRowsPerPage = localStorage.getItem('ticketsRowsPerPage') || 30;
-		_this.setState({ rowsPerPage: ticketsRowsPerPage });
+		const rowsPerPage = localStorage.getItem('rowsPerPage') || 30;
+		_this.setState({ rowsPerPage: rowsPerPage });
 		console.log('ticket_type:', _this.state.ticket_type);
-		xFetchJSON("/api/tickets?last=" + _this.state.last + "&ticket_type=" + _this.state.ticket_type + "&ticketsRowsPerPage=" + ticketsRowsPerPage + "&pageNum=" + pageNum + _this.state.t_qs).then((tickets) => {
+		xFetchJSON("/api/tickets?last=" + _this.state.last + "&ticket_type=" + _this.state.ticket_type + "&rowsPerPage=" + rowsPerPage + "&pageNum=" + pageNum + _this.state.t_qs).then((tickets) => {
 			_this.setState({rows: tickets.data, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
+			let url_params_obj = this.props.location.query
+			url_params_obj.curPage = pageNum
+			let urlParameters = Object.entries(url_params_obj).map(e => encodeURIComponent(e[0])+"="+encodeURIComponent(e[1])).join('&');
+
+			window.location = "#/tickets?" + urlParameters
 		});
 	}
 
 	handleRowsChange(e) {
 		console.log('rows per page', e.target.value);
-		const ticketsRowsPerPage = parseInt(e.target.value);
+		const rowsPerPage = parseInt(e.target.value);
 
-		localStorage.setItem("ticketsRowsPerPage", ticketsRowsPerPage);
+		localStorage.setItem("rowsPerPage", rowsPerPage);
 	}
 
 	handleTicketAdded(ticket) {
@@ -1155,20 +1205,31 @@ class TicketsPage extends React.Component {
 		}
 	}
 
-	handleQuery (e) {
+	/*handleQuery (e) {
 		var data = parseInt(e.target.getAttribute("data"));
 		this.days = data;
 		var _this = this;
 		e.preventDefault();
 		var type = _this.state.activeKey;
-		const ticketsRowsPerPage = localStorage.getItem('ticketsRowsPerPage') || 30;
-		_this.setState({ rowsPerPage: ticketsRowsPerPage, last: data, t_qs: '' });
-		xFetchJSON("/api/tickets?last=" + data + "&ticket_type=" + _this.state.ticket_type + "&ticketsRowsPerPage=" + ticketsRowsPerPage).then((tickets) => {
+		const rowsPerPage = localStorage.getItem('rowsPerPage') || 30;
+		_this.setState({ rowsPerPage: rowsPerPage, last: data, t_qs: '' });
+		xFetchJSON("/api/tickets?last=" + data + "&ticket_type=" + _this.state.ticket_type + "&rowsPerPage=" + rowsPerPage).then((tickets) => {
+			_this.setState({rows: tickets.data, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
+		});
+	}*/
+
+	handleQuery(days) {
+		var _this = this;
+		var type = _this.state.activeKey;
+		const rowsPerPage = localStorage.getItem('rowsPerPage') || 30;
+		_this.setState({ rowsPerPage: rowsPerPage, last: days, t_qs: ''});
+		var url = "/api/tickets?last=" + days + "&ticket_type=" + _this.state.ticket_type + "&rowsPerPage=" + rowsPerPage
+		xFetchJSON(url).then((tickets) => {
 			_this.setState({rows: tickets.data, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
 		});
 	}
 
-	handleSearch (e) {
+	handleSearch(e) {
 		var _this = this;
 		const qs = "start_date=" + _this.start_date.value +
 			"&end_date=" + _this.end_date.value +
@@ -1187,30 +1248,26 @@ class TicketsPage extends React.Component {
 		})
 
 		console.log("qs:", qs);
-		const ticketsRowsPerPage = localStorage.getItem('ticketsRowsPerPage') || 30;
+		const rowsPerPage = localStorage.getItem('rowsPerPage') || 30;
 		var ts_qs = "&" + qs
-		_this.setState({ rowsPerPage: ticketsRowsPerPage, t_qs: ts_qs });
-		xFetchJSON("/api/tickets?" + qs + "&ticketsRowsPerPage=" + ticketsRowsPerPage).then((tickets) => {
+		_this.setState({ rowsPerPage: rowsPerPage, t_qs: ts_qs });
+		xFetchJSON("/api/tickets?" + qs + "&rowsPerPage=" + rowsPerPage + "&activeKey=" + _this.state.activeKey).then((tickets) => {
 			console.log("tickets:",tickets);
 			_this.setState({rows: tickets.data, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
 		});
+
+		window.location = "#/tickets?" + qs + "&rowsPerPage=" + rowsPerPage + "&hiddendiv=" + _this.state.hiddendiv + "&curPage=" + _this.state.curPage + "&activeKey=" +_this.state.activeKey
 	}
 
 	handleSelect(selectedKey) {
+
 		let _this = this;
-		const ticketsRowsPerPage = localStorage.getItem('ticketsRowsPerPage') || 30;
-		_this.setState({ rowsPerPage: ticketsRowsPerPage, t_qs: '', last: 7 });
-		if (selectedKey == 0) {
-			xFetchJSON("/api/tickets?ticket_type=" + 0 + "&ticketsRowsPerPage=" + ticketsRowsPerPage).then((tickets) => {
-				
-				_this.setState({rows: tickets.data, ticket_type: selectedKey, activeKey: selectedKey, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
-			});
-		} else {
-			xFetchJSON("/api/tickets?ticket_type=" + selectedKey + "&ticketsRowsPerPage=" + ticketsRowsPerPage).then((tickets) => {
-				console.log('ticket_page_count:', tickets.pageCount);
-				_this.setState({rows: tickets.data, ticket_type: selectedKey, activeKey: selectedKey, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
-			});
-		}
+		console.log("selectedKey:", selectedKey)
+		const rowsPerPage = localStorage.getItem('rowsPerPage') || 30;
+		_this.setState({ rowsPerPage: rowsPerPage, t_qs: '', last: 7});
+		xFetchJSON("/api/tickets?last=7&ticket_type=" + selectedKey + "&rowsPerPage=" + rowsPerPage).then((tickets) => {
+			_this.setState({rows: tickets.data, ticket_type: selectedKey, activeKey: selectedKey, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
+		});
 	}
 
 	handleDownload() {
@@ -1259,6 +1316,7 @@ class TicketsPage extends React.Component {
 		var danger = this.state.danger ? "danger" : "";
 		let formClose = () => this.setState({ formShow: false });
 		let toggleDanger = () => this.setState({ danger: !this.state.danger });
+		const rowsPerPage = localStorage.getItem('rowsPerPage') || 30;
 		var rows = _this.state.rows.map(function(row) {
 			var status = '';
 			var style = null;
@@ -1333,6 +1391,8 @@ class TicketsPage extends React.Component {
 			);
 		}();
 
+		var url_params = "ticket_type=" + _this.state.ticket_type + "&rowsPerPage=" + rowsPerPage + "&activeKey=" + _this.state.activeKey 
+
 		return <div>
 			<ButtonToolbar className="pull-right">
 				<br/>
@@ -1350,11 +1410,20 @@ class TicketsPage extends React.Component {
 				<br/><br/>
 				<div style={{display: 'inline'}}>
 					<T.span text="Last"/> &nbsp;
-					<T.a onClick={this.handleQuery} text={{key:"days", day: 7}} data="7" href="#"/>&nbsp;|&nbsp;
-					<T.a onClick={this.handleQuery} text={{key:"days", day: 15}} data="15" href="#"/>&nbsp;|&nbsp;
-					<T.a onClick={this.handleQuery} text={{key:"days", day: 30}} data="30" href="#"/>&nbsp;|&nbsp;
-					<T.a onClick={this.handleQuery} text={{key:"days", day: 60}} data="60" href="#"/>&nbsp;|&nbsp;
-					<T.a onClick={this.handleQuery} text={{key:"days", day: 90}} data="90" href="#"/>&nbsp;|&nbsp;
+
+					{/*
+					    <T.a onClick={this.handleQuery} text={{key:"days", day: 7}} data="7" href="#"/>&nbsp;|&nbsp;
+						<T.a onClick={this.handleQuery} text={{key:"days", day: 15}} data="15" href="#"/>&nbsp;|&nbsp;
+						<T.a onClick={this.handleQuery} text={{key:"days", day: 30}} data="30" href="#"/>&nbsp;|&nbsp;
+						<T.a onClick={this.handleQuery} text={{key:"days", day: 60}} data="60" href="#"/>&nbsp;|&nbsp;
+						<T.a onClick={this.handleQuery} text={{key:"days", day: 90}} data="90" href="#"/>&nbsp;|&nbsp;
+						<T.a onClick={this.handleMore} text="More" data="more" href="#"/>...
+					*/}
+					<Link to={`/tickets?last=7&${url_params}`} onClick={() => this.handleQuery("7")}>{"7"+T.translate("days")}</Link>&nbsp;|&nbsp;
+					<Link to={`/tickets?last=15&${url_params}`} onClick={() => this.handleQuery("15")}>{"15"+T.translate("days")}</Link>&nbsp;|&nbsp;
+					<Link to={`/tickets?last=30&${url_params}`} onClick={() => this.handleQuery("30")}>{"30"+T.translate("days")}</Link>&nbsp;|&nbsp;
+					<Link to={`/tickets?last=60&${url_params}`} onClick={() => this.handleQuery("60")}>{"60"+T.translate("days")}</Link>&nbsp;|&nbsp;
+					<Link to={`/tickets?last=90&${url_params}`} onClick={() => this.handleQuery("90")}>{"90"+T.translate("days")}</Link>&nbsp;|&nbsp;
 					<T.a onClick={this.handleMore} text="More" data="more" href="#"/>...
 				</div>
 				<br/>
@@ -1379,15 +1448,15 @@ class TicketsPage extends React.Component {
 
 			<br/>
 			<Nav bsStyle="tabs" activeKey={this.state.activeKey} onSelect={this.handleSelect}>
-				<NavItem eventKey={0}>全部</NavItem>
+				<NavItem eventKey={0}><Link to={`/tickets?last=${this.state.last}&ticket_type=0&rowsPerPage=${rowsPerPage}&curPage=${this.state.curPage}&activeKey=0`}>{T.translate("ALL")}</Link></NavItem>
 				{
 					this.state.types.map((type) => {
-						return <NavItem key={type.k} eventKey={type.k}>{type.v}</NavItem>
+						return <NavItem key={type.k} eventKey={type.k}><Link to={`/tickets?last=${this.state.last}&ticket_type=${type.k}&rowsPerPage=${rowsPerPage}&curPage=${this.state.curPage}&activeKey=${type.k}`}>{T.translate(type.v)}</Link></NavItem>
 					})
 				}
 			</Nav>
 
-			<div style={{padding: "5px", display: _this.state.hiddendiv}} className="pull-right">
+			<div style={{padding: "3px", display: _this.state.hiddendiv}} className="pull-right">
 				<input type="date" ref={(input) => { _this.start_date = input; }} value={_this.state.search_start_date} onChange={this.handleChangeStartDate.bind(this)}/> -&nbsp;
 				<input type="date" ref={(input) => { _this.end_date = input; }} value={_this.state.search_end_date} onChange={this.handleChangeEndDate.bind(this)}/> &nbsp;
 				<T.span text="Serial Number"/><input style={{'text-align':'center'}} ref={(input) => { _this.serial_number = input;}} value={_this.state.search_serial_number} onChange={this.handleChangeSerialNumber.bind(this)}/> &nbsp;

@@ -58,8 +58,8 @@ get('/', function(params)
 	last = tonumber(env:getHeader('last'))
 	status = env:getHeader('status')
 	ticket_type = env:getHeader('ticket_type')
-	pageNum = tonumber(env:getHeader('pageNum'))	
-	ticketsRowsPerPage = tonumber(env:getHeader('ticketsRowsPerPage'))
+	pageNum = tonumber(env:getHeader('pageNum'))
+	rowsPerPage = tonumber(env:getHeader('rowsPerPage'))
 
 	local tickets = {}
 
@@ -106,8 +106,8 @@ get('/', function(params)
 		pageNum = 1
 	end
 
-	if not ticketsRowsPerPage then
-		ticketsRowsPerPage = 30
+	if not rowsPerPage then
+		rowsPerPage = 30
 	end
 
 	if not m_user.has_permission() then
@@ -115,7 +115,7 @@ get('/', function(params)
 			'SELECT ref_id FROM subscriptions ' ..
 			"WHERE realm = 'TICKET' AND user_id = " .. xtra.session.user_id .. ')) '
 	end
-freeswitch.consoleLog("err",cond)
+
 	local cb = function(row)
 		rowCount = tonumber(row.count)
 	end
@@ -125,7 +125,7 @@ freeswitch.consoleLog("err",cond)
 		local offset = 0
 		local pageCount = 0
 
-		pageCount = math.ceil(rowCount / ticketsRowsPerPage);
+		pageCount = math.ceil(rowCount / rowsPerPage);
 
 		if pageNum == 0 then
 			-- It means the last page
@@ -133,8 +133,8 @@ freeswitch.consoleLog("err",cond)
 		end
 
 		freeswitch.consoleLog("err",pageCount)
-		offset = (pageNum - 1) * ticketsRowsPerPage
-		n, ticket = xdb.find_by_cond("tickets", cond, "id desc", nil, ticketsRowsPerPage, offset)
+		offset = (pageNum - 1) * rowsPerPage
+		n, ticket = xdb.find_by_cond("tickets", cond, "id desc", nil, rowsPerPage, offset)
 		if (n > 0) then
 			tickets.rowCount = rowCount
 			tickets.data = ticket
