@@ -565,11 +565,6 @@ class TicketPage extends React.Component {
 	handleMore(e) {
 		e.preventDefault();
 
-
-		if (this.state.hiddendiv == 'block') {
-			window.location = "#/tickets"
-		}
-
 		this.setState({hiddendiv: this.state.hiddendiv == 'none' ? 'block' : 'none'});
 	}
 
@@ -1016,6 +1011,8 @@ class TicketsPage extends React.Component {
 				search_cid_number: '',
 				search_status: 0
 			})
+
+			window.location = "#/tickets"
 		}
 		this.setState({hiddendiv: this.state.hiddendiv == 'none' ? 'block' : 'none'});
 	}
