@@ -1087,11 +1087,18 @@ class TicketsPage extends React.Component {
 	componentDidMount () {
 		var _this = this
 		let url_params_obj = this.props.location.query
-		let urlParameters = Object.entries(url_params_obj).map(e => encodeURIComponent(e[0])+"="+encodeURIComponent(e[1])).join('&');
 		const rowsPerPage = localStorage.getItem('rowsPerPage') || 30;
 		_this.setState({ rowsPerPage: rowsPerPage });
 
 		if (url_params_obj.curPage) {
+
+			if (!url_params_obj.rowsPerPage) {
+				url_params_obj.rowsPerPage = rowsPerPage
+			}
+
+			url_params_obj.curPage = parseInt(url_params_obj.curPage)
+			let urlParameters = Object.entries(url_params_obj).map(e => encodeURIComponent(e[0])+"="+encodeURIComponent(e[1])).join('&');
+
 			xFetchJSON("/api/tickets?" + urlParameters).then((tickets) => {
 				console.log('data', tickets.data)
 				_this.setState({rows: tickets.data, loaded: true, pageCount: tickets.pageCount, rowCount: tickets.rowCount, curPage: tickets.curPage});
