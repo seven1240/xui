@@ -441,20 +441,14 @@ class TicketPage extends React.Component {
 	}
 
 	handleOnClickBack(e) {
-		/*PubSub.publish('ticket_back_topic', this.state.ticket_data);*/
 		history.back()
 	}
 
 	componentWillMount() {
-		this.ticket_back_token = PubSub.subscribe('ticket_back_topic', function (topic, data) {
-			console.log("debug", "this is no use in fact!!!")
-		}.bind(this));
 
 	}
 
 	componentWillUnmount () {
-		PubSub.unsubscribe(this.ticket_back_token);
-		PubSub.unsubscribe(this.ticket_search_token);
 	}
 
 	componentDidMount() {
@@ -490,11 +484,6 @@ class TicketPage extends React.Component {
 			console.log("media_files", media_files);
 			_this.setState({media_files: media_files});
 		});
-
-		this.ticket_search_token = PubSub.subscribe('ticket_search_topic', function (topic, data) {
-			console.log("subscriber topic:", topic)
-			this.setState({ticket_data: data})
-		}.bind(this));
 	}
 
 	callBack(e) {
@@ -1017,34 +1006,6 @@ class TicketsPage extends React.Component {
 		this.setState({hiddendiv: this.state.hiddendiv == 'none' ? 'block' : 'none'});
 	}
 
-	/*handleOnClickSerial(e) {
-		let ticket_data = {
-			rows: this.state.rows,
-			danger: this.state.danger,
-			formShow: this.state.formShow,
-			t_qs: this.state.t_qs,
-			last: this.state.last,
-			ticket_type: this.state.ticket_type,
-			curPage: this.state.curPage,
-			rowCount: this.state.rowCount,
-			pageCount: this.state.pageCount,
-			rowsPerPage: this.state.rowsPerPage,
-			hiddendiv: this.state.hiddendiv,
-			loaded: this.state.loaded,
-			activeKey: this.state.activeKey,
-			types: this.state.types,
-			search_settings_show: this.state.search_settings_show,
-			search_start_date: this.state.search_start_date,
-			search_end_date: this.state.search_end_date,
-			search_serial_number: this.state.search_serial_number,
-			search_cid_number: this.state.search_cid_number,
-			search_status: this.state.search_status,
-		}
-		PubSub.publish('ticket_search_topic', ticket_data);
-
-	}*/
-
-
 	handleOnClickSerial(e) {
 		console.log("history:", this.props.location.query)
 	}
@@ -1071,14 +1032,9 @@ class TicketsPage extends React.Component {
 	}
 
 	componentWillMount() {
-		this.ticket_search_token = PubSub.subscribe('ticket_search_topic', function (topic, data) {
-			console.log("debug", "this is no use in fact!!!")
-		}.bind(this));
 	}
 
 	componentWillUnmount () {
-		PubSub.unsubscribe(this.ticket_search_token);
-		PubSub.unsubscribe(this.ticket_back_token);
 	}
 
 	componentDidMount () {
@@ -1132,37 +1088,6 @@ class TicketsPage extends React.Component {
 		xFetchJSON("/api/dicts?realm=TICKET_TYPE").then((data) => {
 			_this.setState({types: data});
 		});
-
-		{/*
-			this.ticket_back_token = PubSub.subscribe('ticket_back_topic', function (topic, data) {
-				console.log("subscriber topic:", topic)
-				_this.setState({ rowsPerPage: data.rowsPerPage });
-				xFetchJSON("/api/tickets?last=" + data.last + "&ticket_type=" + data.ticket_type + "&rowsPerPage=" + data.rowsPerPage + "&pageNum=" + data.curPage + data.t_qs).then((tickets) => {
-					_this.setState({
-						rows: tickets.data,
-						loaded: true,
-						pageCount: tickets.pageCount,
-						rowCount: tickets.rowCount,
-						curPage: tickets.curPage,
-						danger: data.danger,
-						formShow: data.formShow,
-						t_qs: data.t_qs,
-						last: data.last,
-						ticket_type: data.ticket_type,
-						rowsPerPage: data.rowsPerPage,
-						hiddendiv: data.hiddendiv,
-						activeKey: data.activeKey,
-						types: data.types,
-						search_settings_show: data.search_settings_show,
-						search_start_date: data.search_start_date,
-						search_end_date: data.search_end_date,
-						search_cid_number: data.search_cid_number,
-						search_serial_number: data.search_serial_number,
-						search_status: data.search_status
-					});
-				});
-			})
-		*/}
 
 	}
 
