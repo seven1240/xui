@@ -6,7 +6,7 @@ This project is in active development and is not ready for production use.
 
 Use the built-in HTTP server in mod_verto, no depends on anything except FreeSWITCH.
 
-Use SQLite by default, PostgreSQL is in TODO list.
+Support SQLite and PostgreSQL.
 
 Follow the morden https://freeswitch.org/stash/projects/FS/repos/fs18configs/browse config layouts, old configs layouts should also work with trival changes. The goals is to remove all static XML configs and store everything in DB and dynamically serve with lua or xml_curl bindings.
 
@@ -165,6 +165,10 @@ More:
 
 # Pull request
 
-Please talk to us (by submit an issue) before you want to make a pull request.
+[Pull request is welcome](https://github.com/seven1240/xui/wiki#pull-request).
+
+# Docker
+
+It is recommended to develop or run XUI in docker. See [Docker](https://github.com/seven1240/xui/wiki#docker) for more information.
 
 Have fun!
