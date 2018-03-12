@@ -100,17 +100,13 @@ prepare:
     mkdir /usr/local/freeswitch/storage/{recordings,upload}
     make setup
 
-on terminal 1: // ONLY if needed, skip this one if not working or you don't know what is it
-
-    make livereload
-
-on terminal 2:
-
-    make watch
-
 build:
 
     make
+
+watch file change and build automatically:
+
+    make watch
 
 It's not required but sometimes the following command is helpful, don't ask why:
 
@@ -170,5 +166,9 @@ More:
 # Docker
 
 It is recommended to develop or run XUI in docker. See [Docker](https://github.com/seven1240/xui/wiki#docker) for more information.
+
+# Documentation
+
+Check our [Wiki](https://github.com/seven1240/xui/wiki) for more info.
 
 Have fun!
