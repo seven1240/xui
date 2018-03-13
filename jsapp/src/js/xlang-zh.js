@@ -635,6 +635,7 @@ LANGUAGES["zh"] = {
     "Please wait a moment while the system reboot, if you changed ip":"修改IP会使系统重启, 2分钟内请勿有任何操作",
 	Address: "IP地址",
 	Netmask: "子网掩码",
+    Satisfaction:"满意度",
 	Satisfied: "满意",
 	Unsatisfied: "不满意",
 	"Ticket Statistics": "工单统计",
