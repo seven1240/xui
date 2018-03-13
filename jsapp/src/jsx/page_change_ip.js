@@ -58,7 +58,7 @@ class ChangeIpPage extends React.Component {
 			method: "POST",
 			body: JSON.stringify(infos)
 		}).then(() => {
-			this.setState({errmsg: "保存成功！"});
+			this.setState({errmsg: "Saved!"});
 		}).catch((msg) => {
 			_this.setState({errmsg: msg});
 		});
@@ -76,7 +76,9 @@ class ChangeIpPage extends React.Component {
 				<FormGroup controlId="formDescription">
 					<Row>
 						<Col sm={10}>
-							<FormControl.Static>修改IP会使系统重启，2分钟内请勿有任何操作</FormControl.Static>
+							<FormControl.Static>
+                                <T.span text="Please wait a moment while the system reboot, if you changed ip"/>
+                            </FormControl.Static>
 						</Col>
 					</Row>
 				</FormGroup>
