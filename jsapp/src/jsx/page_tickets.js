@@ -747,7 +747,7 @@ class TicketPage extends React.Component {
 			case null:
 			case '': satisfied = <Form horizontal id="SatisfiedForm">
 									<FormGroup>
-										<Col componentClass={ControlLabel} sm={2}><T.span text="满意度" /></Col>
+										<Col componentClass={ControlLabel} sm={2}><T.span text="Satisfaction" /></Col>
 										<Col sm={3}>
 											<span>
 												<Radio name="satisfied" value="1" inline defaultChecked><T.span text="Satisfied"/></Radio>
@@ -762,7 +762,7 @@ class TicketPage extends React.Component {
 								break;
 			case '1': satisfied = <Form horizontal id="SatisfiedForm">
 									<FormGroup>
-										<Col componentClass={ControlLabel} sm={2}><T.span text="满意度" /></Col>
+										<Col componentClass={ControlLabel} sm={2}><T.span text="Satisfaction" /></Col>
 										<Col sm={3}>
 											<span>
 												<T.span text="Satisfied"/>
@@ -773,7 +773,7 @@ class TicketPage extends React.Component {
 								break;
 			case '0': satisfied = <Form horizontal id="SatisfiedForm">
 									<FormGroup>
-										<Col componentClass={ControlLabel} sm={2}><T.span text="满意度" /></Col>
+										<Col componentClass={ControlLabel} sm={2}><T.span text="Satisfaction" /></Col>
 										<Col sm={3}>
 											<span>
 												<T.span text="Unsatisfied"/>
