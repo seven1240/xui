@@ -54,7 +54,7 @@ require 'multipart_parser'
 require 'm_dialstring'
 
 get('/', function(params)
-	startDate = env:getHeader('startDate')
+	start_date = env:getHeader('start_date')
 	last = tonumber(env:getHeader('last'))
 	status = env:getHeader('status')
 	ticket_type = env:getHeader('ticket_type')
@@ -68,21 +68,20 @@ get('/', function(params)
 	tickets.curPage = 0
 	tickets.data = {}
 
-	if not startDate then
+	if not start_date then
 		if not last then last = 7 end
 
 		local sdate = os.time() - last * 24 * 60 * 60
-		startDate = os.date('%Y-%m-%d', sdate)
+		start_date = os.date('%Y-%m-%d', sdate)
 		if (not ticket_type) or (ticket_type == '0') then
-			freeswitch.consoleLog("err","aaaaaaaaaaaaaaaa")
-			cond = " created_at > '" .. startDate .. "'"
+			cond = " created_at > '" .. start_date .. "'"
 		else
-			freeswitch.consoleLog("err","bbbbbbbbbbbbbbbbbb")
-			cond = " created_at > '" .. startDate .. "'" .. " AND type = '" .. ticket_type .. "'"
+			cond = " created_at > '" .. start_date .. "'" .. " AND type = '" .. ticket_type .. "'"
 		end
-		print(cond)
+
+		utils.log("debug", "cond1:" .. cond .. "\n")
 	else
-		local endDate = env:getHeader('endDate')
+		local end_date = env:getHeader('end_date')
 		local id = env:getHeader('id')
 		local cid_number = env:getHeader('cid_number')
 		local serial_number = env:getHeader('serial_number')
@@ -91,9 +90,9 @@ get('/', function(params)
 			serial_number = nil
 		end
 
-		endDate = utils.date_diff(endDate, 1)
+		end_date = utils.date_diff(end_date, 1)
 
-		cond = xdb.date_cond("created_at", startDate, endDate) ..
+		cond = xdb.date_cond("created_at", start_date, end_date) ..
 					xdb.if_cond("id", id) ..
 					xdb.if_cond("cid_number", cid_number) ..
 					xdb.if_cond("status", status) ..
@@ -101,6 +100,8 @@ get('/', function(params)
 		if ticket_type and ticket_type ~= '0' then
 			cond = cond .. xdb.if_cond("type", ticket_type)
 		end
+
+		utils.log("debug", "cond2:" .. cond .. "\n")
 	end
 	if not pageNum or pageNum < 0 then
 		pageNum = 1
