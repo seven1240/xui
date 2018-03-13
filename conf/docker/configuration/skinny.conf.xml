@@ -1,0 +1,5 @@
+<configuration name="skinny.conf" description="Skinny Endpoints">
+  <profiles>
+    <X-PRE-PROCESS cmd="include" data="../skinny/*.xml"/>
+  </profiles>
+</configuration>

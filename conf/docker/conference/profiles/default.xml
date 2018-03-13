@@ -1,0 +1,218 @@
+<profile name="default">
+  <!-- rate: auto, 8000, 12000, 16000, 24000, 32000, 44100, 48000-->
+  <param name="rate" value="auto"/>
+  <!-- channels: auto, 1, 2-->
+  <param name="channels" value="auto"/>
+  <!-- domain: -->
+  <param name="domain" value="$${domain}"/>
+  <!-- interval: auto, any valid ptime we support for signed liner audio -->
+  <param name="interval" value="auto"/>
+  <param name="timer-name" value="soft"/>
+  <param name="tts-engine" value="flite"/>
+  <param name="tts-voice" value="kal"/>
+  <param name="enter-sound" value="tone_stream://%(200,0,500,600,700)"/>
+  <param name="outcall-templ" value=""/>
+  <param name="video-layout-name" value=""/>
+  <param name="video-canvas-count" value=""/>
+  <param name="video-super-canvas-label-layers" value=""/>
+  <param name="video-super-canvas-show-all-layers" value=""/>
+  <param name="video-canvas-bgcolor" value=""/>
+  <param name="video-border-color" value=""/>
+  <param name="video-border-size" value=""/>
+  <param name="video-super-canvas-bgcolor" value=""/>
+  <param name="video-letterbox-bgcolor" value=""/>
+  <param name="video-canvas-size" value=""/>
+  <param name="video-fps" value=""/>
+  <param name="video-codec-bandwidth" value=""/>
+  <param name="video-no-video-avatar" value=""/>
+  <param name="video-mute-banner" value=""/>
+  <param name="exit-sound" value="tone_stream://%(500,0,300,200,100,50,25)"/>
+
+  <!-- File to play if you are alone in the conference -->
+  <param name="alone-sound" value="conference/conf-alone.wav"/>
+
+  <!-- File to play endlessly (nobody will ever be able to talk) -->
+  <!-- <param name="perpetual-sound" value="perpetual.wav"/> -->
+
+  <param name="moh-sound" value="local_stream://default"/>
+
+  <!-- File to play to acknowledge muted -->
+  <param name="muted-sound" value="conference/conf-muted.wav"/>
+
+  <param name="mute-detect-sound" value=""/>
+
+  <!-- File to play to acknowledge unmuted -->
+  <param name="unmuted-sound" value="conference/conf-unmuted.wav"/>
+
+  <!-- File to play when the conference is locked -->
+  <param name="locked-sound" value="conference/conf-locked.wav"/>
+
+  <!-- File to play when the conference is locked during the call-->
+  <param name="is-locked-sound" value="conference/conf-is-locked.wav"/>
+
+  <!-- File to play when the conference is unlocked during the call-->
+  <param name="is-unlocked-sound" value="conference/conf-is-unlocked.wav"/>
+
+  <!-- Can be | delim of:
+       mute
+       vmute
+       deaf
+       mute-detect
+       dist-dtmf
+       moderator
+       nomoh
+       endconf
+       mintwo
+       video-bridge
+       ghost
+       join-only
+       flip-video
+       positinal
+       no-positional
+       join-vid-floor
+       no-minimize-encodeing
+       second-screen
+  -->
+  <!-- <param name="member-flags" value="waste"/> -->
+
+  <!-- Can be | delim of:
+       wait-mod
+       video-floor-only
+       audio-always
+       restart-auto-record
+       json-events
+       livearray-sync
+       livearray-json-status
+       rfc-4579
+       auto-3d-position
+       minimize-video-encoding
+       video-bridge-first-two
+       video-required-for-canvas
+       video-mute-exit-canvas
+       manage-inbound-video-bitrate
+       video-muxing-personal-canvas
+  -->
+  <param name="conference-flags" value="livearray-sync"/>
+
+  <!-- Directory to drop CDR's
+       'auto' means $PREFIX/logs/conference_cdr/<confernece_uuid>.cdr.xml
+       a non-absolute path means $PREFIX/logs/<value>/<confernece_uuid>.cdr.xml
+       absolute path means <value>/<confernece_uuid>.cdr.xml
+  -->
+  <!-- <param name="cdr-log-dir" value="auto"/> -->
+
+  <!-- CDR Mode:  content or file -->
+  <!-- <param name="cdr-event-mode" value="file"/> -->
+
+  <!-- File to play when you are ejected from the conference -->
+  <param name="kicked-sound" value="conference/conf-kicked.wav"/>
+
+  <param name="join-only-sound" value=""/>
+
+  <!-- Conference pin -->
+  <!-- <param name="pin" value="12345"/> -->
+  <!-- <param name="moderator-pin" value="54321"/> -->
+  <!-- Max number of times the user can be prompted for PIN -->
+  <!-- <param name="pin-retries" value="3"/> -->
+
+  <!-- File to play to prompt for a pin -->
+  <param name="pin-sound" value="conference/conf-pin.wav"/>
+
+  <!-- File to play to when the pin is invalid -->
+  <param name="bad-pin-sound" value="conference/conf-bad-pin.wav"/>
+
+  <param name="energy-level" value=""/>
+  <param name="auto-gain-level" value=""/>
+
+  <!-- Default Caller ID Name for outbound calls -->
+  <param name="caller-id-name" value="FreeSWITCH"/>
+
+  <!-- Default Caller ID Number for outbound calls -->
+  <param name="caller-id-number" value="123456789"/>
+
+  <param name="caller-id-number" value=""/>
+  <param name="caller-controls" value=""/>
+
+  <!-- IVR digit machine timeouts -->
+  <!-- How much to wait between DTMF digits to match caller-controls -->
+  <!-- <param name="ivr-dtmf-timeout" value="500"/> -->
+  <!-- How much to wait for the first DTMF, 0 forever -->
+  <!-- <param name="ivr-input-timeout" value="0" /> -->
+  <!-- Delay before a conference is asked to be terminated -->
+
+  <param name="moderator-controls" value=""/>
+  <param name="broadcast-chat-messages" value=""/>
+
+  <!-- enable comfort noise generation -->
+  <param name="comfort-noise" value="true"/>
+
+  <param name="video-auto-floor-msec" value="2000"/>
+  <!-- If TTS is enabled all audio-file params beginning with -->
+  <!-- 'say:' will be considered text to say with TTS -->
+  <!-- Override the default path here, after which you use relative paths in the other sound params -->
+  <!-- Note: The default path is the conference's first caller's sound_prefix -->
+  <param name="sound-prefix" value="$${sounds_dir}/en/us/callie"/>
+  <param name="max-members" value=""/>
+  <param name="max-members-sound" value=""/>
+  <param name="announce-count" value=""/>
+
+  <!-- Can be | delim of:
+       add-member
+       del-member
+       energy-level
+       volume-level
+       gain-level
+       dtmf
+       stop-talking
+       start-talking
+       mute-detect
+       mute-member
+       unmute-member
+       kick-member
+       dtmf-member
+       energy-level-member
+       volume-in-member
+       volume-out-member
+       play-file
+       play-file-done
+       play-file-member
+       speak-text
+       speack-text-member
+       lock
+       unlock
+       transfer
+       bgdial-result
+       floor-change
+       record
+  -->
+
+  <!-- <param name="suppress-events" value="start-talking|stop-talking"/> -->
+
+
+  <param name="verbose-events" value="false"/>
+
+  <!-- Uncomment auto-record to toggle recording every conference call. -->
+  <!-- Another valid value is   shout://user:pass@server.com/live.mp3   -->
+  <!-- <param name="auto-record" value="$${recordings_dir}/${conference_name}_${strftime(%Y-%m-%d-%H-%M-%S)}.wav"/> -->
+
+  <!-- <param name="auto-record-canvas-id" value="1"/> -->
+
+  <!-- <param name="min-required-recording-participants" value="1"/> -->
+
+  <!-- <param name="terminate-on-silence" value="120"/> -->
+
+  <!-- Delay before a conference is asked to be terminated -->
+  <!-- <param name="endconf-grace-time" value="120" /> -->
+  <!-- Video Quality between 0 and 4-->
+  <param name="video-quality" value="2"/>
+  <param name="video-kps-debounce" value="100"/>
+
+  <!-- Video Modes passthrough, transcode, mux -->
+  <param name="video-mode" value="mux"/>
+  <!--
+      Big Question on these
+  <param name="scale-h264-canvas-size" value=""/>
+  <param name="scale-h264-canvas-fps-divisor" value=""/>
+  <param name="scale-h264-canvas-bandwidth" value=""/>
+  -->
+</profile>

@@ -1,0 +1,8 @@
+<configuration name="modules.conf" description="Modules">
+  <modules>
+    <!-- load early to serve configurations,
+    mod_commands is needed by lua to get global vars -->
+    <load module="mod_commands"/>
+    <load module="mod_lua"/>
+  </modules>
+</configuration>

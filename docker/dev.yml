@@ -1,0 +1,24 @@
+version: "3.3"
+
+services:
+
+  xswitch:
+    image: dujinfang/xswitch-xui-dev
+    networks:
+      - xswitch
+    ports:
+      - "5060:5060/udp"
+      - "5080:5080/udp"
+      - "20000-20100:20000-20100/udp"
+      - "8081:8081/tcp"
+      - "8082:8082/tcp"
+    stdin_open: true
+    tty: true
+    env_file: env
+    volumes:
+      - ./conf:/usr/local/freeswitch/conf
+      - ./db:/usr/local/freeswitch/db
+      - ../:/usr/local/freeswitch/xui
+
+networks:
+  xswitch:

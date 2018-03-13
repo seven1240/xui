@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<context name="default">
+
+  <extension name="echo_text">
+    <condition field="to" expression="^(.*)$">
+      <action application="reply" data="Hello, you said: ${body}"/>
+    </condition>
+  </extension>
+
+</context>

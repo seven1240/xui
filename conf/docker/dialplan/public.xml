@@ -1,0 +1,9 @@
+<context name="public">
+
+  <extension name="catchall">
+    <condition field="destination_number" expression=".*">
+      <action application="info"/>
+    </condition>
+  </extension>
+
+</context>

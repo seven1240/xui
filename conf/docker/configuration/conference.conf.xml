@@ -1,0 +1,15 @@
+<configuration name="conference.conf" description="AV Conferences">
+
+  <advertise>
+    <X-PRE-PROCESS cmd="include" data="../conference/advertise/*.xml"/>
+  </advertise>
+
+  <caller-controls>
+    <X-PRE-PROCESS cmd="include" data="../conference/caller-controls/*.xml"/>
+  </caller-controls>
+
+  <profiles>
+    <X-PRE-PROCESS cmd="include" data="../conference/profiles/*.xml"/>
+  </profiles>
+
+</configuration>

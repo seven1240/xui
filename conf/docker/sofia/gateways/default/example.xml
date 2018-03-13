@@ -1,0 +1,79 @@
+<gateway name="example-gateway">
+  <!-- register: default true, or false -->
+  <param name="register" value="false"/>
+
+  <!-- scheme: default 'Digest' -->
+  <param name="scheme" value="Digest"/>
+
+  <!-- auth realm (same as gateway name, if blank) -->
+  <param name="realm" value="example.com"/>
+
+  <!-- account username (required) -->
+  <param name="username" value="cluecon"/>
+
+  <!-- put the extension in the contact -->
+  <param name="extension-in-contact" value="true"/>
+
+  <!-- account auth-username -->
+  <param name="auth-username" value="cluecon"/>
+
+  <!-- account password (required) -->
+  <param name="password" value="xxxx"/>
+
+  <!-- use the callerid of an inbound call in the from field on outbound calls via this gateway -->
+  <param name="caller-id-in-from" value="false"/>
+
+  <!-- extension for inbound calls (same as username, if blank) -->
+  <param name="extension" value="cluecon"/>
+
+  <!-- send an options ping every x seconds, failure will unregister and/or mark it down -->
+  <!-- <param name="ping" value="25"/> -->
+  <!-- <param name="ping-min" value="25"/> -->
+  <!-- <param name="ping-max" value="25"/> -->
+  <!-- <param name="ping-user-agent" value="FreeSWITCH"/> -->
+  <!-- <param name="ping-monitoring" value="false"/> -->
+
+  <!-- proxy host (same as realm, if blank) -->
+  <param name="proxy" value="example.com"/>
+
+  <!-- dialplan context -->
+  <param name="context" value="default"/>
+
+  <!-- expire in seconds (3600, if blank) -->
+  <param name="expire-seconds" value="600"/>
+
+  <!-- 908-retry-seconds: how many seconds to retry on a 908 -->
+  <param name="908-retry-seconds" value="90"/>
+
+  <!-- how many seconds before a retry when a failure or timeout occurs -->
+  <param name="retry-seconds" value="30"/>
+  <param name="timeout-seconds" value="30"/>
+
+  <!-- username to use in from (same as username, if blank) -->
+  <param name="from-user" value="cluecon"/>
+
+  <!-- domain to use in from (same as realm, if blank) -->
+  <param name="from-domain" value="example.com"/>
+
+  <!-- contact host -->
+  <param name="contact-host" value="example.com"/>
+
+  <!-- send register to this proxy (same as proxy, if blank) -->
+  <param name="register-proxy" value="example.com"/>
+
+    <!-- which transport to use for outbound requests -->
+  <param name="outbound-proxy" value="sip:example.com"/>
+
+  <param name="distinct-to" value="?"/>
+
+  <param name="destination-prefix" value="?"/>
+  <param name="rfc-5626" valuee="?"/>
+  <param name="reg-id" valuee="?"/>
+
+  <!-- extra sip params to send in the contact -->
+  <param name="contact-params" value="?"/>
+
+  <!-- which transport to use for register -->
+  <param name="register-transport" value="tcp"/>
+
+</gateway>

@@ -84,3 +84,22 @@ sqlite-init:
 
 pg-init:
 	make -C db/schema initpg
+
+
+docker/conf:
+	cp -R conf/docker docker/conf
+
+docker-dev-init: docker/conf
+	cp docker/env.example docker/env
+
+docker-dev-start:
+	docker-compose -f docker/dev.yml up -d
+
+docker-dev-bash:
+	docker exec -it docker_xswitch_1 bash
+
+docker-dev-stop:
+	docker-compose -f docker/dev.yml down
+
+docker-dev-cli:
+	docker exec -it docker_xswitch_1 bash -c "/usr/local/freeswitch/bin/fs_cli"

@@ -1,0 +1,31 @@
+<!-- Recreate New IVR Menus that incorporates many of
+     these options to show off the IVR system -->
+<menu name="default_ivr"
+      greet-long=""
+      greet-short=""
+      invalid-sound=""
+      exit-sound=""
+      transfer-sound=""
+      timeout=""
+      max-failures=""
+      max-timeouts=""
+      exec-on-max-failures=""
+      exec-on-max-timeouts=""
+      confirm-macro=""
+      confirm-key=""
+      tts-engine=""
+      tts-voice=""
+      confirm-attempts=""
+      digit-len=""
+      inter-digit-timeout=""
+      pin=""
+      pin-file=""
+      bad-pin-file=""
+>
+  <entry action="menu-exit" digits="1" param=""/>
+  <entry action="menu-sub" digits="2" param=""/>
+  <entry action="menu-exec-app" digits="3" param=""/>
+  <entry action="menu-play-sound" digits="4" param=""/>
+  <entry action="menu-back" digits="5" param=""/>
+  <entry action="menu-top" digits="6" param=""/>
+</menu>

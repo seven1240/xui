@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<document type="freeswitch/xml">
+
+  <!--#comment
+      All comments starting with #command will be preprocessed and never sent to the xml parser
+
+      Valid instructions:
+
+      #include ==> Include another file to this exact point
+                   (partial xml should be encased in <include></include> tags)
+
+      #set     ==> Set a global variable (can be expanded during preprocessing with $$ variables)
+                   (note the double $$ which denotes preprocessor variables)
+
+      #comment ==> A general comment such as this
+
+      The preprocessor will compile the full xml document to ${prefix}/log/freeswitch.xml.fsxml
+
+      The same can be achieved with the <X-PRE-PROCESS> tag where the attrs 'cmd' and 'data' are
+      parsed in the same way.
+  -->
+
+  <X-PRE-PROCESS cmd="include" data="variables.xml"/>
+
+  <section name="configuration" description="Configuration">
+    <X-PRE-PROCESS cmd="include" data="configuration/*.xml"/>
+  </section>
+
+  <section name="dialplan" description="Dialplan">
+    <X-PRE-PROCESS cmd="include" data="dialplan/*.xml"/>
+  </section>
+
+  <section name="chatplan" description="Chatplan">
+    <X-PRE-PROCESS cmd="include" data="chatplan/*.xml"/>
+  </section>
+
+  <section name="directory" description="Directory">
+    <X-PRE-PROCESS cmd="include" data="directory/*.xml"/>
+  </section>
+
+  <section name="languages" description="Languages">
+    <X-PRE-PROCESS cmd="include" data="languages/*/*.xml"/>
+  </section>
+
+</document>

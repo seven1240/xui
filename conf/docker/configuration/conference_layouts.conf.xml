@@ -1,0 +1,15 @@
+<configuration name="conference_layouts.conf" description="Video Conference Layouts">
+
+  <layout-settings>
+
+    <layouts>
+      <X-PRE-PROCESS cmd="include" data="../conference/layouts/*.xml"/>
+    </layouts>
+
+    <groups>
+      <X-PRE-PROCESS cmd="include" data="../conference/groups/*.xml"/>
+    </groups>
+
+  </layout-settings>
+
+</configuration>

@@ -1,0 +1,19 @@
+<configuration name="sofia.conf" description="Sofia SIP Endpoint">
+
+  <global_settings>
+    <param name="log-level" value="0"/>
+    <param name="tracelevel" value="0"/>
+    <param name="debug-presence" value="0"/>
+    <param name="debug-sla" value="0"/>
+    <!-- <param name="max-reg-threads" value="6"/> -->
+    <!-- <param name="auto-restart" value="false"/> -->
+    <!-- <param name="reg-deny-binding-fetch-and-no-lookup" value="true"/> -->
+    <!-- <param name="rewrite-multicasted-fs-path" value="[to_host|1|original_server_host|original_hostname]"/> -->
+    <!-- <param name="capture-server" value="udp:homer.domain.com:5060"/> -->
+  </global_settings>
+
+  <profiles>
+    <X-PRE-PROCESS cmd="include" data="../sofia/profiles/*.xml"/>
+  </profiles>
+
+</configuration>

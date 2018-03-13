@@ -1,0 +1,442 @@
+<profile name="default">
+  <aliases>
+    <!--
+	<alias name="default"/>
+	<alias name="internal"/>
+    -->
+  </aliases>
+  <!-- Outbound Registrations -->
+  <gateways>
+    <X-PRE-PROCESS cmd="include" data="../gateways/default/*.xml"/>
+  </gateways>
+
+  <domains>
+    <!-- indicator to parse the directory for domains with parse="true" to get gateways-->
+    <!--<domain name="$${domain}" parse="true"/>-->
+    <!-- indicator to parse the directory for domains with parse="true" to get gateways and alias every domain to this profile -->
+    <!--<domain name="all" alias="true" parse="true"/>-->
+    <domain name="all" alias="true" parse="false"/>
+  </domains>
+
+  <settings>
+    <!-- debug: default undefined, or number gt 0 -->
+    <!-- <param name="debug" value=""/> -->
+    <!-- parse-invite-tel-params: default undefined or true-->
+    <!-- <param name="parse-invite-tel-params" value=""/> -->
+    <!-- keepalive-method: default undefined info or else message. -->
+    <!-- <param name="keepalive-method" value=""/> -->
+    <!-- bind-attempts: default 2, accepts any number >= 0 -->
+    <param name="bind-attempts" value="2"/>
+    <!-- bind-attempt-interval: default 5, accepts any number >= 0 -->
+    <param name="bind-attempt-interval" value="5"/>
+    <!-- shutdown-on-fail: default false, or true, elegant, asap, reincarnate-now -->
+    <param name="shutdown-on-fail" value="false"/>
+    <!-- sip-trace: default false, or true -->
+    <!-- <param name="sip-trace" value="false"/> -->
+    <!-- sip-capture: default false, or true-->
+    <!-- <param name="sip-capture" value="false"/> -->
+    <!-- socket-tcp-keepalive: default undefined, or milliseconds -->
+    <!-- <param name="socket-tcp-keepalive" value=""/> -->
+    <!-- tcp-keepalive: default undefined, or milliseconds -->
+    <!-- <param name="tcp-keepalive" value=""/> -->
+    <!-- tcp-pingpong: default undefined, or milliseconds-->
+    <!-- <param name="tcp-pingpong" value=""/> -->
+    <!-- tcp-ping2pong: default undefined, or milliseconds -->
+    <!-- <param name="tcp-ping2pong" value=""/> -->
+    <!-- proxy-refer-replaces||proxy-refer: default undefined, or true-->
+    <!-- <param name="proxy-refer-replaces" value=""/> -->
+    <!-- sip-messages-respond-200-ok: default undefined, or true -->
+    <!-- <param name="sip-messages-respond-200-ok" value=""/> -->
+    <!-- sip-subscribe-respond-200-ok: default undefined, or true -->
+    <!-- <param name="sip-subscribe-respond-200-ok" value=""/> -->
+    <!-- odbc-dsn: default undefined -->
+    <!-- <param name="odbc-dsn" value=""/> -->
+    <!-- db-pre-trans-execute: default undefined -->
+    <!-- <param name="db-pre-trans-execute" value=""/> -->
+    <!-- db-post-trans-execute: default undefined -->
+    <!-- <param name="db-post-trans-execute" value=""/> -->
+    <!-- db-inner-pre-trans-execute: default undefined -->
+    <!-- <param name="db-inner-pre-trans-execute" value=""/> -->
+    <!-- db-inner-post-trans-execute: default undefined -->
+    <!-- <param name="db-inner-post-trans-execute" value=""/> -->
+    <!-- forward-unsolicited-mwi-notify: default undefined, or true -->
+    <!-- <param name="forward-unsolicited-mwi-notify" value=""/> -->
+    <!-- NDLB-proxy-never-patch-reinvites: default undefined, or true -->
+    <!-- <param name="NDLB-proxy-never-patch-reinvites" value=""/> -->
+    <!-- registration-thread-frequency: default 30 seconds, or seconds >= 1 (IREG_SECONDS)-->
+    <param name="registration-thread-frequency" value="30"/>
+    <!-- ping-mean-interval: default 30 seconds, or seconds > 0 (IPING_SECONDS) -->
+    <param name="ping-mean-interval" value="30"/>
+    <!-- ping-thread-frequency: default 1, or > 0 -->
+    <param name="ping-thread-frequency" value="1"/>
+    <!-- user-agent-string: default FreeSWITCH-mod_sofia/%s, or arbitrary -->
+    <!-- <param name="user-agent-string" value=""/> -->
+    <!-- auto-restart: default 1, true or false-->
+    <param name="auto-restart" value="1"/>
+    <!-- log-auth-failures: default undefined, or true -->
+    <!-- <param name="log-auth-failures" value=""/> -->
+    <!-- confirm-blind-transfer: default undefined, or true -->
+    <!-- <param name="confirm-blind-transfer" value=""/> -->
+    <!-- allow-update: default true, or false (PFLAG_ALLOW_UPDATE) -->
+    <param name="allow-update" value="true"/>
+    <!-- send-display-update: default true, or false -->
+    <param name="send-display-update" value="true"/>
+    <!-- mwi-use-reg-callid: default undfined, or true -->
+    <!-- <param name="mwi-use-reg-callid" value=""/> -->
+    <!-- tcp-unreg-on-socket-close: default undefined, or true -->
+    <!-- <param name="tcp-unreg-on-socket-close" value=""/> -->
+    <!-- tcp-always-nat: default undefined, or true -->
+    <!-- <param name="tcp-always-nat" value=""/> -->
+    <!-- tls-always-nat: default undefined, or true -->
+    <!-- <param name="tls-always-nat" value=""/> -->
+    <!-- presence-proto-lookup: default undefined, or true -->
+    <!-- <param name="presence-proto-lookup" value=""/> -->
+    <!-- profile-standby: default undefined, or true -->
+    <!-- <param name="profile-standby" value=""/> -->
+    <!-- liberal-dtmf: default undefined, or true -->
+    <!-- <param name="liberal-dtmf" value=""/> -->
+    <!-- rtp-digit-delay: default 40, or milliseconds -->
+    <!-- <param name="rtp-digit-delay" value="40"/> -->
+    <!-- watchdog-enabled: default undefined, or true -->
+    <!-- <param name="watchdog-enabled" value=""/> -->
+    <!-- watchdog-step-timeout: default undefined, or int value -->
+    <!-- <param name="watchdog-step-timeout" value=""/> -->
+    <!-- watchdog-event-timeout: default undefined, or int value -->
+    <!-- <param name="watchdog-event-timeout" value=""/> -->
+    <!-- in-dialog-chat: default undefined, or true -->
+    <!-- <param name="in-dialog-chat" value=""/> -->
+    <!-- enable-chat: default true, or false -->
+    <param name="enable-chat" value="true"/>
+    <!-- fire-message-events: default undefined, or true -->
+    <!-- <param name="fire-message-events" value=""/> -->
+    <!-- t38-passthru: default undefined, or true -->
+    <!-- <param name="t38-passthru" value=""/> -->
+    <!-- presence-disable-early: default undefined, or true -->
+    <!-- <param name="presence-disable-early" value=""/> -->
+    <!-- ignore-183nosdp: default undefined, or true -->
+    <!-- <param name="ignore-183nosdp" value=""/> -->
+    <!-- presence-probe-on-register: default undefined, or true -->
+    <!-- <param name="presence-probe-on-register" value=""/> -->
+    <!-- send-presence-on-register: default undefined, or true, all or first-only -->
+    <!-- <param name="send-presence-on-register" value=""/> -->
+
+    <!-- cid-in-1xx: defeault true, or false (PFLAG_CID_IN_1XX) -->
+    <param name="cid-in-1xx" value="true"/>
+    <!-- disable-hold: default undefined, or true -->
+    <!-- <param name="disable-hold" value=""/> -->
+    <!-- auto-jitterbuffer-msec: default undefined, or > 19 milliseconds -->
+    <!-- <param name="auto-jitterbuffer-msec" value=""/> -->
+    <!-- dtmf-type: default rfc2833 (DTMF_2833), or info (DTMF_INFO), none (DTMF_NONE) -->
+    <param name="dtmf-type" value="rfc2833"/>
+    <!-- NDLB-force-rport: default undefined, or safe, disabled, client-only, server-only, true  -->
+    <!-- <param name="NDLB-force-rport" value=""/> -->
+    <!-- auto-rtp-bugs: default undefined -->
+    <!-- <param name="auto-rtp-bugs" value=""/> -->
+    <!-- manual-rtp-bugs: default undefined -->
+    <!-- <param name="manual-rtp-bugs" value=""/> -->
+    <!-- manual-video-rtp-bugs: default undefined -->
+    <!-- <param name="manual-video-rtp-bugs" value=""/> -->
+    <!-- dbname: default undefined, or arbitrary -->
+    <!-- <param name="dbname" value=""/> -->
+    <!-- presence-hosts: default undefined, or arbitrary -->
+    <!-- <param name="presence-hosts" value=""/> -->
+    <!-- caller-id-type: default undefined, or pid, rpid -->
+    <!-- <param name="caller-id-type" value=""/> -->
+    <!-- record-template: default undefined, or arbitrary -->
+    <!-- <param name="record-template" value=""/> -->
+    <!-- record-path: default undefined, or arbitrary -->
+    <!-- <param name="record-path" value=""/> -->
+    <!-- inbound-bypass-media||inbound-no-media: default undefined, or true -->
+    <!-- <param name="inbound-bypass-media" value=""/> -->
+    <!-- inbound-late-negotiation: default undefined, or true -->
+    <!-- <param name="inbound-late-negotiation" value=""/> -->
+    <!-- rtp-notimer-during-bridge: default undefined, or true -->
+    <!-- <param name="rtp-notimer-during-bridge" value=""/> -->
+    <!-- manual-redirect: default undefined, or true -->
+    <!-- <param name="manual-redirect" value=""/> -->
+    <!-- inbound-proxy-media: default undefined, or true -->
+    <!-- <param name="inbound-proxy-media" value=""/> -->
+    <!-- inbound-zrtp-passthru: default undefined, or true -->
+    <!-- <param name="inbound-zrtp-passthru" value=""/> -->
+    <!-- force-subscription-expires: default undefined, or value in seconds -->
+    <!-- <param name="force-subscription-expires" value=""/> -->
+    <!-- force-publish-expires: default undefined, or value in seconds -->
+    <!-- <param name="force-publish-expires" value=""/> -->
+    <!-- send-message-query-on-register: default first-only, true (PFLAG_MESSAGE_QUERY_ON_REGISTER) or first-only (PFLAG_MESSAGE_QUERY_ON_FIRST_REGISTER) -->
+    <param name="send-message-query-on-register" value="first-only"/>
+    <!-- inbound-reg-in-new-thread: default undefined, or true -->
+    <!-- <param name="inbound-reg-in-new-thread" value=""/> -->
+    <!-- inbound-use-callid-as-uuid: default undefined, or true -->
+    <!-- <param name="inbound-use-callid-as-uuid" value=""/> -->
+    <!-- outbound-use-uuid-as-callid: default undefined, or true -->
+    <!-- <param name="outbound-use-uuid-as-callid" value=""/> -->
+    <!-- track-calls: default undefined, or true -->
+    <!-- <param name="track-calls" value=""/> -->
+    <!-- NDLB-received-in-nat-reg-contact: default undefined, or true -->
+    <!-- <param name="NDLB-received-in-nat-reg-contact" value=""/> -->
+    <!-- aggressive-nat-detection: default undefined, or true -->
+    <!-- <param name="aggressive-nat-detection" value=""/> -->
+    <!-- disable-rtp-auto-adjust: default undefined, or true -->
+    <!-- <param name="disable-rtp-auto-adjust" value=""/> -->
+    <!-- NDLB-support-asterisk-missing-srtp-auth: default undefined, or true -->
+    <!-- <param name="NDLB-support-asterisk-missing-srtp-auth" value=""/> -->
+    <!-- user-agent-filter: default undefined or arbitrary -->
+    <!-- <param name="user-agent-filter" value=""/> -->
+    <!-- max-registrations-per-extension: default undefined, or numeric value -->
+    <!-- <param name="max-registrations-per-extension" value=""/> -->
+    <!-- rfc2833-pt: default 101, or value from 98 to 127 -->
+    <param name="rfc2833-pt" value="101"/>
+    <!-- cng-pt: default 13, or value from 1 to 127 -->
+    <param name="cng-pt" value="13"/>
+    <!-- sip-port: default 5060, or auto or 1 thru 65536 -->
+    <param name="sip-port" value="5060"/>
+    <!-- vad: default undefined, or in, out, both-->
+    <!-- <param name="vad" value=""/> -->
+    <!-- ext-rtp-ip: default undefined, x.x.x.x or auto-nat, auto or autonat:x.x.x.x -->
+    <!-- <param name="ext-rtp-ip" value=""/> -->
+    <!-- rtp-ip: default mod_sofia_globals.guess_ip, or interface:, auto/, ipv4/, ipv6/ or just auto -->
+    <param name="rtp-ip" value="$${local_ip_v4}"/>
+    <!-- sip-ip: default mod_sofia_globals.guess_ip, or interface:, auto/, ipv4/, ipv6/ or just auto -->
+    <param name="sip-ip" value="$${local_ip_v4}"/>
+    <!-- ext-sip-port: default undefined, 1 to 65536 -->
+    <!-- <param name="ext-sip-port" value=""/> -->
+    <!-- ext-sip-ip: default mod_sofia_globals.guess_ip, or x.x.x.x or auto-nat, auto or autonat:x.x.x.x -->
+    <!-- <param name="ext-sip-ip" value=""/> -->
+    <!-- local-network-acl: default localnet.auto, arbitrary acl name -->
+    <param name="local-network-acl" value="localnet.auto"/>
+    <!-- force-register-domain: default undefined, arbitrary -->
+    <param name="force-register-domain" value="$${domain}"/>
+    <!-- force-register-db-domain: default undefined, arbitrary -->
+    <param name="force-register-db-domain" value="$${domain}"/>
+    <!-- force-subscription-domain: default undefined, arbitrary -->
+    <param name="force-subscription-domain" value="$${domain}"/>
+    <!-- bind-params: default undefined, arbitrary -->
+    <!-- <param name="bind-params" value=""/> -->
+    <!-- sip-domain: default undefined, arbitrary -->
+    <!-- <param name="sip-domain" value=""/> -->
+    <!-- rtp-timer-name: default undefined, arbitrary usally 'soft' -->
+    <param name="rtp-timer-name" value="soft"/>
+    <!-- hold-music: default undefined, arbitrary -->
+    <param name="hold-music" value="$${hold_music}"/>
+    <!-- outbound-proxy: default undefined, or sip:URL or sips:URL -->
+    <!-- <param name="outbound-proxy" value=""/> -->
+    <!-- rtcp-audio-interval-msec: default undefined, milliseconds -->
+    <!-- <param name="rtcp-audio-interval-msec" value=""/> -->
+    <!-- rtcp-video-interval-msec: default undefined, milliseconds -->
+    <!-- <param name="rtcp-video-interval-msec" value=""/> -->
+    <!-- session-timeout: default undefined, seconds > 0 -->
+    <!-- <param name="session-timeout" value=""/> -->
+    <!-- max-proceeding: default undefined, seconds >= 0 -->
+    <!-- <param name="max-proceeding" value=""/> -->
+    <!-- rtp-timeout-sec: default undefined, seconds -->
+    <!-- <param name="rtp-timeout-sec" value=""/> -->
+    <!-- rtp-hold-timeout-sec: default undefined, seconds -->
+    <!-- <param name="rtp-hold-timeout-sec" value=""/> -->
+    <!-- disable-transfer: default false, or true (MFLAG_REGISTER) -->
+    <param name="disable-transfer" value="false"/>
+    <!-- disable-register: default false, or true (MFLAG_REFER) -->
+    <param name="disable-register" value="false"/>
+    <!-- media-option: default undefined, or resume-media-on-hold|bypass-media-after-att-xfer|bypass-media-after-hold|none -->
+    <!-- <param name="media-option" value=""/> -->
+    <!-- pnp-provision-url: default undefined, arbitrary -->
+    <!-- <param name="pnp-provision-url" value=""/> -->
+    <!-- manage-presence: default undefined, passive, pnp, true -->
+    <param name="manage-presence" value="true"/>
+    <!-- presence-hold-state: default undefined, or confirmed, terminated -->
+    <!-- <param name="presence-hold-state" value=""/> -->
+    <!-- presence-privacy: default undefined, or true -->
+    <!-- <param name="presence-privacy" value=""/> -->
+    <!-- manage-shared-appearance: default undefined, or true, sylantro -->
+    <param name="manage-shared-appearance" value="true"/>
+    <!-- disable-srv: default undefined, or true -->
+    <!-- <param name="disable-srv" value=""/> -->
+    <!-- disable-naptr: default undefined, or true -->
+    <!-- <param name="disable-naptr" value=""/> -->
+    <!-- disable-srv503: default undefined, or true -->
+    <!-- <param name="disable-srv503" value=""/> -->
+    <!-- unregister-on-options-fail: default undefined, or true -->
+    <!-- <param name="unregister-on-options-fail" value=""/> -->
+    <!-- sip-user-ping-max: default undefined, or numeric -->
+    <!-- <param name="sip-user-ping-max" value=""/> -->
+    <!-- sip-user-ping-min: default undefined, or numeric -->
+    <!-- <param name="sip-user-ping-min" value=""/> -->
+    <!-- require-secure-rtp: default undefined, or true -->
+    <!-- <param name="require-secure-rtp" value=""/> -->
+    <!-- multiple-registrations: default undefined, or true, call-id, contact -->
+    <param name="multiple-registrations" value="contact"/>
+    <!-- supress-cng|suppress-cng: default undefined, or true -->
+    <!-- <param name="supress-cng|suppress-cng" value=""/> -->
+    <!-- NDLB-broken-auth-hash: default undefined, or true -->
+    <!-- <param name="NDLB-broken-auth-hash" value=""/> -->
+    <!-- NDLB-sendrecv-in-session: default undefined, or true -->
+    <!-- <param name="NDLB-sendrecv-in-session" value=""/> -->
+    <!-- NDLB-allow-bad-iananame: default undefined, or true -->
+    <!-- <param name="NDLB-allow-bad-iananame" value=""/> -->
+    <!-- NDLB-expires-in-register-response: default undefined, or true -->
+    <!-- <param name="NDLB-expires-in-register-response" value=""/> -->
+    <!-- NDLB-allow-crypto-in-avp: default undefined, or true -->
+    <!-- <param name="NDLB-allow-crypto-in-avp" value=""/> -->
+    <!-- NDLB-allow-nondup-sdp: default true, or false (SM_NDLB_ALLOW_NONDUP_SDP) -->
+    <param name="NDLB-allow-nondup-sdp" value="true"/>
+    <!-- pass-rfc2833: default undefined, or true -->
+    <!-- <param name="pass-rfc2833" value=""/> -->
+    <!-- rtp-autofix-timing: default true, or false (SCMF_AUTOFIX_TIMING) -->
+    <param name="rtp-autofix-timing" value="true"/>
+    <!-- contact-user: default SOFIA_DEFAULT_CONTACT_USER, or arbitrary -->
+    <param name="contact-user" value="mod_sofia"/>
+    <!-- nat-options-ping: default undefined, or udp-only or true -->
+    <!-- <param name="nat-options-ping" value=""/> -->
+    <!-- all-reg-options-ping: default undefined, or true -->
+    <!-- <param name="all-reg-options-ping" value=""/> -->
+    <!-- inbound-codec-negotiation: default undefined, or greedy, scrooge -->
+    <!-- <param name="inbound-codec-negotiation" value=""/> -->
+    <!-- disable-transcoding: default undefined, or true -->
+    <!-- <param name="disable-transcoding" value=""/> -->
+    <!-- rtp-rewrite-timestamps: default undefined, or true -->
+    <!-- <param name="rtp-rewrite-timestamps" value=""/> -->
+    <!-- auth-calls: default undefined, or true -->
+    <!-- <param name="auth-calls" value=""/> -->
+    <!-- auth-messages: default undefined, or true -->
+    <!-- <param name="auth-messages" value=""/> -->
+    <!-- auth-subscriptions: default undefined, or true -->
+    <!-- <param name="auth-subscriptions" value=""/> -->
+    <!-- extended-info-parsing: default undefined, or true-->
+    <!-- <param name="extended-info-parsing" value=""/> -->
+    <!-- nonce-ttl: default undefined, or numeric value -->
+    <!-- <param name="nonce-ttl" value=""/> -->
+    <!-- max-auth-validity: default undefined, or numeric value -->
+    <!-- <param name="max-auth-validity" value=""/> -->
+    <!-- accept-blind-reg: default undefined, or true-->
+    <!-- <param name="accept-blind-reg" value=""/> -->
+    <!-- 3pcc-reinvite-bridged-on-ack: default undefined, or true-->
+    <!-- <param name="3pcc-reinvite-bridged-on-ack" value=""/> -->
+    <!-- enable-3pcc: default undefined, or true, proxy -->
+    <!-- <param name="enable-3pcc" value=""/> -->
+    <!-- accept-blind-auth: default undefined, or true -->
+    <!-- <param name="accept-blind-auth" value=""/> -->
+    <!-- auth-all-packets: default undefined, or true -->
+    <!-- <param name="auth-all-packets" value=""/> -->
+    <!-- full-id-in-dialplan: default undefined, or true -->
+    <!-- <param name="full-id-in-dialplan" value=""/> -->
+    <!-- inbound-reg-force-matching-username: default undefined, or true -->
+    <!-- <param name="inbound-reg-force-matching-username" value=""/> -->
+    <!-- enable-timer: default undefined, or true -->
+    <!-- <param name="enable-timer" value=""/> -->
+    <!-- enable-rfc-5626: default undefined, or true -->
+    <!-- <param name="enable-rfc-5626" value=""/> -->
+    <!-- minimum-session-expires: default undefined, or > 90 -->
+    <!-- <param name="minimum-session-expires" value=""/> -->
+    <!-- enable-100rel: default false, or true -->
+    <param name="enable-100rel" value="fals"/>
+    <!-- enable-compact-headers: default undefined, or true -->
+    <!-- <param name="enable-compact-headers" value=""/> -->
+    <!-- pass-callee-id: default true, or false (PFLAG_PASS_CALLEE_ID)-->
+    <param name="pass-callee-id" value="false"/>
+    <!-- enable-soa: default true, or false (TFLAG_ENABLE_SOA) -->
+    <param name="enable-soa" value="true"/>
+    <!-- parse-all-invite-headers: default undefined, or true -->
+    <!-- <param name="parse-all-invite-headers" value=""/> -->
+    <!-- bitpacking: default undefined, or aal2 -->
+    <!-- <param name="bitpacking" value=""/> -->
+    <!-- username: default undefined, arbitrary -->
+    <param name="username" value="FreeSWITCH"/>
+    <!-- context: default is 'default, or arbitrary -->
+    <param name="context" value="default"/>
+    <!-- apply-nat-acl: default undefined, or arbitary, none -->
+    <!-- <param name="apply-nat-acl" value=""/> -->
+    <!-- apply-inbound-acl: default undefined, or arbitary, none -->
+    <!-- <param name="apply-inbound-acl" value=""/> -->
+    <!-- apply-proxy-acl: default undefined, or arbitary, none -->
+    <!-- <param name="apply-proxy-acl" value=""/> -->
+    <!-- apply-register-acl: default undefined, or arbitary, none -->
+    <!-- <param name="apply-register-acl" value=""/> -->
+    <!-- apply-candidate-acl: default undefined, or arbitary, none -->
+    <!-- <param name="apply-candidate-acl" value=""/> -->
+    <!-- alias: default undefined, arbitrary -->
+    <!-- <param name="alias" value=""/> -->
+    <!-- dialplan: default 'XML', arbitary -->
+    <!-- <param name="dialplan" value=""/> -->
+    <!-- max-calls: default undefined, arbitrary -->
+    <!-- <param name="max-calls" value=""/> -->
+    <!-- codec-prefs: default undefined, or arbitrary -->
+    <!-- <param name="codec-prefs" value=""/> -->
+    <!-- inbound-codec-prefs: default undefined, or arbitrary -->
+    <param name="inbound-codec-prefs" value="$${inbound_codec_prefs}"/>
+    <!-- outbound-codec-prefs: default undefined, or arbitrary-->
+    <param name="outbound-codec-prefs" value="$${outbound_codec_prefs}"/>
+    <!-- challenge-realm: default undefined, or arbitrary, auto_to, auto_from -->
+    <!-- <param name="challenge-realm" value=""/> -->
+    <!-- dtmf-duration: default 100, arbitrary milliseconds -->
+    <param name="dtmf-duration" value="100"/>
+    <!-- ws-binding: default undefined, arbitrary -->
+    <!-- <param name="ws-binding" value=""/> -->
+    <!-- wss-binding: default undefined, arbitrary -->
+    <!-- <param name="wss-binding" value=""/> -->
+    <!-- tls: ? -->
+    <!-- <param name="tls" value=""/> -->
+    <!-- tls-bind-params: ? -->
+    <!-- <param name="tls-bind-params" value=""/> -->
+    <!-- tls-only: default undefined, or true -->
+    <!-- <param name="tls-only" value=""/> -->
+    <!-- tls-verify-date: default undefined, or true-->
+    <!-- <param name="tls-verify-date" value=""/> -->
+    <!-- tls-verify-depth: default undefined, or numeric value -->
+    <!-- <param name="tls-verify-depth" value=""/> -->
+    <!-- tls-verify-policy: default undefined, or in, out, all, subjects_in, subjects_out, subjects_all -->
+    <!-- <param name="tls-verify-policy" value=""/> -->
+    <!-- tls-sip-port: default undefined, or auto -->
+    <!-- <param name="tls-sip-port" value=""/> -->
+    <!-- tls-cert-dir: SWITCH_GLOBAL_dirs.certs_dir -->
+    <param name="tls-cert-dir" value="$${certs_dir}"/>
+    <!-- tls-passphrase: default undefined, arbitrary -->
+    <!-- <param name="tls-passphrase" value=""/> -->
+    <!-- tls-verify-in-subjects: default undefined, arbitrary -->
+    <!-- <param name="tls-verify-in-subjects" value=""/> -->
+    <!-- tls-ciphers: default ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH, arbitrary (openssl ciper list) -->
+    <param name="tls-ciphers" value="ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH"/>
+    <!-- tls-version: default undefined, or sslv2, sslv3, sslv23, tlsv1, tlsv1.1, tlsv1.2 -->
+    <param name="tls-version" value="tlsv1,tlsv1.1,tlsv1.2"/>
+    <!-- tls-timeout: default 300, or seconds -->
+    <param name="tls-timeout" value="300"/>
+    <!-- timer-T1: ? -->
+    <!-- <param name="timer-T1" value=""/> -->
+    <!-- timer-T1X64: ? -->
+    <!-- <param name="timer-T1X64" value=""/> -->
+    <!-- timer-T2: ? -->
+    <!-- <param name="timer-T2" value=""/> -->
+    <!-- timer-T4: ? -->
+    <!-- <param name="timer-T4" value=""/> -->
+    <!-- sip-options-respond-503-on-busy: default undefined, or true -->
+    <!-- <param name="sip-options-respond-503-on-busy" value=""/> -->
+    <!-- sip-expires-late-margin: default 0, or true -->
+    <param name="sip-expires-late-margin" value="0"/>
+    <!-- sip-force-expires-min: default 0, or seconds -->
+    <param name="sip-force-expires-min" value="0"/>
+    <!-- sip-force-expires-max: default 0, or seconds -->
+    <param name="sip-force-expires-max" value="0"/>
+    <!-- sip-force-expires: default 0, or seconds -->
+    <param name="sip-force-expires" value="0"/>
+    <!-- sip-expires-max-deviation: default 0, or seconds -->
+    <param name="sip-expires-max-deviation" value="0"/>
+    <!-- sip-subscription-max-deviation: default 0, or seconds -->
+    <param name="sip-subscription-max-deviation" value="0"/>
+    <!-- reuse-connections: default undefined, or true -->
+    <!-- <param name="reuse-connections" value=""/> -->
+    <!-- p-asserted-id-parse: default 'default' (PAID_DEFAULT), user-only (PAID_USER), user-domain (PAID_USER_DOMAIN), verbatim (PAID_VERBATIM) -->
+    <param name="p-asserted-id-parse" value="default"/>
+    <!-- channel-xml-fetch-on-nightmare-transfer: default false, or true (PFLAG_CHANNEL_XML_FETCH_ON_NIGHTMARE_TRANSFER) -->
+    <param name="channel-xml-fetch-on-nightmare-transfer" value="false"/>
+    <!-- fire-transfer-events: default false, or true (PFLAG_FIRE_TRANFER_EVENTS) -->
+    <param name="fire-transfer-events" value="false"/>
+    <!-- enforce-blind-auth-result: default false, or true-->
+    <param name="enforce-blind-auth-result" value="false"/>
+    <!-- proxy-info: default undefined, or true-->
+    <!-- <param name="proxy-info" value=""/> -->
+    <!-- proxy-hold: default undefined, or true-->
+    <!-- <param name="proxy-hold" value=""/> -->
+    <!-- proxy-notify-events: default undefined, arbitrary -->
+    <!-- <param name="proxy-notify-events" value=""/> -->
+    <!-- proxy-info-content-types: default undefined, arbitrary -->
+    <!-- <param name="proxy-info-content-types" value=""/> -->
+  </settings>
+</profile>
