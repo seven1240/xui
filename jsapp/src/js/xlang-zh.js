@@ -632,6 +632,7 @@ LANGUAGES["zh"] = {
 	"Closed at": "工单关闭于 *{time}*",
 	Tel: "电话号码",
 	"Change IP": "更改IP",
+    "Please wait a moment while the system reboot, if you changed ip":"修改IP会使系统重启, 2分钟内请勿有任何操作",
 	Address: "IP地址",
 	Netmask: "子网掩码",
 	Satisfied: "满意",
