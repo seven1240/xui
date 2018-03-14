@@ -131,16 +131,16 @@ class TabContent extends React.Component {
 		return (
 			<div className={divClass}>
 				<div className="pull-left user-state-area">
-					<div style={{'margin-top':'10px'}}><img src={userImageUrl} onClick={this.handleCall}/></div>
+					<div style={{'marginTop':'10px'}}><img src={userImageUrl} onClick={this.handleCall}/></div>
 					<div>
-						<div className={textClass} style={{'font-size':'12px','margin-top':'10px'}}><T.span text={userRegStateText}/></div>
-						<div className={textClass} style={{'font-size':'12px'}}><T.span text={userCallStateText}/></div>
+						<div className={textClass} style={{'fontSize':'12px','marginTop':'10px'}}><T.span text={userRegStateText}/></div>
+						<div className={textClass} style={{'fontSize':'12px'}}><T.span text={userCallStateText}/></div>
 					</div>
 				</div>
 
 				<div className="pull-right user-info-area" onClick={this.handleToggleSelect}><br/>
-					<div className={textClass} style={{'text-align':'left'}}>{user.userName}</div>
-					<div className={textClass} style={{'font-size':'12px','margin-top':'5px','text-align':'left'}}>{user.userExten}</div>
+					<div className={textClass} style={{'textAlign':'left'}}>{user.userName}</div>
+					<div className={textClass} style={{'fontSize':'12px','marginTop':'5px','textAlign':'left'}}>{user.userExten}</div>
 				</div>
 			</div>
 		)

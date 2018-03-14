@@ -205,7 +205,7 @@ class ServerPage extends React.Component {
 						<font>memory: {this.state.info.memory.percent}% {this.state.info.memory.used}M/{this.state.info.memory.total}M</font>
 						<ProgressBar active bsStyle="success" now={this.state.info.memory.percent} label={this.state.info.memory.percent + '%'} />
 					</div>
-				: <div style={{'text-align': 'center'}}><font color="red" size="8">disconnect</font></div>
+				: <div style={{'textAlign': 'center'}}><font color="red" size="8">disconnect</font></div>
 			}
 		</div>
 	}
@@ -231,19 +231,19 @@ class ServerMonitorPage extends React.Component {
 		let myStyle = {
 			'width': "31%",
 			'float': "left",
-			'padding-right': "10px",
-			'padding-left': "10px",
-			'padding-top': "5px",
-			'padding-bottom': "5px",
-			'margin-right': "1%",
-			'margin-left': "1%",
-			'margin-top': "5px",
-			'margin-bottom': "5px",
+			'paddingRight': "10px",
+			'paddingLeft': "10px",
+			'paddingTop': "5px",
+			'paddingBottom': "5px",
+			'marginRight': "1%",
+			'marginLeft': "1%",
+			'marginTop': "5px",
+			'marginBottom': "5px",
 			'border': "3px solid #ccc",
-			'border-radius': '8px',
-			'background-color': '#F5F5F5'
+			'borderRadius': '8px',
+			'backgroundColor': '#F5F5F5'
 		};
-		return <div style={{'margin-top': "15px"}}>
+		return <div style={{'marginTop': "15px"}}>
 			{
 				(this.state.servers || []).map((s) => {
 					return <div style={myStyle}>

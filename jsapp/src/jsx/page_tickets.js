@@ -204,7 +204,7 @@ class TicketPage extends React.Component {
 			deal_user: null,
 			edit: false,
 			types: [],
-			call:  <T.span text="Call Return"/>,
+			call:  T.translate("Call Return"),
 			content: false,
 			rate: '',
 			record_src: '',
@@ -489,7 +489,7 @@ class TicketPage extends React.Component {
 	callBack(e) {
 		this.setState({call: "Call..."});
 		xFetchJSON('/api/call_back/' + e).then((data) => {
-			this.setState({call: <T.span text="Call Return"/>});
+			this.setState({call: T.translate("Call Return")});
 		});
 	}
 
@@ -1389,8 +1389,8 @@ class TicketsPage extends React.Component {
 			<div style={{padding: "3px", display: _this.state.hiddendiv}} className="pull-right">
 				<input type="date" ref={(input) => { _this.start_date = input; }} value={_this.state.search_start_date} onChange={this.handleChangeStartDate.bind(this)}/> -&nbsp;
 				<input type="date" ref={(input) => { _this.end_date = input; }} value={_this.state.search_end_date} onChange={this.handleChangeEndDate.bind(this)}/> &nbsp;
-				<T.span text="Serial Number"/><input style={{'text-align':'center'}} ref={(input) => { _this.serial_number = input;}} value={_this.state.search_serial_number} onChange={this.handleChangeSerialNumber.bind(this)}/> &nbsp;
-				<T.span text="CID Number"/><input style={{'text-align':'center'}} ref={(input) => { _this.cid_number = input; }} value={_this.state.search_cid_number} onChange={this.handleChangeCidNumber.bind(this)}/> &nbsp;
+				<T.span text="Serial Number"/><input style={{'textAlign':'center'}} ref={(input) => { _this.serial_number = input;}} value={_this.state.search_serial_number} onChange={this.handleChangeSerialNumber.bind(this)}/> &nbsp;
+				<T.span text="CID Number"/><input style={{'textAlign':'center'}} ref={(input) => { _this.cid_number = input; }} value={_this.state.search_cid_number} onChange={this.handleChangeCidNumber.bind(this)}/> &nbsp;
 				<T.span text="Status"/>
 				<select ref={(input) => { _this.status = input; }} value={_this.state.search_status} onChange={this.handleChangeSelctStatus.bind(this)}>
 					<option value ="">{T.translate("ALL")}</option>
