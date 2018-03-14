@@ -537,6 +537,7 @@ class TicketPage extends React.Component {
 					let mfiles = JSON.parse(xhr.responseText);
 					console.log(mfiles);
 					_this.setState({rows: mfiles.concat(_this.state.rows)});
+                    window.location.reload();
 				} else {
 					// console.error("upload err");
 				}
