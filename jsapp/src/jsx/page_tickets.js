@@ -173,10 +173,10 @@ class NewTicket extends React.Component {
 						&nbsp;&nbsp;<T.span className="danger" text={this.state.errmsg}/>
 					</Col>
 					<Col smOffset={5} sm={2}>
-						<DropdownButton bsStyle='primary' title={T.translate("Ticket Templates")} key='1' id='dropdown' onSelect={this.handleSelect.bind(this)}>
-							<MenuItem eventKey="1">模版1</MenuItem>
-							<MenuItem eventKey="2">模版2</MenuItem>
-							<MenuItem eventKey="3">模版3</MenuItem>
+						<DropdownButton bsStyle='primary' title={T.translate("Templates")} key='1' id='dropdown' onSelect={this.handleSelect.bind(this)}>
+							<MenuItem eventKey="1"><T.span text="Template1"/></MenuItem>
+							<MenuItem eventKey="2"><T.span text="Template2"/></MenuItem>
+							<MenuItem eventKey="3"><T.span text="Template3"/></MenuItem>
 						</DropdownButton>
 					</Col>
 				</FormGroup>
@@ -204,7 +204,7 @@ class TicketPage extends React.Component {
 			deal_user: null,
 			edit: false,
 			types: [],
-			call: "回拨",
+			call:  <T.span text="Call Return"/>,
 			content: false,
 			rate: '',
 			record_src: '',
@@ -487,9 +487,9 @@ class TicketPage extends React.Component {
 	}
 
 	callBack(e) {
-		this.setState({call: "回拨中..."});
+		this.setState({call: "Call..."});
 		xFetchJSON('/api/call_back/' + e).then((data) => {
-			this.setState({call: "回拨"});
+			this.setState({call: <T.span text="Call Return"/>});
 		});
 	}
 
@@ -656,7 +656,7 @@ class TicketPage extends React.Component {
 			users.map(function(row) {
 				if(row.id == ticket.current_user_id){
 					deal_user = <FormGroup>
-									<Col componentClass={ControlLabel} sm={2}><T.span text="处理人" /></Col>
+									<Col componentClass={ControlLabel} sm={2}><T.span text="Support Staff" /></Col>
 									<Col sm={2}><FormControl.Static><Label bsStyle="default" bsSize="lg"><T.span text={row.name} onClick={_this.handleClickChange} style={{fontSize: '14px'}}/></Label></FormControl.Static></Col>
 								</FormGroup>
 					hidden_user = <FormControl type="hidden" name="current_user_id" value={row.id}/>
@@ -664,12 +664,12 @@ class TicketPage extends React.Component {
 			})
 		} else if(!this.state.showSelect) {
 			deal_user = <FormGroup>
-							<Col componentClass={ControlLabel} sm={2}><T.span text="处理人" /></Col>
+							<Col componentClass={ControlLabel} sm={2}><T.span text="Support Staff" /></Col>
 							<Col sm={2}><FormControl.Static><T.a onClick={() => this.handleShowDealusers()} text="Select" style={{cursor: "pointer"}}/></FormControl.Static></Col>
 						</FormGroup>;
 		} else {
 			deal_user = <FormGroup>
-							<Col componentClass={ControlLabel} sm={2}><T.span text="处理人" /></Col>
+							<Col componentClass={ControlLabel} sm={2}><T.span text="Support Staff" /></Col>
 							<Col sm={4}><FormControl componentClass="select" name="current_user_id">{
 									users.map(function(row) {
 										return <option key={row.id} value={row.id}>{row.name} ({row.extn}) {row.nickname}</option>
@@ -895,7 +895,7 @@ class TicketPage extends React.Component {
 				{EMERGENRY}
 
 				<FormGroup controlId="formUser">
-					<Col componentClass={ControlLabel} sm={2}><T.span text="派单人"/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Ticket Creator"/></Col>
 					<Col sm={10}><FormControl.Static><T.span text={ticket.user_name}/></FormControl.Static></Col>
 				</FormGroup>
 
@@ -915,7 +915,7 @@ class TicketPage extends React.Component {
 			<hr />
 			<Form horizontal id="ticketProcessingForm">
 				<FormGroup>
-					<Col componentClass={ControlLabel} sm={2}><T.span text="内容"/></Col>
+					<Col componentClass={ControlLabel} sm={2}><T.span text="Comment"/><T.span text="Content"/></Col>
 					<Col sm={8}>
 						<FormControl componentClass="textarea" name="content" value={this.state.comment} onChange={this.HandleChangeComment.bind(this)} />
 					</Col>

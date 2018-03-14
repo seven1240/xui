@@ -9,6 +9,7 @@ LANGUAGES["zh"] = {
 	"Toggle Select": "反选",
 	"Make Call": "呼叫",
 	"Hangup Call": "挂断",
+	"Call Return":"回拨",
 	"Hour": "时",
 	"Minute": "分",
 	"Second": "秒",
@@ -611,7 +612,8 @@ LANGUAGES["zh"] = {
 	TICKET_ST_DONE: "已完成",
 	"Create New Ticket": "新建工单",
 	Content: "内容",
-
+	"Ticket Creator":"派单人",
+	
 	Headimgurl: "头像",
 	Nickname: "昵称",
 	Sex: "性别",
@@ -667,7 +669,11 @@ LANGUAGES["zh"] = {
 	"Assign": "指派",
 	"Comment": "评论",
 	ALL: "全部",
-	"Ticket Templates": "工单模版",
+	Templates: "模版",
+    Template1: "模版1",
+	Template2: "模版2",
+	Template3: "模版3",
+
 	"Rating": "评价",
 	Private: "私有",
 	Public: "公开",
@@ -681,7 +687,7 @@ LANGUAGES["zh"] = {
 	"Import Routes": "路由导入",
 	"Only Admin has the right to edit ticket": "只有Admin有权限编辑工单",
 	"This ticket has been deleted": "此工单已被删除",
-
+    "Support Staff":"处理人",
 	"Server Monitor": "服务器监控",
 	"Reconnect": "重连",
 
