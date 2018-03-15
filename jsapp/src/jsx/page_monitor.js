@@ -221,10 +221,10 @@ class MonitorPage extends React.Component {
 
 		if (!tabPanesMounted[selectedKey]) {
 			let tabPanes = users.map(function(u) {
-				return <TabContent user={u} currentLoginUser={_this.state.currentLoginUser} handleCall={_this.handleCall} handleToggleSelect={_this.handleToggleSelect}/>
+				return <TabContent key={u.userID} user={u} currentLoginUser={_this.state.currentLoginUser} handleCall={_this.handleCall} handleToggleSelect={_this.handleToggleSelect}/>
 			})
 
-			tabContentObj[selectedKey] = <Tab.Pane eventKey={selectedKey}>{tabPanes}</Tab.Pane>;
+			tabContentObj[selectedKey] = <Tab.Pane key="1" eventKey={selectedKey}>{tabPanes}</Tab.Pane>;
 			tabPanesMounted[selectedKey] = true;
 
 			this.setState({tabContentObj: tabContentObj});
@@ -310,7 +310,7 @@ class MonitorPage extends React.Component {
 			}
 		})
 
-		dbtrue(usersChanged) ? this.setState(users: users) : "ignore";
+		dbtrue(usersChanged) ? this.setState(users : users) : "ignore";
 
 	}
 
@@ -506,11 +506,11 @@ class MonitorPage extends React.Component {
 			}
 
 			tabPanes = group_users[defaultActiveKey].users.map(function(u) {
-				return <TabContent user={u} currentLoginUser={currentLoginUser} handleCall={_this.handleCall} handleToggleSelect={_this.handleToggleSelect}/>
+				return <TabContent key={u.userID} user={u} currentLoginUser={currentLoginUser} handleCall={_this.handleCall} handleToggleSelect={_this.handleToggleSelect}/>
 			});
 
 			tabPanesMounted[defaultActiveKey] = true;
-			tabContentObj[defaultActiveKey] = <Tab.Pane eventKey={defaultActiveKey}>{tabPanes}</Tab.Pane>;
+			tabContentObj[defaultActiveKey] = <Tab.Pane key="2" eventKey={defaultActiveKey}>{tabPanes}</Tab.Pane>;
 
 			this.setState({
 				group_users: group_users,
