@@ -116,7 +116,7 @@ class MainMenu extends React.Component {
 			<Navbar.Collapse>
 				<Nav>
 					<IndexLinkContainer to="/">
-						<NavItem eventKey="MM_HOME"><T.span text="DashBoard"/></NavItem>
+						<NavItem eventKey="MM_HOME"><T.span text="Dashboard"/></NavItem>
 					</IndexLinkContainer>
 					{ menus }
 				</Nav>

@@ -22,7 +22,7 @@ LANGUAGES["zh"] = {
 
 	Status: "状态",
 	State: "状态",
-	DashBoard: "首页",
+	Dashboard: "首页",
 	Show: "Show",
 	Blocks: "Blocks",
 	Conferences: "会议",
