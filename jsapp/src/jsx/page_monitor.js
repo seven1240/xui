@@ -310,7 +310,7 @@ class MonitorPage extends React.Component {
 			}
 		})
 
-		dbtrue(usersChanged) ? this.setState(users : users) : "ignore";
+		dbtrue(usersChanged) ? this.setState({users : users}) : "ignore";
 
 	}
 
