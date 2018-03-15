@@ -79,19 +79,18 @@ class TicketStatictics extends React.Component {
 			return type.v;
 		});
 		types[5] = '总数';
-		var rows = _this.state.rows.map(function(row) {
-			var i = _this.indexOf(_this.state.rows, row);
-			var percent = _this.state.satisfied[i] / _this.state.rows[i];
+		var rows = _this.state.rows.map(function(row,index) {
+			var percent = _this.state.satisfied[index] / row;
 			percent = (percent >= 0) ? percent : 0;
-			return <tr key={i}>
-					<td>{T.translate(types[i])}</td>
-					<td>{_this.state.rows[i]}</td>
-					<td>{_this.toPercent(_this.state.rows[i]/_this.state.rows[5])}</td>
-					<td>{_this.state.satisfied[i]}</td>
+			return <tr key={index}>
+					<td>{T.translate(types[index])}</td>
+					<td>{row}</td>
+					<td>{_this.toPercent(row / _this.state.rows[5])}</td>
+					<td>{_this.state.satisfied[index]}</td>
 					<td>{_this.toPercent(percent)}</td>
-					<td>{tsn[i]}</td>
-					<td>{tsp[i]}</td>
-					<td>{tsd[i]}</td>
+					<td>{tsn[index]}</td>
+					<td>{tsp[index]}</td>
+					<td>{tsd[index]}</td>
 				</tr>;
 		});
 		return <div>
