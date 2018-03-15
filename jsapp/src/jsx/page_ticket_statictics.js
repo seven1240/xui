@@ -39,7 +39,7 @@ import { EditControl, xFetchJSON } from './libs/xtools';
 class TicketStatictics extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {types: [], rows: [], satisfied: [], tsn: [], tsp: [], tsd: []};
+		this.state = { types: [], rows: [], satisfied: [], tsn: [], tsp: [], tsd: [] };
 		this.toPercent = this.toPercent.bind(this);
 		this.indexOf = this.indexOf.bind(this);
 	}
@@ -47,25 +47,25 @@ class TicketStatictics extends React.Component {
 	componentDidMount() {
 		var _this = this;
 		xFetchJSON("/api/dicts?realm=TICKET_TYPE").then((data) => {
-			_this.setState({types: data});
+			_this.setState({ types: data });
 		});
 		xFetchJSON("/api/tickets/get_amount").then((data) => {
-			_this.setState({rows: data[0], satisfied: data[1], tsn: data[2], tsp: data[3], tsd: data[4]});
+			_this.setState({ rows: data[0], satisfied: data[1], tsn: data[2], tsp: data[3], tsd: data[4] });
 		});
 	}
 
 	toPercent(data) {
-		var a = parseInt(data*100);
+		var a = parseInt(data * 100);
 		var b = parseInt(data * 10000 - a * 100);
 		return a + '.' + b + '%';
 	}
 
 	indexOf(arr, item) {
-		if(Array.prototype.indexOf) {
+		if (Array.prototype.indexOf) {
 			return arr.indexOf(item);
-		}else {
-			for(var i = 0; i < arr.length; i++) {
-				return (arr[i] === item) ?  i :  -1;
+		} else {
+			for (var i = 0; i < arr.length; i++) {
+				return (arr[i] === item) ? i : -1;
 			}
 		}
 	}
@@ -79,37 +79,37 @@ class TicketStatictics extends React.Component {
 			return type.v;
 		});
 		types[5] = '总数';
-		var rows = _this.state.rows.map(function(row,index) {
+		var rows = _this.state.rows.map(function (row, index) {
 			var percent = _this.state.satisfied[index] / row;
 			percent = (percent >= 0) ? percent : 0;
 			return <tr key={index}>
-					<td>{T.translate(types[index])}</td>
-					<td>{row}</td>
-					<td>{_this.toPercent(row / _this.state.rows[5])}</td>
-					<td>{_this.state.satisfied[index]}</td>
-					<td>{_this.toPercent(percent)}</td>
-					<td>{tsn[index]}</td>
-					<td>{tsp[index]}</td>
-					<td>{tsd[index]}</td>
-				</tr>;
+				<td>{T.translate(types[index])}</td>
+				<td>{row}</td>
+				<td>{_this.toPercent(row / _this.state.rows[5])}</td>
+				<td>{_this.state.satisfied[index]}</td>
+				<td>{_this.toPercent(percent)}</td>
+				<td>{tsn[index]}</td>
+				<td>{tsp[index]}</td>
+				<td>{tsd[index]}</td>
+			</tr>;
 		});
 		return <div>
-			<h1><T.span text="Ticket Statistics"/></h1>
+			<h1><T.span text="Ticket Statistics" /></h1>
 			<div>
 				<table className="table">
-				<tbody>
-				<tr>
-					<th><T.span text="Ticket Type"/></th>
-					<th><T.span text="Amount"/></th>
-					<th><T.span text="Percentage"/></th>
-					<th><T.span text="Satisfied Amount"/></th>
-					<th><T.span text="Satisfied Percentage"/></th>
-					<th><T.span text="TICKET_ST_NEW"/></th>
-					<th><T.span text="TICKET_ST_PROCESSING"/></th>
-					<th><T.span text="TICKET_ST_DONE"/></th>
-				</tr>
-				{rows}
-				</tbody>
+					<tbody>
+						<tr>
+							<th><T.span text="Ticket Type" /></th>
+							<th><T.span text="Amount" /></th>
+							<th><T.span text="Percentage" /></th>
+							<th><T.span text="Satisfied Amount" /></th>
+							<th><T.span text="Satisfied Percentage" /></th>
+							<th><T.span text="TICKET_ST_NEW" /></th>
+							<th><T.span text="TICKET_ST_PROCESSING" /></th>
+							<th><T.span text="TICKET_ST_DONE" /></th>
+						</tr>
+						{rows}
+					</tbody>
 				</table>
 			</div>
 		</div>
