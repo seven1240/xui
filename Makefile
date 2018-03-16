@@ -99,6 +99,9 @@ docker-dev-bash:
 	docker exec -it docker_xswitch_1 bash
 
 docker-dev-stop:
+	docker-compose -f docker/dev.yml stop
+
+docker-dev-down:
 	docker-compose -f docker/dev.yml down
 
 docker-dev-cli:
