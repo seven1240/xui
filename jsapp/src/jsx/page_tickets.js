@@ -1378,10 +1378,10 @@ class TicketsPage extends React.Component {
 
 			<br/>
 			<Nav bsStyle="tabs" activeKey={this.state.activeKey} onSelect={this.handleSelect}>
-				<NavItem eventKey={0}><Link to={`/tickets?last=${this.state.last}&ticket_type=0&rowsPerPage=${rowsPerPage}&curPage=${this.state.curPage}&activeKey=0`}>{T.translate("ALL")}</Link></NavItem>
+			<NavItem eventKey={0}  href={`/tickets?last=${this.state.last}&ticket_type=0&rowsPerPage=${rowsPerPage}&curPage=${this.state.curPage}&activeKey=0`}>{T.translate("ALL")}</NavItem>
 				{
 					this.state.types.map((type) => {
-						return <NavItem key={type.k} eventKey={type.k}><Link to={`/tickets?last=${this.state.last}&ticket_type=${type.k}&rowsPerPage=${rowsPerPage}&curPage=${this.state.curPage}&activeKey=${type.k}`}>{T.translate(type.v)}</Link></NavItem>
+						return <NavItem key={type.k} eventKey={type.k} href={`/tickets?last=${this.state.last}&ticket_type=${type.k}&rowsPerPage=${rowsPerPage}&curPage=${this.state.curPage}&activeKey=${type.k}`}>{T.translate(type.v)}</NavItem>
 					})
 				}
 			</Nav>
