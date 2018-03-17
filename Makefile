@@ -61,6 +61,19 @@ plugins-watch:
 plugins-release:
 	cd jsapp/plugins/conference && make release
 
+plugin-init:
+ifeq ($(plugin),)
+	@echo "you should add plugin args, eg:plugin=conference"
+else
+	cd jsapp/plugins/${plugin} && make init
+endif
+plugin-release:
+ifeq ($(plugin),)
+	@echo "you should add plugin args, eg:plugin=conference"
+else
+	cd jsapp/plugins/${plugin} && make release
+endif
+
 out:
 	mkdir out
 
