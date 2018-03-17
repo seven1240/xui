@@ -13,6 +13,7 @@ www/assets/js/react*.bundle.js
 www/assets/js/jsx/*
 www/assets/css/xui.css
 www/assets/css/xui.*.css
+www/assets/css/conference.*.css
 www/upload
 www/http_file_cache
 www/recordings
@@ -37,3 +38,4 @@ www/assets/js/plugins
 www/conference.html
 
 package-lock.json
+*.tar.gz
