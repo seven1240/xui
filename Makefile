@@ -1,4 +1,5 @@
 HASH=$(shell git rev-parse HEAD | cut -b 1-8)
+PLUGINS := $(wildcard jsapp/plugins/*)
 
 all:
 	cd jsapp && make
@@ -53,14 +54,15 @@ clean:
 	rm -f out/*
 
 plugins-init:
-	cd jsapp/plugins/conference && ln -sf ../../node_modules/ ./
-plugins:
-	cd jsapp/plugins/conference && make release
+	$(foreach N,$(PLUGINS),make -C $(N) init;)
 plugins-watch:
-	cd jsapp/plugins/conference && make watch
+	$(foreach N,$(PLUGINS),make -C $(N) watch;)
 plugins-release:
-	cd jsapp/plugins/conference && make release
-
+	$(foreach N,$(PLUGINS),make -C $(N) release;)
+plugins-clean:
+	$(foreach N,$(PLUGINS),make -C $(N) clean;)
+plugins:
+	$(foreach N,$(PLUGINS),make -C $(N) release;)
 plugin-init:
 ifeq ($(plugin),)
 	@echo "you should add plugin args, eg:plugin=conference"
@@ -72,6 +74,12 @@ ifeq ($(plugin),)
 	@echo "you should add plugin args, eg:plugin=conference"
 else
 	cd jsapp/plugins/${plugin} && make release
+endif
+plugin-clean:
+ifeq ($(plugin),)
+	@echo "you should add plugin args, eg:plugin=conference"
+else
+	cd jsapp/plugins/${plugin} && make clean
 endif
 
 out:
