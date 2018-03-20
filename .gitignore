@@ -9,6 +9,7 @@ jsapp/src/jsx/index.js
 lua/xui/view/wechat/tickets1.html
 www/index.html
 www/bus.html
+www/tickets.html
 www/assets/js/react*.bundle.js
 www/assets/js/jsx/*
 www/assets/css/xui.css
@@ -29,6 +30,7 @@ lua/xui/xtra_config.lua
 VERSION
 
 lua/xui/controller/wechat.lua
+lua/xui/controller/bus.lua
 lua/xui/controller/wechat_upload.lua
 www/assets/js/bus.*.js
 www/assets/js/wechat.*.js
