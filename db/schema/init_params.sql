@@ -184,12 +184,12 @@ INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('AMQP', 'password', 'g
 INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('AMQP', 'port', '5672', 0, 1);
 INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('AMQP', 'heartbeat', '0', 0, 1);
 
-INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('AMQP', 'hostname', 'localhost', 0, 2);
-INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('AMQP', 'virtualhost', '/', 0, 2);
-INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('AMQP', 'username', 'guest', 0, 2);
-INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('AMQP', 'password', 'guest', 0, 2);
-INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('AMQP', 'port', '5673', 0, 2);
-INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('AMQP', 'heartbeat', '0', 0, 2);
+-- INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('AMQP', 'hostname', 'localhost', 0, 2);
+-- INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('AMQP', 'virtualhost', '/', 0, 2);
+-- INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('AMQP', 'username', 'guest', 0, 2);
+-- INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('AMQP', 'password', 'guest', 0, 2);
+-- INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('AMQP', 'port', '5673', 0, 2);
+-- INSERT INTO params (realm, k, v, ref_id, disabled) VALUES('AMQP', 'heartbeat', '0', 0, 2);
 
 -- avmd
 
@@ -239,14 +239,12 @@ INSERT INTO params (realm, k, v) VALUES('cidlookup', 'whitepages-apikey', 'MYAPI
 INSERT INTO params (realm, k, v) VALUES('cidlookup', 'cache', 'true');
 INSERT INTO params (realm, k, v) VALUES('cidlookup', 'cache-expire', '86400');
 INSERT INTO params (realm, k, v) VALUES('cidlookup', 'odbc-dsn', 'phone:phone:phone');
-INSERT INTO params (realm, k, v) VALUES('cidlookup', 'sql', 'SELECT name||' ('||type||')' AS name
-      FROM phonebook p JOIN numbers n ON p.id = n.phonebook_id
-      WHERE n.number='${caller_id_number}'
-      LIMIT 1');
-INSERT INTO params (realm, k, v) VALUES('cidlookup', 'citystate-sql', 'SELECT ratecenter||' '||state as name
-      FROM npa_nxx_company_ocn
-      WHERE npa = ${caller_id_number:1:3} AND nxx = ${caller_id_number:4:3}
-      LIMIT 1');
+INSERT INTO params (realm, k, v) VALUES('cidlookup', 'sql',
+	'SELECT name || '' ( '' || type || '')'' AS name
+	FROM phonebook p JOIN numbers n ON p.id = n.phonebook_id
+	WHERE n.number=''${caller_id_number}''
+	LIMIT 1');
+
 
 -- dialplan
 
