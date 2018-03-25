@@ -540,10 +540,9 @@ function xtra.start_session()
 
 	if config.auth == "hash" then
 		api = freeswitch.API()
-		xtra.session.user_id = api:execute("hash", "select/xui/" .. xtra.session_uuid)
-		if (xtra.session.user_id == "") then
-			xtra.session.user_id = nil
-		end
+		sess = api:execute("hash", "select/xui/" .. xtra.session_uuid)
+		if sess then sess = loadstring(sess) end
+		if sess then sess() end
 		utils.xlog(__FILE__() .. ':' .. __LINE__(), "INFO", xtra.session.user_id)
 	else
 		filename = config.session_path .. "/lua-session-" .. xtra.session_uuid
@@ -555,13 +554,10 @@ end
 function xtra.save_session(k, v)
 	if k then xtra.session[k] = v end
 
-	if config.auth == "hash" and k == "user_id" then
+	if config.auth == "hash" then
 		api = freeswitch.API()
-		if (v) then
-			api:execute("hash", "insert/xui/" .. xtra.session_uuid .. "/" .. v)
-		else
-			api:execute("hash", "delete/xui/" .. xtra.session_uuid)
-		end
+		val = "xtra.session = " .. serialize(xtra.session):gsub("\n", function(c) return "" end)
+		api:execute("hash", "insert/xui/" .. xtra.session_uuid .. "/" .. val)
 	else
 		filename = config.session_path .. "/lua-session-" .. xtra.session_uuid
 		file = io.open(filename, "w")
@@ -586,18 +582,22 @@ function connect_db(dsn, user, pass)
 end
 
 (function()
-	local t = csplit(xtra.http_uri, "/")
-	table.remove(t, 1) -- remove ""
-	table.remove(t, 1) -- remove "/rest/"
-	-- print(table.concat(t, "/"))
-	xtra.controller = table.remove(t, 1) -- remove "$controller"
-	xtra.rest_path = "/" .. table.concat(t, "/")
+	if xtra.http_uri then
+		local t = csplit(xtra.http_uri, "/")
+		table.remove(t, 1) -- remove ""
+		table.remove(t, 1) -- remove "/rest/"
+		-- print(table.concat(t, "/"))
+		xtra.controller = table.remove(t, 1) -- remove "$controller"
+		xtra.rest_path = "/" .. table.concat(t, "/")
+	end
 
 	if not xtra.controller or xtra.controller == "" then
 		xtra.controller = "index"
 	end
 
 	xtra.controller_path = xtra.controller
+
+	if not xtra.rest_path then xtra.rest_path = '/' end
 
 	if xtra.debug then
 		xtra.log("INFO", "method=" .. xtra.method ..
