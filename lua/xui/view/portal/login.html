@@ -1,0 +1,16 @@
+{% extend layout.html %}
+
+<!-- This area is will be replace by parent template -->
+
+{% block body %}
+
+	{% if flash %}
+		<div style="color:red">{{ flash }} </div>
+	{% endif %}
+
+	<form method="post">
+		Login: <input name="login" value="7"/><br>
+		Pass: <input name="pass" value="7"/><br>
+		<input type="submit" value="Login"/>
+	</form>
+{% endblock %}

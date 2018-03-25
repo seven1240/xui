@@ -30,22 +30,31 @@
  */
 ]]
 
+print(env:serialize())
+
 xtra.start_session()
+-- xtra.require_login()
+-- content_type("application/json")
+require 'xdb'
+xdb.bind(xtra.dbh)
 
 get("/", function()
+	args = {}
 
 	if not xtra.session.user_id then
-		redirect("/rest/portal/login")
-		return
+        if xtra.session.flash_message then
+            args["flash"] = xtra.session.flash_message
+            xtra.save_session("flash_message", nil)
+        end
+        return {"render", "login.html", args}
 	end
 
-	args = {}
-	return {"render", "portal/index.html", args}
+	return {"render", "index.html", args}
 end)
 
 get("/login", function()
 	if xtra.session.user_id then
-		redirect("/rest/portal/")
+		redirect("/")
 		return
 	end
 
@@ -57,24 +66,34 @@ get("/login", function()
 		args["flash"] = msg
 	end
 
-	return {"render", "portal/login.html", args}
+	return {"render", "login.html", args}
 end)
 
 get("/logout", function()
 	xtra.flash("您已退出登录")
 	xtra.save_session("user_id", nil)
-	redirect("/rest/portal/login")
+	redirect("/login")
 end)
 
-post("/login", function(params)
+post("/", function(params)
 	login = env:getHeader("login")
 	pass = env:getHeader("pass")
 
+    freeswitch.consoleLog("ERR", login)
+    freeswitch.consoleLog("ERR", pass)
+
+    if (not login) and (not pass) then
+        xtra.flash("您已退出登录")
+        xtra.save_session("user_id", nil)
+        redirect("/")   
+        return; 
+    end
+
 	if (login == "7" and pass == "7") then
 		xtra.save_session("user_id", login)
-		redirect("/rest/portal/")
+		redirect("/")
 	else
 		xtra.flash("密码错误")
-		redirect("/rest/portal/login", y)
+		redirect("/")
 	end
 end)
