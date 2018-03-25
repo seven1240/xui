@@ -30,7 +30,7 @@
  */
 ]]
 
-print(env:serialize())
+-- print(env:serialize())
 
 xtra.start_session()
 -- xtra.require_login()

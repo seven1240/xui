@@ -38,7 +38,7 @@ if (login and success == "1") then
 
 	if user then
 		api = freeswitch.API()
-		api:execute("hash", "insert/xui/" .. sessid .. "/" .. user.id)
+		api:execute("hash", "insert/xui/" .. sessid .. "/xtra.session = {user_id = " .. user.id .. ", login = \"" .. login .. "\"}")
 	end
 
 	if do_debug then
