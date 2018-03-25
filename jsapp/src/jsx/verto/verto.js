@@ -353,6 +353,7 @@ class Verto {
 
 				// if this is an auth request, send the credentials and resend the failed request
 				if (!self.authing && response.error.code == -32000 && self.options.login && self.options.passwd) {
+					this.last_response = response;
 					self.authing = true;
 
 					self.call("login", { login: self.options.login, passwd: self.options.passwd, loginParams: self.options.loginParams,

@@ -63,7 +63,13 @@ class LoginBox extends React.Component {
 		let username = this.refs.username.value;
 		let password = this.refs.password.value;
 		localStorage.setItem('xui.username', username);
-		localStorage.setItem('xui.password', password);
+
+		if (verto.last_response && verto.last_response.error &&
+			verto.last_response.error.message == "Authentication Required X") {
+			localStorage.setItem('xui.password', "password");
+		} else {
+			localStorage.setItem('xui.password', password);
+		}
 
 		if (username) {
 			xFetchJSON("/api/users/getID?username=" + username).then((data) => {
