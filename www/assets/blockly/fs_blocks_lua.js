@@ -118,8 +118,8 @@ Blockly.Lua.fsSessionRead = function(block) {
   }
 
   var code = variable_digits + ' = session:read(' + text_min + ', ' +
-    text_max + ', "' +
-    text_sound + '", ' +
+    text_max + ', ' +
+    text_sound + ', ' +
     text_timeout + ', "' +
     text_terminator + '");\n';
   return code;
